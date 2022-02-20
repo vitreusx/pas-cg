@@ -83,6 +83,7 @@ struct atom_data {
 
 struct contact_limits {
   int back, side_all, side_hydrophobic, side_polar;
+  void connect(ioxx::xyaml_node_proxy &proxy);
 };
 
 struct aa_data {

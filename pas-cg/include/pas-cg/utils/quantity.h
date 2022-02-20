@@ -12,11 +12,16 @@ public:
   explicit quantity(double mag, std::string const &unit);
   explicit quantity(std::string const &repr);
 
+  quantity(quantity const& other) = default;
+  quantity(quantity&& other) = default;
+
   quantity &operator=(quantity const &other);
   quantity &operator=(quantity &&other) noexcept;
 
   operator double() const;
   std::string repr() const;
+
+  quantity in(std::string const& new_unit) const;
   quantity &in_(std::string const &new_unit);
 
 private:

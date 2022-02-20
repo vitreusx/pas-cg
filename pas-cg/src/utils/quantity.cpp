@@ -134,6 +134,11 @@ quantity &quantity::operator=(quantity &&other) noexcept {
   return *this;
 }
 
+quantity quantity::in(std::string const &new_unit) const {
+  auto copy = *this;
+  return copy.in_(new_unit);
+}
+
 quantity &quantity::in_(std::string const &new_unit) {
   double value = *this;
   unit_str = new_unit;
