@@ -1,0 +1,6 @@
+[submodule "pas-cg/ext/nitro"]
+	path = pas-cg/ext/nitro
+	url = https://github.com/vitreusx/nitro
+[submodule "pas-cg/ext/ioxx"]
+	path = pas-cg/ext/ioxx
+	url = https://github.com/vitreusx/ioxx

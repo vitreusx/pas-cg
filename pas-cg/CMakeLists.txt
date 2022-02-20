@@ -15,7 +15,7 @@ target_compile_features(pas-cg
 
 target_include_directories(pas-cg
     PRIVATE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/ioxx>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/pas-cg>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include/ioxx>)
 
