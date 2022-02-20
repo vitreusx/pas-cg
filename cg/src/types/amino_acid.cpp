@@ -1,6 +1,7 @@
 #include "types/amino_acid.h"
 #include "utils/quantity.h"
 #include <numeric>
+#include <regex>
 using namespace cg;
 
 size_t std::hash<amino_acid>::operator()(const cg::amino_acid &aa) const {
@@ -87,6 +88,7 @@ std::ostream &operator<<(std::ostream &os,
 std::istream &operator>>(std::istream &is, std::vector<amino_acid> &acids) {
   std::string acids_str;
   is >> acids_str;
+  acids_str = std::regex_replace(acids_str, std::regex("\\s+"), "");
   acids.resize(acids_str.size());
   for (size_t i = 0; i < acids.size(); ++i)
     acids[i] = amino_acid(acids_str[i]);

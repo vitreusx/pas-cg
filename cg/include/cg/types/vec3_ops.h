@@ -1,6 +1,6 @@
 #pragma once
 #include "vec3_def.h"
-#include <pas-cg/utils/math.h>
+#include <cg/utils/math.h>
 
 namespace cg {
 template <typename E> auto norm(vec3_expr<E> const &e) {

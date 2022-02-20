@@ -100,9 +100,17 @@ public:
   using Base = nitro::tuple_wrapper<Scalar, Scalar, Scalar>;
   using Base::get;
 
+  static vec3<Scalar> Zero() { return {(Scalar)0, (Scalar)0, (Scalar)0}; }
+
+  static vec3<Scalar> UnitX() { return {(Scalar)1, (Scalar)0, (Scalar)0}; }
+
+  static vec3<Scalar> UnitY() { return {(Scalar)0, (Scalar)1, (Scalar)0}; }
+
+  static vec3<Scalar> UnitZ() { return {(Scalar)0, (Scalar)0, (Scalar)1}; }
+
   vec3() : Base((Scalar)0, (Scalar)0, (Scalar)0) {}
 
-  vec3(Scalar &&x, Scalar &&y, Scalar &&z)
+  vec3(Scalar x, Scalar y, Scalar z)
       : Base(std::forward<Scalar>(x), std::forward<Scalar>(y),
              std::forward<Scalar>(z)) {}
 
