@@ -1,14 +1,21 @@
 #include <iostream>
-#include <pas-cg/utils/vec3.h>
-using namespace cg;
+#include <ioxx/xyaml.h>
+using namespace ioxx;
 
-template <typename E>
-std::ostream &operator<<(std::ostream &os, vec3_expr<E> const &e) {
-  os << "(" << e.x() << ", " << e.y() << ", " << e.z() << ")";
-  return os;
-}
+class example {
+public:
+  std::string a, c;
+  xyaml_embed b;
+
+  void connect(xyaml_node_proxy &proxy) {
+    proxy["a"] & a;
+    proxy["b"] & b;
+    b.sub_proxy(proxy)["c"] & c;
+  }
+};
 
 int main() {
-  std::cout << cross(vec3f(0, 1, 2), vec3f(3, 4, 5)) << '\n';
+  auto ex = xyaml_node::from_path("data/super.yml").as<example>();
+
   return 0;
 }

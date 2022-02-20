@@ -31,13 +31,13 @@ struct cparse_unit_init {
     auto tau_inv = u(g["1/tau"] = 1.0 / tau);
 
     /* Quantity */
-    auto atom = u(g["atom"] = 1.0).asDouble();
-    auto mol = u(g["mol"] = 6.02214076e23 / atom).asDouble();
+    auto atom = u(g["atom"] = 1.0);
+    auto mol = u(g["mol"] = 6.02214076e23 / atom);
 
     /* Energy */
     auto eps = u(g["eps"] = 1.0); /* \approx 1.5kcal/mol */
     auto kcal = u(g["kcal"] = eps * mol / 1.57824959);
-    auto Joule = u(kcal / 4184.0);
+    auto Joule = u(g["J"] = kcal / 4184.0);
 
     /* Temperature */
     auto eps_kB = u(g["eps/kB"] = 1.0);
