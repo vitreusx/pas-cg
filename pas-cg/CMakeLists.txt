@@ -14,6 +14,9 @@ target_compile_features(pas-cg
     PUBLIC cxx_std_17)
 
 target_include_directories(pas-cg
+    PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
     PRIVATE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/pas-cg>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
@@ -27,8 +30,9 @@ target_compile_options(pas-cg
 
 add_subdirectory(ext/ioxx/ioxx)
 add_subdirectory(ext/nitro/nitro)
+add_subdirectory(ext/cparse)
 find_package(OpenMP REQUIRED)
 
-target_link_libraries(pas-cg PRIVATE ioxx nitro OpenMP::OpenMP_CXX)
+target_link_libraries(pas-cg PRIVATE ioxx nitro OpenMP::OpenMP_CXX cparse)
 
 file(COPY data DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
