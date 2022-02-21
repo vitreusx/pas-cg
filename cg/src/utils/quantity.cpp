@@ -18,7 +18,7 @@ struct cparse_unit_init {
 
     /* Distance */
     auto f77unit = u(g["f77unit"] = 1.0);
-    auto angstrom = u(g["angstrom"] = f77unit / 5.0);
+    auto angstrom = u(g["A"] = f77unit / 5.0);
     auto nanometer = u(g["nm"] = 10.0 * angstrom);
     auto meter = u(g["m"] = nanometer * 1.0e9);
 

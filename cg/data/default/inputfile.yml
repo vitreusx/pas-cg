@@ -5,6 +5,13 @@ general:
 amino acid data:
   __path: amino-acids.yml
 
+input:
+  seq file: ../glut/glut.yml
+  morph into SAW:
+    bond distance: 3.8 A
+    residue density: 1e-3 atom/A**3
+    infer box: false
+
 langevin:
   enabled: true
   gamma factor: 2.0 1/tau
@@ -36,12 +43,12 @@ heurestic dihedrals:
   coefficients:
     __path: dihedral.csv
 
-const ES:
+constant Debye-Hueckel:
   enabled: true
   screening distance: 10.0 A
   permittivity: 80.0 eps_0
 
-relative ES:
+relative Debye-Hueckel:
   enabled: false
   screening distance: 10.0 A
   factor: 4.0 eps_0/A
@@ -80,7 +87,7 @@ pseudo-improper dihedral:
 
 quasi-adiabatic:
   enabled: true
-  (de)saturation time: 10 tau
+  phase duration: 10 tau
   breaking factor: 1.5
   min |cos(h, r)|: 0.92
   min |cos(h, h)| for bb: 0.75
@@ -93,26 +100,28 @@ chirality:
 native contacts:
   enabled: true
   lj depth: 1 eps
-  active threshold factor: 1.5
-
-native ssbonds:
-  enabled: true
-  H1: 100 eps/A**2
-  equilibrium dist: 6.0 A
+  active threshold: 1.5
+  disulfide bonds:
+    H1: 100 eps/A**2
+    equilibrium dist: 6.0 A
 
 Pauli exclusion:
   enabled: true
-  r_excl: 4.0 A
+  exclusion radius: 4.0 A
   depth: 1.0 eps
 
 tether forces:
   enabled: true
   H1: 100 eps/A**2
   H2: 0 eps/A**2
-  def_length: 3.8 A
+  default bond length: 3.8 A
 
-walls: []
+velocity AFM:
+  enabled: false
+  H1: 0.06 eps/A**2
+  H2: 0 eps/A**2
+  AFM tips: []
 
-velocity AFM: []
-
-force AFM: []
+force AFM:
+  enabled: false
+  AFM tips: []

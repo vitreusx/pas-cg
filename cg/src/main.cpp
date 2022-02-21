@@ -1,8 +1,7 @@
-#include <cg/io/seq_file.h>
-#include <iostream>
+#include <cg/features/parameters.h>
 
 int main() {
   using namespace cg;
-  auto seqfile = cg::seq_file("data/glut/glut.yml");
+  auto paramfile = parameters("data/default/inputfile.yml");
   return 0;
 }

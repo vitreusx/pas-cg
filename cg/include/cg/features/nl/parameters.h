@@ -4,7 +4,6 @@
 
 namespace cg::nl {
 struct parameters {
-  bool enabled;
   double pad_factor;
   void connect(ioxx::xyaml_proxy &proxy);
 };

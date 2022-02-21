@@ -8,6 +8,8 @@
 #include "input/parameters.h"
 #include "nat_ang/parameters.h"
 #include "nat_cont/parameters.h"
+#include "nl/parameters.h"
+#include "pauli/parameters.h"
 #include "pid/parameters.h"
 #include "qa/parameters.h"
 #include "rel_dh/parameters.h"
@@ -17,6 +19,9 @@
 
 namespace cg {
 struct parameters {
+  parameters() = default;
+  explicit parameters(std::filesystem::path const &path);
+
   chir::parameters chir;
   cnd::parameters cnd;
   const_dh::parameters const_dh;
@@ -32,6 +37,8 @@ struct parameters {
   snd::parameters snd;
   tether::parameters tether;
   vafm::parameters vafm;
+  pauli::parameters pauli;
+  nl::parameters nl;
 
   void connect(ioxx::xyaml_proxy &proxy);
 };
