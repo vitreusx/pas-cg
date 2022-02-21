@@ -95,15 +95,14 @@ std::istream &operator>>(std::istream &is, std::vector<amino_acid> &acids) {
   return is;
 }
 
-bool contact_limits::connect(ioxx::xyaml_proxy &proxy) {
+void contact_limits::connect(ioxx::xyaml_proxy &proxy) {
   proxy["back"] & back;
   proxy["side-all"] & side_all;
   proxy["side-hydrophobic"] & side_hydrophobic;
   proxy["side-polar"] & side_polar;
-  return true;
 }
 
-bool amino_acid_data::connect(ioxx::xyaml_proxy &proxy) {
+void amino_acid_data::connect(ioxx::xyaml_proxy &proxy) {
   using namespace ioxx;
 
   if (proxy.loading()) {
@@ -186,8 +185,6 @@ bool amino_acid_data::connect(ioxx::xyaml_proxy &proxy) {
       res_data.mass = quantity(res_data.mass / avg_mass, "f77mass");
     }
   }
-
-  return true;
 }
 
 aa_data const &amino_acid_data::operator[](const amino_acid &aa) const {

@@ -17,7 +17,7 @@ std::string atom::read(const std::string &line) const {
 
 void atom::write(std::string &line, std::string const &atom) const {
   auto cut_atom = format("%*s", len, atom.c_str());
-  inplace_format(line.data() + beg, "%*s", len, atom.c_str());
+  format_(line.data() + beg, "%*s", len, atom.c_str());
 }
 
 character::character(size_t i) : i{i - 1} {};
@@ -34,7 +34,7 @@ int integer::read(const std::string &line) const {
 
 void integer::write(std::string &line, int n) const {
   auto cut_n = format("%*d", len, n);
-  inplace_format(line.data() + beg, "%*d", len, n);
+  format_(line.data() + beg, "%*d", len, n);
 }
 
 lstring::lstring(size_t i, size_t j) : beg{i - 1}, len{j - i + 1} {}
@@ -44,7 +44,7 @@ std::string lstring::read(const std::string &line) const {
 }
 
 void lstring::write(std::string &line, std::string const &ls) const {
-  inplace_format(line.data() + beg, "%*s", len, ls.c_str());
+  format_(line.data() + beg, "%*s", len, ls.c_str());
 }
 
 real_field::real_field(size_t i, size_t j, int n, int m)
@@ -56,7 +56,7 @@ double real_field::read(const std::string &line) const {
 
 void real_field::write(std::string &line, double x) const {
   auto x_str = format("%*.*f", n, m, x);
-  inplace_format(line.data() + beg, "%*s", len, x_str.c_str());
+  format_(line.data() + beg, "%*s", len, x_str.c_str());
 }
 
 record_name::record_name(const std::string &name) : name{name} {}
@@ -77,7 +77,7 @@ std::string residue_name::read(const std::string &line) const {
 }
 
 void residue_name::write(std::string &line, std::string const &res_name) const {
-  inplace_format(line.data() + beg, "%*s", len, res_name.c_str());
+  format_(line.data() + beg, "%*s", len, res_name.c_str());
 }
 
 string::string(size_t i, size_t j) : beg{i - 1}, len{j - i + 1} {}
@@ -99,7 +99,7 @@ void string::write(const std::vector<std::string *> &lines,
   for (size_t line_idx = 0, text_idx = 0; text_idx < text.size();
        ++line_idx, text_idx += len) {
     auto &line = *lines[line_idx];
-    inplace_format(line.data() + beg, "%*s", len, &text[text_idx]);
+    format_(line.data() + beg, "%*s", len, &text[text_idx]);
   }
 }
 
@@ -112,6 +112,6 @@ bool literal::read(const std::string &line) const {
 }
 
 void literal::write(std::string &line) const {
-  inplace_format(line.data() + beg, "%*s", len, text.begin());
+  format_(line.data() + beg, "%*s", len, text.begin());
 }
 } // namespace cg::fields

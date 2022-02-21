@@ -7,10 +7,8 @@ namespace cg {
 class seq_file {
 public:
   explicit seq_file(std::filesystem::path const &seq_file_path);
-  bool connect(ioxx::xyaml_proxy &proxy);
-  model const &to_model() const;
-
-private:
   model xmd_model;
+
+  void connect(ioxx::xyaml_proxy &proxy);
 };
 } // namespace cg

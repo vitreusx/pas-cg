@@ -24,31 +24,28 @@ void map_file::shift(int shift_val) {
   }
 }
 
-bool map_file::contact::connect(ioxx::row_proxy &proxy) {
+void map_file::contact::connect(ioxx::row_proxy &proxy) {
   proxy["i1"] & i1;
   proxy["i2"] & i2;
   proxy["length"] & length;
-  return true;
 }
 
-bool map_file::angle::connect(ioxx::row_proxy &proxy) {
+void map_file::angle::connect(ioxx::row_proxy &proxy) {
   proxy["i1"] & i1;
   proxy["i2"] & i2;
   proxy["i3"] & i3;
   proxy["theta"] & theta;
-  return true;
 }
 
-bool map_file::dihedral::connect(ioxx::row_proxy &proxy) {
+void map_file::dihedral::connect(ioxx::row_proxy &proxy) {
   proxy["i1"] & i1;
   proxy["i2"] & i2;
   proxy["i3"] & i3;
   proxy["i4"] & i4;
   proxy["phi"] & phi;
-  return true;
 }
 
-bool map_file::connect(ioxx::xyaml_proxy &proxy) {
+void map_file::connect(ioxx::xyaml_proxy &proxy) {
   ioxx::csv<contact> contacts_csv;
   ioxx::csv<angle> angles_csv;
   ioxx::csv<dihedral> dihedrals_csv;
@@ -68,7 +65,5 @@ bool map_file::connect(ioxx::xyaml_proxy &proxy) {
     angles = angles_csv.rows;
     dihedrals = dihedrals_csv.rows;
   }
-
-  return true;
 }
 } // namespace cg

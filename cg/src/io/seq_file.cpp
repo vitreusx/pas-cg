@@ -13,7 +13,7 @@ seq_file::seq_file(const std::filesystem::path &seq_file_path) {
   proxy &*this;
 }
 
-bool seq_file::connect(ioxx::xyaml_proxy &proxy) {
+void seq_file::connect(ioxx::xyaml_proxy &proxy) {
   if (proxy.loading()) {
     int chain_idx = 0;
 
@@ -140,9 +140,5 @@ bool seq_file::connect(ioxx::xyaml_proxy &proxy) {
       }
     }
   }
-
-  return true;
 }
-
-model const &seq_file::to_model() const { return xmd_model; }
 } // namespace cg
