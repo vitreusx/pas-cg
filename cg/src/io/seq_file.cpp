@@ -9,11 +9,11 @@ namespace cg {
 seq_file::seq_file(const std::filesystem::path &seq_file_path) {
   using namespace ioxx;
   auto seq_file_node = xyaml_node(seq_file_path);
-  auto proxy = xyaml_node_proxy(seq_file_node, node_proxy_mode::LOAD);
+  auto proxy = xyaml_proxy(seq_file_node, node_proxy_mode::LOAD);
   proxy &*this;
 }
 
-void seq_file::connect(ioxx::xyaml_node_proxy &proxy) {
+bool seq_file::connect(ioxx::xyaml_proxy &proxy) {
   if (proxy.loading()) {
     int chain_idx = 0;
 
@@ -140,6 +140,8 @@ void seq_file::connect(ioxx::xyaml_node_proxy &proxy) {
       }
     }
   }
+
+  return true;
 }
 
 model const &seq_file::to_model() const { return xmd_model; }

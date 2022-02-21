@@ -95,20 +95,21 @@ std::istream &operator>>(std::istream &is, std::vector<amino_acid> &acids) {
   return is;
 }
 
-void contact_limits::connect(ioxx::xyaml_node_proxy &proxy) {
+bool contact_limits::connect(ioxx::xyaml_proxy &proxy) {
   proxy["back"] & back;
   proxy["side-all"] & side_all;
   proxy["side-hydrophobic"] & side_hydrophobic;
   proxy["side-polar"] & side_polar;
+  return true;
 }
 
-void amino_acid_data::connect(ioxx::xyaml_node_proxy &proxy) {
+bool amino_acid_data::connect(ioxx::xyaml_proxy &proxy) {
   using namespace ioxx;
 
   if (proxy.loading()) {
-    xyaml_embed embed;
+    xyaml_embedded embed;
     proxy &embed;
-    auto real_proxy = xyaml_node_proxy(embed.node, proxy.mode);
+    auto real_proxy = proxy(embed.node);
 
     std::unordered_map<std::string, double> def_atom_radii;
     for (auto const &entry : real_proxy["default atom radii"]) {
@@ -119,15 +120,15 @@ void amino_acid_data::connect(ioxx::xyaml_node_proxy &proxy) {
 
     for (auto const &entry : real_proxy["amino acids"]) {
       auto name = entry.first.as<std::string>();
-      auto data_node = xyaml_node_proxy(entry.second, proxy.mode);
+      auto data_proxy = real_proxy(entry.second);
 
       aa_data &cur_data = data[amino_acid(name)];
-      cur_data.mass = quantity(data_node["mass"].as<std::string>()).in("amu");
+      cur_data.mass = quantity(data_proxy["mass"].as<std::string>()).in("amu");
       cur_data.radius =
-          quantity(data_node["radius"].as<std::string>()).in("angstrom");
+          quantity(data_proxy["radius"].as<std::string>()).in("angstrom");
 
       auto atom_radii = def_atom_radii;
-      if (auto alt = data_node["alt atom radii"]; alt) {
+      if (auto alt = data_proxy["alt atom radii"]; alt) {
         for (auto const &alt_entry : alt) {
           auto atom_name = alt_entry.first.as<std::string>();
           auto alt_radius =
@@ -143,7 +144,7 @@ void amino_acid_data::connect(ioxx::xyaml_node_proxy &proxy) {
         atom_.backbone = true;
       }
 
-      if (auto side_atoms_node = data_node["side"]; side_atoms_node) {
+      if (auto side_atoms_node = data_proxy["side"]; side_atoms_node) {
         for (auto const &side_atom_node : side_atoms_node) {
           auto side_atom = side_atom_node.as<std::string>();
           atom_data &atom_ = cur_data.atoms[side_atom];
@@ -154,7 +155,7 @@ void amino_acid_data::connect(ioxx::xyaml_node_proxy &proxy) {
       }
 
       cur_data.polarization = polarization_type::NONE;
-      if (auto polarization_node = data_node["polarization"];
+      if (auto polarization_node = data_proxy["polarization"];
           polarization_node) {
         auto ptype = polarization_node.as<std::string>();
         if (ptype == "polar") {
@@ -165,12 +166,12 @@ void amino_acid_data::connect(ioxx::xyaml_node_proxy &proxy) {
       }
 
       cur_data.charge = 0.0;
-      if (auto charge_node = data_node["charge"]; charge_node) {
+      if (auto charge_node = data_proxy["charge"]; charge_node) {
         auto charge = quantity(charge_node.as<std::string>()).in("e");
         cur_data.charge = charge;
       }
 
-      data_node["contact limits"] & cur_data.limits;
+      data_proxy["contact limits"] & cur_data.limits;
     }
 
     auto avg_mass = std::accumulate(
@@ -185,107 +186,9 @@ void amino_acid_data::connect(ioxx::xyaml_node_proxy &proxy) {
       res_data.mass = quantity(res_data.mass / avg_mass, "f77mass");
     }
   }
-}
 
-// amino_acid_data::amino_acid_data(const yaml_fs_node &p) {
-//   auto source = p;
-//   if (auto from_file_tag = p["from file"]; from_file_tag) {
-//     auto path = p.resolve(from_file_tag.as<std::string>());
-//     source = yaml_fs_node(path);
-//   }
-//
-//   std::unordered_map<std::string, true_real> def_atom_radii;
-//   auto def_atom_radii_node = source["default atom radii"];
-//   for (auto const &entry : source["default atom radii"]) {
-//     auto name = entry.first.as<std::string>();
-//     auto r = quantity(entry.second.as<std::string>(), angstrom);
-//     def_atom_radii[name] = r;
-//   }
-//
-//   auto amino_acids_node = source["amino acids"];
-//   for (auto const &entry : source["amino acids"]) {
-//     auto name = entry.first.as<std::string>();
-//     auto data_node = entry.second;
-//
-//     aa_data &res_data = data[amino_acid(name)];
-//     res_data.mass = quantity(data_node["mass"].as<std::string>(), amu);
-//     res_data.radius = quantity(data_node["radius"].as<std::string>(),
-//     angstrom);
-//
-//     auto atom_radii = def_atom_radii;
-//     if (auto alt_radii_node = data_node["alt atom radii"]; alt_radii_node) {
-//       for (auto const &atom_entry : alt_radii_node) {
-//         auto atom_name = atom_entry.first.as<std::string>();
-//         auto r = quantity(atom_entry.second.as<std::string>(), angstrom);
-//         atom_radii[atom_name] = r;
-//       }
-//     }
-//
-//     for (auto const &back_atom : {"N", "CA", "C", "O", "OXT"}) {
-//       atom_data &atom_ = res_data.atoms[back_atom];
-//       atom_.name = back_atom;
-//       atom_.radius = atom_radii[back_atom];
-//       atom_.backbone = true;
-//     }
-//
-//     if (auto side_atoms_node = data_node["side"]; side_atoms_node) {
-//       for (auto const &side_atom_node : side_atoms_node) {
-//         auto side_atom = side_atom_node.as<std::string>();
-//         atom_data &atom_ = res_data.atoms[side_atom];
-//         atom_.name = side_atom;
-//         atom_.radius = atom_radii[side_atom];
-//         atom_.backbone = false;
-//       }
-//     }
-//
-//     res_data.polarization = NONE;
-//     if (auto polarization_node = data_node["polarization"];
-//     polarization_node) {
-//       auto ptype = polarization_node.as<std::string>();
-//       if (ptype == "polar") {
-//         res_data.polarization = POLAR;
-//       } else if (ptype == "hydrophobic") {
-//         res_data.polarization = HYDROPHOBIC;
-//       } else {
-//         res_data.polarization = NONE;
-//       }
-//     }
-//
-//     res_data.charge = 0.0;
-//     if (auto charge_node = data_node["charge"]; charge_node) {
-//       auto charge = quantity(charge_node.as<std::string>(), echarge);
-//       res_data.charge = charge;
-//     }
-//
-//     res_data.limits = {0, 0, 0, 0};
-//     for (auto const &limit_entry : data_node["contact limits"]) {
-//       auto limit_name = limit_entry.first.as<std::string>();
-//       auto limit_val = limit_entry.second.as<int>();
-//
-//       if (limit_name == "back") {
-//         res_data.limits.back = limit_val;
-//       } else if (limit_name == "side (all)") {
-//         res_data.limits.side_all = limit_val;
-//       } else if (limit_name == "side (hydrophobic)") {
-//         res_data.limits.side_hydrophobic = limit_val;
-//       } else if (limit_name == "side (polar)") {
-//         res_data.limits.side_polar = limit_val;
-//       }
-//     }
-//   }
-//
-//   auto avg_res_mass = std::accumulate(
-//       data.begin(), data.end(), 0.0,
-//       [](auto const &sum, auto const &entry) -> auto {
-//         auto const &[name, res_data] = entry;
-//         return sum + res_data.mass;
-//       });
-//   avg_res_mass /= (true_real)data.size();
-//
-//   for (auto &[name, res_data] : data) {
-//     res_data.mass = (res_data.mass / avg_res_mass) * f77mass;
-//   }
-// }
+  return true;
+}
 
 aa_data const &amino_acid_data::operator[](const amino_acid &aa) const {
   return data.at(aa);
