@@ -1,0 +1,118 @@
+general:
+  total time: 20e3 tau
+  seed: 42
+
+amino acid data:
+  __path: amino-acids.yml
+
+langevin:
+  enabled: true
+  gamma factor: 2.0 1/tau
+  temperature: 0.38 eps/kB
+
+neighbor list:
+  pad factor: 0.25
+
+heurestic angles:
+  enabled: true
+  coefficients:
+    __path: angle.csv
+
+native angles:
+  enabled: true
+  k: 30.0 eps/rad**2
+
+complex native dihedrals:
+  enabled: true
+  CDA: 0.66 eps/rad**2
+  CDB: 0.66 eps/rad**2
+
+simple native dihedrals:
+  enabled: false
+  CDH: 3.33 eps/rad**2
+
+heurestic dihedrals:
+  enabled: true
+  coefficients:
+    __path: dihedral.csv
+
+const ES:
+  enabled: true
+  screening distance: 10.0 A
+  permittivity: 80.0 eps_0
+
+relative ES:
+  enabled: false
+  screening distance: 10.0 A
+  factor: 4.0 eps_0/A
+
+lj force variants:
+  bb:
+    r_min: 5.0 A
+    depth: 1.0 eps
+  bs:
+    r_min: 6.8 A
+    depth: 1.0 eps
+  ss:
+    use sinking variant: true
+    default:
+      depth: 1.0 eps
+    per pair:
+      r_max:
+        __path: ss-pairs.csv
+
+pseudo-improper dihedral:
+  enabled: false
+  lambda version: cosine
+  bb+:
+    alpha: 6.4 1/rad
+    psi_0: 1.05 rad
+    r_min: 5.6 A
+    depth: 1 eps
+  bb-:
+    alpha: 6.0 1/rad
+    psi_0: -1.44 rad
+    r_min: 6.2 A
+    depth: 1 eps
+  ss:
+    alpha: 1.2 1/rad
+    psi_0: -0.23 rad
+
+quasi-adiabatic:
+  enabled: true
+  (de)saturation time: 10 tau
+  breaking factor: 1.5
+  min |cos(h, r)|: 0.92
+  min |cos(h, h)| for bb: 0.75
+  max cos(n, r): 0.5
+
+chirality:
+  enabled: false
+  e_chi: 1 eps
+
+native contacts:
+  enabled: true
+  lj depth: 1 eps
+  active threshold factor: 1.5
+
+native ssbonds:
+  enabled: true
+  H1: 100 eps/A**2
+  equilibrium dist: 6.0 A
+
+Pauli exclusion:
+  enabled: true
+  r_excl: 4.0 A
+  depth: 1.0 eps
+
+tether forces:
+  enabled: true
+  H1: 100 eps/A**2
+  H2: 0 eps/A**2
+  def_length: 3.8 A
+
+walls: []
+
+velocity AFM: []
+
+force AFM: []

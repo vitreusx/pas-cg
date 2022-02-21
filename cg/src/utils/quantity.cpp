@@ -25,10 +25,10 @@ struct cparse_unit_init {
     /* Time */
     auto nanosecond = u(g["ns"] = 1.0);
     auto tau = u(g["tau"] = 1.0 * nanosecond);
-    auto microsecond = u(g["micros"] = nanosecond * 1.0e3);
-    auto millisecond = u(g["ms"] = nanosecond * 1.0e6);
+    g["micros"] = nanosecond * 1.0e3;
+    g["ms"] = nanosecond * 1.0e6;
     auto second = u(g["s"] = nanosecond * 1.0e9);
-    auto tau_inv = u(g["1/tau"] = 1.0 / tau);
+    g["1/tau"] = 1.0 / tau;
 
     /* Quantity */
     auto atom = u(g["atom"] = 1.0);
@@ -42,18 +42,18 @@ struct cparse_unit_init {
     /* Temperature */
     auto eps_kB = u(g["eps/kB"] = 1.0);
     auto kB = u(g["kB"] = eps / eps_kB);
-    auto Kelvin = u(g["K"] = 1.380649e-23 * Joule / kB);
+    g["K"] = 1.380649e-23 * Joule / kB;
 
     /* Mass */
     auto kg = u(g["kg"] = Joule * second * second / (meter * meter));
-    auto amu = u(g["amu"] = kg * 0.99999999965e-3 / mol);
+    g["amu"] = kg * 0.99999999965e-3 / mol;
 
     /**
      * In the Fortran version of the model, distance of \p f77unit, time of
      * \p tau, energy of \p eps and the average mass of an aminoacid were units;
      * these are however incongruent, it's a confirmed bug.
      */
-    auto f77mass = u(g["f77mass"] = eps * tau * tau / (f77unit * f77unit));
+    g["f77mass"] = eps * tau * tau / (f77unit * f77unit);
 
     /* EM stuff */
     auto echarge = u(g["e"] = 1.0);
@@ -63,11 +63,11 @@ struct cparse_unit_init {
     auto Henry =
         u(g["H"] = kg * meter * meter / (second * second * Ampere * Ampere));
     auto mu_0 = u(g["mu_0"] = 1.25663706212e-6 * Henry / meter);
-    auto eps_0 = u(g["eps_0"] = 1.0 / (mu_0 * cspeed * cspeed));
+    g["eps_0"] = 1.0 / (mu_0 * cspeed * cspeed);
 
     /* Degrees */
     auto rad = u(g["rad"] = 1.0);
-    auto deg = u(g["deg"] = (2.0 * M_PI / 360.0) * rad);
+    g["deg"] = (2.0 * M_PI / 360.0) * rad;
   }
 };
 
@@ -147,10 +147,14 @@ quantity &quantity::in_(std::string const &new_unit) {
   return *this;
 }
 
-std::string convert_impl<std::string, quantity>::impl(const quantity &q) {
-  return q.repr();
+std::istream &cg::operator>>(std::istream &is, quantity &value) {
+  std::string repr;
+  is >> repr;
+  value = quantity(repr);
+  return is;
 }
 
-quantity convert_impl<quantity, std::string>::impl(const std::string &s) {
-  return quantity(s);
+std::ostream &cg::operator<<(std::ostream &os, quantity const &value) {
+  os << value.repr();
+  return os;
 }

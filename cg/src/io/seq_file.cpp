@@ -1,6 +1,5 @@
 #include "io/seq_file.h"
 #include "map_file.h"
-#include <fstream>
 #include <ioxx/xyaml.h>
 #include <regex>
 #include <set>
@@ -8,12 +7,14 @@
 namespace cg {
 seq_file::seq_file(const std::filesystem::path &seq_file_path) {
   using namespace ioxx;
-  auto seq_file_node = xyaml_node(seq_file_path);
+  auto seq_file_node = xyaml_node::from_path(seq_file_path);
   auto proxy = xyaml_proxy(seq_file_node, node_proxy_mode::LOAD);
   proxy &*this;
 }
 
 void seq_file::connect(ioxx::xyaml_proxy &proxy) {
+  using namespace ioxx;
+
   if (proxy.loading()) {
     int chain_idx = 0;
 
@@ -47,21 +48,20 @@ void seq_file::connect(ioxx::xyaml_proxy &proxy) {
 
       auto maps_node = chain_node["maps"];
       for (auto const &entry : maps_node) {
-        auto map_entry_node = ioxx::xyaml_node(entry.second);
+        auto xentry = xyaml_node::from_data(entry, proxy.location);
+        auto xproxy = proxy(xentry);
 
-        ioxx::xyaml_node map_node;
-        if (auto from_file_node = map_entry_node["from-file"]; from_file_node) {
-          auto rel_path = from_file_node.as<std::string>();
-          auto map_path = proxy.location->parent_path() / rel_path;
-          map_node = ioxx::xyaml_node::from_path(map_path);
-        } else if (auto _map_node = map_entry_node["map"]; _map_node) {
-          map_node = _map_node;
-        }
-
-        auto mf = map_node.as<map_file>();
-        if (auto shift_node = map_entry_node["shift"]; shift_node) {
-          auto shift_val = shift_node.as<int>();
+        map_file mf;
+        if (xproxy["__source"]) {
+          xyaml_embedded mf_node;
+          xproxy["__source"] & mf_node;
+          mf = mf_node.node.as<map_file>();
+          auto shift_val = xproxy["shift"].as<int>();
           mf.shift(shift_val);
+        } else {
+          xyaml_embedded mf_node;
+          xproxy &mf_node;
+          mf = mf_node.node.as<map_file>();
         }
 
         for (auto const &mf_cont : mf.contacts) {
