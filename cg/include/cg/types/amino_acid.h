@@ -15,7 +15,7 @@ std::ostream &operator<<(std::ostream &os,
 std::istream &operator>>(std::istream &is, std::vector<cg::amino_acid> &acids);
 
 namespace cg {
-enum class aa_code : char {
+enum aa_code : char {
   ALA,
   ARG,
   ASN,
@@ -38,7 +38,7 @@ enum class aa_code : char {
   VAL
 };
 
-enum class polarization_type : char { NONE, POLAR, HYDROPHOBIC };
+enum polarization_type : char { NONE, POLAR, HYDROPHOBIC };
 
 class amino_acid {
 public:
@@ -48,6 +48,7 @@ public:
   explicit amino_acid(std::string const &name);
 
   inline operator aa_code() const { return code; };
+  inline operator uint8_t() const { return static_cast<uint8_t>(code); }
   char letter() const;
   std::string const &name() const;
 

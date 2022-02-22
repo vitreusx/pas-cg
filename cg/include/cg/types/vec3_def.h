@@ -5,30 +5,7 @@ namespace cg {
 template <typename Scalar> class vec3;
 
 template <typename E> struct vec3_expr : public nitro::ind_expr<E> {
-  decltype(auto) x() { return static_cast<E &>(*this).x(); }
-  decltype(auto) x() const { return static_cast<E const &>(*this).x(); }
-  decltype(auto) y() { return static_cast<E &>(*this).y(); }
-  decltype(auto) y() const { return static_cast<E const &>(*this).y(); }
-  decltype(auto) z() { return static_cast<E &>(*this).z(); }
-  decltype(auto) z() const { return static_cast<E const &>(*this).z(); }
-
-  template <size_t I> decltype(auto) get() {
-    if constexpr (I == 0)
-      return x();
-    else if constexpr (I == 1)
-      return y();
-    else if constexpr (I == 2)
-      return z();
-  }
-
-  template <size_t I> decltype(auto) get() const {
-    if constexpr (I == 0)
-      return x();
-    else if constexpr (I == 1)
-      return y();
-    else if constexpr (I == 2)
-      return z();
-  }
+  EXPR_BODY(x, y, z)
 
   template <typename F> vec3_expr<E> &omp_atomic_add(vec3_expr<F> const &f) {
 #pragma omp atomic
@@ -71,33 +48,16 @@ template <typename E> struct vec3_expr : public nitro::ind_expr<E> {
 };
 
 template <typename E> struct vec3_auto_expr : public vec3_expr<E> {
-  decltype(auto) x() { return static_cast<E &>(*this).template get<0>(); }
-  decltype(auto) x() const {
-    return static_cast<E const &>(*this).template get<0>();
-  }
-  decltype(auto) y() { return static_cast<E &>(*this).template get<1>(); }
-  decltype(auto) y() const {
-    return static_cast<E const &>(*this).template get<1>();
-  }
-  decltype(auto) z() { return static_cast<E &>(*this).template get<2>(); }
-  decltype(auto) z() const {
-    return static_cast<E const &>(*this).template get<2>();
-  }
-
-  template <size_t I> decltype(auto) get() {
-    return static_cast<E &>(*this).template get<I>();
-  }
-
-  template <size_t I> decltype(auto) get() const {
-    return static_cast<E const &>(*this).template get<I>();
-  }
+  AUTO_EXPR_BODY(x, y, z)
 };
 
 template <typename Scalar>
-class vec3 : public vec3_auto_expr<vec3<Scalar>>,
-             public nitro::tuple_wrapper<Scalar, Scalar, Scalar> {
+using vec3_base = nitro::tuple_wrapper<Scalar, Scalar, Scalar>;
+
+template <typename Scalar>
+class vec3 : public vec3_auto_expr<vec3<Scalar>>, public vec3_base<Scalar> {
 public:
-  using Base = nitro::tuple_wrapper<Scalar, Scalar, Scalar>;
+  using Base = vec3_base<Scalar>;
   using Base::get;
 
   static vec3<Scalar> Zero() { return {(Scalar)0, (Scalar)0, (Scalar)0}; }
@@ -119,7 +79,7 @@ public:
 };
 
 using vec3f = vec3<float>;
-using vec3d = vec3<float>;
+using vec3d = vec3<double>;
 } // namespace cg
 
 namespace nitro {

@@ -1,0 +1,16 @@
+#pragma once
+#include "contact_type.h"
+#include <cg/base_forces/sink_lj.h>
+#include <nitro/vector.h>
+
+namespace cg::qa {
+class lj_variants {
+public:
+  inline decltype(auto) operator[](contact_type const &type) const {
+    return variants[type];
+  }
+
+private:
+  nitro::vector<sink_lj> variants;
+};
+} // namespace cg::qa

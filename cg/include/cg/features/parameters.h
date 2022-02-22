@@ -16,6 +16,7 @@
 #include "simp_nat_dih/parameters.h"
 #include "tether/parameters.h"
 #include "vel_afm/parameters.h"
+#include <filesystem>
 
 namespace cg {
 struct parameters {

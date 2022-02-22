@@ -14,60 +14,20 @@ struct cparse_unit_init {
 
     TokenMap &g = TokenMap::default_global();
 
-    auto u = [](auto x) -> auto { return x.asDouble(); };
+    std::unordered_map<std::string, double> unit_map = {
+        { "f77unit", f77unit }, { "A", angstrom }, { "nm", nanometer },
+        { "m", meter }, { "ns", nanosecond }, { "tau", tau }, { "1/tau", 1/tau },
+        { "micros", microsecond }, { "ms", millisecond }, { "s", second },
+        { "atom", atom }, { "mol", mol }, { "eps", eps }, {"kcal", kcal},
+        { "J", Joule }, { "kB", kB }, { "K", Kelvin },
+        { "kg", kg }, { "amu", amu }, { "f77mass", f77mass }, { "e", echarge },
+        { "C", Coulomb }, { "Amp", Ampere }, { "c", cspeed }, { "H", Henry },
+        { "mu_0", mu_0 }, { "eps_0", eps_0 }, { "rad", rad }, { "deg", deg }
+    };
 
-    /* Distance */
-    auto f77unit = u(g["f77unit"] = 1.0);
-    auto angstrom = u(g["A"] = f77unit / 5.0);
-    auto nanometer = u(g["nm"] = 10.0 * angstrom);
-    auto meter = u(g["m"] = nanometer * 1.0e9);
-
-    /* Time */
-    auto nanosecond = u(g["ns"] = 1.0);
-    auto tau = u(g["tau"] = 1.0 * nanosecond);
-    g["micros"] = nanosecond * 1.0e3;
-    g["ms"] = nanosecond * 1.0e6;
-    auto second = u(g["s"] = nanosecond * 1.0e9);
-    g["1/tau"] = 1.0 / tau;
-
-    /* Quantity */
-    auto atom = u(g["atom"] = 1.0);
-    auto mol = u(g["mol"] = 6.02214076e23 / atom);
-
-    /* Energy */
-    auto eps = u(g["eps"] = 1.0); /* \approx 1.5kcal/mol */
-    auto kcal = u(g["kcal"] = eps * mol / 1.57824959);
-    auto Joule = u(g["J"] = kcal / 4184.0);
-
-    /* Temperature */
-    auto eps_kB = u(g["eps/kB"] = 1.0);
-    auto kB = u(g["kB"] = eps / eps_kB);
-    g["K"] = 1.380649e-23 * Joule / kB;
-
-    /* Mass */
-    auto kg = u(g["kg"] = Joule * second * second / (meter * meter));
-    g["amu"] = kg * 0.99999999965e-3 / mol;
-
-    /**
-     * In the Fortran version of the model, distance of \p f77unit, time of
-     * \p tau, energy of \p eps and the average mass of an aminoacid were units;
-     * these are however incongruent, it's a confirmed bug.
-     */
-    g["f77mass"] = eps * tau * tau / (f77unit * f77unit);
-
-    /* EM stuff */
-    auto echarge = u(g["e"] = 1.0);
-    auto Coulomb = u(g["C"] = echarge / 1.602176634e-19);
-    auto Ampere = u(g["Amp"] = Coulomb / second);
-    auto cspeed = u(g["c"] = 299792458.0 * meter / second);
-    auto Henry =
-        u(g["H"] = kg * meter * meter / (second * second * Ampere * Ampere));
-    auto mu_0 = u(g["mu_0"] = 1.25663706212e-6 * Henry / meter);
-    g["eps_0"] = 1.0 / (mu_0 * cspeed * cspeed);
-
-    /* Degrees */
-    auto rad = u(g["rad"] = 1.0);
-    g["deg"] = (2.0 * M_PI / 360.0) * rad;
+    for (auto const& [name, val]: unit_map) {
+      g[name] = val;
+    }
   }
 };
 
