@@ -1,4 +1,4 @@
-#include "features/comp_nat_dih/parameters.h"
+#include "features/nat_dih/comp_nat_dih/parameters.h"
 #include "utils/ioxx_interop.h"
 using namespace cg::cnd;
 

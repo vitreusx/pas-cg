@@ -12,7 +12,7 @@ void update_pairs::operator()() const {
     auto r1 = r->at(i1), r2 = r->at(i2);
 
     if (norm_inv(box->r_uv(r1, r2)) > min_norm_inv) {
-      auto q1_x_q2 = q[(uint8_t)atype->at(i1)] * q[(short)atype->at(i2)];
+      auto q1_x_q2 = q[(uint8_t)atype->at(i1)] * q[(uint8_t)atype->at(i2)];
       if (q1_x_q2 != 0.0) {
         pairs->emplace_back(i1, i2, q1_x_q2);
       }

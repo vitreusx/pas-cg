@@ -27,7 +27,7 @@ template <typename E> struct sink_lj_auto_expr : public sink_lj_expr<E> {
 
 using sink_lj_base = nitro::tuple_wrapper<int, real, real>;
 
-class sink_lj : public sink_lj_expr<sink_lj>, public sink_lj_base {
+class sink_lj : public sink_lj_auto_expr<sink_lj>, public sink_lj_base {
 public:
   using Base = sink_lj_base;
   using Base::Base;

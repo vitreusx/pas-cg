@@ -1,4 +1,4 @@
-#include "features/rel_dh/parameters.h"
+#include "features/dh/rel_dh/parameters.h"
 #include "utils/ioxx_interop.h"
 using namespace cg::rel_dh;
 

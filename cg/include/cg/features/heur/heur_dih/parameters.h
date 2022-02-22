@@ -1,5 +1,5 @@
 #pragma once
-#include <cg/types/aa_heur_pair.h>
+#include <cg/features/heur/aa_heur_pair.h>
 #include <cg/utils/quantity.h>
 #include <ioxx/csv.h>
 #include <ioxx/xyaml.h>

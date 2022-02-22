@@ -2,7 +2,7 @@
 using namespace cg::nat_ang;
 
 void eval_forces::operator()() const {
-  for (int idx = 0; idx < angles.size(); ++idx) {
+  for (int idx = 0; idx < angles->size(); ++idx) {
     iter(angles->at(idx));
   }
 }
@@ -36,7 +36,7 @@ void eval_forces::iter(nat_ang_expr<E> const &angle) const {
 
 void eval_forces::omp_async() const {
 #pragma omp for schedule(static) nowait
-  for (int idx = 0; idx < angles.size(); ++idx) {
+  for (int idx = 0; idx < angles->size(); ++idx) {
     iter(angles->at(idx));
   }
 }

@@ -31,13 +31,13 @@ template <typename E> struct lambda_expr : public nitro::ind_expr<E> {
   }
 };
 
-template <typename E> struct lambda_auto_expr : public pair_expr<E> {
+template <typename E> struct lambda_auto_expr : public lambda_expr<E> {
   AUTO_EXPR_BODY(psi_0, alpha, version);
 };
 
-using lambda_base = nitro::tuple_wrapper<int, int>;
+using lambda_base = nitro::tuple_wrapper<int, int, lambda_version>;
 
-class lambda : public lambda_expr<lambda>, public lambda_base {
+class lambda : public lambda_auto_expr<lambda>, public lambda_base {
 public:
   using Base = lambda_base;
   using Base::Base;

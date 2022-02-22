@@ -7,7 +7,7 @@ namespace cg::qa {
 class lj_variants {
 public:
   inline decltype(auto) operator[](contact_type const &type) const {
-    return variants[type];
+    return variants[(int16_t)type];
   }
 
 private:

@@ -1,4 +1,4 @@
-#include "features/const_dh/parameters.h"
+#include "features/dh/const_dh/parameters.h"
 #include "utils/ioxx_interop.h"
 using namespace cg::const_dh;
 

@@ -66,6 +66,13 @@ private:
   aa_code code;
 };
 
+bool operator<(amino_acid const &aa1, amino_acid const &aa2);
+bool operator<=(amino_acid const &aa1, amino_acid const &aa2);
+bool operator>(amino_acid const &aa1, amino_acid const &aa2);
+bool operator>=(amino_acid const &aa1, amino_acid const &aa2);
+bool operator==(amino_acid const &aa1, amino_acid const &aa2);
+bool operator!=(amino_acid const &aa1, amino_acid const &aa2);
+
 } // namespace cg
 
 namespace std {

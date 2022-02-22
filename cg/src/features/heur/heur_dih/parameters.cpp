@@ -1,4 +1,4 @@
-#include "features/heur_dih/parameters.h"
+#include "features/heur/heur_dih/parameters.h"
 #include "utils/ioxx_interop.h"
 using namespace cg::heur_dih;
 

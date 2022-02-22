@@ -18,8 +18,8 @@ void update_bundles::operator()() const {
         continue;
 
       auto atype1 = atype[i1], atype2 = atype[i2];
-      int16_t type =
-          (int16_t)atype1 * (int16_t)amino_acid::NUM_TYPES + (int16_t)atype2;
+      int16_t type = (int16_t)(uint8_t)atype1 * (int16_t)amino_acid::NUM_TYPES +
+                     (int16_t)(uint8_t)atype2;
 
       bundles->emplace_back(i1, i2, type);
     }

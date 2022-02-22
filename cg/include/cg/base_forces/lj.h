@@ -7,7 +7,7 @@ namespace cg {
 template <typename E> struct lj_expr : public nitro::ind_expr<E> {
   EXPR_BODY(depth, r_min)
 
-  std::tuple<real, real> operator()(real r_inv) const {
+  decltype(auto) operator()(real r_inv) const {
     auto s = r_inv * r_min(), s6 = ipow<6>(s), s12 = s6 * s6;
     auto V = depth() * (s12 - (real)2.0 * s6);
     auto dV_dr = (real)12.0 * depth() * r_inv * (s6 - s12);
@@ -16,7 +16,7 @@ template <typename E> struct lj_expr : public nitro::ind_expr<E> {
     return std::make_tuple(V, dV_dr);
   }
 
-  real cutoff() const { return (real)2.0 * r_min(); }
+  decltype(auto) cutoff() const { return (real)2.0 * r_min(); }
 };
 
 template <typename E> struct lj_auto_expr : public lj_expr<E> {
@@ -25,7 +25,7 @@ template <typename E> struct lj_auto_expr : public lj_expr<E> {
 
 using lj_base = nitro::tuple_wrapper<int, real>;
 
-class lj : public lj_expr<lj>, public lj_base {
+class lj : public lj_auto_expr<lj>, public lj_base {
 public:
   using Base = lj_base;
   using Base::Base;

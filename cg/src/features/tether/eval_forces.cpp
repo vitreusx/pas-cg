@@ -3,14 +3,14 @@
 using namespace cg::tether;
 
 void eval_forces::operator()() const {
-  for (int idx = 0; idx < tethers.size(); ++idx) {
+  for (int idx = 0; idx < tethers->size(); ++idx) {
     iter(tethers->at(idx));
   }
 }
 
 void eval_forces::omp_async() const {
 #pragma omp for schedule(static) nowait
-  for (int idx = 0; idx < tethers.size(); ++idx) {
+  for (int idx = 0; idx < tethers->size(); ++idx) {
     iter(tethers->at(idx));
   }
 }

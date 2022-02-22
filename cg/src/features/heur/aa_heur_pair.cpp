@@ -1,4 +1,4 @@
-#include "types/aa_heur_pair.h"
+#include "features/heur/aa_heur_pair.h"
 using namespace cg;
 
 size_t std::hash<aa_heur_pair>::operator()(const cg::aa_heur_pair &pair) const {

@@ -8,7 +8,7 @@ public:
   box<real> const *box;
   bool *invalid, *first_time;
   int num_particles;
-  nl_data const *data;
+  data const *data;
 
 public:
   void operator()() const;

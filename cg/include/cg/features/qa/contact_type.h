@@ -17,8 +17,8 @@ public:
   static inline contact_type SIDE_SIDE(amino_acid const &a1,
                                        amino_acid const &a2) {
 
-    int16_t val =
-        (int16_t)4 + (int16_t)a1 + (int16_t)a2 * (int16_t)amino_acid::NUM_TYPES;
+    int16_t val = (int16_t)4u + (int16_t)(uint8_t)a1 +
+                  (int16_t)(uint8_t)a2 * (int16_t)amino_acid::NUM_TYPES;
     return contact_type(val);
   }
 

@@ -1,6 +1,6 @@
 #pragma once
-#include <cg/state/box.h>
 #include <cg/types/amino_acid.h>
+#include <cg/types/box.h>
 #include <cg/types/vec3.h>
 #include <cg/utils/random.h>
 #include <list>

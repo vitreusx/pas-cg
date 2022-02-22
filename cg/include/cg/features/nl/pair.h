@@ -7,32 +7,32 @@ template <typename E> struct pair_expr : public nitro::ind_expr<E> {
 };
 
 template <typename E1, typename E2>
-bool operator<(pair_expr<E1> const &e1, pair_expr<E2> const &e2) {
+decltype(auto) operator<(pair_expr<E1> const &e1, pair_expr<E2> const &e2) {
   return std::make_tuple(e1.i1(), e1.i2()) < std::make_tuple(e2.i1(), e2.i2());
 }
 
 template <typename E1, typename E2>
-bool operator<=(pair_expr<E1> const &e1, pair_expr<E2> const &e2) {
+decltype(auto) operator<=(pair_expr<E1> const &e1, pair_expr<E2> const &e2) {
   return std::make_tuple(e1.i1(), e1.i2()) <= std::make_tuple(e2.i1(), e2.i2());
 }
 
 template <typename E1, typename E2>
-bool operator>(pair_expr<E1> const &e1, pair_expr<E2> const &e2) {
+decltype(auto) operator>(pair_expr<E1> const &e1, pair_expr<E2> const &e2) {
   return std::make_tuple(e1.i1(), e1.i2()) > std::make_tuple(e2.i1(), e2.i2());
 }
 
 template <typename E1, typename E2>
-bool operator>=(pair_expr<E1> const &e1, pair_expr<E2> const &e2) {
+decltype(auto) operator>=(pair_expr<E1> const &e1, pair_expr<E2> const &e2) {
   return std::make_tuple(e1.i1(), e1.i2()) >= std::make_tuple(e2.i1(), e2.i2());
 }
 
 template <typename E1, typename E2>
-bool operator==(pair_expr<E1> const &e1, pair_expr<E2> const &e2) {
+decltype(auto) operator==(pair_expr<E1> const &e1, pair_expr<E2> const &e2) {
   return std::make_tuple(e1.i1(), e1.i2()) == std::make_tuple(e2.i1(), e2.i2());
 }
 
 template <typename E1, typename E2>
-bool operator!=(pair_expr<E1> const &e1, pair_expr<E2> const &e2) {
+decltype(auto) operator!=(pair_expr<E1> const &e1, pair_expr<E2> const &e2) {
   return std::make_tuple(e1.i1(), e1.i2()) != std::make_tuple(e2.i1(), e2.i2());
 }
 
@@ -42,7 +42,7 @@ template <typename E> struct pair_auto_expr : public pair_expr<E> {
 
 using pair_base = nitro::tuple_wrapper<int, int, real>;
 
-class pair : public pair_expr<pair>, public pair_base {
+class pair : public pair_auto_expr<pair>, public pair_base {
 public:
   using Base = pair_base;
   using Base::Base;

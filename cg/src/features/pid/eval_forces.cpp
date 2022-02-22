@@ -116,7 +116,7 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
     C += lam1 * lam2 * lj_dV_dr;
   }
 
-  sink_lj ss_sink_lj = ss_ljs[type];
+  sink_lj ss_sink_lj = ss_ljs->at(type);
   if (ss_lam.supp(psi1) && ss_lam.supp(psi2)) {
     auto [lam1, deriv1] = ss_lam(psi1);
     auto [lam2, deriv2] = ss_lam(psi2);

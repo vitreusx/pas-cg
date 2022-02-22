@@ -13,8 +13,8 @@ static std::string timedelta(uint64_t ms) {
   int hr_part = rem_hr % 24;
   int day_part = (rem_hr - hr_part) / 24;
 
-  return format("%d:%02d:%02d:%02d.%04d", day_part, hr_part, min_part, s_part,
-                ms_part);
+  return cg::format("%d:%02d:%02d:%02d.%04d", day_part, hr_part, min_part,
+                    s_part, ms_part);
 }
 
 void render::operator()() const {

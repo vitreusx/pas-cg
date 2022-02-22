@@ -89,13 +89,13 @@ template <typename E> struct sync_data_auto_expr : public sync_data_expr<E> {
 
 using sync_data_base = nitro::tuple_wrapper<int8_t, int8_t, int8_t, int8_t>;
 
-class sync_data : public sync_data_expr<sync_data>, public sync_data_base {
+class sync_data : public sync_data_auto_expr<sync_data>, public sync_data_base {
 public:
   using Base = sync_data_base;
   using Base::Base;
   using Base::get;
 
-  sync_data(): Base(0, 0, 0, 0) {};
+  sync_data() : Base(0, 0, 0, 0){};
 };
 } // namespace cg::qa
 

@@ -29,7 +29,7 @@ void process_contacts::iter(int idx) const {
   if (status == BREAKING)
     saturation = 1.0f - saturation;
 
-  auto lj_force = ljs[(short)type];
+  auto lj_force = ljs[type];
   auto r12_n = r12_rn * norm_squared(r12);
   auto [Vij, dVij_dr] = lj_force(r12_n, r12_rn);
   *V += saturation * Vij;

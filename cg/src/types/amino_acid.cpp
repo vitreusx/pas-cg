@@ -190,3 +190,27 @@ void amino_acid_data::connect(ioxx::xyaml_proxy &proxy) {
 aa_data const &amino_acid_data::operator[](const amino_acid &aa) const {
   return data.at(aa);
 }
+
+bool cg::operator<(amino_acid const &aa1, amino_acid const &aa2) {
+  return (uint8_t)aa1 < (uint8_t)aa2;
+}
+
+bool cg::operator<=(amino_acid const &aa1, amino_acid const &aa2) {
+  return (uint8_t)aa1 <= (uint8_t)aa2;
+}
+
+bool cg::operator>(amino_acid const &aa1, amino_acid const &aa2) {
+  return (uint8_t)aa1 > (uint8_t)aa2;
+}
+
+bool cg::operator>=(amino_acid const &aa1, amino_acid const &aa2) {
+  return (uint8_t)aa1 >= (uint8_t)aa2;
+}
+
+bool cg::operator==(amino_acid const &aa1, amino_acid const &aa2) {
+  return (uint8_t)aa1 == (uint8_t)aa2;
+}
+
+bool cg::operator!=(amino_acid const &aa1, amino_acid const &aa2) {
+  return (uint8_t)aa1 != (uint8_t)aa2;
+}
