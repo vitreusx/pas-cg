@@ -15,17 +15,23 @@ struct cparse_unit_init {
     TokenMap &g = TokenMap::default_global();
 
     std::unordered_map<std::string, double> unit_map = {
-        { "f77unit", f77unit }, { "A", angstrom }, { "nm", nanometer },
-        { "m", meter }, { "ns", nanosecond }, { "tau", tau }, { "1/tau", 1/tau },
-        { "micros", microsecond }, { "ms", millisecond }, { "s", second },
-        { "atom", atom }, { "mol", mol }, { "eps", eps }, {"kcal", kcal},
-        { "J", Joule }, { "kB", kB }, { "K", Kelvin },
-        { "kg", kg }, { "amu", amu }, { "f77mass", f77mass }, { "e", echarge },
-        { "C", Coulomb }, { "Amp", Ampere }, { "c", cspeed }, { "H", Henry },
-        { "mu_0", mu_0 }, { "eps_0", eps_0 }, { "rad", rad }, { "deg", deg }
-    };
+        {"f77unit", f77unit}, {"A", angstrom},
+        {"nm", nanometer},    {"m", meter},
+        {"ns", nanosecond},   {"tau", tau},
+        {"1/tau", 1 / tau},   {"micros", microsecond},
+        {"ms", millisecond},  {"s", second},
+        {"atom", atom},       {"mol", mol},
+        {"eps", eps},         {"kcal", kcal},
+        {"J", Joule},         {"kB", kB},
+        {"K", Kelvin},        {"kg", kg},
+        {"amu", amu},         {"f77mass", f77mass},
+        {"e", echarge},       {"C", Coulomb},
+        {"Amp", Ampere},      {"c", cspeed},
+        {"H", Henry},         {"mu_0", mu_0},
+        {"eps_0", eps_0},     {"rad", rad},
+        {"deg", deg}};
 
-    for (auto const& [name, val]: unit_map) {
+    for (auto const &[name, val] : unit_map) {
       g[name] = val;
     }
   }
@@ -102,7 +108,10 @@ quantity quantity::in(std::string const &new_unit) const {
 quantity &quantity::in_(std::string const &new_unit) {
   double value = *this;
   unit_str = new_unit;
-  unit_value = parse(unit_str);
+  if (!unit_str.empty())
+    unit_value = parse(unit_str);
+  else
+    unit_value = 1.0;
   mag = value / unit_value;
   return *this;
 }

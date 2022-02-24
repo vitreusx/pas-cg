@@ -1,4 +1,5 @@
 #pragma once
+#include "lj.h"
 #include <cg/types/amp.h>
 #include <cg/utils/math.h>
 #include <nitro/nitro.h>
@@ -25,7 +26,7 @@ template <typename E> struct sink_lj_auto_expr : public sink_lj_expr<E> {
   AUTO_EXPR_BODY(depth, r_min, r_max)
 };
 
-using sink_lj_base = nitro::tuple_wrapper<int, real, real>;
+using sink_lj_base = nitro::tuple_wrapper<real, real, real>;
 
 class sink_lj : public sink_lj_auto_expr<sink_lj>, public sink_lj_base {
 public:
@@ -33,7 +34,13 @@ public:
   using Base::Base;
   using Base::get;
 
-  static inline real cutoff(real r_max) { return (real)2.0 * r_max; }
+  sink_lj() : sink_lj(0.0, 0.0, 0.0){};
+
+  template <typename E>
+  explicit sink_lj(lj_expr<E> const &lj)
+      : sink_lj(lj.depth(), lj.r_min(), lj.r_min()){};
+
+  static inline real compute_cutoff(real r_max) { return (real)2.0 * r_max; }
 };
 } // namespace cg
 

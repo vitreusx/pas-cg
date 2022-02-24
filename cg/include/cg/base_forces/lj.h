@@ -23,7 +23,7 @@ template <typename E> struct lj_auto_expr : public lj_expr<E> {
   AUTO_EXPR_BODY(depth, r_min)
 };
 
-using lj_base = nitro::tuple_wrapper<int, real>;
+using lj_base = nitro::tuple_wrapper<real, real>;
 
 class lj : public lj_auto_expr<lj>, public lj_base {
 public:
@@ -31,7 +31,9 @@ public:
   using Base::Base;
   using Base::get;
 
-  static inline real cutoff(real r_min) { return (real)2.0 * r_min; }
+  lj() : lj(0.0, 0.0){};
+
+  static inline real compute_cutoff(real r_min) { return (real)2.0 * r_min; }
 };
 } // namespace cg
 

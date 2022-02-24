@@ -6,6 +6,7 @@ class rand_gen {
 public:
   uint64_t state;
 
+  rand_gen() : rand_gen((uint64_t)0){};
   inline explicit rand_gen(uint64_t seed) { state = seed; }
 
   inline rand_gen spawn() {

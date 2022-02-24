@@ -1,6 +1,7 @@
 general:
   total time: 20e3 tau
   seed: 42
+  num of threads: 4
 
 amino acid data:
   __path: amino-acids.yml
@@ -8,14 +9,16 @@ amino acid data:
 input:
   seq file: ../glut/glut.yml
   morph into SAW:
+    perform: true
     bond distance: 3.8 A
     residue density: 1e-3 atom/A**3
-    infer box: false
+    infer simulation box: false
 
 langevin:
   enabled: true
   gamma factor: 2.0 1/tau
   temperature: 0.38 eps/kB
+  dt: 5e-3 tau
 
 neighbor list:
   pad factor: 0.25
