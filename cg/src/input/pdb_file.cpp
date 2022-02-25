@@ -9,6 +9,10 @@
 
 namespace cg {
 pdb_file::pdb_file(std::istream &&is) {
+  load(is);
+}
+
+void pdb_file::load(std::istream &is) {
   std::unordered_map<char, bool> ter_found;
 
   cryst1 = decltype(cryst1)::Zero();
@@ -60,14 +64,14 @@ pdb_file::pdb_file(std::istream &&is) {
 
         atm->name = atom_r->atom_name;
         atm->serial = atom_r->serial;
-        atm->pos = atom_r->pos * quantity("angstrom");
+        atm->pos = atom_r->pos * quantity("A");
         atm->parent_res = res;
 
         res->atoms.push_back(atm);
       } else if (auto ssbond_r = record_r.cast<records::ssbond>(); ssbond_r) {
         disulfide_bond ss;
         ss.serial = ssbond_r->serial;
-        ss.length = ssbond_r->length * quantity("angstrom");
+        ss.length = ssbond_r->length * quantity("A");
 
         auto &chain1 = *find_chain(ssbond_r->res[0].chain_id);
         auto &res1 = *find_res(chain1, ssbond_r->res[0].res_seq_num);
@@ -80,7 +84,7 @@ pdb_file::pdb_file(std::istream &&is) {
         disulfide_bonds[ss.serial] = ss;
       } else if (auto link_r = record_r.cast<records::link>(); link_r) {
         link _link;
-        _link.length = link_r->length * quantity("angstrom");
+        _link.length = link_r->length * quantity("A");
 
         auto &chain1 = *find_chain(link_r->res[0].chain_id);
         auto &res1 = *find_res(chain1, link_r->res[0].res_seq_num);
@@ -92,7 +96,7 @@ pdb_file::pdb_file(std::istream &&is) {
 
         links.push_back(_link);
       } else if (auto cryst1_r = record_r.cast<records::cryst1>(); cryst1_r) {
-        cryst1 = cryst1_r->cell * quantity("angstrom");
+        cryst1 = cryst1_r->cell * quantity("A");
       } else if (auto ter_r = record_r.cast<records::ter>(); ter_r) {
         ter_found[ter_r->chain_id] = true;
         auto &c = *find_chain(ter_r->chain_id);
@@ -473,7 +477,7 @@ std::ostream &operator<<(std::ostream &os, const pdb_model_emitter &emitter) {
         atom_r.res_seq_num = res->seq_num;
         atom_r.residue_name = res->name;
         atom_r.atom_name = atm->name;
-        atom_r.pos = atm->pos / quantity("angstrom");
+        atom_r.pos = atm->pos / quantity("A");
 
         os << '\n' << atom_r.write();
       }
@@ -502,7 +506,7 @@ std::ostream &operator<<(std::ostream &os,
   for (auto const &[serial, ss] : emitter.owner.disulfide_bonds) {
     records::ssbond ssbond_r;
     ssbond_r.serial = ss.serial;
-    ssbond_r.length = ss.length / quantity("angstrom");
+    ssbond_r.length = ss.length / quantity("A");
 
     ssbond_r.res[0].res_seq_num = ss.a1->parent_res->seq_num;
     ssbond_r.res[0].chain_id = ss.a1->parent_res->parent_chain->chain_id;
@@ -514,7 +518,7 @@ std::ostream &operator<<(std::ostream &os,
 
   for (auto const &_link : emitter.owner.links) {
     records::link link_r;
-    link_r.length = _link.length / quantity("angstrom");
+    link_r.length = _link.length / quantity("A");
 
     link_r.res[0].chain_id = _link.a1->parent_res->parent_chain->chain_id;
     link_r.res[0].res_seq_num = _link.a1->parent_res->seq_num;
@@ -541,5 +545,16 @@ bool pdb_file::atom::in_backbone() const {
       return true;
   }
   return false;
+}
+
+void pdb_file::connect(ioxx::xyaml_proxy &proxy) {
+  auto file = ioxx::xyaml_file();
+  proxy & file;
+
+  if (proxy.loading()) {
+    std::stringstream pdb_ss;
+    pdb_ss << file.source;
+    load(pdb_ss);
+  }
 }
 } // namespace cg

@@ -5,11 +5,12 @@ using namespace cg::heur_dih;
 void parameters::pair_coeffs::connect(ioxx::row_proxy &proxy) {
   proxy["type2"] & type2;
   proxy["type3"] & type3;
-  proxy["sin"] & sin;
-  proxy["cos"] & cos;
-  proxy["sin2"] & sin2;
-  proxy["cos2"] & cos2;
-  proxy["sin_cos"] & sin_cos;
+  proxy["const"] & const_.in_("eps");
+  proxy["sin"] & sin.in_("eps");
+  proxy["cos"] & cos.in_("eps");
+  proxy["sin2"] & sin2.in_("eps");
+  proxy["cos2"] & cos2.in_("eps");
+  proxy["sin_cos"] & sin_cos.in_("eps");
 }
 
 void parameters::connect(ioxx::xyaml_proxy &p) {

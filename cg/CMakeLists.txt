@@ -26,7 +26,7 @@ target_compile_options(pas-cg
     PRIVATE
     $<$<CONFIG:Debug>:-g>
     $<$<CONFIG:Release>:$<$<COMPILE_LANGUAGE:CXX>:-Ofast;-march=native>>
-    $<$<COMPILE_LANGUAGE:CXX>:-Wall;-Wextra;-Wpedantic>)
+    $<$<COMPILE_LANGUAGE:CXX>:-Wall;-Wextra;-Wpedantic;-Werror>)
 
 add_subdirectory(ext/ioxx/ioxx)
 add_subdirectory(ext/nitro/nitro)
@@ -36,3 +36,9 @@ find_package(OpenMP REQUIRED)
 target_link_libraries(pas-cg PRIVATE ioxx nitro OpenMP::OpenMP_CXX cparse)
 
 file(COPY data DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+
+add_custom_command(
+    TARGET pas-cg
+    POST_BUILD
+    COMMAND /usr/bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/scripts/gen_asm
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})

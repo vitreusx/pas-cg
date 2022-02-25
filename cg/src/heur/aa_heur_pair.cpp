@@ -23,3 +23,19 @@ aa_heur_pair::aa_heur_pair(const amino_acid &a1, const amino_acid &a2) {
   *this = aa_heur_pair(type1, type2);
 }
 aa_heur_pair::operator uint8_t() const { return value; }
+
+std::vector<aa_heur_pair> const &aa_heur_pair::all() {
+  struct init_t {
+    std::vector<aa_heur_pair> _all;
+    init_t() {
+      for (uint8_t val = 0; val < NUM_TYPES; ++val) {
+        _all.emplace_back(val);
+      }
+    }
+  };
+
+  static init_t init;
+  return init._all;
+}
+
+aa_heur_pair::aa_heur_pair(uint8_t value) : value{value} {}

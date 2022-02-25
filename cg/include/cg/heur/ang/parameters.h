@@ -11,7 +11,7 @@ struct parameters {
 
   struct pair_coeffs {
     char type1, type2;
-    quantity poly[6];
+    quantity poly[7];
     void connect(ioxx::row_proxy &proxy);
   };
   std::unordered_map<aa_heur_pair, pair_coeffs> coeffs;

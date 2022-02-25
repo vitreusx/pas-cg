@@ -4,8 +4,15 @@
 namespace cg::heur_dih {
 class eval_forces {
 public:
-  static constexpr int NUM_TERMS = 6, NUM_TYPES = 9;
-  real coeffs[NUM_TERMS][NUM_TYPES];
+  struct coeffs_t {
+    real const_[aa_heur_pair::NUM_TYPES];
+    real sin[aa_heur_pair::NUM_TYPES];
+    real cos[aa_heur_pair::NUM_TYPES];
+    real sin2[aa_heur_pair::NUM_TYPES];
+    real cos2[aa_heur_pair::NUM_TYPES];
+    real sin_cos[aa_heur_pair::NUM_TYPES];
+  };
+  coeffs_t coeffs;
 
 public:
   nitro::const_view<vec3r> r;

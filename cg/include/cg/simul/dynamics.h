@@ -12,5 +12,6 @@ public:
   explicit dynamics(int num_residues);
   void reset();
   void omp_reduce(dynamics &target);
+  void sanity_check();
 };
 } // namespace cg::simul

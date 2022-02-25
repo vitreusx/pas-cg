@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cparse/builtin-features.inc>
 #include <cparse/shunting-yard.h>
+#include <regex>
 #include <stdexcept>
 #include <unordered_map>
 using namespace cg;
@@ -59,12 +60,24 @@ quantity::quantity(double mag, std::string const &unit) {
   this->unit_value = parse(unit);
 }
 
+static bool is_number(std::string const &str) {
+  static std::regex number_re("-?[0-9]+([\\.][0-9]+)?");
+  return std::regex_match(str, number_re);
+}
+
 quantity::quantity(const std::string &repr) {
   auto space = std::find(repr.begin(), repr.end(), ' ');
   if (space == repr.end()) {
-    mag = parse(repr);
-    unit_str = "";
-    unit_value = 1.0;
+    auto value = parse(repr);
+    if (is_number(repr)) {
+      mag = value;
+      unit_str = "";
+      unit_value = 1.0;
+    } else {
+      mag = 1.0;
+      unit_str = repr;
+      unit_value = value;
+    }
   } else {
     auto mag_str = std::string(repr.begin(), space);
     mag = parse(mag_str);

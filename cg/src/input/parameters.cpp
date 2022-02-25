@@ -10,14 +10,15 @@ void parameters::morph_into_saw_t::connect(ioxx::xyaml_proxy &p) {
 }
 
 void parameters::connect(ioxx::xyaml_proxy &p) {
-  if (p["seq file"]) {
-    seq_file sf;
-    p["seq file"] & sf.path;
-    source = sf;
-  } else if (p["pdb file"]) {
-    pdb_file pf;
-    p["pdb file"] & pf.path;
-    source = pf;
+  auto type = p["type"].as<std::string>();
+  if (type == "pdb file") {
+    pdb_file file;
+    p["source"] & file;
+    source = std::move(file);
+  } else {
+    seq_file file;
+    p["source"] & file;
+    source = std::move(file);
   }
 
   if (p["morph into SAW"])

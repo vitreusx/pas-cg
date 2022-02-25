@@ -2,17 +2,25 @@ general:
   total time: 20e3 tau
   seed: 42
   num of threads: 4
+  debug mode: false
 
 amino acid data:
   __path: amino-acids.yml
 
 input:
-  seq file: ../glut/glut.yml
+  type: seq file
+  source:
+    __path: ../glut/glut.yml
   morph into SAW:
     perform: true
     bond distance: 3.8 A
     residue density: 1e-3 atom/A**3
     infer simulation box: false
+
+progress bar:
+  enabled: true
+  width: 64
+  update period: 10 tau
 
 langevin:
   enabled: true
@@ -21,7 +29,7 @@ langevin:
   dt: 5e-3 tau
 
 neighbor list:
-  pad factor: 0.25
+  pad factor: 1
 
 heurestic angles:
   enabled: true
@@ -38,7 +46,7 @@ complex native dihedrals:
   CDB: 0.66 eps/rad**2
 
 simple native dihedrals:
-  enabled: false
+  enabled: true
   CDH: 3.33 eps/rad**2
 
 heurestic dihedrals:

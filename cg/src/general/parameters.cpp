@@ -6,4 +6,5 @@ void parameters::connect(ioxx::xyaml_proxy &p) {
   p["total time"] & total_time;
   p["seed"] & seed;
   p["num of threads"] & num_of_threads;
+  p["debug mode"] & debug_mode;
 }

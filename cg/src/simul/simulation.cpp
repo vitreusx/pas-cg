@@ -1,8 +1,11 @@
 #include "simul/simulation.h"
-#include <cg/amino/amino_acid.h>
-#include <cg/input/pdb_file.h>
-#include <cg/input/seq_file.h>
+#include <iostream>
 using namespace cg::simul;
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+#include <fenv.h>
 
 void simulation::print_help(char **argv) {
   std::cout << "Usage: " << argv[0] << " [--help|file]" << '\n';
@@ -41,20 +44,21 @@ void simulation::load_parameters() {
 void simulation::general_setup() {
   omp_set_num_threads((int)params.gen.num_of_threads);
   gen = rand_gen(params.gen.seed);
+
+  if (params.gen.debug_mode) {
+    feclearexcept(FE_ALL_EXCEPT);
+    feenableexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW);
+  }
 }
 
 void simulation::load_model() {
   auto &model_file_v = params.input.source;
-  if (std::holds_alternative<input::parameters::seq_file>(model_file_v)) {
-    auto &seqfile_p = std::get<input::parameters::seq_file>(model_file_v);
-    auto seqfile = seq_file(seqfile_p.path);
-    model = seqfile.model;
-  } else if (std::holds_alternative<input::parameters::pdb_file>(
-                 model_file_v)) {
-    auto &pdbfile_p = std::get<input::parameters::pdb_file>(model_file_v);
-    auto stream = std::ifstream(pdbfile_p.path);
-    auto pdbfile = pdb_file(std::move(stream));
-    model = pdbfile.to_model();
+  if (std::holds_alternative<pdb_file>(model_file_v)) {
+    auto const &file = std::get<pdb_file>(model_file_v);
+    model = file.to_model();
+  } else {
+    auto &file = std::get<seq_file>(model_file_v);
+    model = std::move(file.model);
   }
 
   if (params.input.morph_into_saw.has_value()) {
@@ -118,6 +122,9 @@ void simulation::setup_langevin() {
     step.gamma_factor = params.lang.gamma;
     step.gen = &gen;
     step.mass = comp_aa_data.mass.view();
+    step.num_particles = num_res;
+    step.atype = atype.view();
+    step.r = r.view();
 
     mass_inv = nitro::vector<real>(step.mass.size());
     for (int aa_idx = 0; aa_idx < mass_inv.size(); ++aa_idx)
@@ -168,6 +175,7 @@ void simulation::setup_pbar() {
 
 void simulation::setup_nl() {
   nl_invalid = true;
+  nl_required = false;
   max_cutoff = 0.0;
 
   auto &update = ker.nl_update;
@@ -295,6 +303,7 @@ void simulation::setup_pauli() {
     update.nl = &nl;
     update.pairs = &pauli_pairs;
 
+    nl_required = true;
     max_cutoff = max(max_cutoff, (real)params.pauli.r_excl);
   }
 }
@@ -330,6 +339,7 @@ void simulation::setup_nat_cont() {
       auto cont_dist = all_native_contacts[cont_idx].nat_dist();
       cutoff = max(cutoff, lj::compute_cutoff(cont_dist));
     }
+    nl_required = true;
     max_cutoff = max(max_cutoff, cutoff);
   }
 }
@@ -340,6 +350,7 @@ void simulation::setup_dh() {
   update.box = &box;
   update.nl = &nl;
   update.pairs = &dh_pairs;
+  update.atype = atype.view();
   for (auto const &aa : amino_acid::all())
     update.q[(uint8_t)aa] = comp_aa_data.charge[(uint8_t)aa];
 
@@ -363,8 +374,10 @@ void simulation::setup_dh() {
     update.cutoff = 2.0 * params.rel_dh.screening_dist;
   }
 
-  if (params.const_dh.enabled || params.rel_dh.enabled)
+  if (params.const_dh.enabled || params.rel_dh.enabled) {
+    nl_required = true;
     max_cutoff = max(max_cutoff, update.cutoff);
+  }
 }
 
 void simulation::setup_qa() {
@@ -443,6 +456,7 @@ void simulation::setup_qa() {
     real cutoff = 0.0;
     for (int idx = 0; idx < qa::contact_type::NUM_TYPES; ++idx)
       cutoff = max(cutoff, sift.req_min_dist[idx]);
+    nl_required = true;
     max_cutoff = max(max_cutoff, cutoff);
   }
 }
@@ -504,6 +518,7 @@ void simulation::setup_pid() {
     }
 
     update.cutoff = cutoff;
+    nl_required = true;
     max_cutoff = max(max_cutoff, cutoff);
   }
 }
@@ -535,6 +550,58 @@ void simulation::setup_fafm() {
   }
 }
 
+void simulation::setup_heur_ang() {
+  if (params.heur_ang.enabled) {
+    auto &eval = ker.eval_heur_ang_forces;
+    eval.r = r.view();
+
+    for (auto const &heur_pair : aa_heur_pair::all()) {
+      for (int d = 0; d <= heur_ang::eval_forces::POLY_DEG; ++d) {
+        eval.poly_coeffs[d][(uint8_t)heur_pair] =
+            params.heur_ang.coeffs[heur_pair].poly[d];
+      }
+    }
+
+    for (auto const &angle : model.angles) {
+      if (!angle.theta.has_value()) {
+        auto i1 = res_map[angle.res1], i2 = res_map[angle.res2],
+             i3 = res_map[angle.res3];
+        auto type = aa_heur_pair(atype[i2], atype[i3]);
+
+        heur_angles.emplace_back(i1, i2, i3, type);
+      }
+    }
+    eval.angles = heur_angles.view();
+  }
+}
+
+void simulation::setup_heur_dih() {
+  if (params.heur_dih.enabled) {
+    auto &eval = ker.eval_heur_dih_forces;
+    eval.r = r.view();
+
+    for (auto const &heur_pair : aa_heur_pair::all()) {
+      auto idx = (uint8_t)heur_pair;
+      eval.coeffs.const_[idx] = params.heur_dih.coeffs[heur_pair].const_;
+      eval.coeffs.sin[idx] = params.heur_dih.coeffs[heur_pair].sin;
+      eval.coeffs.cos[idx] = params.heur_dih.coeffs[heur_pair].cos;
+      eval.coeffs.sin2[idx] = params.heur_dih.coeffs[heur_pair].sin2;
+      eval.coeffs.cos2[idx] = params.heur_dih.coeffs[heur_pair].cos2;
+      eval.coeffs.sin_cos[idx] = params.heur_dih.coeffs[heur_pair].sin_cos;
+    }
+
+    for (auto const &dihedral : model.dihedrals) {
+      if (!dihedral.phi.has_value()) {
+        auto i1 = res_map[dihedral.res1], i2 = res_map[dihedral.res2],
+             i3 = res_map[dihedral.res3], i4 = res_map[dihedral.res4];
+        auto type = aa_heur_pair(atype[i2], atype[i3]);
+
+        heur_dihedrals.emplace_back(i1, i2, i3, i4, type);
+      }
+    }
+  }
+}
+
 void simulation::setup() {
   load_parameters();
   general_setup();
@@ -547,7 +614,9 @@ void simulation::setup() {
   setup_chir();
   setup_tether();
   setup_nat_ang();
+  setup_heur_ang();
   setup_nat_dih();
+  setup_heur_dih();
   setup_pauli();
   setup_nat_cont();
   setup_dh();
@@ -566,7 +635,7 @@ void simulation::main_loop() {
     native_angles, native_dihedrals, pauli_pairs, all_native_contacts,         \
     cur_native_contacts, native_contact_exclusions, dh_pairs, qa_free_pairs,   \
     qa_candidates, qa_contacts, sync_values, n, h, pid_bundles, ss_ljs,        \
-    vafm_tips, fafm_tips) firstprivate(state, ker)
+    vafm_tips, fafm_tips, std::cout) firstprivate(state, ker)
   {
 
 #pragma omp master
@@ -582,18 +651,7 @@ void simulation::main_loop() {
 #pragma omp barrier
 
 #pragma omp master
-      {
-        ker.render_pbar();
-
-        ker.lang_step();
-        dyn.reset();
-        if (params.qa.enabled)
-          ker.sift_qa_candidates.omp_prep();
-
-        ker.nl_verify();
-        if (nl_invalid)
-          on_nl_invalidation();
-      };
+      sync_part();
 
 #pragma omp barrier
     }
@@ -601,6 +659,8 @@ void simulation::main_loop() {
 }
 
 void simulation::async_part() {
+  state.dyn.reset();
+
   if (params.chir.enabled)
     ker.eval_chir_forces.omp_async();
   if (params.tether.enabled)
@@ -619,6 +679,10 @@ void simulation::async_part() {
     ker.eval_const_dh_forces.omp_async();
   if (params.rel_dh.enabled)
     ker.eval_rel_dh_forces.omp_async();
+  if (params.heur_ang.enabled)
+    ker.eval_heur_ang_forces.omp_async();
+  if (params.heur_dih.enabled)
+    ker.eval_heur_dih_forces.omp_async();
   if (params.qa.enabled) {
     ker.prepare_nh.omp_async();
     ker.sift_qa_candidates.omp_async();
@@ -630,6 +694,25 @@ void simulation::async_part() {
     ker.eval_vafm_forces.omp_async();
   if (params.fafm.enabled)
     ker.eval_fafm_forces.omp_async();
+
+  state.dyn.omp_reduce(dyn);
+}
+
+void simulation::sync_part() {
+  if (params.pbar.enabled)
+    ker.render_pbar();
+
+  if (params.lang.enabled)
+    ker.lang_step();
+  dyn.reset();
+  if (params.qa.enabled)
+    ker.sift_qa_candidates.omp_prep();
+
+  if (nl_required) {
+    ker.nl_verify();
+    if (nl_invalid)
+      on_nl_invalidation();
+  }
 }
 
 void simulation::pre_loop_init() {
@@ -639,13 +722,18 @@ void simulation::pre_loop_init() {
 
 #pragma omp master
   {
+    if (params.pbar.enabled)
+      ker.render_pbar();
+
     dyn.reset();
-    ker.nl_verify();
     if (params.qa.enabled)
       ker.sift_qa_candidates.omp_prep();
 
-    if (nl_invalid)
-      on_nl_invalidation();
+    if (nl_required) {
+      ker.nl_verify();
+      if (nl_invalid)
+        on_nl_invalidation();
+    }
   };
 }
 

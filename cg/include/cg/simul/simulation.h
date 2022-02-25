@@ -56,7 +56,7 @@ private:
   void setup_pbar();
 
   nl::data nl;
-  bool nl_invalid, verify_first_time;
+  bool nl_required, nl_invalid, verify_first_time;
   real max_cutoff;
   void setup_nl();
 
@@ -69,8 +69,14 @@ private:
   nitro::vector<nat_ang::nat_ang> native_angles;
   void setup_nat_ang();
 
+  nitro::vector<heur_ang::heur_ang> heur_angles;
+  void setup_heur_ang();
+
   nitro::vector<nat_dih> native_dihedrals;
   void setup_nat_dih();
+
+  nitro::vector<heur_dih::heur_dih> heur_dihedrals;
+  void setup_heur_dih();
 
   nitro::vector<pauli::pair> pauli_pairs;
   void setup_pauli();
@@ -101,10 +107,11 @@ private:
 
   thread_state state;
 
-  void main_loop();
   void pre_loop_init();
-  void on_nl_invalidation();
+  void main_loop();
   void async_part();
+  void sync_part();
+  void on_nl_invalidation();
 
 public:
   int operator()(int argc, char **argv);

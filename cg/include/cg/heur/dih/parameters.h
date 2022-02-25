@@ -11,7 +11,7 @@ struct parameters {
 
   struct pair_coeffs {
     char type2, type3;
-    quantity sin, cos, sin2, cos2, sin_cos;
+    quantity const_, sin, cos, sin2, cos2, sin_cos;
     void connect(ioxx::row_proxy &proxy);
   };
   std::unordered_map<aa_heur_pair, pair_coeffs> coeffs;

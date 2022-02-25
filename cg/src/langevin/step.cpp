@@ -9,8 +9,8 @@ void step::operator()() const {
   auto gamma_factor_sqrt = sqrt(gamma_factor);
 
   for (int idx = 0; idx < num_particles; ++idx) {
-    auto gamma = gamma_factor * mass[idx];
     auto aa_idx = (uint8_t)atype[idx];
+    auto gamma = gamma_factor * mass[aa_idx];
     auto noise_sd = noise_factor * gamma_factor_sqrt * mass_rsqrt[aa_idx];
 
     auto [noise_x, noise_y] = local_gen.normal_x2<real>();

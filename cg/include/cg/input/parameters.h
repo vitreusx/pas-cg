@@ -1,16 +1,12 @@
 #pragma once
+#include "pdb_file.h"
+#include "seq_file.h"
 #include <cg/utils/quantity.h>
 #include <ioxx/xyaml.h>
 #include <variant>
 
 namespace cg::input {
 struct parameters {
-  struct seq_file {
-    std::string path;
-  };
-  struct pdb_file {
-    std::string path;
-  };
   std::variant<seq_file, pdb_file> source;
 
   struct morph_into_saw_t {

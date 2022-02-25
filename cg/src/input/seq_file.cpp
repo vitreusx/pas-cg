@@ -5,20 +5,17 @@
 #include <set>
 
 namespace cg {
-seq_file::seq_file(const std::filesystem::path &seq_file_path) {
-  using namespace ioxx;
-  auto seq_file_node = xyaml_node::from_path(seq_file_path);
-  auto proxy = xyaml_proxy(seq_file_node, node_proxy_mode::LOAD);
-  proxy &*this;
-}
-
 void seq_file::connect(ioxx::xyaml_proxy &proxy) {
   using namespace ioxx;
+
+  auto file_node = xyaml_embedded();
+  proxy &file_node;
+  auto file_proxy = proxy(file_node.node);
 
   if (proxy.loading()) {
     int chain_idx = 0;
 
-    for (auto const &chain_node : proxy["model"]["chains"]) {
+    for (auto const &chain_node : file_proxy["model"]["chains"]) {
       auto res_codes = chain_node["seq"].as<std::string>();
       res_codes = std::regex_replace(res_codes, std::regex("\\s+"), "");
 
@@ -49,7 +46,7 @@ void seq_file::connect(ioxx::xyaml_proxy &proxy) {
 
       auto maps_node = chain_node["maps"];
       for (auto const &entry : maps_node) {
-        auto xentry = xyaml_node::from_data(entry, proxy.location);
+        auto xentry = xyaml_node::from_data(entry, file_proxy.location);
         auto xproxy = proxy(xentry);
 
         map_file mf;

@@ -16,3 +16,17 @@ void dynamics::omp_reduce(dynamics &target) {
   for (int idx = 0; idx < F.size(); ++idx)
     target.F[idx].omp_atomic_add(F[idx]);
 }
+
+void dynamics::sanity_check() {
+  if (isnan(V))
+    throw;
+
+  for (int idx = 0; idx < F.size(); ++idx) {
+    if (isnan(F[idx].x()))
+      throw;
+    if (isnan(F[idx].y()))
+      throw;
+    if (isnan(F[idx].z()))
+      throw;
+  }
+}

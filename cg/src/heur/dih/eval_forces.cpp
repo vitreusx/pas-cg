@@ -29,14 +29,15 @@ void eval_forces::iter(heur_dih_expr<E> const &dihedral) const {
   auto sin2_phi = sin_phi * sin_phi, cos2_phi = cos_phi * cos_phi,
        sin_phi_cos_phi = sin_phi * cos_phi;
 
-  *V += coeffs[0][type_val] + coeffs[1][type_val] * sin_phi +
-        coeffs[2][type_val] * cos_phi + coeffs[3][type_val] * sin2_phi +
-        coeffs[4][type_val] * cos2_phi + coeffs[5][type_val] * sin_phi_cos_phi;
+  *V += coeffs.const_[type_val] + coeffs.sin[type_val] * sin_phi +
+        coeffs.cos[type_val] * cos_phi + coeffs.sin2[type_val] * sin2_phi +
+        coeffs.cos2[type_val] * cos2_phi +
+        coeffs.sin_cos[type_val] * sin_phi_cos_phi;
 
   auto dV_dphi =
-      coeffs[1][type_val] * cos_phi - coeffs[2][type_val] * sin_phi +
-      2.0f * (coeffs[3][type_val] + coeffs[4][type_val]) * sin_phi_cos_phi +
-      coeffs[5][type_val] * (cos2_phi - sin2_phi);
+      coeffs.sin[type_val] * cos_phi - coeffs.cos[type_val] * sin_phi +
+      2.0f * (coeffs.sin2[type_val] - coeffs.cos2[type_val]) * sin_phi_cos_phi +
+      coeffs.sin_cos[type_val] * (cos2_phi - sin2_phi);
 
   auto r23_n = norm(r23);
   auto dphi_dr1 = -x12_23_u * r23_n * x12_23_rn;

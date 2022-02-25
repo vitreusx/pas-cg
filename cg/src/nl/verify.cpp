@@ -16,7 +16,6 @@ void verify::operator()() const {
     auto box_disp = l1_norm(box->cell - data->orig_box.cell);
 
     real total_disp = 2.0f * max_r_disp + box_disp;
-    if (total_disp > data->orig_pad)
-      *invalid = true;
+    *invalid = (total_disp > data->orig_pad);
   }
 }

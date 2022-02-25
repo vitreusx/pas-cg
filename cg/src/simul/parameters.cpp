@@ -23,4 +23,5 @@ void parameters::connect(ioxx::xyaml_proxy &proxy) {
   proxy["tether forces"] & tether;
   proxy["velocity AFM"] & vafm;
   proxy["force AFM"] & fafm;
+  proxy["progress bar"] & pbar;
 }

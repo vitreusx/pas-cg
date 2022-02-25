@@ -12,11 +12,12 @@ class pdb_contacts_emitter;
 
 class pdb_file {
 public:
-  pdb_file(pdb_file const &other);
-  pdb_file &operator=(pdb_file const &other);
-
+  pdb_file() = default;
   explicit pdb_file(std::istream &&is);
   explicit pdb_file(input::model const &xmd_model);
+
+  pdb_file(pdb_file const &other);
+  pdb_file &operator=(pdb_file const &other);
 
   friend std::ostream &operator<<(std::ostream &os, pdb_file const &p);
   pdb_model_emitter emit_model(int model_serial) const;
@@ -74,10 +75,13 @@ public:
 
   vec3<double> cryst1;
 
+  void connect(ioxx::xyaml_proxy &proxy);
+
 private:
   friend class pdb_model_emitter;
   friend class pdb_contacts_emitter;
 
+  void load(std::istream &source);
   chain *find_chain(char chain_id);
   residue *find_res(chain &c, size_t seq_num);
 };
