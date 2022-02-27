@@ -13,7 +13,7 @@ void parameters::pair_coeffs::connect(ioxx::row_proxy &proxy) {
   proxy["sin_cos"] & sin_cos.in_("eps");
 }
 
-void parameters::connect(ioxx::xyaml_proxy &p) {
+void parameters::load(ioxx::xyaml::node const &p) {
   enabled = p["enabled"].as<bool>();
   auto coeffs_csv = p["coefficients"].as<ioxx::csv<pair_coeffs>>();
   for (auto const &row : coeffs_csv.rows) {

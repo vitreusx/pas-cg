@@ -1,6 +1,7 @@
 #pragma once
 #include <cg/amino/amino_acid.h>
 #include <cg/utils/quantity.h>
+#include <ioxx/ioxx.h>
 
 namespace cg {
 
@@ -12,7 +13,7 @@ struct atom_data {
 
 struct contact_limits {
   int back, side_all, side_hydrophobic, side_polar;
-  void connect(ioxx::xyaml_proxy &proxy);
+  void link(ioxx::xyaml::proxy &proxy);
 };
 
 struct aa_data {
@@ -26,9 +27,9 @@ struct aa_data {
 class amino_acid_data {
 public:
   amino_acid_data() = default;
-  void connect(ioxx::xyaml_proxy &proxy);
-
   std::unordered_map<amino_acid, aa_data> data;
   aa_data const &operator[](amino_acid const &aa) const;
+
+  void load(ioxx::xyaml::node const& node);
 };
 } // namespace cg

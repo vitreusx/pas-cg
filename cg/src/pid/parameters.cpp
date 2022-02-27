@@ -2,19 +2,19 @@
 #include "utils/ioxx_interop.h"
 using namespace cg::pid;
 
-void parameters::bb_t::connect(ioxx::xyaml_proxy &p) {
+void parameters::bb_t::load(ioxx::xyaml::node const &p) {
   alpha = p["alpha"].as<quantity>();
   psi_0 = p["psi_0"].as<quantity>();
   r_min = p["r_min"].as<quantity>();
   depth = p["depth"].as<quantity>();
 }
 
-void parameters::ss_t::connect(ioxx::xyaml_proxy &p) {
+void parameters::ss_t::load(ioxx::xyaml::node const &p) {
   alpha = p["alpha"].as<quantity>();
   psi_0 = p["psi_0"].as<quantity>();
 }
 
-void parameters::connect(ioxx::xyaml_proxy &p) {
+void parameters::load(ioxx::xyaml::node const &p) {
   enabled = p["enabled"].as<bool>();
 
   auto lambda_version_s = p["lambda version"].as<std::string>();
@@ -23,7 +23,7 @@ void parameters::connect(ioxx::xyaml_proxy &p) {
   else if (lambda_version_s == "algebraic")
     lambda_version = lambda_version::ALGEBRAIC;
 
-  p["bb+"] & bb_plus;
-  p["bb-"] & bb_minus;
-  p["ss"] & ss;
+  p["bb+"] >> bb_plus;
+  p["bb-"] >> bb_minus;
+  p["ss"] >> ss;
 }

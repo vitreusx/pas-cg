@@ -31,14 +31,14 @@ void simulation::parse_args(int argc, char **argv) {
 }
 
 void simulation::load_parameters() {
-  auto params_yml = ioxx::xyaml_node::from_path("data/default/inputfile.yml");
-  if (param_path) {
-    auto overrides = ioxx::xyaml_node::from_path(param_path.value());
-    params_yml = merge(params, overrides);
-  }
+  using namespace ioxx::xyaml;
+  auto params_yml = node::import("data/default/inputfile.yml");
+  //  if (param_path) {
+  //    auto overrides = ioxx::xyaml_node::from_path(param_path.value());
+  //    params_yml = merge(params, overrides);
+  //  }
 
-  auto proxy = ioxx::xyaml_proxy(params_yml);
-  proxy &params;
+  params_yml >> params;
 }
 
 void simulation::general_setup() {
@@ -178,18 +178,39 @@ void simulation::setup_nl() {
   nl_required = false;
   max_cutoff = 0.0;
 
-  auto &update = ker.nl_update;
-  update.pad_factor = params.nl.pad_factor;
-  update.r = r.view();
-  update.box = &box;
-  update.t = &t;
-  update.chain_idx = chain_idx.view();
-  update.seq_idx = seq_idx.view();
-  update.num_particles = num_res;
-  update.data = &nl;
-  update.data->orig_r = nitro::vector<vec3r>(num_res);
-  update.invalid = &nl_invalid;
-  update.max_cutoff = &max_cutoff;
+  if (params.nl.algorithm == nl::parameters::LEGACY) {
+    auto &legacy = ker.nl_legacy;
+    legacy.pad_factor = params.nl.pad_factor;
+    legacy.r = r.view();
+    legacy.box = &box;
+    legacy.t = &t;
+    legacy.chain_idx = chain_idx.view();
+    legacy.seq_idx = seq_idx.view();
+    legacy.num_particles = num_res;
+    legacy.data = &nl;
+    legacy.data->orig_r = nitro::vector<vec3r>(num_res);
+    legacy.invalid = &nl_invalid;
+    legacy.max_cutoff = &max_cutoff;
+  } else {
+    auto &cell = ker.nl_cell;
+    cell.pad_factor = params.nl.pad_factor;
+    cell.r = r.view();
+    cell.box = &box;
+    cell.t = &t;
+    cell.chain_idx = chain_idx.view();
+    cell.seq_idx = seq_idx.view();
+    cell.num_particles = num_res;
+    cell.data = &nl;
+    cell.data->orig_r = nitro::vector<vec3r>(num_res);
+    cell.invalid = &nl_invalid;
+    cell.max_cutoff = &max_cutoff;
+    res_cell_idx = reordered_idx = nitro::vector<int>(num_res);
+    cell.res_cell_idx = res_cell_idx.view();
+    cell.reordered_idx = reordered_idx.view();
+    cell.num_res_in_cell = &num_res_in_cell;
+    cell.cell_offset = &cell_offset;
+    cell.all_pairs = &all_pairs;
+  }
 
   auto &verify = ker.nl_verify;
   verify.r = r.view();
@@ -319,7 +340,8 @@ void simulation::setup_nat_cont() {
       }
     }
 
-    ker.nl_update.all_nat_cont = native_contact_exclusions.view();
+    ker.nl_legacy.all_nat_cont = native_contact_exclusions.view();
+    ker.nl_cell.all_nat_cont = native_contact_exclusions.view();
 
     auto &eval = ker.eval_nat_cont_forces;
     eval.depth = params.nat_cont.lj_depth;
@@ -738,7 +760,12 @@ void simulation::pre_loop_init() {
 }
 
 void simulation::on_nl_invalidation() {
-  ker.nl_update();
+  if (params.nl.algorithm == nl::parameters::CELL) {
+    ker.nl_cell();
+  } else {
+    ker.nl_legacy();
+  }
+
   if (params.pauli.enabled)
     ker.update_pauli_pairs();
   if (params.nat_cont.enabled)

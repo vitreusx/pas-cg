@@ -1,12 +1,12 @@
 #pragma once
 #include <cg/utils/quantity.h>
-#include <ioxx/xyaml.h>
+#include <ioxx/ioxx.h>
 
 namespace cg::lang {
 struct parameters {
   bool enabled;
   quantity gamma, temperature, dt;
 
-  void connect(ioxx::xyaml_proxy& proxy);
+  void load(ioxx::xyaml::node const &node);
 };
 } // namespace cg::lang

@@ -7,7 +7,8 @@ template <typename Scalar> class vec3;
 template <typename E> struct vec3_expr : public nitro::ind_expr<E> {
   EXPR_BODY(x, y, z)
 
-  template <typename F> vec3_expr<E> &omp_atomic_add(vec3_expr<F> const &f) {
+  template <typename F>
+   vec3_expr<E> &omp_atomic_add(vec3_expr<F> const &f) {
 #pragma omp atomic
     x() += f.x();
 #pragma omp atomic
@@ -18,28 +19,30 @@ template <typename E> struct vec3_expr : public nitro::ind_expr<E> {
     return *this;
   }
 
-  template <typename F> vec3_expr<E> &operator+=(vec3_expr<F> const &f) {
+  template <typename F>
+   vec3_expr<E> &operator+=(vec3_expr<F> const &f) {
     x() += f.x();
     y() += f.y();
     z() += f.z();
     return *this;
   }
 
-  template <typename F> vec3_expr<E> &operator-=(vec3_expr<F> const &f) {
+  template <typename F>
+   vec3_expr<E> &operator-=(vec3_expr<F> const &f) {
     x() -= f.x();
     y() -= f.y();
     z() -= f.z();
     return *this;
   }
 
-  template <typename F> vec3_expr<E> &operator*=(F const &f) {
+  template <typename F>  vec3_expr<E> &operator*=(F const &f) {
     x() *= f;
     y() *= f;
     z() *= f;
     return *this;
   }
 
-  template <typename F> vec3_expr<E> &operator/=(F const &f) {
+  template <typename F>  vec3_expr<E> &operator/=(F const &f) {
     x() /= f;
     y() /= f;
     z() /= f;
@@ -60,22 +63,30 @@ public:
   using Base = vec3_base<Scalar>;
   using Base::get;
 
-  static vec3<Scalar> Zero() { return {(Scalar)0, (Scalar)0, (Scalar)0}; }
+   static vec3<Scalar> Zero() {
+    return {(Scalar)0, (Scalar)0, (Scalar)0};
+  }
 
-  static vec3<Scalar> UnitX() { return {(Scalar)1, (Scalar)0, (Scalar)0}; }
+   static vec3<Scalar> UnitX() {
+    return {(Scalar)1, (Scalar)0, (Scalar)0};
+  }
 
-  static vec3<Scalar> UnitY() { return {(Scalar)0, (Scalar)1, (Scalar)0}; }
+   static vec3<Scalar> UnitY() {
+    return {(Scalar)0, (Scalar)1, (Scalar)0};
+  }
 
-  static vec3<Scalar> UnitZ() { return {(Scalar)0, (Scalar)0, (Scalar)1}; }
+   static vec3<Scalar> UnitZ() {
+    return {(Scalar)0, (Scalar)0, (Scalar)1};
+  }
 
-  vec3() : Base((Scalar)0, (Scalar)0, (Scalar)0) {}
+   vec3() : Base((Scalar)0, (Scalar)0, (Scalar)0) {}
 
-  vec3(Scalar x, Scalar y, Scalar z)
+   vec3(Scalar x, Scalar y, Scalar z)
       : Base(std::forward<Scalar>(x), std::forward<Scalar>(y),
              std::forward<Scalar>(z)) {}
 
   template <typename E>
-  vec3(vec3_expr<E> const &e) : vec3(e.x(), e.y(), e.z()) {}
+   vec3(vec3_expr<E> const &e) : vec3(e.x(), e.y(), e.z()) {}
 };
 
 using vec3f = vec3<float>;

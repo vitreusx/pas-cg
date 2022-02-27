@@ -1,7 +1,7 @@
 #pragma once
 #include <filesystem>
 #include <ioxx/csv.h>
-#include <ioxx/xyaml.h>
+#include <ioxx/ioxx.h>
 #include <string>
 #include <vector>
 
@@ -31,6 +31,6 @@ public:
 
   void shift(int shift_val);
 
-  void connect(ioxx::xyaml_proxy &proxy);
+  void link(ioxx::xyaml::proxy &proxy);
 };
 } // namespace cg

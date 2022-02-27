@@ -1,5 +1,4 @@
 #pragma once
-#include <ioxx/xyaml.h>
 #include <string>
 #include <unordered_map>
 #include <vector>

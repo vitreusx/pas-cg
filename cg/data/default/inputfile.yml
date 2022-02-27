@@ -29,6 +29,7 @@ langevin:
   dt: 5e-3 tau
 
 neighbor list:
+  algorithm: cell
   pad factor: 1
 
 heurestic angles:

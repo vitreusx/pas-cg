@@ -2,9 +2,9 @@
 #include "utils/ioxx_interop.h"
 using namespace cg::gen;
 
-void parameters::connect(ioxx::xyaml_proxy &p) {
-  p["total time"] & total_time;
-  p["seed"] & seed;
-  p["num of threads"] & num_of_threads;
-  p["debug mode"] & debug_mode;
+void parameters::load(ioxx::xyaml::node const &p) {
+  p["total time"] >> total_time;
+  p["seed"] >> seed;
+  p["num of threads"] >> num_of_threads;
+  p["debug mode"] >> debug_mode;
 }

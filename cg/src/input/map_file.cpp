@@ -1,6 +1,5 @@
 #include "map_file.h"
 #include <fstream>
-#include <ioxx/csv.h>
 #include <sstream>
 
 namespace cg {
@@ -45,12 +44,12 @@ void map_file::dihedral::connect(ioxx::row_proxy &proxy) {
   proxy["phi"] & phi;
 }
 
-void map_file::connect(ioxx::xyaml_proxy &proxy) {
+void map_file::link(ioxx::xyaml::proxy &proxy) {
   ioxx::csv<contact> contacts_csv;
   ioxx::csv<angle> angles_csv;
   ioxx::csv<dihedral> dihedrals_csv;
 
-  if (!proxy.loading()) {
+  if (proxy.mode == ioxx::xyaml::proxy_mode::SAVE) {
     contacts_csv.rows = contacts;
     angles_csv.rows = angles;
     dihedrals_csv.rows = dihedrals;
@@ -60,7 +59,7 @@ void map_file::connect(ioxx::xyaml_proxy &proxy) {
   proxy["angles"] & angles_csv;
   proxy["dihedrals"] & dihedrals_csv;
 
-  if (proxy.loading()) {
+  if (proxy.mode == ioxx::xyaml::proxy_mode::LOAD) {
     contacts = contacts_csv.rows;
     angles = angles_csv.rows;
     dihedrals = dihedrals_csv.rows;

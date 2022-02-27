@@ -1,7 +1,7 @@
 #pragma once
 #include "contact_type.h"
 #include <cg/base_forces/sink_lj.h>
-#include <nitro/vector.h>
+#include <nitro/nitro.h>
 
 namespace cg::qa {
 class lj_variants {

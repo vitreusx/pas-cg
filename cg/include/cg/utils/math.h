@@ -1,7 +1,6 @@
 #pragma once
 #include <cmath>
-#include <nitro/lane.h>
-#include <nitro/lane_math.h>
+#include <nitro/nitro.h>
 
 namespace cg {
 template <typename T> auto sqrt(T const &x) { return std::sqrt(x); }
@@ -99,6 +98,12 @@ template <typename T> auto ceil(T const &x) { return std::ceil(x); }
 
 template <typename T, size_t N> auto ceil(nitro::lane<T, N> const &x) {
   return ::ceil(x);
+}
+
+template <typename T> auto floor(T const &x) { return std::floor(x); }
+
+template <typename T, size_t N> auto floor(nitro::lane<T, N> const &x) {
+  return ::floor(x);
 }
 
 template <typename T> auto log(T const &x) { return std::log(x); }

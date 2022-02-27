@@ -28,6 +28,7 @@
 #include <cg/tether/eval_forces.h>
 #include <cg/utils/random.h>
 #include <cg/vel_afm/eval_forces.h>
+#include <cg/nl/cell_update.h>
 
 namespace cg::simul {
 class kernels {
@@ -50,7 +51,8 @@ public:
   vafm::eval_forces eval_vafm_forces;
 
   lang::step lang_step;
-  nl::legacy_update nl_update;
+  nl::legacy_update nl_legacy;
+  nl::cell_update nl_cell;
   nl::verify nl_verify;
 
   dh::update_pairs update_dh_pairs;

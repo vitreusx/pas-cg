@@ -1,6 +1,6 @@
 #pragma once
 #include <cg/utils/quantity.h>
-#include <ioxx/xyaml.h>
+#include <ioxx/ioxx.h>
 
 namespace cg::gen {
 struct parameters {
@@ -8,6 +8,6 @@ struct parameters {
   uint64_t seed, num_of_threads;
   bool debug_mode;
 
-  void connect(ioxx::xyaml_proxy &proxy);
+  void load(ioxx::xyaml::node const &node);
 };
 } // namespace cg::gen

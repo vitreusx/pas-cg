@@ -58,6 +58,8 @@ private:
   nl::data nl;
   bool nl_required, nl_invalid, verify_first_time;
   real max_cutoff;
+  nitro::vector<int> res_cell_idx, reordered_idx, num_res_in_cell, cell_offset;
+  std::vector<std::tuple<int, int, real>> all_pairs;
   void setup_nl();
 
   nitro::vector<chir::chiral_quad> chir_quads;

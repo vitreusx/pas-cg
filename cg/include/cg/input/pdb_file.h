@@ -75,7 +75,7 @@ public:
 
   vec3<double> cryst1;
 
-  void connect(ioxx::xyaml_proxy &proxy);
+  void load(ioxx::xyaml::node const &node);
 
 private:
   friend class pdb_model_emitter;

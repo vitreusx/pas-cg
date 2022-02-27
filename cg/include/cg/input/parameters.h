@@ -2,7 +2,7 @@
 #include "pdb_file.h"
 #include "seq_file.h"
 #include <cg/utils/quantity.h>
-#include <ioxx/xyaml.h>
+#include <ioxx/ioxx.h>
 #include <variant>
 
 namespace cg::input {
@@ -14,10 +14,10 @@ struct parameters {
     std::optional<quantity> bond_distance;
     quantity residue_density;
     bool infer_box;
-    void connect(ioxx::xyaml_proxy &proxy);
+    void link(ioxx::xyaml::proxy &proxy);
   };
   std::optional<morph_into_saw_t> morph_into_saw;
 
-  void connect(ioxx::xyaml_proxy &proxy);
+  void load(ioxx::xyaml::node const &node);
 };
 } // namespace cg::input

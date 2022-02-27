@@ -547,14 +547,11 @@ bool pdb_file::atom::in_backbone() const {
   return false;
 }
 
-void pdb_file::connect(ioxx::xyaml_proxy &proxy) {
-  auto file = ioxx::xyaml_file();
-  proxy & file;
+void pdb_file::load(ioxx::xyaml::node const &node) {
+  using namespace ioxx::xyaml;
 
-  if (proxy.loading()) {
-    std::stringstream pdb_ss;
-    pdb_ss << file.source;
-    load(pdb_ss);
-  }
+  std::stringstream pdb_ss;
+  pdb_ss << node.as<file>().fetch();
+  load(pdb_ss);
 }
 } // namespace cg

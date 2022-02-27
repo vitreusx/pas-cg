@@ -1,7 +1,7 @@
 #pragma once
 #include "lambda.h"
 #include <cg/utils/quantity.h>
-#include <ioxx/xyaml.h>
+#include <ioxx/ioxx.h>
 
 namespace cg::pid {
 struct parameters {
@@ -11,16 +11,16 @@ struct parameters {
 
   struct bb_t {
     quantity alpha, psi_0, r_min, depth;
-    void connect(ioxx::xyaml_proxy &proxy);
+    void load(ioxx::xyaml::node const &node);
   };
   bb_t bb_plus, bb_minus;
 
   struct ss_t {
     quantity alpha, psi_0;
-    void connect(ioxx::xyaml_proxy &proxy);
+    void load(ioxx::xyaml::node const &node);
   };
   ss_t ss;
 
-  void connect(ioxx::xyaml_proxy &proxy);
+  void load(ioxx::xyaml::node const &node);
 };
 } // namespace cg::pid

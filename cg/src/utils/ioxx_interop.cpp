@@ -1,14 +1,13 @@
 #include "utils/ioxx_interop.h"
-using namespace ioxx;
+using namespace ioxx::xyaml;
 
-void xyaml_connection<cg::quantity>::operator()(xyaml_proxy &proxy,
-                                                cg::quantity &value) const {
-  if (proxy.loading()) {
-    std::string repr;
-    proxy &repr;
-    value = cg::quantity(repr);
-  } else {
-    auto repr = value.repr();
-    proxy &repr;
-  }
+void xyaml_conv<cg::quantity>::load(const node &from, cg::quantity &to) const {
+  std::string repr;
+  from >> repr;
+  to = cg::quantity(repr);
+}
+
+void xyaml_conv<cg::quantity>::save(node &to, const cg::quantity &from) const {
+  auto repr = from.repr();
+  to << repr;
 }

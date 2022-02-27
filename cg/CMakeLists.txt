@@ -24,16 +24,25 @@ target_include_directories(pas-cg
 
 target_compile_options(pas-cg
     PRIVATE
-    $<$<CONFIG:Debug>:-g>
-    $<$<CONFIG:Release>:$<$<COMPILE_LANGUAGE:CXX>:-Ofast;-march=native>>
-    $<$<COMPILE_LANGUAGE:CXX>:-Wall;-Wextra;-Wpedantic;-Werror>)
+    $<$<COMPILE_LANGUAGE:CXX>:
+    -Wall;-Wextra;-Wpedantic;-Werror;
+    $<$<CONFIG:Release>:-Ofast;-march=native>;
+    $<$<CONFIG:Debug>:-g;-Og>>)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/ext/eigen-3.4.0/cmake")
 
 add_subdirectory(ext/ioxx/ioxx)
 add_subdirectory(ext/nitro/nitro)
 add_subdirectory(ext/cparse)
 find_package(OpenMP REQUIRED)
+find_package(Eigen3 3.4 REQUIRED)
 
-target_link_libraries(pas-cg PRIVATE ioxx nitro OpenMP::OpenMP_CXX cparse)
+target_link_libraries(pas-cg
+    PRIVATE ioxx nitro OpenMP::OpenMP_CXX cparse Eigen3::Eigen)
+
+#set_target_properties(pas-cg
+#    PROPERTIES
+#    CXX_VISIBILITY_PRESET hidden)
 
 file(COPY data DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 

@@ -16,30 +16,30 @@ struct per_pair_csv {
   }
 };
 
-void lj_variants::connect(ioxx::xyaml_proxy &proxy) {
-  bb.r_min() = proxy["bb"]["r_min"].as<quantity>();
-  bb.depth() = proxy["bb"]["depth"].as<quantity>();
+void lj_variants::load(ioxx::xyaml::node const &node) {
+  bb.r_min() = node["bb"]["r_min"].as<quantity>();
+  bb.depth() = node["bb"]["depth"].as<quantity>();
 
-  bs.r_min() = proxy["bs"]["r_min"].as<quantity>();
-  bs.depth() = proxy["bs"]["depth"].as<quantity>();
+  bs.r_min() = node["bs"]["r_min"].as<quantity>();
+  bs.depth() = node["bs"]["depth"].as<quantity>();
   sb = bs;
 
   std::optional<quantity> def_depth, def_r_min, def_r_max;
-  if (auto ss_def_values = proxy["ss"]["default"]; ss_def_values) {
-    ss_def_values["depth"] & def_depth;
-    ss_def_values["r_min"] & def_r_min;
-    ss_def_values["r_max"] & def_r_max;
+  if (auto ss_def_values = node["ss"]["default"]; ss_def_values) {
+    ss_def_values["depth"] >> def_depth;
+    ss_def_values["r_min"] >> def_r_min;
+    ss_def_values["r_max"] >> def_r_max;
   }
 
   std::optional<ioxx::csv<per_pair_csv>> per_pair_depth, per_pair_r_min,
       per_pair_r_max;
-  if (auto ss_per_pair = proxy["ss"]["per pair"]; ss_per_pair) {
-    ss_per_pair["depth"] & per_pair_depth;
-    ss_per_pair["r_min"] & per_pair_r_min;
-    ss_per_pair["r_max"] & per_pair_r_max;
+  if (auto ss_per_pair = node["ss"]["per pair"]; ss_per_pair) {
+    ss_per_pair["depth"] >> per_pair_depth;
+    ss_per_pair["r_min"] >> per_pair_r_min;
+    ss_per_pair["r_max"] >> per_pair_r_max;
   }
 
-  auto use_sinking = proxy["ss"]["use sinking variant"].as<bool>();
+  auto use_sinking = node["ss"]["use sinking variant"].as<bool>();
   if (use_sinking) {
     if (!def_r_min.has_value())
       def_r_min = bb.r_min();

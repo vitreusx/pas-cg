@@ -1,11 +1,11 @@
 #pragma once
 #include <cg/utils/quantity.h>
-#include <ioxx/xyaml.h>
+#include <ioxx/ioxx.h>
 
 namespace cg::pauli {
 struct parameters {
   bool enabled;
   quantity r_excl, depth;
-  void connect(ioxx::xyaml_proxy &proxy);
+  void link(ioxx::xyaml::proxy &proxy);
 };
 } // namespace cg::pauli

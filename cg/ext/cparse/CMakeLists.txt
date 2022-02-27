@@ -25,12 +25,12 @@ endfunction()
 
 add_include_directories(cparse cparse)
 
-find_package(Catch2 2 REQUIRED)
-
-add_executable(test_shunting_yard
-    src/test-shunting-yard.cpp src/catch.cpp)
-
-target_link_libraries(test_shunting_yard
-    PRIVATE Catch2::Catch2 cparse)
-
-add_include_directories(test_shunting_yard cparse)
+#find_package(Catch2 2 REQUIRED)
+#
+#add_executable(test_shunting_yard
+#    src/test-shunting-yard.cpp src/catch.cpp)
+#
+#target_link_libraries(test_shunting_yard
+#    PRIVATE Catch2::Catch2 cparse)
+#
+#add_include_directories(test_shunting_yard cparse)

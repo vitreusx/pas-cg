@@ -2,7 +2,7 @@
 #include "utils/ioxx_interop.h"
 using namespace cg::qa;
 
-void parameters::connect(ioxx::xyaml_proxy &p) {
+void parameters::load(ioxx::xyaml::node const &p) {
   enabled = p["enabled"].as<bool>();
   phase_dur = p["phase duration"].as<quantity>();
   breaking_factor = p["breaking factor"].as<double>();

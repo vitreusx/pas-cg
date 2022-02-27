@@ -47,6 +47,6 @@ struct parameters {
   qa::parameters qa;
   pauli::parameters pauli;
 
-  void connect(ioxx::xyaml_proxy &proxy);
+  void load(ioxx::xyaml::node const &from);
 };
 } // namespace cg::simul
