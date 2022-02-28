@@ -3,11 +3,11 @@
 
 namespace cg::tether {
 template <typename E> struct pair_expr : public nitro::ind_expr<E> {
-  EXPR_BODY(i1, i2, nat_dist);
+  EXPR_BODY(i1, i2, nat_dist)
 };
 
 template <typename E> struct pair_auto_expr : public pair_expr<E> {
-  AUTO_EXPR_BODY(i1, i2, nat_dist);
+  AUTO_EXPR_BODY(i1, i2, nat_dist)
 };
 
 using pair_base = nitro::tuple_wrapper<int, int, real>;

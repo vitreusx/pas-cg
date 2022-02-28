@@ -8,7 +8,7 @@ void report_gyration_stuff::report_to(report_state &report) const {
   for (int idx = 0; idx < r.size(); ++idx)
     positions.row(idx) = convert<double>(r[idx]);
 
-  Eigen::Vector3d center_of_mass = positions.rowwise().sum() / r.size();
+  Eigen::RowVector3d center_of_mass = positions.rowwise().sum() / r.size();
   positions.rowwise() -= center_of_mass;
 
   Eigen::Vector3d lambda =

@@ -5,8 +5,8 @@ void legacy_update::operator()() const {
   auto pad = pad_factor * *max_cutoff;
   auto req_r = *max_cutoff + pad;
 
-  data->native.clear();
-  data->non_native.clear();
+  nl_data->native.clear();
+  nl_data->non_native.clear();
 
   int nat_cont_idx = 0;
 
@@ -22,7 +22,7 @@ void legacy_update::operator()() const {
       if (chain1 == chain2 && diff < 3)
         continue;
 
-      auto orig_dist = norm(box->r_uv(r1, r2));
+      auto orig_dist = norm(simul_box->r_uv(r1, r2));
       if (orig_dist < req_r) {
         bool non_native = true;
         auto p = pair(i1, i2, orig_dist);
@@ -34,7 +34,7 @@ void legacy_update::operator()() const {
             ++nat_cont_idx;
           } else {
             if (cur_nat_cont == p) {
-              data->native.push_back(p);
+              nl_data->native.push_back(p);
               non_native = false;
             }
             break;
@@ -42,16 +42,16 @@ void legacy_update::operator()() const {
         }
 
         if (non_native) {
-          data->non_native.push_back(p);
+          nl_data->non_native.push_back(p);
         }
       }
     }
   }
 
-  data->orig_pad = pad;
+  nl_data->orig_pad = pad;
   for (int idx = 0; idx < r.size(); ++idx)
-      data->orig_r[idx] = r[idx];
-  data->orig_box = *box;
-  data->ref_t = *t;
+    nl_data->orig_r[idx] = r[idx];
+  nl_data->orig_box = *simul_box;
+  nl_data->ref_t = *t;
   *invalid = false;
 }

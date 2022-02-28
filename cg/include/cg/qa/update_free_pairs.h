@@ -10,7 +10,7 @@ public:
 
 public:
   nitro::const_view<vec3r> r;
-  box<real> const *box;
+  box<real> const *simul_box;
   nl::data *nl;
   nitro::set<free_pair> *pairs;
 

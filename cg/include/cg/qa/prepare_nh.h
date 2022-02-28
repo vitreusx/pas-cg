@@ -7,7 +7,7 @@ class prepare_nh {
 public:
   nitro::const_view<vec3r> r;
   nitro::view<vec3r> n, h;
-  box<real> const *box;
+  box<real> const *simul_box;
   nitro::const_view<int> prev, next;
   int num_particles;
 

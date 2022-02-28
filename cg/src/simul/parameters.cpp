@@ -14,7 +14,7 @@ void parameters::load(ioxx::xyaml::node const &from) {
   from["heurestic dihedrals"] >> heur_dih;
   from["constant Debye-Hueckel"] >> const_dh;
   from["relative Debye-Hueckel"] >> rel_dh;
-  from["lj force variants"] >> lj_variants;
+  from["lj force variants"] >> lj_vars;
   from["pseudo-improper dihedral"] >> pid;
   from["quasi-adiabatic"] >> qa;
   from["chirality"] >> chir;

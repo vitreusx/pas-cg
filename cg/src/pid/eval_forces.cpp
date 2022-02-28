@@ -22,7 +22,7 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
 
   {
     auto &r1_ = r1p, &r2_ = r1, &r3_ = r1n, &r4_ = r2;
-    auto r24 = box->r_uv(r2_, r4_);
+    auto r24 = simul_box->r_uv(r2_, r4_);
     auto r12 = r2_ - r1_;
     auto r23 = r3_ - r2_;
     auto r13 = r3_ - r1_;
@@ -56,7 +56,7 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
 
   {
     auto &r1_ = r2p, &r2_ = r2, &r3_ = r2n, &r4_ = r1;
-    auto r24 = box->r_uv(r2_, r4_);
+    auto r24 = simul_box->r_uv(r2_, r4_);
     auto r12 = r2_ - r1_;
     auto r23 = r3_ - r2_;
     auto r13 = r3_ - r1_;
@@ -88,7 +88,7 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
       psi2 = -psi2;
   }
 
-  auto r12 = box->r_uv(r1, r2);
+  auto r12 = simul_box->r_uv(r1, r2);
   auto r12_n = norm(r12), r12_rn = 1.0f / r12_n;
 
   real A = 0.0f, B = 0.0f, C = 0.0f, V_ = 0.0f;

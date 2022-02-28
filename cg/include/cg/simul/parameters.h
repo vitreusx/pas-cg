@@ -44,7 +44,7 @@ struct parameters {
   vafm::parameters vafm;
   gen::parameters gen;
   amino_acid_data aa_data;
-  lj_variants lj_variants;
+  lj_variants lj_vars;
   qa::parameters qa;
   pauli::parameters pauli;
   out::parameters out;

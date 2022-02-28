@@ -6,7 +6,7 @@ namespace cg::pid {
 enum lambda_version { COSINE, ALGEBRAIC };
 
 template <typename E> struct lambda_expr : public nitro::ind_expr<E> {
-  EXPR_BODY(psi_0, alpha, version);
+  EXPR_BODY(psi_0, alpha, version)
 
   bool supp(real psi) const { return abs(alpha() * (psi - psi_0())) < M_PI; }
 
@@ -27,12 +27,14 @@ template <typename E> struct lambda_expr : public nitro::ind_expr<E> {
       deriv *= (s < 0.0f ? -1.0f : 1.0f);
       return std::make_tuple(val, deriv);
     }
+    default:
+      return std::make_tuple((real)0, (real)0);
     }
   }
 };
 
 template <typename E> struct lambda_auto_expr : public lambda_expr<E> {
-  AUTO_EXPR_BODY(psi_0, alpha, version);
+  AUTO_EXPR_BODY(psi_0, alpha, version)
 };
 
 using lambda_base = nitro::tuple_wrapper<int, int, lambda_version>;

@@ -12,7 +12,7 @@ void update_free_pairs::operator()() const {
     auto i1 = nl_pair.i1(), i2 = nl_pair.i2();
     auto r1 = r[i1], r2 = r[i2];
 
-    if (norm_inv(box->r_uv(r1, r2)) > min_norm_inv) {
+    if (norm_inv(simul_box->r_uv(r1, r2)) > min_norm_inv) {
       pairs->emplace_back(i1, i2);
     }
   }

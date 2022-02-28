@@ -3,7 +3,7 @@
 
 namespace cg::nl {
 template <typename E> struct pair_expr : public nitro::ind_expr<E> {
-  EXPR_BODY(i1, i2, q1_x_q2);
+  EXPR_BODY(i1, i2, q1_x_q2)
 };
 
 template <typename E1, typename E2>
@@ -37,7 +37,7 @@ decltype(auto) operator!=(pair_expr<E1> const &e1, pair_expr<E2> const &e2) {
 }
 
 template <typename E> struct pair_auto_expr : public pair_expr<E> {
-  AUTO_EXPR_BODY(i1, i2, q1_x_q2);
+  AUTO_EXPR_BODY(i1, i2, q1_x_q2)
 };
 
 using pair_base = nitro::tuple_wrapper<int, int, real>;

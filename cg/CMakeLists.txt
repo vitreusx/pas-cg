@@ -40,9 +40,9 @@ find_package(Eigen3 3.4 REQUIRED)
 target_link_libraries(pas-cg
     PRIVATE ioxx nitro OpenMP::OpenMP_CXX cparse Eigen3::Eigen)
 
-#set_target_properties(pas-cg
-#    PROPERTIES
-#    CXX_VISIBILITY_PRESET hidden)
+set_target_properties(pas-cg
+    PROPERTIES
+    INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 file(COPY data DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 

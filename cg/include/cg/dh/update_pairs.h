@@ -13,7 +13,7 @@ public:
 
 public:
   nitro::const_view<vec3r> r;
-  box<real> const *box;
+  box<real> const *simul_box;
   nl::data const *nl;
   nitro::vector<pair> *pairs;
   nitro::const_view<amino_acid> atype;

@@ -13,7 +13,7 @@ void update_contacts::operator()() const {
     auto cutoff = lj::compute_cutoff(nat_dist);
 
     auto r1 = r[idx1], r2 = r[idx2];
-    if (norm(box->r_uv(r1, r2)) < cutoff + nl->orig_pad) {
+    if (norm(simul_box->r_uv(r1, r2)) < cutoff + nl->orig_pad) {
       contacts->push_back(nat_cont);
     }
   }

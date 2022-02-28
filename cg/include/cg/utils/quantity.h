@@ -6,6 +6,10 @@
 #include <string>
 
 namespace cg {
+class quantity;
+
+std::istream &operator>>(std::istream &is, quantity &value);
+std::ostream &operator<<(std::ostream &os, quantity const &value);
 
 class quantity {
 public:

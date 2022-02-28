@@ -3,7 +3,7 @@
 
 namespace cg {
 template <typename E> struct sync_data_expr : public nitro::ind_expr<E> {
-  EXPR_BODY(back, side_all, side_polar, side_hydrophobic);
+  EXPR_BODY(back, side_all, side_polar, side_hydrophobic)
 
   template <typename F>
   inline auto &operator+=(sync_data_expr<F> const &other) {
@@ -84,7 +84,7 @@ inline auto operator-(sync_data_expr<E1> const &e1,
 }
 
 template <typename E> struct sync_data_auto_expr : public sync_data_expr<E> {
-  AUTO_EXPR_BODY(back, side_all, side_polar, side_hydrophobic);
+  AUTO_EXPR_BODY(back, side_all, side_polar, side_hydrophobic)
 };
 
 using sync_data_base = nitro::tuple_wrapper<int8_t, int8_t, int8_t, int8_t>;

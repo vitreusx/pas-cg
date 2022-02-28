@@ -1,5 +1,5 @@
-debug
-release
+debug*
+release*
 .idea
 .vscode
 build

@@ -14,7 +14,7 @@ public:
 
 public:
   nitro::const_view<vec3r> r, n, h;
-  box<real> const *box;
+  box<real> const *simul_box;
   nitro::const_view<amino_acid> atype;
   nitro::const_view<sync_data> sync;
 

@@ -16,7 +16,7 @@ void cell_update::operator()() const {
   vec3r max_r(min_real, min_real, min_real);
 
   for (int idx = 0; idx < r.size(); ++idx) {
-    auto pos = box->wrap(r[idx]);
+    auto pos = simul_box->wrap(r[idx]);
     min_r.x() = min(min_r.x(), pos.x());
     max_r.x() = max(max_r.x(), pos.x());
     min_r.y() = min(min_r.y(), pos.y());
@@ -49,7 +49,7 @@ void cell_update::operator()() const {
   }
 
   for (int idx = 0; idx < r.size(); ++idx) {
-    auto rel_pos = box->wrap(r[idx]) - min_r;
+    auto rel_pos = simul_box->wrap(r[idx]) - min_r;
     vec3i res_coords = {(int)floor(rel_pos.x() * cell_dim_inv.x()),
                         (int)floor(rel_pos.y() * cell_dim_inv.y()),
                         (int)floor(rel_pos.z() * cell_dim_inv.z())};
@@ -102,7 +102,7 @@ void cell_update::operator()() const {
                   auto i1 = reordered_idx[re1];
                   if (i1 >= i0)
                     continue;
-                  
+
                   auto r1 = r[i1];
                   auto chain1 = chain_idx[i1], seq1 = seq_idx[i1];
 
@@ -110,7 +110,7 @@ void cell_update::operator()() const {
                   if (chain0 == chain1 && diff < 3)
                     continue;
 
-                  auto orig_dist_inv = norm_inv(box->r_uv(r0, r1));
+                  auto orig_dist_inv = norm_inv(simul_box->r_uv(r0, r1));
                   if (orig_dist_inv < radius_inv)
                     continue;
 
@@ -132,8 +132,8 @@ void cell_update::operator()() const {
         return std::make_pair(p_i0, p_i1) < std::make_pair(q_i0, q_i1);
       });
 
-  data->native.clear();
-  data->non_native.clear();
+  nl_data->native.clear();
+  nl_data->non_native.clear();
 
   int nat_cont_idx = 0;
 
@@ -148,7 +148,7 @@ void cell_update::operator()() const {
         ++nat_cont_idx;
       } else {
         if (cur_nat_cont == p) {
-          data->native.push_back(p);
+          nl_data->native.push_back(p);
           non_native = false;
         }
         break;
@@ -156,16 +156,16 @@ void cell_update::operator()() const {
     }
 
     if (non_native) {
-      data->non_native.push_back(p);
+      nl_data->non_native.push_back(p);
     }
   }
 
   auto pad = pad_factor * *max_cutoff;
-  data->orig_pad = pad;
+  nl_data->orig_pad = pad;
   for (int idx = 0; idx < r.size(); ++idx)
-    data->orig_r[idx] = r[idx];
-  data->orig_box = *box;
-  data->ref_t = *t;
+    nl_data->orig_r[idx] = r[idx];
+  nl_data->orig_box = *simul_box;
+  nl_data->ref_t = *t;
   *invalid = false;
 }
 

@@ -144,7 +144,7 @@ void simulation::setup_output() {
     add_structure.model = &model;
     hooks.emplace_back(&add_structure);
 
-    auto& report_gyr = ker.report_gyr;
+    auto &report_gyr = ker.report_gyr;
     report_gyr.r = r.view();
     hooks.emplace_back(&report_gyr);
   }
@@ -219,26 +219,26 @@ void simulation::setup_nl() {
     auto &legacy = ker.nl_legacy;
     legacy.pad_factor = params.nl.pad_factor;
     legacy.r = r.view();
-    legacy.box = &box;
+    legacy.simul_box = &box;
     legacy.t = &t;
     legacy.chain_idx = chain_idx.view();
     legacy.seq_idx = seq_idx.view();
     legacy.num_particles = num_res;
-    legacy.data = &nl;
-    legacy.data->orig_r = nitro::vector<vec3r>(num_res);
+    legacy.nl_data = &nl;
+    legacy.nl_data->orig_r = nitro::vector<vec3r>(num_res);
     legacy.invalid = &nl_invalid;
     legacy.max_cutoff = &max_cutoff;
   } else {
     auto &cell = ker.nl_cell;
     cell.pad_factor = params.nl.pad_factor;
     cell.r = r.view();
-    cell.box = &box;
+    cell.simul_box = &box;
     cell.t = &t;
     cell.chain_idx = chain_idx.view();
     cell.seq_idx = seq_idx.view();
     cell.num_particles = num_res;
-    cell.data = &nl;
-    cell.data->orig_r = nitro::vector<vec3r>(num_res);
+    cell.nl_data = &nl;
+    cell.nl_data->orig_r = nitro::vector<vec3r>(num_res);
     cell.invalid = &nl_invalid;
     cell.max_cutoff = &max_cutoff;
     res_cell_idx = reordered_idx = nitro::vector<int>(num_res);
@@ -251,8 +251,8 @@ void simulation::setup_nl() {
 
   auto &verify = ker.nl_verify;
   verify.r = r.view();
-  verify.data = &nl;
-  verify.box = &box;
+  verify.nl_data = &nl;
+  verify.simul_box = &box;
   verify.invalid = &nl_invalid;
   verify_first_time = true;
   verify.first_time = &verify_first_time;
@@ -352,12 +352,12 @@ void simulation::setup_pauli() {
     eval.r_excl = params.pauli.r_excl;
     eval.depth = params.pauli.depth;
     eval.r = r.view();
-    eval.box = &box;
+    eval.simul_box = &box;
     eval.pairs = &pauli_pairs;
 
     auto &update = ker.update_pauli_pairs;
     update.r = r.view();
-    update.box = &box;
+    update.simul_box = &box;
     update.nl = &nl;
     update.pairs = &pauli_pairs;
 
@@ -382,13 +382,13 @@ void simulation::setup_nat_cont() {
 
     auto &eval = ker.eval_nat_cont_forces;
     eval.depth = params.nat_cont.lj_depth;
-    eval.box = &box;
+    eval.simul_box = &box;
     eval.contacts = &cur_native_contacts;
     eval.r = r.view();
 
     auto &update_ref = ker.update_nat_contacts;
     update_ref.r = r.view();
-    update_ref.box = &box;
+    update_ref.simul_box = &box;
     update_ref.nl = &nl;
     update_ref.all_contacts = all_native_contacts.view();
     update_ref.contacts = &cur_native_contacts;
@@ -402,7 +402,7 @@ void simulation::setup_nat_cont() {
     max_cutoff = max(max_cutoff, cutoff);
 
     if (params.out.enabled) {
-      auto& report_nc = ker.report_nc_stuff;
+      auto &report_nc = ker.report_nc_stuff;
       report_nc.all_nat_conts = all_native_contacts.view();
       report_nc.params = &params.nat_cont;
       report_nc.r = r.view();
@@ -414,7 +414,7 @@ void simulation::setup_nat_cont() {
 void simulation::setup_dh() {
   auto &update = ker.update_dh_pairs;
   update.r = r.view();
-  update.box = &box;
+  update.simul_box = &box;
   update.nl = &nl;
   update.pairs = &dh_pairs;
   update.atype = atype.view();
@@ -426,7 +426,7 @@ void simulation::setup_dh() {
     eval.set_V_factor(params.const_dh.permittivity);
     eval.screen_dist_inv = 1.0 / params.const_dh.screening_dist;
     eval.r = r.view();
-    eval.box = &box;
+    eval.simul_box = &box;
     eval.es_pairs = &dh_pairs;
     update.cutoff = 2.0 * params.const_dh.screening_dist;
   }
@@ -436,7 +436,7 @@ void simulation::setup_dh() {
     eval.set_V_factor(params.rel_dh.perm_factor);
     eval.screen_dist_inv = 1.0 / params.rel_dh.screening_dist;
     eval.r = r.view();
-    eval.box = &box;
+    eval.simul_box = &box;
     eval.es_pairs = &dh_pairs;
     update.cutoff = 2.0 * params.rel_dh.screening_dist;
   }
@@ -468,7 +468,7 @@ void simulation::setup_qa() {
     auto &sift = ker.sift_qa_candidates;
     sift.r = r.view();
     sift.atype = atype.view();
-    sift.box = &box;
+    sift.simul_box = &box;
     sift.free_pairs = &qa_free_pairs;
     sift.sync = sync_values.view();
     sift.candidates = &qa_candidates;
@@ -480,16 +480,16 @@ void simulation::setup_qa() {
     sift.max_cos_nr = params.qa.max_cos_nr;
 
     sift.req_min_dist[(int16_t)qa::contact_type::BACK_BACK()] =
-        params.lj_variants.bb.r_min();
+        params.lj_vars.bb.r_min();
     sift.req_min_dist[(int16_t)qa::contact_type::BACK_SIDE()] =
-        params.lj_variants.bs.r_min();
+        params.lj_vars.bs.r_min();
     sift.req_min_dist[(int16_t)qa::contact_type::SIDE_BACK()] =
-        params.lj_variants.sb.r_min();
+        params.lj_vars.sb.r_min();
 
     for (auto const &aa1 : amino_acid::all()) {
       for (auto const &aa2 : amino_acid::all()) {
         sift.req_min_dist[(int16_t)qa::contact_type::SIDE_SIDE(aa1, aa2)] =
-            params.lj_variants.ss[{aa1, aa2}].r_max();
+            params.lj_vars.ss[{aa1, aa2}].r_max();
       }
     }
 
@@ -510,13 +510,13 @@ void simulation::setup_qa() {
     proc_cont.t = &t;
     proc_cont.sync = sync_values.view();
     proc_cont.contacts = &qa_contacts;
-    proc_cont.box = &box;
+    proc_cont.simul_box = &box;
     proc_cont.r = r.view();
     proc_cont.free_pairs = &qa_free_pairs;
 
     auto &update = ker.update_qa_pairs;
     update.r = r.view();
-    update.box = &box;
+    update.simul_box = &box;
     update.nl = &nl;
     update.pairs = &qa_free_pairs;
 
@@ -562,13 +562,13 @@ void simulation::setup_pid() {
       for (auto const &aa2 : amino_acid::all()) {
         auto idx2 = (uint16_t)(uint8_t)aa2;
         auto ss_idx = idx1 * (uint16_t)amino_acid::NUM_TYPES + idx2;
-        ss_ljs[ss_idx] = params.lj_variants.ss[{aa1, aa2}];
+        ss_ljs[ss_idx] = params.lj_vars.ss[{aa1, aa2}];
       }
     }
     eval.ss_ljs = ss_ljs.view();
 
     eval.r = r.view();
-    eval.box = &box;
+    eval.simul_box = &box;
     eval.bundles = &pid_bundles;
     eval.prev = prev.view();
     eval.next = next.view();
@@ -578,17 +578,17 @@ void simulation::setup_pid() {
     update.prev = prev.view();
     update.next = next.view();
     update.atype = atype.view();
-    update.box = &box;
+    update.simul_box = &box;
     update.nl = &nl;
     update.bundles = &pid_bundles;
 
     real cutoff = 0.0;
-    cutoff = max(cutoff, params.lj_variants.bb.cutoff());
-    cutoff = max(cutoff, params.lj_variants.bs.cutoff());
-    cutoff = max(cutoff, params.lj_variants.sb.cutoff());
+    cutoff = max(cutoff, params.lj_vars.bb.cutoff());
+    cutoff = max(cutoff, params.lj_vars.bs.cutoff());
+    cutoff = max(cutoff, params.lj_vars.sb.cutoff());
     for (auto const &aa1 : amino_acid::all()) {
       for (auto const &aa2 : amino_acid::all()) {
-        cutoff = max(cutoff, params.lj_variants.ss[{aa1, aa2}].cutoff());
+        cutoff = max(cutoff, params.lj_vars.ss[{aa1, aa2}].cutoff());
       }
     }
 

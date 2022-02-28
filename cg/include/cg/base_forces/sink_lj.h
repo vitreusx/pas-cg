@@ -38,7 +38,7 @@ public:
 
   template <typename E>
   explicit sink_lj(lj_expr<E> const &lj)
-      : sink_lj(lj.depth(), lj.r_min(), lj.r_min()){};
+      : sink_lj(lj.depth(), lj.r_min(), lj.r_min()) {}
 
   static inline real compute_cutoff(real r_max) { return (real)2.0 * r_max; }
 };

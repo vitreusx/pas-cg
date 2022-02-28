@@ -10,7 +10,7 @@ public:
 public:
   nitro::const_view<vec3r> r;
   nitro::view<vec3r> F;
-  box<real> const *box;
+  box<real> const *simul_box;
   nitro::vector<nat_cont> const *contacts;
   real *V;
 

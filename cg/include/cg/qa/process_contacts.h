@@ -18,7 +18,7 @@ public:
 public:
   nitro::const_view<vec3r> r;
   nitro::view<vec3r> F;
-  box<real> const *box;
+  box<real> const *simul_box;
   nitro::set<contact> *contacts;
   real *V, *t;
   nitro::view<sync_data> sync;

@@ -7,11 +7,11 @@ namespace cg::qa {
 enum contact_status { FORMING_OR_FORMED, BREAKING };
 
 template <typename E> struct contact_expr : public nitro::ind_expr<E> {
-  EXPR_BODY(i1, i2, type, status, ref_time, sync_diff1, sync_diff2);
+  EXPR_BODY(i1, i2, type, status, ref_time, sync_diff1, sync_diff2)
 };
 
 template <typename E> struct contact_auto_expr : public contact_expr<E> {
-  AUTO_EXPR_BODY(i1, i2, type, status, ref_time, sync_diff1, sync_diff2);
+  AUTO_EXPR_BODY(i1, i2, type, status, ref_time, sync_diff1, sync_diff2)
 };
 
 using contact_base =

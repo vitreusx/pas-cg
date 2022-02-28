@@ -5,11 +5,11 @@
 
 namespace cg::qa {
 template <typename E> struct candidate_expr : public nitro::ind_expr<E> {
-  EXPR_BODY(i1, i2, free_pair_idx, type, sync_diff1, sync_diff2);
+  EXPR_BODY(i1, i2, free_pair_idx, type, sync_diff1, sync_diff2)
 };
 
 template <typename E> struct candidate_auto_expr : public candidate_expr<E> {
-  AUTO_EXPR_BODY(i1, i2, free_pair_idx, type, sync_diff1, sync_diff2);
+  AUTO_EXPR_BODY(i1, i2, free_pair_idx, type, sync_diff1, sync_diff2)
 };
 
 using candidate_base =

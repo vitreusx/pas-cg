@@ -14,7 +14,7 @@ void eval_forces::iter(nat_cont_expr<E> const &nat_cont) const {
   auto nat_dist = nat_cont.nat_dist();
 
   auto r1 = r[i1], r2 = r[i2];
-  auto r12 = box->r_uv(r1, r2);
+  auto r12 = simul_box->r_uv(r1, r2);
   auto r12_rn = norm_inv(r12);
 
   auto r12_u = r12 * r12_rn;

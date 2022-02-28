@@ -8,8 +8,8 @@ public:
 
 public:
   nitro::const_view<vec3r> r;
-  box<real> const *box;
-  data *data;
+  box<real> const *simul_box;
+  data *nl_data;
   int num_particles;
   real const *max_cutoff, *t;
   bool *invalid;

@@ -102,7 +102,7 @@ struct TokenMap : public Container<MapData_t>, public Iterable {
     // For the TokenBase super class
     this->type = MAP;
   }
-  TokenMap(const TokenMap& other) : Container(other) {
+  TokenMap(const TokenMap& other) : Container(other), Iterable(other) {
     this->type = MAP;
   }
 
