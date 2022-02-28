@@ -24,4 +24,5 @@ void parameters::load(ioxx::xyaml::node const &from) {
   from["velocity AFM"] >> vafm;
   from["force AFM"] >> fafm;
   from["progress bar"] >> pbar;
+  from["output"] >> out;
 }

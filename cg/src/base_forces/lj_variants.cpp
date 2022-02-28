@@ -65,7 +65,7 @@ void lj_variants::load(ioxx::xyaml::node const &node) {
     for (auto const &row : per_pair_r_min.value().rows) {
       auto aa1 = row.type;
       for (auto const &[aa2, r_min] : row.values) {
-        ss[{aa1, aa2}].r_min() = r_min.in("A");
+        ss[{aa1, aa2}].r_min() = r_min.assumed("A");
       }
     }
   }
@@ -74,7 +74,7 @@ void lj_variants::load(ioxx::xyaml::node const &node) {
     for (auto const &row : per_pair_r_max.value().rows) {
       auto aa1 = row.type;
       for (auto const &[aa2, r_max] : row.values) {
-        ss[{aa1, aa2}].r_max() = r_max.in("A");
+        ss[{aa1, aa2}].r_max() = r_max.assumed("A");
       }
     }
   }
@@ -83,7 +83,7 @@ void lj_variants::load(ioxx::xyaml::node const &node) {
     for (auto const &row : per_pair_depth.value().rows) {
       auto aa1 = row.type;
       for (auto const &[aa2, depth] : row.values) {
-        ss[{aa1, aa2}].depth() = depth.in("eps");
+        ss[{aa1, aa2}].depth() = depth.assumed("eps");
       }
     }
   }

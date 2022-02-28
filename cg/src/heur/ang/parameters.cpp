@@ -6,7 +6,7 @@ void parameters::pair_coeffs::connect(ioxx::row_proxy &proxy) {
   proxy["type1"] & type1;
   proxy["type2"] & type2;
   for (int deg = 0; deg <= 6; ++deg)
-    proxy["a" + std::to_string(deg)] & poly[deg].in_("eps");
+    proxy["a" + std::to_string(deg)] & poly[deg].assumed_("eps");
 }
 
 void parameters::load(ioxx::xyaml::node const &p) {

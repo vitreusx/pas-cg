@@ -15,6 +15,7 @@
 #include <cg/nat_dih/complex/parameters.h>
 #include <cg/nat_dih/simple/parameters.h>
 #include <cg/nl/parameters.h>
+#include <cg/output/parameters.h>
 #include <cg/pauli/parameters.h>
 #include <cg/pbar/parameters.h>
 #include <cg/pid/parameters.h>
@@ -46,6 +47,7 @@ struct parameters {
   lj_variants lj_variants;
   qa::parameters qa;
   pauli::parameters pauli;
+  out::parameters out;
 
   void load(ioxx::xyaml::node const &from);
 };

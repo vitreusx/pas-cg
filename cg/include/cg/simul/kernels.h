@@ -1,5 +1,4 @@
 #pragma once
-#include "thread_state.h"
 #include <cg/chir/eval_forces.h>
 #include <cg/dh/const/eval_forces.h>
 #include <cg/dh/rel/eval_forces.h>
@@ -10,11 +9,18 @@
 #include <cg/langevin/step.h>
 #include <cg/nat_ang/eval_forces.h>
 #include <cg/nat_cont/eval_forces.h>
+#include <cg/nat_cont/report.h>
 #include <cg/nat_cont/update_contacts.h>
 #include <cg/nat_dih/complex/eval_forces.h>
 #include <cg/nat_dih/simple/eval_forces.h>
+#include <cg/nl/cell_update.h>
 #include <cg/nl/legacy_update.h>
 #include <cg/nl/verify.h>
+#include <cg/output/export_pdb.h>
+#include <cg/output/gyration.h>
+#include <cg/output/make_report.h>
+#include <cg/output/stats.h>
+#include <cg/output/structure.h>
 #include <cg/pauli/eval_forces.h>
 #include <cg/pauli/update_pairs.h>
 #include <cg/pbar/render.h>
@@ -23,12 +29,12 @@
 #include <cg/qa/prepare_nh.h>
 #include <cg/qa/process_candidates.h>
 #include <cg/qa/process_contacts.h>
+#include <cg/qa/report.h>
 #include <cg/qa/sift_candidates.h>
 #include <cg/qa/update_free_pairs.h>
 #include <cg/tether/eval_forces.h>
 #include <cg/utils/random.h>
 #include <cg/vel_afm/eval_forces.h>
-#include <cg/nl/cell_update.h>
 
 namespace cg::simul {
 class kernels {
@@ -64,8 +70,12 @@ public:
   pbar::render render_pbar;
   qa::prepare_nh prepare_nh;
   qa::process_candidates process_qa_candidates;
-
-public:
-  void thread_setup(thread_state &state);
+  out::make_report make_report;
+  out::export_pdb export_pdb;
+  out::add_stats add_stats;
+  out::add_structure add_structure;
+  qa::report_qa_stuff report_qa_stuff;
+  nat_cont::report_stuff report_nc_stuff;
+  out::report_gyration_stuff report_gyr;
 };
 } // namespace cg::simul

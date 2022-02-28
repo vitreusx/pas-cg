@@ -18,7 +18,7 @@ using contact_base =
     nitro::tuple_wrapper<int, int, contact_type, contact_status, real,
                          sync_data, sync_data>;
 
-class contact : public contact_expr<contact>, public contact_base {
+class contact : public contact_auto_expr<contact>, public contact_base {
 public:
   using Base = contact_base;
   using Base::Base;

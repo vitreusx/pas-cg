@@ -1,5 +1,6 @@
 #include "input/model.h"
 #include "types/mat3x3.h"
+#include <Eigen/Geometry>
 #include <unordered_map>
 
 namespace cg::input {
@@ -83,11 +84,12 @@ model operator+(const model &m1, const model &m2) {
   return sum;
 }
 
-template <typename U> static inline vec3<U> perp_v(vec3<U> const &v) {
-  vec3<U> perp1 = cross(v, vec3<U>::UnitX());
-  vec3<U> perp2 = cross(v, vec3<U>::UnitY());
-  auto &perp = norm(perp1) > norm(perp2) ? perp1 : perp2;
-  return unit(perp);
+template <typename U>
+static inline Eigen::Vector3<U> perp_v(Eigen::Vector3<U> const &v) {
+  auto perp1 = v.cross(Eigen::Vector3<U>::UnitX());
+  auto perp2 = v.cross(Eigen::Vector3<U>::UnitY());
+  auto &perp = perp1.norm() > perp2.norm() ? perp1 : perp2;
+  return perp.normalized();
 }
 
 void model::morph_into_saw(rand_gen &gen, std::optional<double> res_bond_length,
@@ -101,13 +103,11 @@ void model::morph_into_saw(rand_gen &gen, std::optional<double> res_bond_length,
   auto cell_a = cbrt(vol);
 
   for (auto const &xmd_chain : chains) {
-    vec3<U> pos{gen.uniform<U>(-cell_a / 2.0, cell_a / 2.0),
-                gen.uniform<U>(-cell_a / 2.0, cell_a / 2.0),
-                gen.uniform<U>(-cell_a / 2.0, cell_a / 2.0)
+    Eigen::Vector3<U> pos{gen.uniform<U>(-cell_a / 2.0, cell_a / 2.0),
+                          gen.uniform<U>(-cell_a / 2.0, cell_a / 2.0),
+                          gen.uniform<U>(-cell_a / 2.0, cell_a / 2.0)};
 
-    };
-
-    vec3<U> dir = gen.sphere<U>();
+    Eigen::Vector3<U> dir = convert<U>(gen.sphere<U>());
 
     for (size_t res_idx = 0; res_idx < xmd_chain->residues.size(); ++res_idx) {
       auto next = pos;
@@ -124,12 +124,12 @@ void model::morph_into_saw(rand_gen &gen, std::optional<double> res_bond_length,
         next += dir * bond_length;
 
         U spread_angle = gen.uniform(-max_spread, max_spread);
-        auto spread = rot_around(perp_v(dir), spread_angle);
+        auto spread = Eigen::AngleAxisd(spread_angle, perp_v(dir));
 
         U around_angle = gen.uniform(-max_around, max_around);
-        auto around = rot_around(dir, around_angle);
+        auto around = Eigen::AngleAxisd(around_angle, dir);
 
-        dir = unit(around * spread * dir);
+        dir = (around * spread * dir).normalized();
       }
 
       xmd_chain->residues[res_idx]->pos = pos;

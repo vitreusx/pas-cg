@@ -13,6 +13,7 @@ public:
   real factor;
 
   void set_factor(double breaking_factor);
+  real saturation_value(contact const &cont) const;
 
 public:
   nitro::const_view<vec3r> r;

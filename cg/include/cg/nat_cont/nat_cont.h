@@ -13,7 +13,7 @@ template <typename E> struct nat_cont_auto_expr : public nat_cont_expr<E> {
 
 using nat_cont_base = nitro::tuple_wrapper<int, int, real>;
 
-class nat_cont : public nat_cont_expr<nat_cont>, public nat_cont_base {
+class nat_cont : public nat_cont_auto_expr<nat_cont>, public nat_cont_base {
 public:
   using Base = nat_cont_base;
   using Base::Base;

@@ -2,12 +2,15 @@
 #include "dynamics.h"
 #include "kernels.h"
 #include "parameters.h"
+#include "thread_state.h"
 #include <cg/amino/compiled.h>
 #include <cg/input/model.h>
 #include <cg/utils/random.h>
 #include <fstream>
 #include <iostream>
+#include <mutex>
 #include <omp.h>
+#include <thread>
 
 namespace cg::simul {
 class simulation {
@@ -17,19 +20,16 @@ private:
   std::optional<std::string> param_path;
   void parse_args(int argc, char **argv);
 
-  void setup();
-
   parameters params;
   void load_parameters();
 
   rand_gen gen;
   void general_setup();
 
-  using res_map_t = std::unordered_map<input::model::model::residue *, int>;
   input::model model;
   void load_model();
 
-  res_map_t res_map;
+  input::model::res_map_t res_map;
   int num_res;
   nitro::vector<vec3r> r;
   nitro::vector<amino_acid> atype;
@@ -43,6 +43,11 @@ private:
   void setup_dyn();
 
   kernels ker;
+
+  real report_last_t;
+  out::report_state report;
+  std::vector<out::hook const *> hooks;
+  void setup_output();
 
   nitro::vector<real> mass_inv, mass_rsqrt;
   nitro::vector<vec3r> v;
@@ -107,13 +112,26 @@ private:
   nitro::vector<fafm::tip> fafm_tips;
   void setup_fafm();
 
-  thread_state state;
+  void setup(int argc, char **argv);
 
-  void pre_loop_init();
-  void main_loop();
-  void async_part();
-  void sync_part();
-  void on_nl_invalidation();
+  class thread {
+  public:
+    thread() = default;
+    explicit thread(simulation *simul);
+    void main_async();
+
+  private:
+    dynamics dyn;
+    rand_gen gen;
+    kernels ker;
+    parameters params;
+    simulation *simul;
+
+    void pre_loop_init();
+    void async_part();
+    void sync_part();
+    void on_nl_invalidation();
+  };
 
 public:
   int operator()(int argc, char **argv);

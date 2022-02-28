@@ -74,5 +74,7 @@ public:
   std::vector<dihedral> dihedrals;
 
   box<double> model_box;
+
+  using res_map_t = std::unordered_map<residue *, int>;
 };
 } // namespace cg::input

@@ -113,6 +113,43 @@ void simulation::setup_dyn() {
   dyn = dynamics(num_res);
 }
 
+void simulation::setup_output() {
+  if (params.out.enabled) {
+    auto &make_rep = ker.make_report;
+    report.first_time = true;
+    report.ord = 0;
+    report.output_dir = params.out.output_dir;
+    make_rep.period = params.out.period;
+    make_rep.t = &t;
+    report_last_t = std::numeric_limits<real>::lowest();
+    make_rep.last_t = &report_last_t;
+    make_rep.hooks = &hooks;
+    make_rep.state = &report;
+
+    auto &export_pdb = ker.export_pdb;
+    export_pdb.ref_model = &model;
+    export_pdb.r = r.view();
+    export_pdb.res_map = &res_map;
+    hooks.emplace_back(&export_pdb);
+
+    auto &add_stats = ker.add_stats;
+    add_stats.t = &t;
+    add_stats.V = &dyn.V;
+    add_stats.v = v.view();
+    hooks.emplace_back(&add_stats);
+
+    auto &add_structure = ker.add_structure;
+    add_structure.res_map = &res_map;
+    add_structure.r = r.view();
+    add_structure.model = &model;
+    hooks.emplace_back(&add_structure);
+
+    auto& report_gyr = ker.report_gyr;
+    report_gyr.r = r.view();
+    hooks.emplace_back(&report_gyr);
+  }
+}
+
 void simulation::setup_langevin() {
   if (params.lang.enabled) {
     auto &step = ker.lang_step;
@@ -363,6 +400,14 @@ void simulation::setup_nat_cont() {
     }
     nl_required = true;
     max_cutoff = max(max_cutoff, cutoff);
+
+    if (params.out.enabled) {
+      auto& report_nc = ker.report_nc_stuff;
+      report_nc.all_nat_conts = all_native_contacts.view();
+      report_nc.params = &params.nat_cont;
+      report_nc.r = r.view();
+      hooks.push_back(&report_nc);
+    }
   }
 }
 
@@ -480,6 +525,14 @@ void simulation::setup_qa() {
       cutoff = max(cutoff, sift.req_min_dist[idx]);
     nl_required = true;
     max_cutoff = max(max_cutoff, cutoff);
+
+    if (params.out.enabled) {
+      auto &report_qa = ker.report_qa_stuff;
+      report_qa.sync_values = sync_values.view();
+      report_qa.contacts = &qa_contacts;
+      report_qa.process_cont = &ker.process_qa_contacts;
+      hooks.push_back(&report_qa);
+    }
   }
 }
 
@@ -624,12 +677,14 @@ void simulation::setup_heur_dih() {
   }
 }
 
-void simulation::setup() {
+void simulation::setup(int argc, char **argv) {
+  parse_args(argc, argv);
   load_parameters();
   general_setup();
   load_model();
   compile_model();
   setup_dyn();
+  setup_output();
   setup_langevin();
   setup_pbar();
   setup_nl();
@@ -648,40 +703,63 @@ void simulation::setup() {
   setup_fafm();
 }
 
-void simulation::main_loop() {
-#pragma omp parallel default(none) shared(                                     \
-    params, gen, model, res_map, num_res, r, atype, comp_aa_data, box, prev,   \
-    next, chain_idx, seq_idx, t, V, dyn, mass_inv, mass_rsqrt, v, y0, y1, y2,  \
-    y3, y4, y5, true_t, pbar_first_time, start_wall_time, pbar_last_t, nl,     \
-    nl_invalid, verify_first_time, max_cutoff, chir_quads, tether_pairs,       \
-    native_angles, native_dihedrals, pauli_pairs, all_native_contacts,         \
-    cur_native_contacts, native_contact_exclusions, dh_pairs, qa_free_pairs,   \
-    qa_candidates, qa_contacts, sync_values, n, h, pid_bundles, ss_ljs,        \
-    vafm_tips, fafm_tips, std::cout) firstprivate(state, ker)
-  {
+simulation::thread::thread(simulation *simul) {
+  this->simul = simul;
+  params = simul->params;
+  dyn = simul->dyn;
+  gen = simul->gen;
+  ker = simul->ker;
 
+  ker.eval_chir_forces.F = dyn.F.view();
+  ker.eval_chir_forces.V = &dyn.V;
+  ker.eval_const_dh_forces.F = dyn.F.view();
+  ker.eval_const_dh_forces.V = &dyn.V;
+  ker.eval_rel_dh_forces.F = dyn.F.view();
+  ker.eval_rel_dh_forces.V = &dyn.V;
+  ker.eval_fafm_forces.F = dyn.F.view();
+  ker.eval_heur_ang_forces.F = dyn.F.view();
+  ker.eval_heur_ang_forces.V = &dyn.V;
+  ker.eval_heur_dih_forces.F = dyn.F.view();
+  ker.eval_heur_dih_forces.V = &dyn.V;
+  ker.eval_nat_ang_forces.F = dyn.F.view();
+  ker.eval_nat_ang_forces.V = &dyn.V;
+  ker.eval_nat_cont_forces.F = dyn.F.view();
+  ker.eval_nat_cont_forces.V = &dyn.V;
+  ker.eval_cnd_forces.F = dyn.F.view();
+  ker.eval_cnd_forces.V = &dyn.V;
+  ker.eval_snd_forces.F = dyn.F.view();
+  ker.eval_snd_forces.V = &dyn.V;
+  ker.eval_pauli_forces.F = dyn.F.view();
+  ker.eval_pauli_forces.V = &dyn.V;
+  ker.eval_pid_forces.F = dyn.F.view();
+  ker.eval_pid_forces.V = &dyn.V;
+  ker.process_qa_contacts.F = dyn.F.view();
+  ker.process_qa_contacts.V = &dyn.V;
+  ker.eval_tether_forces.F = dyn.F.view();
+  ker.eval_tether_forces.V = &dyn.V;
+  ker.eval_vafm_forces.F = dyn.F.view();
+  ker.lang_step.gen = &gen;
+}
+
+void simulation::thread::main_async() {
 #pragma omp master
-    pre_loop_init();
+  pre_loop_init();
 
 #pragma omp barrier
-    real total_time = params.gen.total_time;
-    while (t < total_time) {
-#pragma omp master
-      dyn.reset();
-
-      async_part();
+  real total_time = params.gen.total_time;
+  while (simul->t < total_time) {
+    async_part();
 #pragma omp barrier
 
 #pragma omp master
-      sync_part();
+    sync_part();
 
 #pragma omp barrier
-    }
   }
 }
 
-void simulation::async_part() {
-  state.dyn.reset();
+void simulation::thread::async_part() {
+  dyn.reset();
 
   if (params.chir.enabled)
     ker.eval_chir_forces.omp_async();
@@ -717,49 +795,45 @@ void simulation::async_part() {
   if (params.fafm.enabled)
     ker.eval_fafm_forces.omp_async();
 
-  state.dyn.omp_reduce(dyn);
+  dyn.omp_reduce(simul->dyn);
 }
 
-void simulation::sync_part() {
+void simulation::thread::sync_part() {
   if (params.pbar.enabled)
     ker.render_pbar();
 
+  if (params.out.enabled)
+    ker.make_report();
+
   if (params.lang.enabled)
     ker.lang_step();
-  dyn.reset();
+  simul->dyn.reset();
   if (params.qa.enabled)
     ker.sift_qa_candidates.omp_prep();
 
-  if (nl_required) {
+  if (simul->nl_required) {
     ker.nl_verify();
-    if (nl_invalid)
+    if (simul->nl_invalid)
       on_nl_invalidation();
   }
 }
 
-void simulation::pre_loop_init() {
-  state = thread_state(num_res, params.gen.seed);
-  ker.thread_setup(state);
-#pragma omp barrier
-
+void simulation::thread::pre_loop_init() {
 #pragma omp master
   {
-    if (params.pbar.enabled)
-      ker.render_pbar();
-
-    dyn.reset();
+    simul->dyn.reset();
     if (params.qa.enabled)
       ker.sift_qa_candidates.omp_prep();
 
-    if (nl_required) {
+    if (simul->nl_required) {
       ker.nl_verify();
-      if (nl_invalid)
+      if (simul->nl_invalid)
         on_nl_invalidation();
     }
   };
 }
 
-void simulation::on_nl_invalidation() {
+void simulation::thread::on_nl_invalidation() {
   if (params.nl.algorithm == nl::parameters::CELL) {
     ker.nl_cell();
   } else {
@@ -779,8 +853,11 @@ void simulation::on_nl_invalidation() {
 }
 
 int simulation::operator()(int argc, char **argv) {
-  parse_args(argc, argv);
-  setup();
-  main_loop();
+  setup(argc, argv);
+#pragma omp parallel default(none)
+  {
+    auto thr = thread(this);
+    thr.main_async();
+  }
   return EXIT_SUCCESS;
 }

@@ -1,5 +1,13 @@
 #include "qa/process_contacts.h"
+using namespace cg;
 using namespace cg::qa;
+
+real process_contacts::saturation_value(const contact &cont) const {
+  auto saturation = min(*t - cont.ref_time(), cycle_time) * cycle_time_inv;
+  if (cont.status() == BREAKING)
+    saturation = 1.0f - saturation;
+  return saturation;
+}
 
 void process_contacts::operator()() const {
   for (int idx = 0; idx < contacts->size(); ++idx) {
@@ -25,9 +33,7 @@ void process_contacts::iter(int idx) const {
   auto r12_rn = norm_inv(r12);
   auto r12_u = r12 * r12_rn;
 
-  auto saturation = min(*t - ref_time, cycle_time) * cycle_time_inv;
-  if (status == BREAKING)
-    saturation = 1.0f - saturation;
+  auto saturation = saturation_value(contact);
 
   auto lj_force = ljs[type];
   auto r12_n = r12_rn * norm_squared(r12);

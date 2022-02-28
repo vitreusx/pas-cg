@@ -3,13 +3,36 @@
 #include <nitro/nitro.h>
 
 namespace cg {
+template <typename T> auto isnan(T const &x) { return std::isnan(x); }
+
+template <typename T, size_t N> auto isnan(nitro::lane<T, N> const &x) {
+  return ::is_nan(x);
+}
+
+template <typename Tc, typename T>
+auto select(Tc const &cond, T const &if_true, T const &if_false) {
+  return cond ? if_true : if_false;
+}
+
+template <typename T, size_t N>
+auto select(nitro::mask<nitro::lane<T, N>> const &cond,
+            nitro::lane<T, N> const &if_true,
+            nitro::lane<T, N> const &if_false) {
+  return ::select(cond, if_true, if_false);
+}
+
+template <typename T> auto clamp(T value, T min_value, T max_value) {
+  return select(value < min_value, min_value,
+                select(value < max_value, value, max_value));
+}
+
 template <typename T> auto sqrt(T const &x) { return std::sqrt(x); }
 
 template <typename T, size_t N> auto sqrt(nitro::lane<T, N> const &x) {
-  return ::square(x);
+  return ::sqrt(x);
 }
 
-template <typename T> auto rsqrt(T const &x) { return T(1) / sqrt(x); }
+template <typename T> auto rsqrt(T const &x) { return (T)1 / sqrt(x); }
 
 template <typename T> auto apx_rsqrt(T const &x) { return (T)1 / sqrt(x); }
 
@@ -62,12 +85,11 @@ template <typename T, size_t N> auto sin(nitro::lane<T, N> const &x) {
 }
 
 template <typename T> auto acos(T const &x) {
-  auto x_ = x < T(-1.0) ? T(-1.0) : (x > T(1.0) ? T(1.0) : x);
-  return std::acos(x_);
+  return std::acos(clamp(x, T(-1.0), T(1.0)));
 }
 
 template <typename T, size_t N> auto acos(nitro::lane<T, N> const &x) {
-  return ::acos(x);
+  return ::acos(clamp(x, T(-1.0), T(1.0)));
 }
 
 template <typename T> auto exp(T const &x) { return std::exp(x); }
@@ -110,28 +132,5 @@ template <typename T> auto log(T const &x) { return std::log(x); }
 
 template <typename T, size_t N> auto log(nitro::lane<T, N> const &x) {
   return ::log(x);
-}
-
-template <typename T> auto isnan(T const &x) { return std::isnan(x); }
-
-template <typename T, size_t N> auto isnan(nitro::lane<T, N> const &x) {
-  return ::is_nan(x);
-}
-
-template <typename Tc, typename T>
-auto select(Tc const &cond, T const &if_true, T const &if_false) {
-  return cond ? if_true : if_false;
-}
-
-template <typename T, size_t N>
-auto select(nitro::mask<nitro::lane<T, N>> const &cond,
-            nitro::lane<T, N> const &if_true,
-            nitro::lane<T, N> const &if_false) {
-  return ::select(cond, if_true, if_false);
-}
-
-template <typename T> auto clamp(T value, T min_value, T max_value) {
-  return select(value < min_value, min_value,
-                select(value < max_value, value, max_value));
 }
 } // namespace cg

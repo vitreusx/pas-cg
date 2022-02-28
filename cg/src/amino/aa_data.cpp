@@ -1,4 +1,5 @@
 #include "amino/aa_data.h"
+#include "utils/ioxx_interop.h"
 #include "utils/quantity.h"
 #include <numeric>
 using namespace cg;
@@ -19,7 +20,7 @@ void amino_acid_data::load(ioxx::xyaml::node const &node) {
   std::unordered_map<std::string, double> def_atom_radii;
   for (auto const &entry : sub["default atom radii"]) {
     auto name = entry.first.as<std::string>();
-    auto radius = quantity(entry.second.as<std::string>()).in("A");
+    auto radius = quantity(entry.second.as<std::string>()).assumed_("A");
     def_atom_radii[name] = radius;
   }
 
@@ -28,14 +29,14 @@ void amino_acid_data::load(ioxx::xyaml::node const &node) {
     auto data_node = ioxx::xyaml::node(entry.second);
 
     aa_data &cur_data = data[amino_acid(name)];
-    cur_data.mass = quantity(data_node["mass"].as<std::string>()).in("amu");
-    cur_data.radius = quantity(data_node["radius"].as<std::string>()).in("A");
+    data_node["mass"] >> cur_data.mass.assumed_("amu");
+    data_node["radius"] >> cur_data.radius.assumed_("A");
 
     auto atom_radii = def_atom_radii;
     if (auto alt = data_node["alt atom radii"]; alt) {
       for (auto const &alt_entry : alt) {
-        auto atom_name = alt_entry.first.as<std::string>();
-        auto alt_radius = quantity(alt_entry.second.as<std::string>()).in("A");
+        auto atom_name = alt_entry.first.Scalar();
+        auto alt_radius = quantity(alt_entry.second.Scalar()).assumed_("A");
         atom_radii[atom_name] = alt_radius;
       }
     }
@@ -69,7 +70,7 @@ void amino_acid_data::load(ioxx::xyaml::node const &node) {
 
     cur_data.charge = 0.0;
     if (auto charge_node = data_node["charge"]; charge_node) {
-      auto charge = quantity(charge_node.as<std::string>()).in("e");
+      auto charge = quantity(charge_node.as<std::string>()).assumed_("e");
       cur_data.charge = charge;
     }
 

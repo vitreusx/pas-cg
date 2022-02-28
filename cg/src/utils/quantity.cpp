@@ -43,21 +43,11 @@ static double parse(std::string const &s) {
   return calculator::calculate(s.c_str()).asDouble();
 }
 
-quantity::quantity() {
-  this->mag = this->unit_value = 1.0;
-  this->unit_str = "";
-}
+quantity::quantity(double value) { numerical_value = value; }
 
-quantity::quantity(double value) {
-  this->mag = value;
-  this->unit_str = "";
-  this->unit_value = 1.0;
-}
-
-quantity::quantity(double mag, std::string const &unit) {
-  this->mag = mag;
+quantity::quantity(double numerical_value, std::string const &unit) {
+  this->numerical_value = numerical_value;
   this->unit_str = unit;
-  this->unit_value = parse(unit);
 }
 
 static bool is_number(std::string const &str) {
@@ -70,62 +60,46 @@ quantity::quantity(const std::string &repr) {
   if (space == repr.end()) {
     auto value = parse(repr);
     if (is_number(repr)) {
-      mag = value;
-      unit_str = "";
-      unit_value = 1.0;
+      numerical_value = value;
     } else {
-      mag = 1.0;
+      numerical_value = 1.0;
       unit_str = repr;
-      unit_value = value;
     }
   } else {
-    auto mag_str = std::string(repr.begin(), space);
-    mag = parse(mag_str);
+    auto num_val_str = std::string(repr.begin(), space);
+    numerical_value = parse(num_val_str);
     unit_str = std::string(space + 1, repr.end());
-    unit_value = parse(unit_str);
   }
 }
 
-quantity::operator double() const { return mag * unit_value; }
+quantity::operator double() const {
+  auto unit_value = 1.0;
+  if (unit_str.has_value())
+    unit_value = parse(unit_str.value());
+  else if (_def_unit.has_value())
+    unit_value = parse(_def_unit.value());
+  return numerical_value * unit_value;
+}
 
 std::string quantity::repr() const {
-  std::stringstream mag_ss{};
-  mag_ss << std::scientific << mag;
-  auto mag_repr = mag_ss.str();
+  std::stringstream num_val_ss{};
+  num_val_ss << std::scientific << numerical_value;
+  auto num_val_repr = num_val_ss.str();
 
-  if (unit_str.empty())
-    return mag_repr;
+  if (!unit_str.has_value())
+    return num_val_repr;
   else
-    return mag_repr + " " + unit_str;
+    return num_val_repr + " " + unit_str.value();
 }
 
 quantity &quantity::operator=(const quantity &other) {
-  mag = other.mag;
-  if (!other.unit_str.empty()) {
-    unit_str = other.unit_str;
-    unit_value = other.unit_value;
-  }
+  numerical_value = other.numerical_value;
+  unit_str = other.unit_str;
   return *this;
 }
 
 quantity &quantity::operator=(quantity &&other) noexcept {
   *this = static_cast<quantity const &>(other);
-  return *this;
-}
-
-quantity quantity::in(std::string const &new_unit) const {
-  auto copy = *this;
-  return copy.in_(new_unit);
-}
-
-quantity &quantity::in_(std::string const &new_unit) {
-  double value = *this;
-  unit_str = new_unit;
-  if (!unit_str.empty())
-    unit_value = parse(unit_str);
-  else
-    unit_value = 1.0;
-  mag = value / unit_value;
   return *this;
 }
 
@@ -140,3 +114,20 @@ std::ostream &cg::operator<<(std::ostream &os, quantity const &value) {
   os << value.repr();
   return os;
 }
+
+quantity &quantity::assumed_(const std::string &def_unit) {
+  _def_unit = def_unit;
+  return *this;
+}
+
+quantity quantity::assumed(const std::string &def_unit) const {
+  auto copy = *this;
+  copy.assumed_(def_unit);
+  return copy;
+}
+
+double quantity::in(const std::string &unit) const {
+  return (double)*this / parse(unit);
+}
+
+double quantity::num_value() const { return numerical_value; }

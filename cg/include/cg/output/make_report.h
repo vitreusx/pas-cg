@@ -3,16 +3,16 @@
 #include <cg/types/amp.h>
 #include <vector>
 
-namespace cg::output {
-class make_report : public hook {
+namespace cg::out {
+
+class make_report {
 public:
-  real period, last_t;
-  real *t;
-  std::filesystem::path output_dir;
-  int *ord;
-  std::vector<hook const *> hooks;
+  real period;
+  real *t, *last_t;
+  report_state *state;
+  std::vector<hook const *> const *hooks;
 
 public:
   void operator()() const;
 };
-} // namespace cg::output
+} // namespace cg::out
