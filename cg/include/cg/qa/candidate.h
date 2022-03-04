@@ -15,7 +15,7 @@ template <typename E> struct candidate_auto_expr : public candidate_expr<E> {
 using candidate_base =
     nitro::tuple_wrapper<int, int, int, contact_type, sync_data, sync_data>;
 
-class candidate : public candidate_expr<candidate>, public candidate_base {
+class candidate : public candidate_auto_expr<candidate>, public candidate_base {
 public:
   using Base = candidate_base;
   using Base::Base;

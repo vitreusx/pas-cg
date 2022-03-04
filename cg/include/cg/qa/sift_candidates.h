@@ -11,6 +11,7 @@ public:
   real min_abs_cos_hr, min_abs_cos_hh, max_cos_nr;
   real req_min_dist[contact_type::NUM_TYPES];
   polarization_type ptype[amino_acid::NUM_TYPES];
+  real formation_tolerance;
 
   bool disulfide_special_criteria;
   int max_neigh_count;

@@ -23,4 +23,5 @@ void parameters::load(ioxx::xyaml::node const &p) {
   p["min |cos(h, h)| for bb"] >> min_cos_hh;
   p["max cos(n, r)"] >> max_cos_nr;
   p["disulfides"] >> disulfide;
+  p["formation tolerance"] >> formation_tolerance;
 }

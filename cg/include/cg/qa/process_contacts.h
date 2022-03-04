@@ -31,6 +31,7 @@ public:
   nitro::view<sync_data> sync;
   nitro::set<free_pair> *free_pairs;
   nitro::const_view<int> neigh;
+  nitro::view<bool> part_of_ssbond;
 
 public:
   void iter(int idx) const;

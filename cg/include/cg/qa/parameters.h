@@ -7,7 +7,8 @@ namespace cg::qa {
 struct parameters {
   bool enabled;
   quantity phase_dur;
-  double breaking_factor, min_cos_hr, min_cos_hh, max_cos_nr;
+  double breaking_factor, min_cos_hr, min_cos_hh, max_cos_nr,
+      formation_tolerance;
 
   struct ss_spec_crit_t {
     bool enabled;

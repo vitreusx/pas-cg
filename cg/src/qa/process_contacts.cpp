@@ -85,6 +85,9 @@ void process_contacts::iter(int idx) const {
     } else if (status == BREAKING && saturation == 0.0f) {
 #pragma omp critical
       {
+        part_of_ssbond[i1] = false;
+        part_of_ssbond[i2] = false;
+
         contacts->remove(idx);
         sync[i1] += sync_diff1;
         sync[i2] += sync_diff2;

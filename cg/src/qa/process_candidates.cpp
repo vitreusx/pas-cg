@@ -1,7 +1,12 @@
 #include "qa/process_candidates.h"
+#include <algorithm>
 using namespace cg::qa;
 
 void process_candidates::operator()() const {
+  std::sort(candidates->begin(), candidates->end(), [](auto l, auto r) -> bool {
+    return std::make_pair(l.i1(), l.i2()) < std::make_pair(r.i1(), r.i2());
+  });
+
   for (int idx = 0; idx < candidates->size(); ++idx) {
     iter(candidates->at(idx));
   }

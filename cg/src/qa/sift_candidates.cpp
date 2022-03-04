@@ -46,7 +46,8 @@ void sift_candidates::iter(int idx) const {
   if ((short)type == (short)contact_type::NONE())
     return;
 
-  if (1.0f > r12_rn * req_min_dist[(short)type])
+  auto req_dist = req_min_dist[(short)type] * ((real)1.0 + formation_tolerance);
+  if (1.0f > r12_rn * req_dist)
     return;
 
   auto ptype2 = ptype[(uint8_t)atype2];

@@ -481,6 +481,7 @@ void simulation::setup_qa() {
     sift.min_abs_cos_hr = params.qa.min_cos_hr;
     sift.min_abs_cos_hh = params.qa.min_cos_hh;
     sift.max_cos_nr = params.qa.max_cos_nr;
+    sift.formation_tolerance = params.qa.formation_tolerance;
 
     sift.req_min_dist[(int16_t)qa::contact_type::BACK_BACK()] =
         params.lj_vars.bb.r_min();
@@ -550,6 +551,7 @@ void simulation::setup_qa() {
 
         proc_cont.neigh = neigh_count.view();
         proc_cont.max_neigh_count = spec_crit_params.max_neigh_count;
+        proc_cont.part_of_ssbond = part_of_ssbond.view();
 
         auto &update_cys = ker.update_cys_neigh;
         update_cys.neigh = &qa_cys_neigh;

@@ -44,8 +44,8 @@ native angles:
 
 complex native dihedrals:
   enabled: false
-  CDA: 0.66 eps/rad**2
-  CDB: 0.66 eps/rad**2
+  CDA: 0.66 eps
+  CDB: 0.66 eps
 
 simple native dihedrals:
   enabled: false
@@ -101,6 +101,7 @@ pseudo-improper dihedral:
 quasi-adiabatic:
   enabled: false
   phase duration: 10 tau
+  formation tolerance: 0
   breaking factor: 1.5
   min |cos(h, r)|: 0.92
   min |cos(h, h)| for bb: 0.75
@@ -128,6 +129,7 @@ native contacts:
   disulfide bond force:
     harmonic:
       H1: 100 eps/A**2
+      H2: 0 eps/A**4
       equilibrium dist: 6.0 A
 
 Pauli exclusion:
@@ -138,13 +140,13 @@ Pauli exclusion:
 tether forces:
   enabled: true
   H1: 100 eps/A**2
-  H2: 0 eps/A**2
+  H2: 0 eps/A**4
   default bond length: 3.8 A
 
 velocity AFM:
   enabled: false
   H1: 0.06 eps/A**2
-  H2: 0 eps/A**2
+  H2: 0 eps/A**4
   AFM tips: []
 
 force AFM:
