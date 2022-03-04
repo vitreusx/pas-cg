@@ -9,10 +9,12 @@ void sift_candidates::operator()() const {
 }
 
 void sift_candidates::iter(int idx) const {
-  if (free_pairs->is_vacant(idx))
+  auto node = free_pairs->at(idx);
+
+  if (node.is_vacant())
     return;
 
-  auto pair = free_pairs->at(idx);
+  auto pair = node.item();
 
   auto i1 = pair.i1(), i2 = pair.i2();
 
@@ -68,6 +70,13 @@ void sift_candidates::iter(int idx) const {
   sync_data sync2_after_formation = sync[i2] - sync_diff2;
   if (!sync2_after_formation.is_valid())
     return;
+
+  static auto ss_type = contact_type::SIDE_SIDE(aa_code::CYS, aa_code::CYS);
+  if (disulfide_special_criteria && (int16_t)type == (int16_t)ss_type) {
+    if (neigh[i1] + neigh[i2] > max_neigh_count || part_of_ssbond[i1] ||
+        part_of_ssbond[i2])
+      return;
+  }
 
 #pragma omp critical
   candidates->emplace_back(i1, i2, idx, type, sync_diff1, sync_diff2);

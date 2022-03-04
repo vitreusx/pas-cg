@@ -53,8 +53,13 @@ void simulation::general_setup() {
 
 void simulation::load_model() {
   auto &model_file_v = params.input.source;
-  if (std::holds_alternative<pdb_file>(model_file_v)) {
-    auto const &file = std::get<pdb_file>(model_file_v);
+  if (std::holds_alternative<input::parameters::pdb_source>(model_file_v)) {
+    auto const &source = std::get<input::parameters::pdb_source>(model_file_v);
+    auto file = source.file;
+    if (source.deriv) {
+      auto all_atoms = source.deriv == pdb_file::contact_deriv::FROM_ATOMS;
+      file.add_contacts(params.aa_data, all_atoms);
+    }
     model = file.to_model();
   } else {
     auto &file = std::get<seq_file>(model_file_v);
@@ -64,8 +69,7 @@ void simulation::load_model() {
   if (params.input.morph_into_saw.has_value()) {
     auto &saw_p = params.input.morph_into_saw.value();
     if (saw_p.perform)
-      model.morph_into_saw(gen, saw_p.bond_distance, saw_p.residue_density,
-                           saw_p.infer_box);
+      model.morph_into_saw(gen, saw_p);
   }
 }
 
@@ -369,12 +373,11 @@ void simulation::setup_pauli() {
 void simulation::setup_nat_cont() {
   if (params.nat_cont.enabled) {
     for (auto const &cont : model.contacts) {
-      if (cont.type != input::model::NAT_SS) {
-        auto i1 = res_map[cont.res1], i2 = res_map[cont.res2];
-        auto nat_dist = (real)cont.length;
-        all_native_contacts.emplace_back(i1, i2, nat_dist);
-        native_contact_exclusions.emplace_back(i1, i2, 0.0);
-      }
+      auto i1 = res_map[cont.res1], i2 = res_map[cont.res2];
+      auto nat_dist = (real)cont.length;
+      bool is_ssbond = cont.type == input::model::NAT_SS;
+      all_native_contacts.emplace_back(i1, i2, nat_dist, is_ssbond);
+      native_contact_exclusions.emplace_back(i1, i2, 0.0);
     }
 
     ker.nl_legacy.all_nat_cont = native_contact_exclusions.view();
@@ -519,6 +522,53 @@ void simulation::setup_qa() {
     update.simul_box = &box;
     update.nl = &nl;
     update.pairs = &qa_free_pairs;
+
+    if (params.qa.disulfide.has_value()) {
+      neigh_count = nitro::vector<int>(num_res, 0);
+      part_of_ssbond = nitro::vector<bool>(num_res, false);
+
+      cys_indices = nitro::vector<int>(num_res);
+      for (int idx = 0; idx < num_res; ++idx) {
+        if (atype[idx] == amino_acid(aa_code::CYS))
+          cys_indices.push_back(idx);
+      }
+
+      ss_spec_crit = params.qa.disulfide->spec_crit.enabled;
+
+      if (ss_spec_crit) {
+        auto const &spec_crit_params = params.qa.disulfide->spec_crit;
+
+        sift.part_of_ssbond = part_of_ssbond.view();
+        sift.disulfide_special_criteria = ss_spec_crit;
+        sift.neigh = neigh_count.view();
+
+        proc_cand.disulfide_special_criteria = ss_spec_crit;
+        proc_cand.part_of_ssbond = part_of_ssbond.view();
+
+        proc_cont.disulfide_special_criteria = ss_spec_crit;
+        proc_cont.disulfide = params.qa.disulfide->force;
+
+        proc_cont.neigh = neigh_count.view();
+        proc_cont.max_neigh_count = spec_crit_params.max_neigh_count;
+
+        auto &update_cys = ker.update_cys_neigh;
+        update_cys.neigh = &qa_cys_neigh;
+        update_cys.neigh_radius = spec_crit_params.neigh_radius;
+        update_cys.nl = &nl;
+        update_cys.simul_box = &box;
+        update_cys.r = r.view();
+
+        auto &count_cys = ker.count_cys_neigh;
+        count_cys.simul_box = &box;
+        count_cys.neigh_radius = spec_crit_params.neigh_radius;
+        count_cys.neigh = &qa_cys_neigh;
+        count_cys.neigh_count = neigh_count.view();
+        count_cys.cys_indices = cys_indices.view();
+        count_cys.r = r.view();
+
+        max_cutoff = max(max_cutoff, (real)spec_crit_params.neigh_radius);
+      }
+    }
 
     real cutoff = 0.0;
     for (int idx = 0; idx < qa::contact_type::NUM_TYPES; ++idx)
@@ -743,7 +793,7 @@ simulation::thread::thread(simulation *simul) {
 
 void simulation::thread::main_async() {
 #pragma omp master
-  pre_loop_init();
+  sync_part(true);
 
 #pragma omp barrier
   real total_time = params.gen.total_time;
@@ -784,7 +834,6 @@ void simulation::thread::async_part() {
   if (params.heur_dih.enabled)
     ker.eval_heur_dih_forces.omp_async();
   if (params.qa.enabled) {
-    ker.prepare_nh.omp_async();
     ker.sift_qa_candidates.omp_async();
     ker.process_qa_contacts.omp_async();
   }
@@ -798,39 +847,31 @@ void simulation::thread::async_part() {
   dyn.omp_reduce(simul->dyn);
 }
 
-void simulation::thread::sync_part() {
-  if (params.pbar.enabled)
-    ker.render_pbar();
+void simulation::thread::sync_part(bool pre_loop) {
+  if (!pre_loop) {
+    if (params.pbar.enabled)
+      ker.render_pbar();
 
-  if (params.out.enabled)
-    ker.make_report();
+    if (params.out.enabled)
+      ker.make_report();
 
-  if (params.lang.enabled)
-    ker.lang_step();
+    if (params.lang.enabled)
+      ker.lang_step();
+  }
+
   simul->dyn.reset();
-  if (params.qa.enabled)
+  if (params.qa.enabled) {
+    ker.prepare_nh();
     ker.sift_qa_candidates.omp_prep();
+    if (simul->ss_spec_crit)
+      ker.count_cys_neigh();
+  }
 
   if (simul->nl_required) {
     ker.nl_verify();
     if (simul->nl_invalid)
       on_nl_invalidation();
   }
-}
-
-void simulation::thread::pre_loop_init() {
-#pragma omp master
-  {
-    simul->dyn.reset();
-    if (params.qa.enabled)
-      ker.sift_qa_candidates.omp_prep();
-
-    if (simul->nl_required) {
-      ker.nl_verify();
-      if (simul->nl_invalid)
-        on_nl_invalidation();
-    }
-  };
 }
 
 void simulation::thread::on_nl_invalidation() {
@@ -846,8 +887,11 @@ void simulation::thread::on_nl_invalidation() {
     ker.update_nat_contacts();
   if (params.const_dh.enabled || params.rel_dh.enabled)
     ker.update_dh_pairs();
-  if (params.qa.enabled)
+  if (params.qa.enabled) {
     ker.update_qa_pairs();
+    if (simul->ss_spec_crit)
+      ker.update_cys_neigh();
+  }
   if (params.pid.enabled)
     ker.update_pid_bundles();
 }

@@ -8,9 +8,7 @@
 #include <string_view>
 
 namespace cg {
-pdb_file::pdb_file(std::istream &&is) {
-  load(is);
-}
+pdb_file::pdb_file(std::istream &&is) { load(is); }
 
 void pdb_file::load(std::istream &is) {
   std::unordered_map<char, bool> ter_found;
@@ -322,13 +320,14 @@ input::model pdb_file::to_model() const {
 }
 
 void pdb_file::add_contacts(amino_acid_data const &data, bool all_atoms) {
+  std::set<std::pair<atom *, atom *>> linked_atoms;
 
-  std::map<std::pair<atom *, atom *>, double> contact_map;
   for (auto const &pdb_link : links) {
-    contact_map[{pdb_link.a1, pdb_link.a2}] = pdb_link.length;
+    linked_atoms.emplace(pdb_link.a1, pdb_link.a2);
   }
+
   for (auto const &[ss_serial, pdb_ss] : disulfide_bonds) {
-    contact_map[{pdb_ss.a1, pdb_ss.a2}] = pdb_ss.length;
+    linked_atoms.emplace(pdb_ss.a1, pdb_ss.a2);
   }
 
   for (auto &[chain1_id, chain1] : chains) {
@@ -359,38 +358,16 @@ void pdb_file::add_contacts(amino_acid_data const &data, bool all_atoms) {
           auto dist = norm(atom1.pos - atom2.pos);
           auto max_overlap_dist = radius1 + radius2;
           if (dist < max_overlap_dist) {
-            contact_map[{&atom1, &atom2}] = dist;
+            link pdb_link;
+            pdb_link.a1 = &atom1;
+            pdb_link.a2 = &atom2;
+            pdb_link.length = dist;
+            links.push_back(pdb_link);
+
+            linked_atoms.emplace(&atom1, &atom2);
           }
         }
       }
-    }
-  }
-
-  std::map<std::pair<atom *, atom *>, double> ss_bonds;
-
-  links = {};
-  disulfide_bonds = {};
-  size_t ss_serial = 1;
-
-  for (auto const &[atom1_atom2, dist] : contact_map) {
-    auto const &[atom1, atom2] = atom1_atom2;
-    if (atom1->parent_res->name == "CYS" && atom2->parent_res->name == "CYS") {
-
-      disulfide_bond ss;
-      ss.serial = ss_serial;
-      ss.a1 = atom1;
-      ss.a2 = atom2;
-      ss.length = dist;
-
-      disulfide_bonds[ss_serial] = ss;
-      ++ss_serial;
-    } else {
-      link pdb_link;
-      pdb_link.a1 = atom1;
-      pdb_link.a2 = atom2;
-      pdb_link.length = dist;
-
-      links.push_back(pdb_link);
     }
   }
 }

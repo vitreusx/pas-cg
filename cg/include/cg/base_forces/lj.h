@@ -32,6 +32,7 @@ public:
   using Base::get;
 
   lj() : lj(0.0, 0.0){};
+  lj(double depth, double r_min) : Base{depth, r_min} {}
 
   static inline real compute_cutoff(real r_min) { return (real)2.0 * r_min; }
 };

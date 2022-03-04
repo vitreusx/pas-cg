@@ -1,4 +1,5 @@
 #pragma once
+#include "morph_into_saw.h"
 #include <cg/amino/amino_acid.h>
 #include <cg/types/box.h>
 #include <cg/types/vec3.h>
@@ -18,8 +19,7 @@ public:
   friend model operator+(model const &m1, model const &m2);
   model &operator+=(model const &m2);
 
-  void morph_into_saw(rand_gen &gen, std::optional<double> res_bond_length,
-                      double base_res_dens, bool infer_box);
+  void morph_into_saw(rand_gen &gen, input::morph_into_saw_t const &params);
 
 public:
   struct residue;

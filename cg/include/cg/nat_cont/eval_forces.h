@@ -1,11 +1,13 @@
 #pragma once
 #include "nat_cont.h"
+#include <cg/base_forces/disulfide.h>
 #include <cg/types/box.h>
 
 namespace cg::nat_cont {
 class eval_forces {
 public:
   real depth;
+  std::optional<disulfide_force> disulfide;
 
 public:
   nitro::const_view<vec3r> r;

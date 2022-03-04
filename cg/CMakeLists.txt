@@ -27,7 +27,7 @@ target_compile_options(pas-cg
     $<$<COMPILE_LANGUAGE:CXX>:
     -Wall;-Wextra;-Wpedantic;-Werror;
     $<$<CONFIG:Release>:-Ofast;-march=native>;
-    $<$<CONFIG:Debug>:-g;-Og>>)
+    $<$<CONFIG:Debug>:-g>>)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/ext/eigen-3.4.0/cmake")
 
@@ -46,8 +46,8 @@ set_target_properties(pas-cg
 
 file(COPY data DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
-add_custom_command(
-    TARGET pas-cg
-    POST_BUILD
-    COMMAND /usr/bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/scripts/gen_asm
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+#add_custom_command(
+#    TARGET pas-cg
+#    POST_BUILD
+#    COMMAND /usr/bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/scripts/gen_asm
+#    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})

@@ -4,11 +4,11 @@
 using namespace cg::out;
 
 void report_gyration_stuff::report_to(report_state &report) const {
-  Eigen::MatrixX3d positions;
+  Eigen::MatrixX3d positions(r.size(), 3);
   for (int idx = 0; idx < r.size(); ++idx)
-    positions.row(idx) = convert<double>(r[idx]);
+    positions.row(idx) = convert<double>(r[idx]).transpose();
 
-  Eigen::RowVector3d center_of_mass = positions.rowwise().sum() / r.size();
+  Eigen::RowVector3d center_of_mass = positions.colwise().sum() / r.size();
   positions.rowwise() -= center_of_mass;
 
   Eigen::Vector3d lambda =

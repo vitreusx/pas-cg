@@ -3,9 +3,8 @@
 using namespace cg::nat_cont;
 
 void parameters::load(ioxx::xyaml::node const &p) {
-  enabled = p["enabled"].as<bool>();
-  lj_depth = p["lj depth"].as<quantity>();
-  active_thr = p["active threshold"].as<double>();
-  ss_H1 = p["disulfide bonds"]["H1"].as<quantity>();
-  ss_eqdist = p["disulfide bonds"]["equilibrium dist"].as<quantity>();
+  p["enabled"] >> enabled;
+  p["lj depth"] >> lj_depth;
+  p["active threshold"] >> active_thr;
+  p["disulfide bond force"] >> disulfide_force;
 }

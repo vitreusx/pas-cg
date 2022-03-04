@@ -16,10 +16,12 @@ void process_contacts::operator()() const {
 }
 
 void process_contacts::iter(int idx) const {
-  if (contacts->is_vacant(idx))
+  auto const &node = contacts->at(idx);
+
+  if (node.is_vacant())
     return;
 
-  auto contact = contacts->at(idx);
+  auto contact = node.item();
 
   auto i1 = contact.i1(), i2 = contact.i2();
   auto type = contact.type();
@@ -34,26 +36,60 @@ void process_contacts::iter(int idx) const {
 
   auto saturation = saturation_value(contact);
 
-  auto lj_force = ljs[type];
-  auto r12_n = r12_rn * norm_squared(r12);
-  auto [Vij, dVij_dr] = lj_force(r12_n, r12_rn);
-  *V += saturation * Vij;
-  auto f = saturation * dVij_dr * r12_u;
-  F[i1] += f;
-  F[i2] -= f;
+  static contact_type ss_type =
+      contact_type::SIDE_SIDE(aa_code::CYS, aa_code::CYS);
+  if (!disulfide.has_value() || (int16_t)type != (int16_t)ss_type) {
+    auto lj_force = ljs[type];
+    auto r12_n = r12_rn * norm_squared(r12);
+    auto [Vij, dVij_dr] = lj_force(r12_n, r12_rn);
+    *V += saturation * Vij;
+    auto f = saturation * dVij_dr * r12_u;
+    F[i1] += f;
+    F[i2] -= f;
 
-  if (status == FORMING_OR_FORMED && saturation == 1.0f) {
-    if (factor * lj_force.r_min() * r12_rn < 1.0f) {
-      contact.status() = BREAKING;
-      contact.ref_time() = *t;
-    }
-  } else if (status == BREAKING && saturation == 0.0f) {
+    if (status == FORMING_OR_FORMED && saturation == 1.0f) {
+      if (factor * lj_force.r_max() * r12_rn < 1.0f) {
+        contact.status() = BREAKING;
+        contact.ref_time() = *t;
+      }
+    } else if (status == BREAKING && saturation == 0.0f) {
 #pragma omp critical
-    {
-      contacts->remove(idx);
-      sync[i1] += sync_diff1;
-      sync[i2] += sync_diff2;
-      free_pairs->emplace_back(i1, i2);
+      {
+        contacts->remove(idx);
+        sync[i1] += sync_diff1;
+        sync[i2] += sync_diff2;
+        free_pairs->emplace(i1, i2);
+      }
+    }
+  } else {
+    auto [Vij, dVij_dr] = disulfide.value()(r12_rn);
+    *V += saturation * Vij;
+    auto f = saturation * dVij_dr * r12_u;
+    F[i1] += f;
+    F[i2] -= f;
+
+    if (status == FORMING_OR_FORMED && saturation == 1.0f) {
+      if (disulfide_special_criteria) {
+        real r12_n = r12_rn * norm_squared(r12);
+        if (abs(r12_n - ss_def_dist) > ss_dist_max_div &&
+            neigh[i1] + neigh[i2] < max_neigh_count) {
+          contact.status() = BREAKING;
+          contact.ref_time() = *t;
+        }
+      } else {
+        if (factor * ljs[ss_type].r_max() * r12_rn < 1.0f) {
+          contact.status() = BREAKING;
+          contact.ref_time() = *t;
+        }
+      }
+    } else if (status == BREAKING && saturation == 0.0f) {
+#pragma omp critical
+      {
+        contacts->remove(idx);
+        sync[i1] += sync_diff1;
+        sync[i2] += sync_diff2;
+        free_pairs->emplace(i1, i2);
+      }
     }
   }
 }

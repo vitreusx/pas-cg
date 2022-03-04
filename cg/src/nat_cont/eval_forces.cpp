@@ -18,7 +18,14 @@ void eval_forces::iter(nat_cont_expr<E> const &nat_cont) const {
   auto r12_rn = norm_inv(r12);
 
   auto r12_u = r12 * r12_rn;
-  auto [V_, dV_dr] = lj(depth, nat_dist)(r12_rn);
+
+  real V_, dV_dr;
+  if (disulfide.has_value() && nat_cont.is_ssbond()) {
+    auto r12_n = (real)1 / r12_rn;
+    std::tie(V_, dV_dr) = disulfide.value()(r12_n);
+  } else {
+    std::tie(V_, dV_dr) = lj(depth, nat_dist)(r12_rn);
+  }
 
   *V += V_;
   F[i1] += r12_u * dV_dr;

@@ -4,14 +4,14 @@
 
 namespace cg::nat_cont {
 template <typename E> struct nat_cont_expr : public nitro::ind_expr<E> {
-  EXPR_BODY(i1, i2, nat_dist)
+  EXPR_BODY(i1, i2, nat_dist, is_ssbond)
 };
 
 template <typename E> struct nat_cont_auto_expr : public nat_cont_expr<E> {
-  AUTO_EXPR_BODY(i1, i2, nat_dist)
+  AUTO_EXPR_BODY(i1, i2, nat_dist, is_ssbond)
 };
 
-using nat_cont_base = nitro::tuple_wrapper<int, int, real>;
+using nat_cont_base = nitro::tuple_wrapper<int, int, real, bool>;
 
 class nat_cont : public nat_cont_auto_expr<nat_cont>, public nat_cont_base {
 public:

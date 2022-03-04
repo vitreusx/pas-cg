@@ -8,13 +8,14 @@ amino acid data:
   __path: amino-acids.yml
 
 input:
-  type: seq file
-  source:
+  seq file:
     __path: ../glut/glut.yml
   morph into SAW:
     perform: true
     bond distance: 3.8 A
     residue density: 1e-3 atom/A**3
+    intersection at: 0.0 A
+    num of retries: 9001
     infer simulation box: false
 
 progress bar:
@@ -104,6 +105,17 @@ quasi-adiabatic:
   min |cos(h, r)|: 0.92
   min |cos(h, h)| for bb: 0.75
   max cos(n, r): 0.5
+  disulfides:
+    force:
+      harmonic:
+        H1: 100 eps/A**2
+        equilibrium dist: 6.0 A
+    special criteria:
+      enabled: false
+      max neigh count: 9
+      neigh radius: 7.5 A
+      def bond dist: 6 A
+      max bond dist deviation: 0.1 A
 
 chirality:
   enabled: false
@@ -113,9 +125,10 @@ native contacts:
   enabled: false
   lj depth: 1 eps
   active threshold: 1.5
-  disulfide bonds:
-    H1: 100 eps/A**2
-    equilibrium dist: 6.0 A
+  disulfide bond force:
+    harmonic:
+      H1: 100 eps/A**2
+      equilibrium dist: 6.0 A
 
 Pauli exclusion:
   enabled: false

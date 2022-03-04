@@ -12,6 +12,9 @@ public:
   real req_min_dist[contact_type::NUM_TYPES];
   polarization_type ptype[amino_acid::NUM_TYPES];
 
+  bool disulfide_special_criteria;
+  int max_neigh_count;
+
 public:
   nitro::const_view<vec3r> r, n, h;
   box<real> const *simul_box;
@@ -20,6 +23,9 @@ public:
 
   nitro::set<free_pair> const *free_pairs;
   nitro::vector<candidate> *candidates;
+
+  nitro::const_view<int> neigh;
+  nitro::const_view<bool> part_of_ssbond;
 
 public:
   void iter(int idx) const;

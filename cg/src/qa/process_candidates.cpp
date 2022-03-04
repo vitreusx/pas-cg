@@ -17,13 +17,27 @@ void process_candidates::iter(candidate_expr<E> const &candidate) const {
   sync_data new_sync1 = sync[i1] - sync_diff1;
   sync_data new_sync2 = sync[i2] - sync_diff2;
 
-  if (new_sync1.is_valid() && new_sync2.is_valid()) {
-    contacts->emplace_back(i1, i2, type, FORMING_OR_FORMED, *t, sync_diff1,
-                           sync_diff2);
+  if (!new_sync1.is_valid() || !new_sync2.is_valid())
+    return;
 
-    sync[i1] = new_sync1;
-    sync[i2] = new_sync2;
+  static auto ss_type = contact_type::SIDE_SIDE(aa_code::CYS, aa_code::CYS);
+  bool is_ssbond = (int16_t)type == (int16_t)ss_type;
 
-    free_pairs->remove(candidate.free_pair_idx());
+  if (disulfide_special_criteria && is_ssbond) {
+    if (part_of_ssbond[i1] || part_of_ssbond[i2])
+      return;
+  }
+
+  contacts->emplace(i1, i2, type, FORMING_OR_FORMED, *t, sync_diff1,
+                    sync_diff2);
+
+  sync[i1] = new_sync1;
+  sync[i2] = new_sync2;
+
+  free_pairs->remove(candidate.free_pair_idx());
+
+  if (disulfide_special_criteria && is_ssbond) {
+    part_of_ssbond[i1] = true;
+    part_of_ssbond[i2] = true;
   }
 }

@@ -2,8 +2,7 @@
 #include "step_base.h"
 
 namespace cg::lang {
-
-class step : public step_base {
+class legacy_step : public step_base {
 public:
   void operator()() const;
 };

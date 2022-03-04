@@ -26,6 +26,7 @@
 #include <cg/pbar/render.h>
 #include <cg/pid/eval_forces.h>
 #include <cg/pid/update_bundles.h>
+#include <cg/qa/count_cys_neigh.h>
 #include <cg/qa/prepare_nh.h>
 #include <cg/qa/process_candidates.h>
 #include <cg/qa/process_contacts.h>
@@ -66,10 +67,12 @@ public:
   pauli::update_pairs update_pauli_pairs;
   pid::update_bundles update_pid_bundles;
   qa::update_free_pairs update_qa_pairs;
+  qa::update_cys_neigh update_cys_neigh;
 
   pbar::render render_pbar;
   qa::prepare_nh prepare_nh;
   qa::process_candidates process_qa_candidates;
+  qa::count_cys_neigh count_cys_neigh;
   out::make_report make_report;
   out::export_pdb export_pdb;
   out::add_stats add_stats;

@@ -92,52 +92,82 @@ static inline Eigen::Vector3<U> perp_v(Eigen::Vector3<U> const &v) {
   return perp.normalized();
 }
 
-void model::morph_into_saw(rand_gen &gen, std::optional<double> res_bond_length,
-                           double base_res_dens, bool infer_box) {
+void model::morph_into_saw(rand_gen &gen,
+                           input::morph_into_saw_t const &params) {
 
   using U = double;
   auto max_spread = M_PI / 12.0;
   auto max_around = M_PI;
 
-  auto vol = (double)residues.size() / base_res_dens;
+  auto vol = (double)residues.size() / params.residue_density;
   auto cell_a = cbrt(vol);
 
-  for (auto const &xmd_chain : chains) {
-    Eigen::Vector3<U> pos{gen.uniform<U>(-cell_a / 2.0, cell_a / 2.0),
-                          gen.uniform<U>(-cell_a / 2.0, cell_a / 2.0),
-                          gen.uniform<U>(-cell_a / 2.0, cell_a / 2.0)};
+  double def_bond_distance = params.bond_distance.value_or(0);
 
-    Eigen::Vector3<U> dir = convert<U>(gen.sphere<U>());
+  bool found_conformation = false;
+  for (int retry_idx = 0; retry_idx < params.num_of_retries; ++retry_idx) {
+    for (auto const &xmd_chain : chains) {
+      Eigen::Vector3<U> pos{gen.uniform<U>(-cell_a / 2.0, cell_a / 2.0),
+                            gen.uniform<U>(-cell_a / 2.0, cell_a / 2.0),
+                            gen.uniform<U>(-cell_a / 2.0, cell_a / 2.0)};
 
-    for (size_t res_idx = 0; res_idx < xmd_chain->residues.size(); ++res_idx) {
-      auto next = pos;
-      if (res_idx + 1 < xmd_chain->residues.size()) {
-        U bond_length;
-        if (res_bond_length) {
-          bond_length = res_bond_length.value();
-        } else {
-          auto pos1 = xmd_chain->residues[res_idx]->pos;
-          auto pos2 = xmd_chain->residues[res_idx + 1]->pos;
-          bond_length = norm(pos2 - pos1);
+      Eigen::Vector3<U> dir = convert<U>(gen.sphere<U>());
+
+      for (size_t res_idx = 0; res_idx < xmd_chain->residues.size();
+           ++res_idx) {
+        auto next = pos;
+        if (res_idx + 1 < xmd_chain->residues.size()) {
+          U bond_length;
+          if (params.bond_distance.has_value()) {
+            bond_length = def_bond_distance;
+          } else {
+            auto pos1 = xmd_chain->residues[res_idx]->pos;
+            auto pos2 = xmd_chain->residues[res_idx + 1]->pos;
+            bond_length = norm(pos2 - pos1);
+          }
+
+          next += dir * bond_length;
+
+          U spread_angle = gen.uniform(-max_spread, max_spread);
+          auto spread = Eigen::AngleAxisd(spread_angle, perp_v(dir));
+
+          U around_angle = gen.uniform(-max_around, max_around);
+          auto around = Eigen::AngleAxisd(around_angle, dir);
+
+          dir = (around * spread * dir).normalized();
         }
 
-        next += dir * bond_length;
+        xmd_chain->residues[res_idx]->pos = pos;
+        pos = next;
+      }
+    }
 
-        U spread_angle = gen.uniform(-max_spread, max_spread);
-        auto spread = Eigen::AngleAxisd(spread_angle, perp_v(dir));
-
-        U around_angle = gen.uniform(-max_around, max_around);
-        auto around = Eigen::AngleAxisd(around_angle, dir);
-
-        dir = (around * spread * dir).normalized();
+    double ix_dist_inv = 1.0 / params.intersection_at;
+    bool do_intersect = false;
+    for (int idx1 = 0; idx1 < (int)residues.size(); ++idx1) {
+      auto &res1 = residues[idx1];
+      for (int idx2 = idx1 + 1; idx2 < (int)residues.size(); ++idx2) {
+        auto &res2 = residues[idx2];
+        if (norm_inv(res2->pos - res1->pos) > ix_dist_inv) {
+          do_intersect = true;
+          break;
+        }
       }
 
-      xmd_chain->residues[res_idx]->pos = pos;
-      pos = next;
+      if (do_intersect)
+        break;
+    }
+
+    if (!do_intersect) {
+      found_conformation = true;
+      break;
     }
   }
 
-  if (infer_box) {
+  if (!found_conformation)
+    throw std::runtime_error("conformation not found!");
+
+  if (params.infer_box) {
     auto min_val = std::numeric_limits<double>::min();
     auto x_max = min_val, y_max = min_val, z_max = min_val;
     auto max_val = std::numeric_limits<double>::max();

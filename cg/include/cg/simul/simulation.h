@@ -100,6 +100,10 @@ private:
   nitro::set<qa::contact> qa_contacts;
   nitro::vector<sync_data> sync_values;
   nitro::vector<vec3r> n, h;
+  nitro::vector<qa::cys_neigh> qa_cys_neigh;
+  bool ss_spec_crit;
+  nitro::vector<int> neigh_count, cys_indices;
+  nitro::vector<bool> part_of_ssbond;
   void setup_qa();
 
   nitro::vector<pid::bundle> pid_bundles;
@@ -127,9 +131,8 @@ private:
     parameters params;
     simulation *simul;
 
-    void pre_loop_init();
     void async_part();
-    void sync_part();
+    void sync_part(bool pre_loop = false);
     void on_nl_invalidation();
   };
 

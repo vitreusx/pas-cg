@@ -29,7 +29,6 @@ public:
 
 private:
   explicit inline contact_type(int16_t val) : val{val} {};
-
   int16_t val;
 };
 } // namespace cg::qa
