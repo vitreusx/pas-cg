@@ -7,6 +7,7 @@ void legacy_step::operator()() const {
   real noise_factor = (real)sqrt(2.0 * kB * temperature);
   solver_real dt_inv = 1.0 / dt;
   auto gamma_factor_sqrt = sqrt(gamma_factor);
+  auto dt_sqrt = sqrt(dt);
 
   for (int idx = 0; idx < num_particles; ++idx) {
     auto aa_idx = (uint8_t)atype[idx];
@@ -17,7 +18,8 @@ void legacy_step::operator()() const {
     auto noise_z = local_gen.normal<real>();
     auto noise = vec3r(noise_x, noise_y, noise_z);
 
-    auto a_ = F[idx] * mass_inv[aa_idx] - gamma * v[idx] + noise_sd * noise;
+    y1[idx] = y1[idx] + noise_sd * noise * dt * dt_sqrt;
+    vec3sr a_ = F[idx] * mass_inv[aa_idx] - gamma * dt_inv * y1[idx];
 
     vec3sr error = y2[idx] - a_ * (dt * dt / 2.0);
     y0[idx] -= 3.0 / 16.0 * error;

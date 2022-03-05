@@ -12,8 +12,8 @@ struct parameters {
 
   struct ss_spec_crit_t {
     bool enabled;
-    int max_neigh_count, neigh_radius;
-    quantity def_dist, max_dist_dev;
+    int max_neigh_count;
+    quantity def_dist, max_dist_dev, neigh_radius;
     void load(ioxx::xyaml::node const &node);
   };
 

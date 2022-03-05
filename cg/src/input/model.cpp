@@ -96,8 +96,8 @@ void model::morph_into_saw(rand_gen &gen,
                            input::morph_into_saw_t const &params) {
 
   using U = double;
-  auto max_spread = M_PI / 12.0;
-  auto max_around = M_PI;
+  auto max_spread = M_PI / 3;
+  auto max_around = M_2_PI;
 
   auto vol = (double)residues.size() / params.residue_density;
   auto cell_a = cbrt(vol);

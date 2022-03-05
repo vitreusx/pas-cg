@@ -156,7 +156,10 @@ void simulation::setup_output() {
 
 void simulation::setup_langevin() {
   if (params.lang.enabled) {
-    auto &step = ker.lang_step;
+    lang::step_base &step = params.lang.type == lang::lang_type::NORMAL
+                                ? (lang::step_base &)ker.lang_step
+                                : (lang::step_base &)ker.lang_legacy_step;
+
     step.temperature = params.lang.temperature;
     step.t = &t;
     step.dt = params.lang.dt;
@@ -857,8 +860,12 @@ void simulation::thread::sync_part(bool pre_loop) {
     if (params.out.enabled)
       ker.make_report();
 
-    if (params.lang.enabled)
-      ker.lang_step();
+    if (params.lang.enabled) {
+      if (params.lang.type == lang::lang_type::NORMAL)
+        ker.lang_step();
+      else
+        ker.lang_legacy_step();
+    }
   }
 
   simul->dyn.reset();

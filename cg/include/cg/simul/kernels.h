@@ -6,6 +6,7 @@
 #include <cg/force_afm/eval_forces.h>
 #include <cg/heur/ang/eval_forces.h>
 #include <cg/heur/dih/eval_forces.h>
+#include <cg/langevin/legacy_step.h>
 #include <cg/langevin/step.h>
 #include <cg/nat_ang/eval_forces.h>
 #include <cg/nat_cont/eval_forces.h>
@@ -58,6 +59,7 @@ public:
   vafm::eval_forces eval_vafm_forces;
 
   lang::step lang_step;
+  lang::legacy_step lang_legacy_step;
   nl::legacy_update nl_legacy;
   nl::cell_update nl_cell;
   nl::verify nl_verify;

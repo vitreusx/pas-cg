@@ -42,50 +42,51 @@ void seq_file::load(ioxx::xyaml::node const &node) {
                         input::model::residue *, input::model::residue *>>
         taken_dihedrals;
 
-    auto maps_node = chain_node["maps"];
-    for (auto const &entry : maps_node) {
-      auto entry_node = chain_node.child(entry);
+    if (auto maps_node = chain_node["maps"]; maps_node) {
+      for (auto const &entry : maps_node) {
+        auto entry_node = chain_node.child(entry);
 
-      map_file mf;
-      if (entry_node["__source"]) {
-        mf = entry_node["__source"].as<subnode>().as<map_file>();
-        if (entry_node["shift"]) {
-          mf.shift(entry_node["shift"].as<int>());
+        map_file mf;
+        if (entry_node["__source"]) {
+          mf = entry_node["__source"].as<subnode>().as<map_file>();
+          if (entry_node["shift"]) {
+            mf.shift(entry_node["shift"].as<int>());
+          }
+        } else {
+          mf = entry_node.as<subnode>().as<map_file>();
         }
-      } else {
-        mf = entry_node.as<subnode>().as<map_file>();
-      }
 
-      for (auto const &mf_cont : mf.contacts) {
-        auto &xmd_cont = model.contacts.emplace_back();
-        xmd_cont.res1 = xmd_chain->residues[mf_cont.i1];
-        xmd_cont.res2 = xmd_chain->residues[mf_cont.i2];
-        xmd_cont.length = mf_cont.length;
-        xmd_cont.type = input::model::UNKNOWN;
-      }
+        for (auto const &mf_cont : mf.contacts) {
+          auto &xmd_cont = model.contacts.emplace_back();
+          xmd_cont.res1 = xmd_chain->residues[mf_cont.i1];
+          xmd_cont.res2 = xmd_chain->residues[mf_cont.i2];
+          xmd_cont.length = mf_cont.length;
+          xmd_cont.type = input::model::UNKNOWN;
+        }
 
-      for (auto const &mf_angle : mf.angles) {
-        auto &xmd_angle = model.angles.emplace_back();
-        xmd_angle.res1 = xmd_chain->residues[mf_angle.i1];
-        xmd_angle.res2 = xmd_chain->residues[mf_angle.i2];
-        xmd_angle.res3 = xmd_chain->residues[mf_angle.i3];
-        xmd_angle.theta = mf_angle.theta;
+        for (auto const &mf_angle : mf.angles) {
+          auto &xmd_angle = model.angles.emplace_back();
+          xmd_angle.res1 = xmd_chain->residues[mf_angle.i1];
+          xmd_angle.res2 = xmd_chain->residues[mf_angle.i2];
+          xmd_angle.res3 = xmd_chain->residues[mf_angle.i3];
+          xmd_angle.theta = mf_angle.theta;
 
-        taken_angles.insert(
-            std::make_tuple(xmd_angle.res1, xmd_angle.res2, xmd_angle.res3));
-      }
+          taken_angles.insert(
+              std::make_tuple(xmd_angle.res1, xmd_angle.res2, xmd_angle.res3));
+        }
 
-      for (auto const &mf_dihedral : mf.dihedrals) {
-        auto &xmd_dihedral = model.dihedrals.emplace_back();
-        xmd_dihedral.res1 = xmd_chain->residues[mf_dihedral.i1];
-        xmd_dihedral.res2 = xmd_chain->residues[mf_dihedral.i2];
-        xmd_dihedral.res3 = xmd_chain->residues[mf_dihedral.i3];
-        xmd_dihedral.res4 = xmd_chain->residues[mf_dihedral.i4];
-        xmd_dihedral.phi = mf_dihedral.phi;
+        for (auto const &mf_dihedral : mf.dihedrals) {
+          auto &xmd_dihedral = model.dihedrals.emplace_back();
+          xmd_dihedral.res1 = xmd_chain->residues[mf_dihedral.i1];
+          xmd_dihedral.res2 = xmd_chain->residues[mf_dihedral.i2];
+          xmd_dihedral.res3 = xmd_chain->residues[mf_dihedral.i3];
+          xmd_dihedral.res4 = xmd_chain->residues[mf_dihedral.i4];
+          xmd_dihedral.phi = mf_dihedral.phi;
 
-        taken_dihedrals.insert(
-            std::make_tuple(xmd_dihedral.res1, xmd_dihedral.res2,
-                            xmd_dihedral.res3, xmd_dihedral.res4));
+          taken_dihedrals.insert(
+              std::make_tuple(xmd_dihedral.res1, xmd_dihedral.res2,
+                              xmd_dihedral.res3, xmd_dihedral.res4));
+        }
       }
     }
 

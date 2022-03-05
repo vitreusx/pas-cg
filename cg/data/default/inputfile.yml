@@ -1,7 +1,7 @@
 general:
   total time: 20e3 tau
   seed: 42
-  num of threads: 4
+  num of threads: 1
   debug mode: false
 
 amino acid data:
@@ -13,7 +13,7 @@ input:
   morph into SAW:
     perform: true
     bond distance: 3.8 A
-    residue density: 1e-3 atom/A**3
+    residue density: 1e-4 atom/A**3
     intersection at: 0.0 A
     num of retries: 9001
     infer simulation box: false
@@ -28,10 +28,11 @@ langevin:
   gamma factor: 2.0 1/tau
   temperature: 0.38 eps/kB
   dt: 5e-3 tau
+  type: legacy
 
 neighbor list:
   algorithm: cell
-  pad factor: 1
+  pad factor: 0.25
 
 heurestic angles:
   enabled: true
@@ -43,7 +44,7 @@ native angles:
   k: 30.0 eps/rad**2
 
 complex native dihedrals:
-  enabled: false
+  enabled: true
   CDA: 0.66 eps
   CDB: 0.66 eps
 
@@ -52,12 +53,12 @@ simple native dihedrals:
   CDH: 3.33 eps/rad**2
 
 heurestic dihedrals:
-  enabled: false
+  enabled: true
   coefficients:
     __path: dihedral.csv
 
 constant Debye-Hueckel:
-  enabled: false
+  enabled: true
   screening distance: 10.0 A
   permittivity: 80.0 eps_0
 
@@ -99,7 +100,7 @@ pseudo-improper dihedral:
     psi_0: -0.23 rad
 
 quasi-adiabatic:
-  enabled: false
+  enabled: true
   phase duration: 10 tau
   formation tolerance: 0
   breaking factor: 1.5
@@ -110,6 +111,7 @@ quasi-adiabatic:
     force:
       harmonic:
         H1: 100 eps/A**2
+        H2: 0 eps/A**4
         equilibrium dist: 6.0 A
     special criteria:
       enabled: false
@@ -123,7 +125,7 @@ chirality:
   e_chi: 1 eps
 
 native contacts:
-  enabled: false
+  enabled: true
   lj depth: 1 eps
   active threshold: 1.5
   disulfide bond force:
@@ -133,7 +135,7 @@ native contacts:
       equilibrium dist: 6.0 A
 
 Pauli exclusion:
-  enabled: false
+  enabled: true
   exclusion radius: 4.0 A
   depth: 1.0 eps
 

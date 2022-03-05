@@ -23,6 +23,7 @@ void eval_forces::iter(heur_ang_expr<E> const &angle) const {
   auto dtheta_dr2 = -dtheta_dr1 - dtheta_dr3;
 
   auto cos_theta = -dot(r12, r23) * r12_rn * r23_rn;
+  cos_theta = clamp(cos_theta, (real)-1.0, (real)1.0);
   auto theta = acos(cos_theta);
 
   real angle_V = 0.0f, dV_dtheta = 0.0f;
@@ -35,6 +36,7 @@ void eval_forces::iter(heur_ang_expr<E> const &angle) const {
 
   *V += angle_V;
 
+  dV_dtheta = clamp(dV_dtheta, (real)-1.0e3, (real)1.0e3);
   F[i1] -= dV_dtheta * dtheta_dr1;
   F[i2] -= dV_dtheta * dtheta_dr2;
   F[i3] -= dV_dtheta * dtheta_dr3;
