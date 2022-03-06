@@ -25,7 +25,7 @@ target_include_directories(cg
 target_compile_options(cg
     PRIVATE
     $<$<COMPILE_LANGUAGE:CXX>:
-    -Wall;-Wextra;-Wpedantic;-Werror;
+    -Wall;
     $<$<CONFIG:Release>:-Ofast;-march=native>;
     $<$<CONFIG:Debug>:-g>>)
 

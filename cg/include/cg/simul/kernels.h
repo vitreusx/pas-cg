@@ -1,9 +1,10 @@
 #pragma once
+#include <cg/afm/force/eval_forces.h>
+#include <cg/afm/vel/eval_forces.h>
 #include <cg/chir/eval_forces.h>
 #include <cg/dh/const/eval_forces.h>
 #include <cg/dh/rel/eval_forces.h>
 #include <cg/dh/update_pairs.h>
-#include <cg/force_afm/eval_forces.h>
 #include <cg/heur/ang/eval_forces.h>
 #include <cg/heur/dih/eval_forces.h>
 #include <cg/langevin/legacy_step.h>
@@ -37,7 +38,6 @@
 #include <cg/qa/update_free_pairs.h>
 #include <cg/tether/eval_forces.h>
 #include <cg/utils/random.h>
-#include <cg/vel_afm/eval_forces.h>
 
 namespace cg::simul {
 class kernels {
@@ -45,7 +45,7 @@ public:
   chir::eval_forces eval_chir_forces;
   const_dh::eval_forces eval_const_dh_forces;
   rel_dh::eval_forces eval_rel_dh_forces;
-  fafm::eval_forces eval_fafm_forces;
+  afm::force::eval_forces eval_force_afm_forces;
   heur_ang::eval_forces eval_heur_ang_forces;
   heur_dih::eval_forces eval_heur_dih_forces;
   nat_ang::eval_forces eval_nat_ang_forces;
@@ -55,7 +55,7 @@ public:
   pauli::eval_forces eval_pauli_forces;
   pid::eval_forces eval_pid_forces;
   tether::eval_forces eval_tether_forces;
-  vafm::eval_forces eval_vafm_forces;
+  afm::vel::eval_forces eval_vel_afm_forces;
 
   lang::step lang_step;
   lang::legacy_step lang_legacy_step;

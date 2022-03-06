@@ -626,9 +626,11 @@ void simulation::setup_qa() {
 
     if (params.out.enabled) {
       auto &report_qa = ker.report_qa_stuff;
+      report_qa.dyn_ss = params.qa.disulfide.has_value();
       report_qa.sync_values = sync_values.view();
       report_qa.contacts = &qa_contacts;
       report_qa.process_cont = &ker.process_qa_contacts;
+      report_qa.chain_idx = chain_idx.view();
       hooks.push_back(&report_qa);
     }
   }
@@ -696,30 +698,44 @@ void simulation::setup_pid() {
   }
 }
 
-void simulation::setup_vafm() {
-  if (params.vafm.enabled) {
-    auto &eval = ker.eval_vafm_forces;
-    eval.r = r.view();
-    eval.t = &t;
-    eval.afm_force.H1 = params.vafm.H1;
-    eval.afm_force.H2 = params.vafm.H2;
+void simulation::setup_afm() {
+  if (!params.afm.tips.empty()) {
+    auto &vel_eval = ker.eval_vel_afm_forces;
+    vel_eval.r = r.view();
+    vel_eval.t = &t;
+    vel_eval.afm_force.H1 = params.afm.H1;
+    vel_eval.afm_force.H2 = params.afm.H2;
 
-    for (auto const &tip : params.vafm.afm_tips) {
-      auto orig = tip.origin.value_or(r[tip.pulled_idx]);
-      vafm_tips.emplace_back(tip.pulled_idx, orig, tip.v);
+    auto &force_eval = ker.eval_force_afm_forces;
+
+    for (auto const &tip : params.afm.tips) {
+      if (std::holds_alternative<afm::parameters::single_res_t>(tip)) {
+        auto const &tip_v = std::get<afm::parameters::single_res_t>(tip);
+        if (tip_v.type == afm::parameters::tip_type::CONST_VEL) {
+          auto orig = r[tip_v.res_idx];
+          vel_afm_tips.emplace_back(tip_v.res_idx, orig, (vec3r)tip_v.dir);
+        } else {
+          force_afm_tips.emplace_back(tip_v.res_idx, (vec3r)tip_v.dir);
+        }
+      } else {
+        auto const &tip_v = std::get<afm::parameters::pulled_apart_t>(tip);
+        auto first = chain_first[tip_v.chain_idx],
+             last = chain_last[tip_v.chain_idx];
+        auto r_first = r[first], r_last = r[last];
+        auto dir = unit(r_last - r_first);
+
+        if (tip_v.type == afm::parameters::tip_type::CONST_VEL) {
+          vel_afm_tips.emplace_back(first, r_first, -dir * tip_v.mag);
+          vel_afm_tips.emplace_back(last, r_last, dir * tip_v.mag);
+        } else {
+          force_afm_tips.emplace_back(first, -dir * tip_v.mag);
+          force_afm_tips.emplace_back(last, dir * tip_v.mag);
+        }
+      }
     }
-    eval.afm_tips = vafm_tips.view();
-  }
-}
 
-void simulation::setup_fafm() {
-  if (params.fafm.enabled) {
-    auto &eval = ker.eval_fafm_forces;
-
-    for (auto const &tip : params.fafm.afm_tips) {
-      fafm_tips.emplace_back(tip.pulled_idx, tip.F);
-    }
-    eval.afm_tips = fafm_tips.view();
+    vel_eval.afm_tips = vel_afm_tips.view();
+    force_eval.afm_tips = force_afm_tips.view();
   }
 }
 
@@ -797,8 +813,7 @@ void simulation::setup(int argc, char **argv) {
   setup_dh();
   setup_qa();
   setup_pid();
-  setup_vafm();
-  setup_fafm();
+  setup_afm();
 }
 
 simulation::thread::thread(simulation *simul) {
@@ -814,7 +829,7 @@ simulation::thread::thread(simulation *simul) {
   ker.eval_const_dh_forces.V = &dyn.V;
   ker.eval_rel_dh_forces.F = dyn.F.view();
   ker.eval_rel_dh_forces.V = &dyn.V;
-  ker.eval_fafm_forces.F = dyn.F.view();
+  ker.eval_force_afm_forces.F = dyn.F.view();
   ker.eval_heur_ang_forces.F = dyn.F.view();
   ker.eval_heur_ang_forces.V = &dyn.V;
   ker.eval_heur_dih_forces.F = dyn.F.view();
@@ -835,7 +850,7 @@ simulation::thread::thread(simulation *simul) {
   ker.process_qa_contacts.V = &dyn.V;
   ker.eval_tether_forces.F = dyn.F.view();
   ker.eval_tether_forces.V = &dyn.V;
-  ker.eval_vafm_forces.F = dyn.F.view();
+  ker.eval_vel_afm_forces.F = dyn.F.view();
   ker.lang_step.gen = &gen;
 }
 
@@ -887,10 +902,10 @@ void simulation::thread::async_part() {
   }
   if (params.pid.enabled)
     ker.eval_pid_forces.omp_async();
-  if (params.vafm.enabled)
-    ker.eval_vafm_forces.omp_async();
-  if (params.fafm.enabled)
-    ker.eval_fafm_forces.omp_async();
+  if (params.afm.enabled) {
+    ker.eval_vel_afm_forces.omp_async();
+    ker.eval_force_afm_forces.omp_async();
+  }
 
   dyn.omp_reduce(simul->dyn);
 }

@@ -2,7 +2,7 @@
 #include "tip.h"
 #include <cg/base_forces/harmonic.h>
 
-namespace cg::vafm {
+namespace cg::afm::vel {
 class eval_forces {
 public:
   harmonic afm_force;
@@ -18,4 +18,4 @@ public:
   void operator()() const;
   void omp_async() const;
 };
-} // namespace cg::vafm
+} // namespace cg::afm::vel

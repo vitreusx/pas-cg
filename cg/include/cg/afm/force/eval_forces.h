@@ -1,7 +1,7 @@
 #pragma once
 #include "tip.h"
 
-namespace cg::fafm {
+namespace cg::afm::force {
 class eval_forces {
 public:
   nitro::view<vec3r> F;
@@ -12,4 +12,4 @@ public:
   void operator()() const;
   void omp_async() const;
 };
-} // namespace cg::fafm
+} // namespace cg::afm::force

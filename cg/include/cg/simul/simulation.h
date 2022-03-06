@@ -108,11 +108,9 @@ private:
   nitro::vector<sink_lj> ss_ljs;
   void setup_pid();
 
-  nitro::vector<vafm::tip> vafm_tips;
-  void setup_vafm();
-
-  nitro::vector<fafm::tip> fafm_tips;
-  void setup_fafm();
+  nitro::vector<afm::vel::tip> vel_afm_tips;
+  nitro::vector<afm::force::tip> force_afm_tips;
+  void setup_afm();
 
   void setup(int argc, char **argv);
 

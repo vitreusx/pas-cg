@@ -27,6 +27,9 @@ public:
   static const int NUM_TYPES =
       4 + amino_acid::NUM_TYPES * amino_acid::NUM_TYPES;
 
+  bool operator==(contact_type const &other) const;
+  bool operator!=(contact_type const &other) const;
+
 private:
   explicit inline contact_type(int16_t val) : val{val} {};
   int16_t val;

@@ -29,4 +29,5 @@ general
 units
 output
 diff
+afm
 ```

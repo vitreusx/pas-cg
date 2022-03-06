@@ -1,10 +1,10 @@
 #pragma once
+#include <cg/afm/parameters.h>
 #include <cg/amino/aa_data.h>
 #include <cg/base_forces/lj_variants.h>
 #include <cg/chir/parameters.h>
 #include <cg/dh/const/parameters.h>
 #include <cg/dh/rel/parameters.h>
-#include <cg/force_afm/parameters.h>
 #include <cg/general/parameters.h>
 #include <cg/heur/ang/parameters.h>
 #include <cg/heur/dih/parameters.h>
@@ -21,14 +21,12 @@
 #include <cg/pid/parameters.h>
 #include <cg/qa/parameters.h>
 #include <cg/tether/parameters.h>
-#include <cg/vel_afm/parameters.h>
 
 namespace cg::simul {
 struct parameters {
   chir::parameters chir;
   const_dh::parameters const_dh;
   rel_dh::parameters rel_dh;
-  fafm::parameters fafm;
   heur_ang::parameters heur_ang;
   heur_dih::parameters heur_dih;
   lang::parameters lang;
@@ -41,13 +39,13 @@ struct parameters {
   pbar::parameters pbar;
   pid::parameters pid;
   tether::parameters tether;
-  vafm::parameters vafm;
   gen::parameters gen;
   amino_acid_data aa_data;
   lj_variants lj_vars;
   qa::parameters qa;
   pauli::parameters pauli;
   out::parameters out;
+  afm::parameters afm;
 
   void load(ioxx::xyaml::node const &from);
 };

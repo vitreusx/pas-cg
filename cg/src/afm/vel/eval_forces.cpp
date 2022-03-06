@@ -1,5 +1,5 @@
-#include "vel_afm/eval_forces.h"
-using namespace cg::vafm;
+#include "afm/vel/eval_forces.h"
+using namespace cg::afm::vel;
 
 void eval_forces::operator()() const {
   for (int idx = 0; idx < afm_tips.size(); ++idx) {

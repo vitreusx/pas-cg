@@ -20,7 +20,10 @@ contacts are few in number. As will be shown later, the formation and breaking
 of contacts affects the creation of new contacts.
 
 ```{note}
-For a given simulation step, the contacts formed in that step do not participate in the evaluation of the potential in the same step. Rather, sequential processing is done after the asynchronous part of the simulation step, which contains the potential evaluation.
+For a given simulation step, the contacts formed in that step do not participate
+ in the evaluation of the potential in the same step. Rather, sequential
+  processing is done after the asynchronous part of the simulation step,
+   which contains the potential evaluation.
 ```
 
 ## Contact
@@ -182,3 +185,6 @@ Following data is emitted per snapshot:
 - A list of current sync values, into `sync_values.csv`;
 - A list of current contacts, into `qa_contacts.csv`. Aside from the
   aforementioned data per contact, computed saturation is also included.
+- Aggregate stats, similar to the ones for the native contacts. Aside from the
+  ones enumerated there, we also include the numbers for the dynamic disulfide
+  bonds. 

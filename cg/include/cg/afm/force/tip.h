@@ -1,7 +1,7 @@
 #pragma once
 #include <cg/types/amp.h>
 
-namespace cg::fafm {
+namespace cg::afm::force {
 template <typename E> struct tip_expr : public nitro::ind_expr<E> {
   EXPR_BODY(res_idx, pull_force)
 };
@@ -18,16 +18,17 @@ public:
   using Base::Base;
   using Base::get;
 };
-} // namespace cg::fafm
+} // namespace cg::afm::force
 
 namespace nitro {
-template <> struct is_indexed_impl<cg::fafm::tip> : public std::true_type {};
+template <>
+struct is_indexed_impl<cg::afm::force::tip> : public std::true_type {};
 
-template <typename E> struct expr_impl<E, cg::fafm::tip> {
-  using type = cg::fafm::tip_expr<E>;
+template <typename E> struct expr_impl<E, cg::afm::force::tip> {
+  using type = cg::afm::force::tip_expr<E>;
 };
 
-template <typename E> struct auto_expr_impl<E, cg::fafm::tip> {
-  using type = cg::fafm::tip_auto_expr<E>;
+template <typename E> struct auto_expr_impl<E, cg::afm::force::tip> {
+  using type = cg::afm::force::tip_auto_expr<E>;
 };
 }; // namespace nitro
