@@ -5,7 +5,10 @@ input:
   pdb file:
     source:
       __path: 1ubq.pdb
-    contact deriv: all atoms
+    contact deriv: from all atoms
 
 quasi-adiabatic:
   enabled: false
+
+output:
+  period: 100 tau

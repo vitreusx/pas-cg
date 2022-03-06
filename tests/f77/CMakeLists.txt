@@ -11,8 +11,8 @@ target_compile_options(cg-f77
     $<$<CONFIG:Debug>:-g>
     $<$<CONFIG:Release>:-Ofast;-march=native>)
 
-find_package(OpenMP REQUIRED)
-target_link_libraries(cg-f77 PRIVATE $<$<CONFIG:Release>:OpenMP::OpenMP_Fortran>)
+#find_package(OpenMP REQUIRED)
+#target_link_libraries(cg-f77 PRIVATE $<$<CONFIG:Release>:OpenMP::OpenMP_Fortran>)
 
 file(COPY data DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 

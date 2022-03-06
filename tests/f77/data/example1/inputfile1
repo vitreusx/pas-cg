@@ -1,6 +1,6 @@
 klenstr 5
 file test1
-ntraj 10
+ntraj 1
 mstep 15000
 lpdb T
 pdbfile 1ubq.pdb

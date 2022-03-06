@@ -137,7 +137,8 @@ void simulation::setup_output() {
     auto &add_stats = ker.add_stats;
     add_stats.t = &t;
     add_stats.V = &dyn.V;
-    add_stats.v = v.view();
+    add_stats.atype = atype.view();
+    add_stats.mass = comp_aa_data.mass.view();
     hooks.emplace_back(&add_stats);
 
     auto &add_structure = ker.add_structure;
@@ -180,6 +181,8 @@ void simulation::setup_langevin() {
 
     v = nitro::vector<vec3r>(num_res, vec3r::Zero());
     step.v = v.view();
+    if (params.out.enabled)
+      ker.add_stats.v = v.view();
 
     y0 = y1 = y2 = y3 = y4 = y5 = nitro::vector<vec3sr>(num_res);
     for (int idx = 0; idx < num_res; ++idx)

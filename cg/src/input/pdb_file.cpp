@@ -330,6 +330,7 @@ void pdb_file::add_contacts(amino_acid_data const &data, bool all_atoms) {
     linked_atoms.emplace(pdb_ss.a1, pdb_ss.a2);
   }
 
+  double alpha = pow(26.0 / 7.0, 1.0 / 6.0);
   for (auto &[chain1_id, chain1] : chains) {
     for (auto &[atom1_serial, atom1] : chain1.atoms) {
       if (!all_atoms && atom1.name != "CA")
@@ -357,12 +358,11 @@ void pdb_file::add_contacts(amino_acid_data const &data, bool all_atoms) {
 
           auto dist = norm(atom1.pos - atom2.pos);
           auto max_overlap_dist = radius1 + radius2;
-          if (dist < max_overlap_dist) {
-            link pdb_link;
+          if (dist <= max_overlap_dist * alpha) {
+            auto &pdb_link = links.emplace_back();
             pdb_link.a1 = &atom1;
             pdb_link.a2 = &atom2;
             pdb_link.length = dist;
-            links.push_back(pdb_link);
 
             linked_atoms.emplace(&atom1, &atom2);
           }
