@@ -20,6 +20,7 @@
 #include <cg/output/export_pdb.h>
 #include <cg/output/gyration.h>
 #include <cg/output/make_report.h>
+#include <cg/output/rmsd.h>
 #include <cg/output/stats.h>
 #include <cg/output/structure.h>
 #include <cg/pauli/eval_forces.h>
@@ -83,5 +84,6 @@ public:
   qa::report_qa_stuff report_qa_stuff;
   nat_cont::report_stuff report_nc_stuff;
   out::report_gyration_stuff report_gyr;
+  out::compute_rmsd compute_rmsd;
 };
 } // namespace cg::simul

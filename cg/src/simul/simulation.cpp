@@ -64,6 +64,7 @@ void simulation::load_model() {
     model = std::move(file.model);
   }
 
+  orig_model = model;
   if (params.input.morph_into_saw.has_value()) {
     auto &saw_p = params.input.morph_into_saw.value();
     if (saw_p.perform)
@@ -81,6 +82,15 @@ void simulation::compile_model() {
   r = nitro::vector<vec3r>(num_res);
   for (auto const &res : model.residues)
     r[res_map.at(res.get())] = res->pos;
+
+  decltype(res_map) orig_res_map;
+  res_idx = 0;
+  for (auto const& res: orig_model.residues)
+    orig_res_map[res.get()] = res_idx++;
+
+  orig_r = nitro::vector<vec3r>(num_res);
+  for (auto const& res: orig_model.residues)
+    orig_r[orig_res_map.at(res.get())] = res->pos;
 
   atype = nitro::vector<amino_acid>(num_res);
   for (auto const &res : model.residues)
@@ -150,6 +160,10 @@ void simulation::setup_output() {
     auto &report_gyr = ker.report_gyr;
     report_gyr.r = r.view();
     hooks.emplace_back(&report_gyr);
+
+    auto &comp_rmsd = ker.compute_rmsd;
+    comp_rmsd.orig_r = orig_r.view();
+
   }
 }
 

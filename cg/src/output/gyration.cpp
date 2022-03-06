@@ -8,8 +8,7 @@ void report_gyration_stuff::report_to(report_state &report) const {
   for (int idx = 0; idx < r.size(); ++idx)
     positions.row(idx) = convert<double>(r[idx]).transpose();
 
-  Eigen::RowVector3d center_of_mass = positions.colwise().sum() / r.size();
-  positions.rowwise() -= center_of_mass;
+  positions.rowwise() -= positions.colwise().mean();
 
   Eigen::Vector3d lambda =
       Eigen::JacobiSVD<decltype(positions)>(positions).singularValues();

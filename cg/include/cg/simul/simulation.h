@@ -26,12 +26,12 @@ private:
   rand_gen gen;
   void general_setup();
 
-  input::model model;
+  input::model orig_model, model;
   void load_model();
 
   input::model::res_map_t res_map;
   int num_res;
-  nitro::vector<vec3r> r;
+  nitro::vector<vec3r> orig_r, r;
   nitro::vector<amino_acid> atype;
   compiled_aa_data comp_aa_data;
   cg::box<real> box;
