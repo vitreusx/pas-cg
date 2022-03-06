@@ -3,3 +3,5 @@ release*
 .idea
 .vscode
 build
+venv
+notes
