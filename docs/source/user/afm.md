@@ -16,6 +16,9 @@ As for specifying the pulled residues, we may choose to either:
   original positions of the residues in question) with a force or velocity of a
   given magnitude (since the direction is determined).
 
+The tip of the AFM is connected with the pulled residue by a harmonic tether
+with given values of $\mathtt{H1}$ and $\mathtt{H2}$.
+
 ## Parameter file entry
 
 ```yaml
