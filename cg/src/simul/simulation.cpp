@@ -379,8 +379,7 @@ void simulation::setup_nat_cont() {
     for (auto const &cont : model.contacts) {
       auto i1 = res_map[cont.res1], i2 = res_map[cont.res2];
       auto nat_dist = (real)cont.length;
-      bool is_ssbond = cont.type == input::model::NAT_SS;
-      all_native_contacts.emplace_back(i1, i2, nat_dist, is_ssbond);
+      all_native_contacts.emplace_back(i1, i2, nat_dist, cont.type);
       nat_cont_excl.emplace_back(i1, i2);
     }
 
@@ -413,6 +412,7 @@ void simulation::setup_nat_cont() {
       report_nc.all_nat_conts = all_native_contacts.view();
       report_nc.params = &params.nat_cont;
       report_nc.r = r.view();
+      report_nc.chain_idx = chain_idx.view();
       hooks.push_back(&report_nc);
     }
   }

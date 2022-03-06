@@ -146,7 +146,7 @@ pdb_file::pdb_file(const input::model &xmd_model) {
     auto *pdb_res1 = res_map[&*xmd_cont.res1];
     auto *pdb_res2 = res_map[&*xmd_cont.res2];
 
-    if (xmd_cont.type == input::model::NAT_SS) {
+    if (xmd_cont.type == nat_cont::type::SSBOND) {
       auto &pdb_ss = disulfide_bonds[ss_serial];
       pdb_ss.a1 = pdb_res1->atoms[0];
       pdb_ss.a2 = pdb_res2->atoms[0];
@@ -278,7 +278,7 @@ input::model pdb_file::to_model() const {
     xmd_ss.res1 = res_map[res1];
     xmd_ss.res2 = res_map[res2];
     xmd_ss.length = norm(xmd_ss.res1->pos - xmd_ss.res2->pos);
-    xmd_ss.type = input::model::NAT_SS;
+    xmd_ss.type = nat_cont::type::SSBOND;
 
     cont_res_pairs.insert(std::make_pair(res1, res2));
   }
@@ -299,15 +299,15 @@ input::model pdb_file::to_model() const {
     auto back1 = pdb_link.a1->in_backbone();
     auto back2 = pdb_link.a2->in_backbone();
 
-    input::model::contact_type type;
+    nat_cont::type type;
     if (back1 && back2)
-      type = input::model::BACK_BACK;
+      type = nat_cont::type::BACK_BACK;
     else if (back1 && !back2)
-      type = input::model::BACK_SIDE;
+      type = nat_cont::type::BACK_SIDE;
     else if (!back1 && back2)
-      type = input::model::SIDE_BACK;
+      type = nat_cont::type::SIDE_BACK;
     else
-      type = input::model::SIDE_SIDE;
+      type = nat_cont::type::SIDE_SIDE;
 
     xmd_cont.type = type;
 

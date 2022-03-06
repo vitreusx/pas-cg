@@ -1,17 +1,22 @@
 #pragma once
+#include "type.h"
 #include <cg/types/amp.h>
 #include <nitro/nitro.h>
 
 namespace cg::nat_cont {
 template <typename E> struct nat_cont_expr : public nitro::ind_expr<E> {
-  EXPR_BODY(i1, i2, nat_dist, is_ssbond)
+  EXPR_BODY(i1, i2, nat_dist, type)
+
+  decltype(auto) is_ssbond() const {
+    return type() == type::SSBOND;
+  }
 };
 
 template <typename E> struct nat_cont_auto_expr : public nat_cont_expr<E> {
-  AUTO_EXPR_BODY(i1, i2, nat_dist, is_ssbond)
+  AUTO_EXPR_BODY(i1, i2, nat_dist, type)
 };
 
-using nat_cont_base = nitro::tuple_wrapper<int, int, real, bool>;
+using nat_cont_base = nitro::tuple_wrapper<int, int, real, type>;
 
 class nat_cont : public nat_cont_auto_expr<nat_cont>, public nat_cont_base {
 public:

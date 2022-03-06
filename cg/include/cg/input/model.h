@@ -1,6 +1,7 @@
 #pragma once
 #include "morph_into_saw.h"
 #include <cg/amino/amino_acid.h>
+#include <cg/nat_cont/type.h>
 #include <cg/types/box.h>
 #include <cg/types/vec3.h>
 #include <cg/utils/random.h>
@@ -39,19 +40,10 @@ public:
   };
   std::vector<std::unique_ptr<chain>> chains;
 
-  enum contact_type {
-    UNKNOWN,
-    BACK_BACK,
-    BACK_SIDE,
-    SIDE_BACK,
-    SIDE_SIDE,
-    NAT_SS
-  };
-
   struct contact {
     residue *res1, *res2;
     double length;
-    contact_type type;
+    nat_cont::type type;
   };
   std::vector<contact> contacts;
 

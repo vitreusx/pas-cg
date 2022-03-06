@@ -61,7 +61,7 @@ void seq_file::load(ioxx::xyaml::node const &node) {
           xmd_cont.res1 = xmd_chain->residues[mf_cont.i1];
           xmd_cont.res2 = xmd_chain->residues[mf_cont.i2];
           xmd_cont.length = mf_cont.length;
-          xmd_cont.type = input::model::UNKNOWN;
+          xmd_cont.type = nat_cont::type::ANY;
         }
 
         for (auto const &mf_angle : mf.angles) {
