@@ -376,10 +376,14 @@ void simulation::setup_pauli() {
 
 void simulation::setup_nat_cont() {
   if (params.nat_cont.enabled) {
-    for (auto const &cont : model.contacts) {
+    for (int idx = 0; idx < (int)model.contacts.size(); ++idx) {
+      auto const &cont = model.contacts[idx];
       auto i1 = res_map[cont.res1], i2 = res_map[cont.res2];
       auto nat_dist = (real)cont.length;
-      all_native_contacts.emplace_back(i1, i2, nat_dist, cont.type);
+      bool formed = false;
+      real formation_t = 0.0;
+      all_native_contacts.emplace_back(i1, i2, nat_dist, cont.type, formed,
+                                       formation_t, idx);
       nat_cont_excl.emplace_back(i1, i2);
     }
 
@@ -391,6 +395,9 @@ void simulation::setup_nat_cont() {
     eval.simul_box = &box;
     eval.contacts = &cur_native_contacts;
     eval.r = r.view();
+    eval.active_thr = params.nat_cont.active_thr;
+    eval.t = &t;
+    eval.all_contacts = all_native_contacts.view();
 
     auto &update_ref = ker.update_nat_contacts;
     update_ref.r = r.view();
@@ -409,7 +416,7 @@ void simulation::setup_nat_cont() {
 
     if (params.out.enabled) {
       auto &report_nc = ker.report_nc_stuff;
-      report_nc.all_nat_conts = all_native_contacts.view();
+      report_nc.all_contacts = all_native_contacts.view();
       report_nc.params = &params.nat_cont;
       report_nc.r = r.view();
       report_nc.chain_idx = chain_idx.view();

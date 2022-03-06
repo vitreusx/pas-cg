@@ -17,6 +17,9 @@ struct nat_cont_row {
     row["nat_dist[A]"] << cg::quantity(cont.nat_dist()).in("A");
     row["cur_dist[A]"] << master->cur_dist(cont).in("A");
     row["is active"] << master->is_active(cont);
+    row["formed once"] << cont.formed();
+    if (cont.formed())
+      row["formation time"] << cont.formation_t();
   }
 };
 
@@ -45,14 +48,14 @@ void report_stuff::report_to(out::report_state &report) const {
 
   ioxx::xyaml::csv<nat_cont_row> nat_conts_file;
   nat_conts_file.path = "nat_conts.csv";
-  nat_conts_file.data.header = {"i1",       "chain1",      "i2",
-                                "chain2",   "nat_dist[A]", "cur_dist[A]",
-                                "is active"};
+  nat_conts_file.data.header = {"i1",        "chain1",      "i2",
+                                "chain2",    "nat_dist[A]", "cur_dist[A]",
+                                "is active", "formed once", "formation time"};
 
   contact_count num_all, num_bb, num_bs, num_ss, num_ssbond;
 
-  for (int idx = 0; idx < all_nat_conts.size(); ++idx) {
-    auto cont = all_nat_conts[idx];
+  for (int idx = 0; idx < all_contacts.size(); ++idx) {
+    auto cont = all_contacts[idx];
     nat_cont_row row(cont, *this);
     nat_conts_file.data.rows.push_back(row);
     if (is_active(cont)) {

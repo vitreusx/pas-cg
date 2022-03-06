@@ -18,5 +18,5 @@ void report_gyration_stuff::report_to(report_state &report) const {
   node["lambda"] = vec3r(lambda);
   node["radius of gyration"] = lambda.norm();
   node["asphericity"] =
-      (real)1.5 * pow(lambda.z(), 2.0) - (real)0.5 * lambda.squaredNorm();
+      (real)1.5 * pow(lambda.x(), 2.0) - (real)0.5 * lambda.squaredNorm();
 }

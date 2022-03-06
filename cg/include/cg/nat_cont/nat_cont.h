@@ -5,18 +5,17 @@
 
 namespace cg::nat_cont {
 template <typename E> struct nat_cont_expr : public nitro::ind_expr<E> {
-  EXPR_BODY(i1, i2, nat_dist, type)
+  EXPR_BODY(i1, i2, nat_dist, type, formed, formation_t, all_cont_idx)
 
-  decltype(auto) is_ssbond() const {
-    return type() == type::SSBOND;
-  }
+  decltype(auto) is_ssbond() const { return type() == type::SSBOND; }
 };
 
 template <typename E> struct nat_cont_auto_expr : public nat_cont_expr<E> {
-  AUTO_EXPR_BODY(i1, i2, nat_dist, type)
+  AUTO_EXPR_BODY(i1, i2, nat_dist, type, formed, formation_t, all_cont_idx)
 };
 
-using nat_cont_base = nitro::tuple_wrapper<int, int, real, type>;
+using nat_cont_base =
+    nitro::tuple_wrapper<int, int, real, type, bool, real, int>;
 
 class nat_cont : public nat_cont_auto_expr<nat_cont>, public nat_cont_base {
 public:

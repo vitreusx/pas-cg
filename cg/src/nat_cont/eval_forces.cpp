@@ -30,6 +30,16 @@ void eval_forces::iter(nat_cont_expr<E> const &nat_cont) const {
   *V += V_;
   F[i1] += r12_u * dV_dr;
   F[i2] -= r12_u * dV_dr;
+
+  auto r12_n = (real)1.0 / r12_rn;
+  if (r12_n <= nat_dist * active_thr) {
+    if (!nat_cont.formed()) {
+      auto ref_idx = nat_cont.all_cont_idx();
+      auto ref_contact = all_contacts[ref_idx];
+      nat_cont.formed() = ref_contact.formed() = true;
+      nat_cont.formation_t() = ref_contact.formation_t() = *t;
+    }
+  }
 }
 
 void eval_forces::omp_async() const {

@@ -6,7 +6,7 @@
 namespace cg::nat_cont {
 class report_stuff : public out::hook {
 public:
-  nitro::const_view<nat_cont> all_nat_conts;
+  nitro::const_view<nat_cont> all_contacts;
   nitro::const_view<vec3r> r;
   nitro::const_view<int> chain_idx;
   parameters const *params;
