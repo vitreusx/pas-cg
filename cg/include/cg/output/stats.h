@@ -6,9 +6,10 @@
 namespace cg::out {
 class add_stats : public hook {
 public:
-  nitro::const_view<vec3r> v;
+  nitro::const_view<vec3r> r, v;
   nitro::const_view<real> mass;
   nitro::const_view<amino_acid> atype;
+  nitro::const_view<int> chain_first, chain_last;
   real *V, *t;
 
 public:

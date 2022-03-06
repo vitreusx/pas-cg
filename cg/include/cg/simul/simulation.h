@@ -15,8 +15,6 @@
 namespace cg::simul {
 class simulation {
 private:
-  static void print_help(char **argv);
-
   std::vector<std::string> param_paths;
   void parse_args(int argc, char **argv);
 
@@ -35,7 +33,7 @@ private:
   nitro::vector<amino_acid> atype;
   compiled_aa_data comp_aa_data;
   cg::box<real> box;
-  nitro::vector<int> prev, next, chain_idx, seq_idx;
+  nitro::vector<int> prev, next, chain_idx, seq_idx, chain_first, chain_last;
   void compile_model();
 
   real t, V;

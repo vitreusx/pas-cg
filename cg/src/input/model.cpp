@@ -192,4 +192,14 @@ void model::morph_into_saw(rand_gen &gen,
     model_box.cell_inv = vec3<U>{x_ext_inv, y_ext_inv, z_ext_inv};
   }
 }
+
+void model::morph_into_line(double bond_dist) {
+  vec3d cur = vec3d::Zero();
+  for (auto const &chain : chains) {
+    for (auto *res : chain->residues) {
+      res->pos = cur;
+      cur.z() += bond_dist;
+    }
+  }
+}
 } // namespace cg::input

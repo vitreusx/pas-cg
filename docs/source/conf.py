@@ -51,3 +51,9 @@ html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
 breathe_default_project = "cg"
+
+myst_enable_extensions = [
+    "dollarmath", "amsmath"
+]
+
+myst_heading_anchors = 2

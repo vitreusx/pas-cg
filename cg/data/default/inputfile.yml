@@ -12,6 +12,9 @@ input:
     intersection at: 0.0 A
     num of retries: 9001
     infer simulation box: false
+  morph into line:
+    perform: false
+    bond distance: 3.8 A
 
 amino acid data:
   __path: amino-acids.yml

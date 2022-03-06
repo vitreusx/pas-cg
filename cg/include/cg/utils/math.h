@@ -133,4 +133,10 @@ template <typename T> auto log(T const &x) { return std::log(x); }
 template <typename T, size_t N> auto log(nitro::lane<T, N> const &x) {
   return ::log(x);
 }
+
+template <typename T> auto isfinite(T const &x) { return std::isfinite(x); }
+
+template <typename T, size_t N> auto isfinite(nitro::lane<T, N> const &x) {
+  return ::is_finite(x);
+}
 } // namespace cg

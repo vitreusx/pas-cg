@@ -2,6 +2,19 @@
 #include "utils/units.h"
 using namespace cg::lang;
 
+template <typename T> void sanitize(T &value) {
+  if (!cg::isfinite(value))
+    value = (T)0;
+  else
+    value = cg::clamp(value, (T)-1e3, (T)1e3);
+}
+
+template <typename T> void sanitize(cg::vec3<T> &v) {
+  sanitize(v.x());
+  sanitize(v.y());
+  sanitize(v.z());
+}
+
 void legacy_step::operator()() const {
   auto local_gen = *gen;
   real noise_factor = (real)sqrt(2.0 * kB * temperature);
@@ -19,7 +32,10 @@ void legacy_step::operator()() const {
     auto noise = vec3r(noise_x, noise_y, noise_z);
 
     y1[idx] = y1[idx] + noise_sd * noise * dt * dt_sqrt;
-    vec3sr a_ = F[idx] * mass_inv[aa_idx] - gamma * dt_inv * y1[idx];
+
+    vec3r f = F[idx];
+    sanitize(f);
+    auto a_ = f * mass_inv[aa_idx] - gamma * dt_inv * y1[idx];
 
     vec3sr error = y2[idx] - a_ * (dt * dt / 2.0);
     y0[idx] -= 3.0 / 16.0 * error;

@@ -21,6 +21,7 @@ public:
   model &operator+=(model const &m2);
 
   void morph_into_saw(rand_gen &gen, input::morph_into_saw_t const &params);
+  void morph_into_line(double bond_dist);
 
 public:
   struct residue;

@@ -6,11 +6,17 @@
 Welcome to PAS CG's documentation! 
 ==================================
 
+This is the documentation for the PAS CG, a coarse-grained molecular dynamics
+model of the Polish Academy of Sciences. Created by Jakub Bednarz.
+
+Github: `vitreusx/pas-cg <https://github.com/vitreusx/pas-cg>`_
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-   tutorial
+   quickstart
+   user/index
 
 
 Indices and tables

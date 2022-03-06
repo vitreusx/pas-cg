@@ -36,9 +36,10 @@ add_subdirectory(ext/nitro/nitro)
 add_subdirectory(ext/cparse)
 find_package(OpenMP REQUIRED)
 find_package(Eigen3 3.4 REQUIRED)
+find_package(Boost REQUIRED COMPONENTS program_options)
 
 target_link_libraries(cg
-    PRIVATE ioxx nitro OpenMP::OpenMP_CXX cparse Eigen3::Eigen)
+    PRIVATE ioxx nitro OpenMP::OpenMP_CXX cparse Eigen3::Eigen Boost::program_options)
 
 set_target_properties(cg
     PROPERTIES

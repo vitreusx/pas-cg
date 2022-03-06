@@ -6,6 +6,8 @@ input:
     source:
       __path: 1ubq.pdb
     contact deriv: from all atoms
+  morph into line:
+    perform: true
 
 quasi-adiabatic:
   enabled: false

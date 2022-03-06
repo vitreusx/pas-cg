@@ -20,4 +20,9 @@ void parameters::load(ioxx::xyaml::node const &p) {
 
   if (p["morph into SAW"])
     p["morph into SAW"] >> morph_into_saw;
+
+  if (auto line_node = p["morph into line"]; line_node) {
+    if (line_node["perform"].as<bool>())
+      morph_into_line = line_node["bond distance"].as<quantity>();
+  }
 }

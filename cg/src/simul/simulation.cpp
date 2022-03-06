@@ -1,4 +1,5 @@
 #include "simul/simulation.h"
+#include <boost/program_options.hpp>
 #include <iostream>
 using namespace cg::simul;
 
@@ -7,24 +8,28 @@ using namespace cg::simul;
 #endif
 #include <cfenv>
 
-void simulation::print_help(char **argv) {
-  std::cout << "Usage: " << argv[0] << "[--help | param files...]" << '\n';
-  std::cout << '\t' << "param files" << '\t'
-            << "a list of parameter files to be loaded" << '\n';
-  std::cout << '\t' << "--help" << '\t' << "display this help message";
-}
-
 void simulation::parse_args(int argc, char **argv) {
-  std::vector<std::string> argv_s(argc);
-  for (int idx = 0; idx < argc; ++idx)
-    argv_s[idx] = argv[idx];
+  namespace po = boost::program_options;
 
-  if (argc == 2 && argv_s[1] == "--help") {
-    print_help(argv);
+  po::options_description opts("Allowed options");
+  opts.add_options()("help", "print this help message")(
+      "param-files", po::value<std::vector<std::string>>(&param_paths),
+      "parameter files");
+
+  po::positional_options_description pos;
+  pos.add("param-files", -1);
+
+  auto parser =
+      po::command_line_parser(argc, argv).options(opts).positional(pos);
+
+  po::variables_map vm;
+  po::store(parser.run(), vm);
+  po::notify(vm);
+
+  if (vm.count("help")) {
+    std::cout << "Usage: " << argv[0] << " [options] param-files..." << '\n';
+    std::cout << opts << '\n';
     exit(EXIT_SUCCESS);
-  } else {
-    for (int idx = 1; idx < argc; ++idx)
-      param_paths.push_back(argv_s[idx]);
   }
 }
 
@@ -70,6 +75,9 @@ void simulation::load_model() {
     if (saw_p.perform)
       model.morph_into_saw(gen, saw_p);
   }
+  if (params.input.morph_into_line.has_value()) {
+    model.morph_into_line(params.input.morph_into_line.value());
+  }
 }
 
 void simulation::compile_model() {
@@ -85,11 +93,11 @@ void simulation::compile_model() {
 
   decltype(res_map) orig_res_map;
   res_idx = 0;
-  for (auto const& res: orig_model.residues)
+  for (auto const &res : orig_model.residues)
     orig_res_map[res.get()] = res_idx++;
 
   orig_r = nitro::vector<vec3r>(num_res);
-  for (auto const& res: orig_model.residues)
+  for (auto const &res : orig_model.residues)
     orig_r[orig_res_map.at(res.get())] = res->pos;
 
   atype = nitro::vector<amino_acid>(num_res);
@@ -116,6 +124,12 @@ void simulation::compile_model() {
 
     chain_idx[res_map.at(res.get())] = res->parent->chain_idx;
     seq_idx[res_map.at(res.get())] = res->seq_idx;
+  }
+
+  chain_first = chain_last = nitro::vector<int>((int)model.chains.size());
+  for (auto const &chain : model.chains) {
+    chain_first[chain->chain_idx] = res_map.at(chain->residues.front());
+    chain_last[chain->chain_idx] = res_map.at(chain->residues.back());
   }
 }
 
@@ -149,6 +163,9 @@ void simulation::setup_output() {
     add_stats.V = &dyn.V;
     add_stats.atype = atype.view();
     add_stats.mass = comp_aa_data.mass.view();
+    add_stats.chain_first = chain_first.view();
+    add_stats.chain_last = chain_last.view();
+    add_stats.r = r.view();
     hooks.emplace_back(&add_stats);
 
     auto &add_structure = ker.add_structure;
@@ -163,7 +180,6 @@ void simulation::setup_output() {
 
     auto &comp_rmsd = ker.compute_rmsd;
     comp_rmsd.orig_r = orig_r.view();
-
   }
 }
 
