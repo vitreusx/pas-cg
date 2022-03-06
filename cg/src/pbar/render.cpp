@@ -22,16 +22,18 @@ void render::operator()() const {
   using namespace std::chrono;
 
   if (*is_first) {
-    *last_t = std::numeric_limits<real>::lowest();
-    *start_wall_time = high_resolution_clock::now();
-    *is_first = false;
+    *start_clock = *last_clock = high_resolution_clock::now();
   }
 
-  if (*t - *last_t >= period) {
-    auto progress = *t / total_time;
+  auto now = high_resolution_clock::now();
+  auto since_last = duration_cast<nanoseconds>(now - *last_clock);
+  auto since_last_s = (real)since_last.count() / 1e9;
 
-    auto now = high_resolution_clock::now();
-    auto diff_ms = duration_cast<milliseconds>(now - *start_wall_time).count();
+  if (*is_first || since_last_s >= period_s) {
+    auto since_start = duration_cast<milliseconds>(now - *start_clock);
+    auto since_start_ms = since_start.count();
+
+    auto progress = *t / total_time;
 
     cout << "\r"
          << "[";
@@ -46,10 +48,11 @@ void render::operator()() const {
     }
     cout << "] " << *t << " / " << total_time;
     cout << " V = " << *V;
-    cout << " t = " << timedelta(diff_ms);
+    cout << " t = " << timedelta(since_start_ms);
 
     cout.flush();
 
-    *last_t = *t;
+    *last_clock = now;
+    *is_first = false;
   }
 }

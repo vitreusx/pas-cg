@@ -17,7 +17,7 @@ class simulation {
 private:
   static void print_help(char **argv);
 
-  std::optional<std::string> param_path;
+  std::vector<std::string> param_paths;
   void parse_args(int argc, char **argv);
 
   parameters params;
@@ -56,15 +56,14 @@ private:
   void setup_langevin();
 
   bool pbar_first_time;
-  pbar::render::time_point_t start_wall_time;
-  real pbar_last_t;
+  pbar::render::time_point_t pbar_start_clock, pbar_last_clock;
   void setup_pbar();
 
   nl::data nl;
   bool nl_required, nl_invalid, verify_first_time;
   real max_cutoff;
   nitro::vector<int> res_cell_idx, reordered_idx, num_res_in_cell, cell_offset;
-  std::vector<std::tuple<int, int, real>> all_pairs;
+  nitro::vector<nl::pair> all_pairs;
   void setup_nl();
 
   nitro::vector<chir::chiral_quad> chir_quads;
@@ -89,7 +88,7 @@ private:
   void setup_pauli();
 
   nitro::vector<nat_cont::nat_cont> all_native_contacts, cur_native_contacts;
-  nitro::vector<nl::pair> native_contact_exclusions;
+  nitro::vector<nl::exclusion> nat_cont_excl;
   void setup_nat_cont();
 
   nitro::vector<dh::pair> dh_pairs;
@@ -102,8 +101,9 @@ private:
   nitro::vector<vec3r> n, h;
   nitro::vector<qa::cys_neigh> qa_cys_neigh;
   bool ss_spec_crit;
-  nitro::vector<int> neigh_count, cys_indices;
+  nitro::vector<int> neigh_count, cys_indices, qa_removed;
   nitro::vector<bool> part_of_ssbond;
+  int num_qa_contacts;
   void setup_qa();
 
   nitro::vector<pid::bundle> pid_bundles;

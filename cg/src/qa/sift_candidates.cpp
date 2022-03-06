@@ -52,10 +52,10 @@ void sift_candidates::iter(int idx) const {
 
   auto ptype2 = ptype[(uint8_t)atype2];
   sync_data sync_diff1;
-  sync_diff1.back() += back1;
-  sync_diff1.side_all() += side1;
-  sync_diff1.side_polar() += side1 && (ptype2 == POLAR);
-  sync_diff1.side_hydrophobic() += side1 && (ptype2 == HYDROPHOBIC);
+  sync_diff1.back() += back1 ? 1 : 0;
+  sync_diff1.side_all() += side1 ? 1 : 0;
+  sync_diff1.side_polar() += (side1 && (ptype2 == POLAR)) ? 1 : 0;
+  sync_diff1.side_hydrophobic() += (side1 && (ptype2 == HYDROPHOBIC)) ? 1 : 0;
 
   sync_data sync1_after_formation = sync[i1] - sync_diff1;
   if (!sync1_after_formation.is_valid())
@@ -63,10 +63,10 @@ void sift_candidates::iter(int idx) const {
 
   auto ptype1 = ptype[(uint8_t)atype1];
   sync_data sync_diff2;
-  sync_diff2.back() += back2;
-  sync_diff2.side_all() += side2;
-  sync_diff2.side_polar() += side2 && (ptype1 == POLAR);
-  sync_diff2.side_hydrophobic() += side2 && (ptype1 == HYDROPHOBIC);
+  sync_diff2.back() += back2 ? 1 : 0;
+  sync_diff2.side_all() += side2 ? 1 : 0;
+  sync_diff2.side_polar() += (side2 && (ptype1 == POLAR)) ? 1 : 0;
+  sync_diff2.side_hydrophobic() += (side2 && (ptype1 == HYDROPHOBIC)) ? 1 : 0;
 
   sync_data sync2_after_formation = sync[i2] - sync_diff2;
   if (!sync2_after_formation.is_valid())
@@ -80,7 +80,8 @@ void sift_candidates::iter(int idx) const {
   }
 
 #pragma omp critical
-  candidates->emplace_back(i1, i2, idx, type, sync_diff1, sync_diff2);
+  candidates->emplace_back(i1, i2, (real)1.0 / r12_rn, idx, type, sync_diff1,
+                           sync_diff2);
 }
 
 void sift_candidates::omp_async() const {
@@ -89,5 +90,3 @@ void sift_candidates::omp_async() const {
     iter(idx);
   }
 }
-
-void sift_candidates::omp_prep() const { candidates->clear(); }

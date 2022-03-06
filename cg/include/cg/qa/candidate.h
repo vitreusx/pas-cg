@@ -5,15 +5,15 @@
 
 namespace cg::qa {
 template <typename E> struct candidate_expr : public nitro::ind_expr<E> {
-  EXPR_BODY(i1, i2, free_pair_idx, type, sync_diff1, sync_diff2)
+  EXPR_BODY(i1, i2, dist, free_pair_idx, type, sync_diff1, sync_diff2)
 };
 
 template <typename E> struct candidate_auto_expr : public candidate_expr<E> {
-  AUTO_EXPR_BODY(i1, i2, free_pair_idx, type, sync_diff1, sync_diff2)
+  AUTO_EXPR_BODY(i1, i2, dist, free_pair_idx, type, sync_diff1, sync_diff2)
 };
 
-using candidate_base =
-    nitro::tuple_wrapper<int, int, int, contact_type, sync_data, sync_data>;
+using candidate_base = nitro::tuple_wrapper<int, int, real, int, contact_type,
+                                            sync_data, sync_data>;
 
 class candidate : public candidate_auto_expr<candidate>, public candidate_base {
 public:

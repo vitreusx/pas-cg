@@ -1,4 +1,5 @@
 #include "nl/legacy_update.h"
+#include "order.h"
 using namespace cg::nl;
 
 void legacy_update::operator()() const {
@@ -25,16 +26,16 @@ void legacy_update::operator()() const {
       auto orig_dist = norm(simul_box->r_uv(r1, r2));
       if (orig_dist < req_r) {
         bool non_native = true;
-        auto p = pair(i1, i2, orig_dist);
+        auto cur_pair = pair(i1, i2, orig_dist);
 
         while (nat_cont_idx < all_nat_cont.size()) {
           auto cur_nat_cont = all_nat_cont[nat_cont_idx];
 
-          if (cur_nat_cont < p) {
+          if (cur_nat_cont < cur_pair) {
             ++nat_cont_idx;
           } else {
-            if (cur_nat_cont == p) {
-              nl_data->native.push_back(p);
+            if (!(cur_nat_cont > cur_pair)) {
+              nl_data->native.push_back(cur_pair);
               non_native = false;
             }
             break;
@@ -42,7 +43,7 @@ void legacy_update::operator()() const {
         }
 
         if (non_native) {
-          nl_data->non_native.push_back(p);
+          nl_data->non_native.push_back(cur_pair);
         }
       }
     }

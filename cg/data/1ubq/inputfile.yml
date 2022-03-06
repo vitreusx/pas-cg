@@ -1,0 +1,11 @@
+general:
+  total time: 15e3 tau
+
+input:
+  pdb file:
+    source:
+      __path: 1ubq.pdb
+    contact deriv: all atoms
+
+quasi-adiabatic:
+  enabled: false

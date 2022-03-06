@@ -1,15 +1,10 @@
 general:
-  total time: 20e3 tau
+  total time: 3e6 tau
   seed: 42
   num of threads: 1
   debug mode: false
 
-amino acid data:
-  __path: amino-acids.yml
-
 input:
-  seq file:
-    __path: ../glut/glut.yml
   morph into SAW:
     perform: true
     bond distance: 3.8 A
@@ -18,10 +13,8 @@ input:
     num of retries: 9001
     infer simulation box: false
 
-progress bar:
-  enabled: true
-  width: 64
-  update period: 1 tau
+amino acid data:
+  __path: amino-acids.yml
 
 langevin:
   enabled: true
@@ -31,7 +24,7 @@ langevin:
   type: legacy
 
 neighbor list:
-  algorithm: cell
+  algorithm: legacy
   pad factor: 0.25
 
 heurestic angles:
@@ -75,7 +68,7 @@ lj force variants:
     r_min: 6.8 A
     depth: 1.0 eps
   ss:
-    use sinking variant: true
+    use sinking variant: false
     default:
       depth: 1.0 eps
     per pair:
@@ -154,6 +147,11 @@ velocity AFM:
 force AFM:
   enabled: false
   AFM tips: []
+
+progress bar:
+  enabled: true
+  width: 64
+  update period: 2.5 s
 
 output:
   enabled: true

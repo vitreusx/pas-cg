@@ -54,12 +54,7 @@ void process_contacts::iter(int idx) const {
       }
     } else if (status == BREAKING && saturation == 0.0f) {
 #pragma omp critical
-      {
-        contacts->remove(idx);
-        sync[i1] += sync_diff1;
-        sync[i2] += sync_diff2;
-        free_pairs->emplace(i1, i2);
-      }
+      removed->push_back(idx);
     }
   } else {
     auto [Vij, dVij_dr] = disulfide.value()(r12_rn);
@@ -84,15 +79,7 @@ void process_contacts::iter(int idx) const {
       }
     } else if (status == BREAKING && saturation == 0.0f) {
 #pragma omp critical
-      {
-        part_of_ssbond[i1] = false;
-        part_of_ssbond[i2] = false;
-
-        contacts->remove(idx);
-        sync[i1] += sync_diff1;
-        sync[i2] += sync_diff2;
-        free_pairs->emplace(i1, i2);
-      }
+      removed->push_back(idx);
     }
   }
 }

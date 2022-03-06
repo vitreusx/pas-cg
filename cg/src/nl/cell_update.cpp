@@ -1,4 +1,5 @@
 #include "nl/cell_update.h"
+#include "order.h"
 #include <algorithm>
 #include <cg/utils/math.h>
 using namespace cg::nl;
@@ -125,11 +126,8 @@ void cell_update::operator()() const {
   }
 
   std::sort(
-      all_pairs->begin(), all_pairs->end(),
-      [](auto const &p, auto const &q) -> auto {
-        auto [p_i0, p_i1, p_dist] = p;
-        auto [q_i0, q_i1, q_dist] = q;
-        return std::make_pair(p_i0, p_i1) < std::make_pair(q_i0, q_i1);
+      all_pairs->begin(), all_pairs->end(), [](auto p, auto q) -> auto {
+        return std::make_pair(p.i1(), p.i2()) < std::make_pair(q.i1(), q.i2());
       });
 
   nl_data->native.clear();
@@ -137,18 +135,18 @@ void cell_update::operator()() const {
 
   int nat_cont_idx = 0;
 
-  for (auto const &[i1, i2, orig_dist] : *all_pairs) {
+  for (int idx = 0; idx < all_pairs->size(); ++idx) {
     bool non_native = true;
-    auto p = pair(i1, i2, orig_dist);
+    auto cur_pair = all_pairs->at(idx);
 
     while (nat_cont_idx < all_nat_cont.size()) {
       auto cur_nat_cont = all_nat_cont[nat_cont_idx];
 
-      if (cur_nat_cont < p) {
+      if (cur_nat_cont < cur_pair) {
         ++nat_cont_idx;
       } else {
-        if (cur_nat_cont == p) {
-          nl_data->native.push_back(p);
+        if (!(cur_nat_cont > cur_pair)) {
+          nl_data->native.push_back(cur_pair);
           non_native = false;
         }
         break;
@@ -156,7 +154,7 @@ void cell_update::operator()() const {
     }
 
     if (non_native) {
-      nl_data->non_native.push_back(p);
+      nl_data->non_native.push_back(cur_pair);
     }
   }
 

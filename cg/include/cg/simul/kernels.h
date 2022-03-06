@@ -28,8 +28,8 @@
 #include <cg/pid/eval_forces.h>
 #include <cg/pid/update_bundles.h>
 #include <cg/qa/count_cys_neigh.h>
+#include <cg/qa/finish_processing.h>
 #include <cg/qa/prepare_nh.h>
-#include <cg/qa/process_candidates.h>
 #include <cg/qa/process_contacts.h>
 #include <cg/qa/report.h>
 #include <cg/qa/sift_candidates.h>
@@ -53,8 +53,6 @@ public:
   snd::eval_forces eval_snd_forces;
   pauli::eval_forces eval_pauli_forces;
   pid::eval_forces eval_pid_forces;
-  qa::process_contacts process_qa_contacts;
-  qa::sift_candidates sift_qa_candidates;
   tether::eval_forces eval_tether_forces;
   vafm::eval_forces eval_vafm_forces;
 
@@ -71,10 +69,13 @@ public:
   qa::update_free_pairs update_qa_pairs;
   qa::update_cys_neigh update_cys_neigh;
 
-  pbar::render render_pbar;
   qa::prepare_nh prepare_nh;
-  qa::process_candidates process_qa_candidates;
   qa::count_cys_neigh count_cys_neigh;
+  qa::sift_candidates sift_qa_candidates;
+  qa::process_contacts process_qa_contacts;
+  qa::finish_processing qa_finish_processing;
+
+  pbar::render render_pbar;
   out::make_report make_report;
   out::export_pdb export_pdb;
   out::add_stats add_stats;

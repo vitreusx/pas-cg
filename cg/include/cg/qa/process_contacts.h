@@ -32,6 +32,7 @@ public:
   nitro::set<free_pair> *free_pairs;
   nitro::const_view<int> neigh;
   nitro::view<bool> part_of_ssbond;
+  nitro::vector<int> *removed;
 
 public:
   void iter(int idx) const;

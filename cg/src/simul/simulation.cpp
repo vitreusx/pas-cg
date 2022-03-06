@@ -5,11 +5,12 @@ using namespace cg::simul;
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
-#include <fenv.h>
+#include <cfenv>
 
 void simulation::print_help(char **argv) {
-  std::cout << "Usage: " << argv[0] << " [--help|file]" << '\n';
-  std::cout << '\t' << "file" << '\t' << "parameter file" << '\n';
+  std::cout << "Usage: " << argv[0] << "[--help | param files...]" << '\n';
+  std::cout << '\t' << "param files" << '\t'
+            << "a list of parameter files to be loaded" << '\n';
   std::cout << '\t' << "--help" << '\t' << "display this help message";
 }
 
@@ -21,24 +22,21 @@ void simulation::parse_args(int argc, char **argv) {
   if (argc == 2 && argv_s[1] == "--help") {
     print_help(argv);
     exit(EXIT_SUCCESS);
-  } else if (argc > 2) {
-    print_help(argv);
-    exit(EXIT_FAILURE);
   } else {
-    if (argc > 1)
-      param_path = argv_s[1];
+    for (int idx = 1; idx < argc; ++idx)
+      param_paths.push_back(argv_s[idx]);
   }
 }
 
 void simulation::load_parameters() {
   using namespace ioxx::xyaml;
-  auto params_yml = node::import("data/default/inputfile.yml");
-  //  if (param_path) {
-  //    auto overrides = ioxx::xyaml_node::from_path(param_path.value());
-  //    params_yml = merge(params, overrides);
-  //  }
+  node whole_params_yml;
+  for (auto const &param_path : param_paths) {
+    auto params_yml = node::import(param_path);
+    whole_params_yml.merge(params_yml);
+  }
 
-  params_yml >> params;
+  whole_params_yml >> params;
 }
 
 void simulation::general_setup() {
@@ -205,12 +203,12 @@ void simulation::setup_pbar() {
     auto &render = ker.render_pbar;
     render.width = params.pbar.width;
     render.total_time = params.gen.total_time;
-    render.period = params.pbar.update_period;
+    render.period_s = params.pbar.update_period.in("s");
     render.t = &t;
     render.V = &dyn.V;
-    render.start_wall_time = &start_wall_time;
+    render.start_clock = &pbar_start_clock;
+    render.last_clock = &pbar_last_clock;
     render.t = &t;
-    render.last_t = &pbar_last_t;
 
     pbar_first_time = true;
     render.is_first = &pbar_first_time;
@@ -380,11 +378,11 @@ void simulation::setup_nat_cont() {
       auto nat_dist = (real)cont.length;
       bool is_ssbond = cont.type == input::model::NAT_SS;
       all_native_contacts.emplace_back(i1, i2, nat_dist, is_ssbond);
-      native_contact_exclusions.emplace_back(i1, i2, 0.0);
+      nat_cont_excl.emplace_back(i1, i2);
     }
 
-    ker.nl_legacy.all_nat_cont = native_contact_exclusions.view();
-    ker.nl_cell.all_nat_cont = native_contact_exclusions.view();
+    ker.nl_legacy.all_nat_cont = nat_cont_excl.view();
+    ker.nl_cell.all_nat_cont = nat_cont_excl.view();
 
     auto &eval = ker.eval_nat_cont_forces;
     eval.depth = params.nat_cont.lj_depth;
@@ -503,16 +501,20 @@ void simulation::setup_qa() {
     for (auto const &aa : amino_acid::all())
       sift.ptype[(uint8_t)aa] = comp_aa_data.ptype[(uint8_t)aa];
 
-    auto &proc_cand = ker.process_qa_candidates;
-    proc_cand.candidates = &qa_candidates;
-    proc_cand.contacts = &qa_contacts;
-    proc_cand.sync = sync_values.view();
-    proc_cand.free_pairs = &qa_free_pairs;
-    proc_cand.t = &t;
+    auto &fin_proc = ker.qa_finish_processing;
+    fin_proc.candidates = &qa_candidates;
+    fin_proc.contacts = &qa_contacts;
+    fin_proc.sync = sync_values.view();
+    fin_proc.free_pairs = &qa_free_pairs;
+    fin_proc.t = &t;
+    fin_proc.removed = &qa_removed;
+    num_qa_contacts = 0;
+    fin_proc.num_contacts = &num_qa_contacts;
 
     auto &proc_cont = ker.process_qa_contacts;
     proc_cont.cycle_time = params.qa.phase_dur;
     proc_cont.cycle_time_inv = 1.0 / proc_cont.cycle_time;
+    proc_cont.ljs = qa::lj_variants(params.lj_vars);
     proc_cont.set_factor(params.qa.breaking_factor);
     proc_cont.t = &t;
     proc_cont.sync = sync_values.view();
@@ -520,6 +522,7 @@ void simulation::setup_qa() {
     proc_cont.simul_box = &box;
     proc_cont.r = r.view();
     proc_cont.free_pairs = &qa_free_pairs;
+    proc_cont.removed = &qa_removed;
 
     auto &update = ker.update_qa_pairs;
     update.r = r.view();
@@ -546,8 +549,8 @@ void simulation::setup_qa() {
         sift.disulfide_special_criteria = ss_spec_crit;
         sift.neigh = neigh_count.view();
 
-        proc_cand.disulfide_special_criteria = ss_spec_crit;
-        proc_cand.part_of_ssbond = part_of_ssbond.view();
+        fin_proc.disulfide_special_criteria = ss_spec_crit;
+        fin_proc.part_of_ssbond = part_of_ssbond.view();
 
         proc_cont.disulfide_special_criteria = ss_spec_crit;
         proc_cont.disulfide = params.qa.disulfide->force;
@@ -870,8 +873,8 @@ void simulation::thread::sync_part(bool pre_loop) {
 
   simul->dyn.reset();
   if (params.qa.enabled) {
+    ker.qa_finish_processing();
     ker.prepare_nh();
-    ker.sift_qa_candidates.omp_prep();
     if (simul->ss_spec_crit)
       ker.count_cys_neigh();
   }

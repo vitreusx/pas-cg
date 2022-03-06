@@ -31,8 +31,6 @@ public:
 public:
   void iter(int idx) const;
   void operator()() const;
-
-  void omp_prep() const;
   void omp_async() const;
 };
 } // namespace cg::qa

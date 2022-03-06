@@ -65,10 +65,11 @@ void report_qa_stuff::report_to(out::report_state &report) const {
   report.current["sync values"] = sync_values_file;
 
   ioxx::xyaml::csv<qa_contact_row> contacts_file;
-  sync_values_file.path = "qa_contacts.csv";
-  sync_values_file.data.header = {"i1", "i2", "type", "status"};
+  contacts_file.path = "qa_contacts.csv";
+  contacts_file.data.header = {
+      "i1", "i2", "type", "status", "ref_time[tau]", "saturation"};
   for (int idx = 0; idx < contacts->size(); ++idx) {
-    if (!contacts->at(idx).is_vacant()) {
+    if (contacts->at(idx).has_item()) {
       auto row = qa_contact_row(contacts->at(idx).item(), process_cont);
       contacts_file.data.rows.push_back(row);
     }

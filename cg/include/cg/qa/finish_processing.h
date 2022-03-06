@@ -5,7 +5,7 @@
 #include <cg/amino/sync_data.h>
 
 namespace cg::qa {
-class process_candidates {
+class finish_processing {
 public:
   bool disulfide_special_criteria;
 
@@ -16,9 +16,10 @@ public:
   nitro::set<contact> *contacts;
   nitro::set<free_pair> *free_pairs;
   nitro::view<bool> part_of_ssbond;
+  nitro::vector<int> *removed;
+  int *num_contacts;
 
 public:
-  template <typename E> void iter(candidate_expr<E> const &candidate) const;
   void operator()() const;
 };
 }; // namespace cg::qa

@@ -1,5 +1,6 @@
 #pragma once
 #include "data.h"
+#include "exclusion.h"
 #include <utility>
 #include <vector>
 
@@ -16,11 +17,11 @@ public:
   real const *max_cutoff, *t;
   bool *invalid;
   nitro::const_view<int> chain_idx, seq_idx;
-  nitro::const_view<pair> all_nat_cont;
+  nitro::const_view<exclusion> all_nat_cont;
 
   nitro::view<int> res_cell_idx, reordered_idx;
   nitro::vector<int> *num_res_in_cell, *cell_offset;
-  std::vector<std::tuple<int, int, real>> *all_pairs;
+  nitro::vector<pair> *all_pairs;
 
 public:
   void operator()() const;

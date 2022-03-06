@@ -1,0 +1,21 @@
+general:
+  total time: 100e3 tau
+
+input:
+  seq file:
+    __path: 9aac.yml
+
+quasi-adiabatic:
+  enabled: false
+
+pseudo-improper dihedral:
+  enabled: true
+
+lj force variants:
+  bb:
+    depth: 0.1 eps
+  ss:
+    use sinking variant: true
+    per pair:
+      depth:
+        __path: mj-matrix.csv
