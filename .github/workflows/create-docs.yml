@@ -1,0 +1,30 @@
+name: Create docs
+on:
+  push:
+    branches:
+      - main
+jobs:
+  create-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v2
+
+      - name: Setup CMake
+        run: |
+          sudo apt-get install cmake python3-sphinx python3-pip doxygen
+          pip install breathe sphinx_rtd_theme myst-parser
+
+      - name: Build the docs
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+          make docs
+
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/docs/docs
