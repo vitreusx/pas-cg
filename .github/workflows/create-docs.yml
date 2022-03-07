@@ -14,7 +14,7 @@ jobs:
 
       - name: Setup CMake
         run: |
-          sudo apt-get install cmake python3-sphinx python3-pip doxygen
+          sudo apt-get install cmake python3-sphinx python3-pip doxygen graphviz
           pip install breathe sphinx_rtd_theme myst-parser
 
       - name: Build the docs

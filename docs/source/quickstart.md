@@ -5,8 +5,7 @@
 - Linux operating system;
 - `gcc++` or `clang++` with C++17 support;
 - CMake 3.14+;
-- OpenMP;
-- Boost (more specifically the `program_options` component).
+- OpenMP.
 
 ## Installation
 
