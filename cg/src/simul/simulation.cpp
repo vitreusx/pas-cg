@@ -1,5 +1,4 @@
 #include "simul/simulation.h"
-#include <boost/program_options.hpp>
 #include <iostream>
 using namespace cg::simul;
 
@@ -9,28 +8,19 @@ using namespace cg::simul;
 #include <cfenv>
 
 void simulation::parse_args(int argc, char **argv) {
-  namespace po = boost::program_options;
+  std::vector<std::string> argv_s(argc);
+  for (int idx = 0; idx < argc; ++idx)
+    argv_s[idx] = argv[idx];
 
-  po::options_description opts("Allowed options");
-  opts.add_options()("help", "print this help message")(
-      "param-files", po::value<std::vector<std::string>>(&param_paths),
-      "parameter files");
-
-  po::positional_options_description pos;
-  pos.add("param-files", -1);
-
-  auto parser =
-      po::command_line_parser(argc, argv).options(opts).positional(pos);
-
-  po::variables_map vm;
-  po::store(parser.run(), vm);
-  po::notify(vm);
-
-  if (vm.count("help")) {
-    std::cout << "Usage: " << argv[0] << " [options] param-files..." << '\n';
-    std::cout << opts << '\n';
+  if (argc < 2 || argv_s[1] == "--help") {
+    std::cout << "Usage: " << argv[0] << " [--help | param-files...]" << '\n';
+    std::cout << "    --help         Print this help message" << '\n';
+    std::cout << "    param-files    A list of parameter files" << '\n';
     exit(EXIT_SUCCESS);
   }
+
+  for (int idx = 1; idx < argc; ++idx)
+    param_paths.push_back(argv_s[idx]);
 }
 
 void simulation::load_parameters() {

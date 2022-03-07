@@ -36,10 +36,9 @@ add_subdirectory(ext/eigen-3.4.0)
 
 find_package(OpenMP REQUIRED)
 find_package(Eigen3 3.4 REQUIRED)
-find_package(Boost REQUIRED COMPONENTS program_options)
 
 target_link_libraries(cg
-    PRIVATE ioxx nitro OpenMP::OpenMP_CXX cparse Eigen3::Eigen Boost::program_options)
+    PRIVATE ioxx nitro OpenMP::OpenMP_CXX cparse Eigen3::Eigen)
 
 set_target_properties(cg
     PROPERTIES
