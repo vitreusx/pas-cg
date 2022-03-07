@@ -21,7 +21,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake ..
+          cmake ../docs
           make docs
 
       - name: Deploy to gh-pages branch

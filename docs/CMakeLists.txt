@@ -1,3 +1,6 @@
+cmake_minimum_required(VERSION 3.14)
+project(docs)
+
 find_package(Doxygen REQUIRED)
 
 set(DOXYGEN_INPUT_DIR ${PROJECT_SOURCE_DIR}/cg)
@@ -8,7 +11,9 @@ set(DOXYFILE_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 
 configure_file(${DOXYFILE_IN} ${DOXYFILE_OUT} @ONLY)
 
-get_target_property(CG_SOURCES cg SOURCES)
+set(CG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../cg)
+file(GLOB_RECURSE CG_SOURCES CONFIGURE_DEPENDS
+    ${CG_DIR}/include/* ${CG_DIR}/src/*)
 
 file(MAKE_DIRECTORY ${DOXYGEN_OUTPUT_DIR})
 add_custom_command(OUTPUT ${DOXYGEN_INDEX_FILE}
