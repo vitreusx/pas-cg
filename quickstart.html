@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quick Start &mdash; PAS CG  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="User guide" href="user/index.html" />
+    <link rel="prev" title="Welcome to PAS CG’s documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> PAS CG
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#compiling">Compiling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running">Running</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user/index.html">User guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PAS CG</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Quick Start</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/quickstart.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="tex2jax_ignore mathjax_ignore section" id="quick-start">
+<h1>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline"></a></h1>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>Linux operating system;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gcc++</span></code> or <code class="docutils literal notranslate"><span class="pre">clang++</span></code> with C++17 support;</p></li>
+<li><p>CMake 3.14+;</p></li>
+<li><p>OpenMP.</p></li>
+</ul>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h2>
+<p>To get the source code, clone
+the <a class="reference external" href="https://github.com/vitreusx/pas-cg">vitreusx/pas-cg</a> repository and pull
+the submodules. For regular use, shallow clones are sufficient:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone --depth <span class="m">1</span> --recurse-submodules --shallow-submodules https://github.com/vitreusx/pas-cg.git
+<span class="nb">cd</span> pas-cg/
+</pre></div>
+</div>
+</div>
+<div class="section" id="compiling">
+<h2>Compiling<a class="headerlink" href="#compiling" title="Permalink to this headline"></a></h2>
+<p>The project is built using <a class="reference external" href="https://cmake.org/">CMake</a>. The two targets of
+interest are <code class="docutils literal notranslate"><span class="pre">cg</span></code>, the program proper, and <code class="docutils literal notranslate"><span class="pre">docs</span></code> for generating the
+documentation. The <code class="docutils literal notranslate"><span class="pre">cg</span></code> target supports <code class="docutils literal notranslate"><span class="pre">Debug</span></code> and <code class="docutils literal notranslate"><span class="pre">Release</span></code> configurations.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir release
+<span class="nb">cd</span> release
+cmake -DCMAKE_BUILD_TYPE<span class="o">=</span>Release ..
+make -j4 cg
+</pre></div>
+</div>
+</div>
+<div class="section" id="running">
+<h2>Running<a class="headerlink" href="#running" title="Permalink to this headline"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Usage</span><span class="p">:</span> <span class="n">cg</span> <span class="p">[</span><span class="n">options</span><span class="p">]</span> <span class="n">param</span><span class="o">-</span><span class="n">files</span><span class="o">...</span>
+<span class="n">Allowed</span> <span class="n">options</span><span class="p">:</span>
+  <span class="o">--</span><span class="n">help</span>                <span class="nb">print</span> <span class="n">this</span> <span class="n">help</span> <span class="n">message</span>
+  <span class="o">--</span><span class="n">param</span><span class="o">-</span><span class="n">files</span> <span class="n">arg</span>     <span class="n">parameter</span> <span class="n">files</span>
+</pre></div>
+</div>
+<p>The input to the program consist of the parameter file(s), which allow the user
+to specify the various parameters of the simulation. The (optional) output
+consists of a progress bar and files in the output directory. Usually, there
+will be two parameter files: the defaults (provided with the code), and the
+overrides, so for example we may call:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./cg data/default/inputfile.yml data/<span class="si">${</span><span class="nv">example</span><span class="si">}</span>/inputfile.yml
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>All the parameters must be included. In particular, unless one modifies the
+defaults file directly, it is necessary to include it as well as the overrides file.</p>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline"></a></h2>
+<p>A number of examples are provided for the purposes of demonstration:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">1ubq</span></code>: folding of ubiquitin, computation of median required time for
+re-establishing the native contacts;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">9aac</span></code>: simulation of Atomic Force Microscope (AFM) stretching of an
+intrinsically disordered protein, <span class="math notranslate nohighlight">\(\alpha\)</span>-synuclein, with the pseudo-improper
+dihedral custom potential;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">glut</span></code>: simulation of deforming a box filled with partially structured gluten
+proteins, with the quasi-adiabatic custom potential.</p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to PAS CG’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="user/index.html" class="btn btn-neutral float-right" title="User guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jakub Bednarz, IF PAN.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

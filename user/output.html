@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Program output &mdash; PAS CG  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Differences with the reference version" href="diff.html" />
+    <link rel="prev" title="Internal units. Quantities" href="units.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> PAS CG
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">User guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="repo.html">Structure of the repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yaml.html">YAML files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input.html">Input layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tether.html">Tether pair FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chir.html">Chirality FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nat_ang.html">Native bond angle FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="heur_ang.html">Heurestic bond angle FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nat_dih.html">Native dihedral angle FFs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="heur_dih.html">Heurestic dihedral angle FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contacts.html">On native and non-native contacts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nat_cont.html">Native contacts FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pauli.html">Pauli exclusion FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dh.html">Debye-Hueckel FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qa.html">Quasi-adiabatic (QA) FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pid.html">Pseudo-improper dihedral (PID) force field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="langevin.html">Langevin PC integrator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nl.html">Neighbor list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="base_forces.html">Base forces. Variants of the Lennard-Jones potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pbar.html">Progress bar</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aa_data.html">Amino acid data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="general.html">General parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html">Internal units. Quantities</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Program output</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#emitted-data-and-files">Emitted data and files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parameter-file-entry">Parameter file entry</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="diff.html">Differences with the reference version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="afm.html">Atomic Force Microscope (AFM)</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PAS CG</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">User guide</a> &raquo;</li>
+      <li>Program output</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user/output.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="tex2jax_ignore mathjax_ignore section" id="program-output">
+<h1>Program output<a class="headerlink" href="#program-output" title="Permalink to this headline"></a></h1>
+<p>The output of the program consists solely of the progress bar and the actual
+data, emitted into files placed in the output directory. The data is emitted at
+regular intervals (in terms of internal time).</p>
+<p>The structure of the output directory is as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>[output]
+├── report.yml
+├── [other files...]
+├── [snapshot number]
+    ├── report.yml
+    ├── [other files...]
+</pre></div>
+</div>
+<p>In <code class="docutils literal notranslate"><span class="pre">report.yml</span></code>, one can find data pertaining to the simulation as a whole.
+Beyond that, data pertaining to the state of the simulation in a given moment is
+emitted in the form of zero-indexed snapshots.</p>
+<div class="section" id="emitted-data-and-files">
+<h2>Emitted data and files<a class="headerlink" href="#emitted-data-and-files" title="Permalink to this headline"></a></h2>
+<p>For the simulation as a whole, following data is emitted:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">model.pdb</span></code> file, containing <code class="docutils literal notranslate"><span class="pre">MODEL</span></code> entries for all the snapshots. This is
+done chiefly in order to be able to quickly investigate the evolution of the
+system in a tool such as <a class="reference external" href="https://pymol.org/2/">PyMOL</a>.</p></li>
+</ul>
+<p>At regular intervals, following data pertaining to the state of the simulation
+in a given moment is emitted:</p>
+<ul class="simple">
+<li><p>“general” statistics: time, potential, kinetic and total energy;</p></li>
+<li><p>positions of the monomers in the form of a PDB file, <code class="docutils literal notranslate"><span class="pre">model.pdb</span></code>;</p></li>
+<li><p>current values of tethers, bond and dihedral angles, along with native ones if
+they exist, placed into the files <code class="docutils literal notranslate"><span class="pre">tethers.csv</span></code>, <code class="docutils literal notranslate"><span class="pre">angles.csv</span></code>
+and <code class="docutils literal notranslate"><span class="pre">dihedrals.csv</span></code>;</p></li>
+<li><p>“kinematic” properties: <span class="math notranslate nohighlight">\(\lambda_x\)</span>, <span class="math notranslate nohighlight">\(\lambda_y\)</span>, <span class="math notranslate nohighlight">\(\lambda_z\)</span>, radius of
+gyration, asphericity (see the article on
+the <a class="reference external" href="https://en.wikipedia.org/wiki/Gyration_tensor">gyration tensor</a> for more
+details);</p></li>
+<li><p>data pertaining to native contacts;</p></li>
+<li><p>data pertaining to quasi-adiabatic potential and the created contacts.</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Asphericity is, from what I’ve seen, computed in a slightly different fashion
+than what’s in the wiki (it seems to be scaled in some sense). This particular
+implementation follows the Wiki article.</p>
+</div>
+</div>
+<div class="section" id="parameter-file-entry">
+<h2>Parameter file entry<a class="headerlink" href="#parameter-file-entry" title="Permalink to this headline"></a></h2>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">output</span><span class="p">:</span>
+  <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">boolean</span>
+  <span class="nt">period</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">quantity [T]</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>One does <strong>not</strong> have the option for including or excluding data from the
+output, so for example one may not choose to skip computing the RMSD.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="units.html" class="btn btn-neutral float-left" title="Internal units. Quantities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="diff.html" class="btn btn-neutral float-right" title="Differences with the reference version" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jakub Bednarz, IF PAN.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

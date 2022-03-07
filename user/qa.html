@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quasi-adiabatic (QA) FF &mdash; PAS CG  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Pseudo-improper dihedral (PID) force field" href="pid.html" />
+    <link rel="prev" title="Debye-Hueckel FF" href="dh.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> PAS CG
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">User guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="repo.html">Structure of the repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yaml.html">YAML files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="input.html">Input layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tether.html">Tether pair FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chir.html">Chirality FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nat_ang.html">Native bond angle FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="heur_ang.html">Heurestic bond angle FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nat_dih.html">Native dihedral angle FFs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="heur_dih.html">Heurestic dihedral angle FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contacts.html">On native and non-native contacts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nat_cont.html">Native contacts FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pauli.html">Pauli exclusion FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dh.html">Debye-Hueckel FF</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Quasi-adiabatic (QA) FF</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#contact">Contact</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#formation-criteria">Formation criteria</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#distance-criterion">Distance criterion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#geometric-criterion">Geometric criterion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sync-values-criterion">Sync values criterion</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#force-field">Force field</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#breaking-criterion">Breaking criterion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dynamic-disulfide-bonds">Dynamic disulfide bonds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parameter-file-format">Parameter file format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#output-data">Output data</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pid.html">Pseudo-improper dihedral (PID) force field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="langevin.html">Langevin PC integrator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nl.html">Neighbor list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="base_forces.html">Base forces. Variants of the Lennard-Jones potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pbar.html">Progress bar</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aa_data.html">Amino acid data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="general.html">General parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html">Internal units. Quantities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="output.html">Program output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="diff.html">Differences with the reference version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="afm.html">Atomic Force Microscope (AFM)</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PAS CG</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">User guide</a> &raquo;</li>
+      <li>Quasi-adiabatic (QA) FF</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user/qa.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="tex2jax_ignore mathjax_ignore section" id="quasi-adiabatic-qa-ff">
+<h1>Quasi-adiabatic (QA) FF<a class="headerlink" href="#quasi-adiabatic-qa-ff" title="Permalink to this headline"></a></h1>
+<p>The quasi-adiabatic (QA) force field is non-Hamiltonian, and is based on the
+idea of switchable contacts. The algorithm has three components in total:</p>
+<ol class="arabic simple">
+<li><p>For the non-local pairs not in contact, we check whether they satisfy the _
+formation criteria_, and if they do, they are added to the list of <em>candidate
+contacts</em>.</p></li>
+<li><p>For the non-local pairs in contact, we evaluate the potential resulting from
+the contact, and check if the contact satisfies the <em>breaking criteria</em>. If
+the contact is completely desaturated, we <em>mark</em> them as removed.</p></li>
+<li><p><strong>Sequentially</strong>, we remove the marked contacts, and process the candidates (
+in the order of increasing distances) by checking whether the contact can
+actually be formed, and if so, adding it to the list of contacts.</p></li>
+</ol>
+<p>The split of pre-checking the formation criteria in parallel and doing it again
+sequentially later on a sifted list is done so as to ensure determinism of the
+algorithm without the checking becoming a bottleneck, assuming the candidate
+contacts are few in number. As will be shown later, the formation and breaking
+of contacts affects the creation of new contacts.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For a given simulation step, the contacts formed in that step do not participate
+in the evaluation of the potential in the same step. Rather, sequential
+processing is done after the asynchronous part of the simulation step,
+which contains the potential evaluation.</p>
+</div>
+<div class="section" id="contact">
+<h2>Contact<a class="headerlink" href="#contact" title="Permalink to this headline"></a></h2>
+<p>When contact is formed or broken, it does not assume its full strength
+immediately, but rather increases linearly from no strength to full strength in
+a given time span.</p>
+<p>A QA contact can be described by the following data:</p>
+<ul class="simple">
+<li><p>participating residues;</p></li>
+<li><p>contact <em>type</em>: either backbone-backbone (bb), backbone-sidechain (bs, sb), a
+pair-type-specific version of the sidechain-sidechain (ss) contact. Thus,
+there are <span class="math notranslate nohighlight">\(N^2+3\)</span> different types of QA contacts, where <span class="math notranslate nohighlight">\(N=20\)</span> is the number
+of amino acid types;</p></li>
+<li><p>status: whether a contact is saturating (i.e. increasing in or maintaining
+strength) or desaturating (i.e. decreasing in strength);</p></li>
+<li><p>reference time: contact creation time if the contact is saturating, or contact
+breaking time if the contact is desaturating. Used for computing the
+saturation.</p></li>
+</ul>
+</div>
+<div class="section" id="formation-criteria">
+<h2>Formation criteria<a class="headerlink" href="#formation-criteria" title="Permalink to this headline"></a></h2>
+<p>A QA contact between two residues can be formed, if three criteria are
+satisfied:</p>
+<div class="section" id="distance-criterion">
+<h3>Distance criterion<a class="headerlink" href="#distance-criterion" title="Permalink to this headline"></a></h3>
+<p>To each type of the contact type (as described above) is associated a distance
+<span class="math notranslate nohighlight">\(r_{\textrm{min}}\)</span>. The distance between the residues must be lower than <span class="math notranslate nohighlight">\(r_
+{\textrm{min}}(1+\mathtt{formation\_tolerance})\)</span> for the criterion to be
+satisfied.</p>
+</div>
+<div class="section" id="geometric-criterion">
+<h3>Geometric criterion<a class="headerlink" href="#geometric-criterion" title="Permalink to this headline"></a></h3>
+<p>We approximate the directions of the backbone hydrogen bond or the sidechain <span class="math notranslate nohighlight">\(C_
+\beta\)</span> atom from the positions of three consecutive <span class="math notranslate nohighlight">\(C_\alpha\)</span> atoms. More
+specifically, for a consecutive triple, we may define:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split} \vec{n_2} = \frac{\vec{r_{23}} - \vec{r_{12}}}{|\vec{r_{23}} - \vec{r_
+{12}}|}\\ \vec{h_2} = \frac{\vec{r_{23}} \times \vec{r_{12}}}{|\vec{r_{23}}
+\times \vec{r_{12}}|} \end{split}\]</div>
+<p>which are vectors associated with the central site. The direction of the
+sidechain is approximately <span class="math notranslate nohighlight">\(-\vec{n}\)</span>, and the direction of the hydrogen bond is
+<span class="math notranslate nohighlight">\(\pm \vec{h}\)</span>. Based on these, we establish following criteria for the different
+types of contacts:</p>
+<ul class="simple">
+<li><p>bb: <span class="math notranslate nohighlight">\(|\cos(\vec{h_1}, \vec{r_{12}})|, |\cos(\vec{h_2}, \vec{r_{21}})| \geq
+\mathtt{min\_abs\_cos\_hr}\)</span> and <span class="math notranslate nohighlight">\(|\cos(\vec{h_1}, \vec{h_2})| &gt;
+\mathtt{min\_abs\_cos\_hh}\)</span>;</p></li>
+<li><p>bs: <span class="math notranslate nohighlight">\(|\cos(\vec{h_1}, \vec{r_{12}})| \geq \mathtt{min\_abs\_cos\_hr}\)</span> and
+<span class="math notranslate nohighlight">\(\cos(\vec{n_2}, \vec{r_{21}}) &lt; \mathtt{max\_cos\_nr}\)</span>;</p></li>
+<li><p>sb: analogous to the bs case;</p></li>
+<li><p>ss: <span class="math notranslate nohighlight">\(\cos(\vec{n_1}, \vec{r_{12}}), \cos(\vec{n_2}, \vec{r_{21}}) &lt;
+\mathtt{max\_cos\_nr}\)</span>.</p></li>
+</ul>
+<p>where <span class="math notranslate nohighlight">\(\cos(\vec{u}, \vec{v})\)</span> denotes the cosine of the angle between the two
+vectors. In general, <span class="math notranslate nohighlight">\(|\cos(\vec{h_i}, \vec{r_{ij}})| \geq
+\mathtt{min\_abs\_cos\_hr}\)</span> is the criterion for the backbone of residue <span class="math notranslate nohighlight">\(i\)</span>,
+and <span class="math notranslate nohighlight">\(\cos(\vec{n_i}, \vec{r_{ij}}) &lt; \mathtt{max\_cos\_nr}\)</span> is the criterion for
+the sidechain of residue <span class="math notranslate nohighlight">\(i\)</span>, the extra condition for the bb case
+notwithstanding.</p>
+</div>
+<div class="section" id="sync-values-criterion">
+<h3>Sync values criterion<a class="headerlink" href="#sync-values-criterion" title="Permalink to this headline"></a></h3>
+<p>With each residue are associated “sync values”, which are numbers which
+essentially track the remaining “slots” for the contacts, in effect limiting the
+number of contacts that can be formed. There are four such numbers:</p>
+<ol class="arabic simple">
+<li><p>Backbone contact slots.</p></li>
+<li><p>Total sidechain contact slots.</p></li>
+<li><p>Sidechain contact slots for the <em>polar</em> residues.</p></li>
+<li><p>Sidechain contact slots for the <em>hydrophobic</em> residues.</p></li>
+</ol>
+<p>The base values are amino acid-specific. The presence of this criterion is the
+cause for the split of pre-filtering the candidate contacts and processing them
+sequentially later, as the formation of a contact could reduce the sync values
+to such a state as to prevent the formation of another contact in another
+thread, which would cause the algorithm to be nondeterministic. Similarly, we
+cannot “just” remove the desaturated contacts, but must rather mark them first
+and remove them sequentially later.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <em>native</em> contacts do not affect the sync values.</p>
+</div>
+</div>
+</div>
+<div class="section" id="force-field">
+<h2>Force field<a class="headerlink" href="#force-field" title="Permalink to this headline"></a></h2>
+<p>The residues in contact interact with a regular Lennard-Jones potential, unless
+sinking version of the ss-type contacts is turned on (see LJ variants section
+for more details), in which case it is used instead. This potential is then
+multiplied by a <em>saturation factor</em>, which increases from <span class="math notranslate nohighlight">\(0\)</span> to <span class="math notranslate nohighlight">\(1\)</span> in time
+span of <span class="math notranslate nohighlight">\(\mathtt{phase\_duration}\)</span> when the contact is formed, and from <span class="math notranslate nohighlight">\(1\)</span> to
+<span class="math notranslate nohighlight">\(0\)</span> when the contact is broken (in the same time span).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Time derivative of the saturation is assumed to be zero in the computation.</p>
+</div>
+</div>
+<div class="section" id="breaking-criterion">
+<h2>Breaking criterion<a class="headerlink" href="#breaking-criterion" title="Permalink to this headline"></a></h2>
+<p>The only breaking criterion is for the distance between the residues to become
+greater than <span class="math notranslate nohighlight">\(\mathtt{breaking\_factor} \cdot 2^{-1/6} r_{\textrm{min}}\)</span>.</p>
+</div>
+<div class="section" id="dynamic-disulfide-bonds">
+<h2>Dynamic disulfide bonds<a class="headerlink" href="#dynamic-disulfide-bonds" title="Permalink to this headline"></a></h2>
+<p>The procedure for the pairs of cysteines can be altered so as to simulate the
+formation of dynamic disulfide bonds. This is accomplied in two orthogonal ways:</p>
+<ol class="arabic simple">
+<li><p>The formation and breaking criteria can be altered.</p>
+<ul class="simple">
+<li><p>For a disulfide bond to be created between two cysteines, the following
+criteria must be satisfied:</p>
+<ol class="arabic simple">
+<li><p>The usual criteria for an ss-type contact must be satisfied.</p></li>
+<li><p>The cysteines in question have not already formed disulfide bonds
+with other cysteines</p></li>
+<li><p>The sum of the number of neighbors (i.e. number of residues within
+<span class="math notranslate nohighlight">\(\mathtt{neigh\_radius}\)</span>) is smaller than
+<span class="math notranslate nohighlight">\(\mathtt{max\_neigh\_count}\)</span>.</p></li>
+</ol>
+</li>
+<li><p>For a disulfide bond to be broken, following criteria must be satisfied:</p>
+<ol class="arabic simple">
+<li><p>The distance <span class="math notranslate nohighlight">\(d\)</span> is such, that <span class="math notranslate nohighlight">\(|d - \mathtt{def\_bond\_dist}| \geq
+\mathtt{max\_dist\_dev}\)</span>.</p></li>
+<li><p>The sum of the number of neighbors is smaller than
+<span class="math notranslate nohighlight">\(\mathtt{max\_neigh\_count}\)</span>.</p></li>
+</ol>
+</li>
+</ul>
+</li>
+<li><p>The force can be altered, setting it either to be harmonic, or of a
+Lennard-Jones type.</p></li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>At the moment, the neighbor counter only counts the “nonlocal” pairs.</p>
+</div>
+</div>
+<div class="section" id="parameter-file-format">
+<h2>Parameter file format<a class="headerlink" href="#parameter-file-format" title="Permalink to this headline"></a></h2>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">quasi-adiabatic</span><span class="p">:</span>
+  <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">boolean</span>
+  <span class="nt">phase duration</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">quantity [T]</span>
+  <span class="nt">formation tolerance</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">number</span>
+  <span class="nt">breaking factor</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">number</span>
+  <span class="l l-Scalar l-Scalar-Plain">min |cos(h, r)|</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">number</span>
+  <span class="l l-Scalar l-Scalar-Plain">min |cos(h, h)| for bb</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">number</span>
+  <span class="l l-Scalar l-Scalar-Plain">max cos(n, r)</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">number</span>
+  <span class="nt">disulfides</span><span class="p">:</span>
+    <span class="nt">force</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">disulfide force</span>
+    <span class="nt">special criteria</span><span class="p">:</span>
+      <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">boolean</span>
+      <span class="nt">max neigh count</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">integer</span>
+      <span class="nt">neigh radius</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">quantity [L]</span>
+      <span class="nt">def bond dist</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">quantity [L]</span>
+      <span class="nt">max bond dist deviation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">quantity [L]</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">disulfide</span> <span class="pre">force</span></code> type of entry is as in the “Native contacts” section.</p>
+</div>
+<div class="section" id="output-data">
+<h2>Output data<a class="headerlink" href="#output-data" title="Permalink to this headline"></a></h2>
+<p>Following data is emitted per snapshot:</p>
+<ul class="simple">
+<li><p>A list of current sync values, into <code class="docutils literal notranslate"><span class="pre">sync_values.csv</span></code>;</p></li>
+<li><p>A list of current contacts, into <code class="docutils literal notranslate"><span class="pre">qa_contacts.csv</span></code>. Aside from the
+aforementioned data per contact, computed saturation is also included.</p></li>
+<li><p>Aggregate stats, similar to the ones for the native contacts. Aside from the
+ones enumerated there, we also include the numbers for the dynamic disulfide
+bonds.</p></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="dh.html" class="btn btn-neutral float-left" title="Debye-Hueckel FF" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pid.html" class="btn btn-neutral float-right" title="Pseudo-improper dihedral (PID) force field" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jakub Bednarz, IF PAN.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

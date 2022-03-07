@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Input layer &mdash; PAS CG  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tether pair FF" href="tether.html" />
+    <link rel="prev" title="YAML files" href="yaml.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> PAS CG
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">User guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="repo.html">Structure of the repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yaml.html">YAML files</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Input layer</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#model-data">Model data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#loading-from-a-pdb-file">Loading from a PDB file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#loading-from-sequence-file">Loading from sequence file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sequence-file-format">Sequence file format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#morphing-the-chains-into-a-self-avoiding-walk">Morphing the chains into a self-avoiding walk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parameter-file-entry">Parameter file entry</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tether.html">Tether pair FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chir.html">Chirality FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nat_ang.html">Native bond angle FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="heur_ang.html">Heurestic bond angle FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nat_dih.html">Native dihedral angle FFs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="heur_dih.html">Heurestic dihedral angle FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contacts.html">On native and non-native contacts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nat_cont.html">Native contacts FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pauli.html">Pauli exclusion FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dh.html">Debye-Hueckel FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qa.html">Quasi-adiabatic (QA) FF</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pid.html">Pseudo-improper dihedral (PID) force field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="langevin.html">Langevin PC integrator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nl.html">Neighbor list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="base_forces.html">Base forces. Variants of the Lennard-Jones potential</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pbar.html">Progress bar</a></li>
+<li class="toctree-l2"><a class="reference internal" href="aa_data.html">Amino acid data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="general.html">General parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units.html">Internal units. Quantities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="output.html">Program output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="diff.html">Differences with the reference version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="afm.html">Atomic Force Microscope (AFM)</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PAS CG</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">User guide</a> &raquo;</li>
+      <li>Input layer</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user/input.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="tex2jax_ignore mathjax_ignore section" id="input-layer">
+<h1>Input layer<a class="headerlink" href="#input-layer" title="Permalink to this headline"></a></h1>
+<p>The program operates on protein chains, where each amino acid is represented by
+its Ca atom. These chains can be provided to the program in one of two ways -
+from a PDB file, or via a file written in custom sequence file format. Once that
+is done, one can further modify the protein chains by arranging them into a
+self-avoiding walk.</p>
+<div class="section" id="model-data">
+<h2>Model data<a class="headerlink" href="#model-data" title="Permalink to this headline"></a></h2>
+<p>The entire model, conceptually, consists of the following components:</p>
+<ol class="arabic simple">
+<li><p>Residues, with its amino acid type and an optional native position;</p></li>
+<li><p>Chains, which are essentially lists of residues;</p></li>
+<li><p>Native contacts, with the participating residues and the contact type. We
+distinguish following contact types: backbone-backbone, backbone-sidechain,
+sidechain-sidechain and disulfide bonds;</p></li>
+<li><p>Pairs of connected residues, auto-generated from the chain structure. If the
+model was generated from the PDB file, an original length of the tether is
+saved;</p></li>
+<li><p>Triples of connected residues, auto-generated from the chain structure. Each
+such triple angle may contain the native value of the bond angle, if such
+exists, in which case it is treated by the native bond angle force field.
+Otherwise, it is treated by the heurestic bond angle force field;</p></li>
+<li><p>Quadruples of connected residues, auto-generated from the chain structure.
+Each such quadruple may contain the native value of the dihedral angle, if
+such exists, in which case it is treated by the complex or simple variant of
+the native dihedral angle force field. Otherwise, it is treated by the
+heurestic dihedral angle force field.</p></li>
+</ol>
+</div>
+<div class="section" id="loading-from-a-pdb-file">
+<h2>Loading from a PDB file<a class="headerlink" href="#loading-from-a-pdb-file" title="Permalink to this headline"></a></h2>
+<p>A PDB file can be specified in the parameter file via either a path or an inline
+source of the file. The protein chains in the file are reduced to the
+coarse-grained representation by replacing the residues with the <span class="math notranslate nohighlight">\(C_\alpha\)</span>
+atoms. Before that is done, one can derive a contact map between the residues
+based on the distances between the <span class="math notranslate nohighlight">\(C_\alpha\)</span> atoms or between all the atoms.
+The contact is said to be established, if the distance between the atoms or
+residues is less than the sum of radii of the atoms or residues in question
+times <span class="math notranslate nohighlight">\((26/7)^{1/6}\)</span>. Moreover, the native tether distances, bond angles and
+dihedral angles are computed for the purposes of the relevant force fields.</p>
+</div>
+<div class="section" id="loading-from-sequence-file">
+<h2>Loading from sequence file<a class="headerlink" href="#loading-from-sequence-file" title="Permalink to this headline"></a></h2>
+<p>A custom sequence file can be specified. Such a file consists of a list of
+chains given by the amino acid codes of the consecutive residues. The chains are
+by default intrinsically disordered, and therefore handled by the heurestic
+force fields for the bond and dihedral angles. This can be overriden for
+contiguous parts of the protein chains with the use of the map files. Such a map
+file consists of the values of the native bond and dihedral angles, as well as a
+list of native contacts between the residues.</p>
+</div>
+<div class="section" id="sequence-file-format">
+<h2>Sequence file format<a class="headerlink" href="#sequence-file-format" title="Permalink to this headline"></a></h2>
+<p>Sequence file is written in a YAML format with a following “schema”:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
+  <span class="nt">chains</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">list of chain entries</span>
+</pre></div>
+</div>
+<p>where:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">chain</span><span class="p">:</span>
+  <span class="nt">seq</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">string of amino acid codes for the consecutive residues</span>
+  <span class="nt">maps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">list of map entries</span>
+
+<span class="nt">map</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">map-file subnode</span>
+
+<span class="nt">map</span><span class="p">:</span>
+  <span class="nt">__source</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">map-file subnode</span>
+  <span class="nt">shift</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">integer</span>
+
+<span class="nt">map-file</span><span class="p">:</span>
+  <span class="nt">contacts</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">csv file</span>
+  <span class="nt">angles</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">csv file</span>
+  <span class="nt">dihedrals</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">csv file</span>
+</pre></div>
+</div>
+<p>The two formats of <code class="docutils literal notranslate"><span class="pre">map</span></code> entry (an unshifted one and a shifted one) are mutually
+exclusive. The shift is added to all the indices present in the <code class="docutils literal notranslate"><span class="pre">map-file</span></code>.
+The <code class="docutils literal notranslate"><span class="pre">map</span></code> entry of the <code class="docutils literal notranslate"><span class="pre">chain</span></code> node is optional - if missing, the chain is
+intrinsically disordered.</p>
+<p>Regarding the schemas of csv files:</p>
+<ul class="simple">
+<li><p>the schema of the contacts csv file is <code class="docutils literal notranslate"><span class="pre">i1,i2,length</span></code>, where <code class="docutils literal notranslate"><span class="pre">length</span></code> is
+assumed to be in Angstroms, if given without a unit;</p></li>
+<li><p>the schema of the angles csv file is <code class="docutils literal notranslate"><span class="pre">i1,i2,i3,theta</span></code>, where <code class="docutils literal notranslate"><span class="pre">theta</span></code> is
+assumed to be in radians, if given without a unit;</p></li>
+<li><p>thhe schema of the dihedrals csv file is <code class="docutils literal notranslate"><span class="pre">i1,i2,i3,i4,phi</span></code>, where <code class="docutils literal notranslate"><span class="pre">phi</span></code> is
+assumed to be in radians, if left without a unit.</p></li>
+</ul>
+</div>
+<div class="section" id="morphing-the-chains-into-a-self-avoiding-walk">
+<h2>Morphing the chains into a self-avoiding walk<a class="headerlink" href="#morphing-the-chains-into-a-self-avoiding-walk" title="Permalink to this headline"></a></h2>
+<p>Positions of the residues can be set (or overriden in the case of the PDB file)
+into a self-avoiding walk. The parameters for the procedure are:</p>
+<ul class="simple">
+<li><p>The initial residue density, from which an initial simulation box size is
+computed;</p></li>
+<li><p>Bond distance between the residues;</p></li>
+<li><p>Distance threshold for the residues to intersect;</p></li>
+<li><p>Number of retries;</p></li>
+<li><p>Whether the computed simulation box should be used in the simulation or
+discarded.</p></li>
+</ul>
+<p>The procedure itself is as follows:</p>
+<ol class="arabic simple">
+<li><p>For each chain:</p>
+<ol class="arabic simple">
+<li><p>We sample a position from the initial simulation box for the first
+residue in the chain, and sample a random direction in which the next
+residue will be placed.</p></li>
+<li><p>For the remaining residues, we place them at a bond distance from a
+previous residue in the direction of the current direction vector, and
+after that disturb the current direction vector by tilting it by an angle
+drawn uniformly from [<span class="math notranslate nohighlight">\(0\)</span>, <span class="math notranslate nohighlight">\(\pi/3\)</span>] and rotating it round the original
+value by an angle drawn uniformly from [<span class="math notranslate nohighlight">\(0\)</span>, <span class="math notranslate nohighlight">\(2\pi\)</span>]</p></li>
+</ol>
+</li>
+<li><p>We repeat it for all the chains, and after that check if any of the residues
+intersect:</p>
+<ol class="arabic simple">
+<li><p>If they do, we start all over, for at most the given number of retries;</p></li>
+<li><p>Otherwise, we end the procedure;</p></li>
+<li><p>If the number of retries is exceeded, an exception is thrown.</p></li>
+</ol>
+</li>
+</ol>
+</div>
+<div class="section" id="parameter-file-entry">
+<h2>Parameter file entry<a class="headerlink" href="#parameter-file-entry" title="Permalink to this headline"></a></h2>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">input</span><span class="p">:</span>
+  <span class="nt">pdb file</span><span class="p">:</span>
+    <span class="nt">source</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">file</span>
+    <span class="nt">contact deriv</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">one of [only from residues, from all atoms]</span>
+  <span class="nt">seq file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">seq-file subnode</span>
+  <span class="nt">morph into SAW</span><span class="p">:</span>
+    <span class="nt">perform</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">boolean</span>
+    <span class="nt">bond distance</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">quantity [L]</span>
+    <span class="nt">residue density</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">quantity [1/L^3]</span>
+    <span class="nt">intersection at</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">quantity [L]</span>
+    <span class="nt">num of retries</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">integer</span>
+    <span class="nt">infer simulation box</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">boolean</span>
+  <span class="nt">morph into line</span><span class="p">:</span>
+    <span class="nt">perform</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">boolean</span>
+    <span class="nt">bond distance</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">quantity [L]</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">pdb</span> <span class="pre">file</span></code> and <code class="docutils literal notranslate"><span class="pre">seq</span> <span class="pre">file</span></code> entries are mutually exclusive. <code class="docutils literal notranslate"><span class="pre">morph</span> <span class="pre">into</span> <span class="pre">SAW</span></code>
+, <code class="docutils literal notranslate"><span class="pre">morph</span> <span class="pre">into</span> <span class="pre">line</span></code> and <code class="docutils literal notranslate"><span class="pre">contact</span> <span class="pre">deriv</span></code> nodes are optional. Only one
+of <code class="docutils literal notranslate"><span class="pre">morph</span> <span class="pre">into</span> <span class="pre">SAW</span></code> and <code class="docutils literal notranslate"><span class="pre">morph</span> <span class="pre">into</span> <span class="pre">line</span></code> can be enabled.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="yaml.html" class="btn btn-neutral float-left" title="YAML files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tether.html" class="btn btn-neutral float-right" title="Tether pair FF" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jakub Bednarz, IF PAN.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
