@@ -1,13 +1,26 @@
 # User guide
 
-Here is a complete list of features and topics:
+General topics:
 
 ```{toctree}
 :maxdepth: 1
 
 repo
 yaml
+base_forces
+diff
+units
+aa_data
+general
+```
+
+Concrete features:
+
+```{toctree}
+:maxdepth: 1
+
 input
+output
 tether
 chir
 nat_ang
@@ -22,12 +35,6 @@ qa
 pid
 langevin
 nl
-base_forces
 pbar
-aa_data
-general
-units
-output
-diff
 afm
 ```
