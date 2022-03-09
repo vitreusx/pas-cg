@@ -49,4 +49,6 @@ struct parameters {
 
   void load(ioxx::xyaml::node const &from);
 };
+
+ioxx::xyaml::node defaults_yml();
 } // namespace cg::simul

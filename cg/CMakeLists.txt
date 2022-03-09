@@ -1,5 +1,17 @@
 add_executable(cg)
 
+add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/simul/default.yml.h
+    COMMAND xxd -i default.yml >default.yml.h
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/simul/default.yml
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/simul
+)
+
+add_custom_target(defaults ALL
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/simul/default.yml.h)
+
+add_dependencies(cg defaults)
+
 file(GLOB_RECURSE PrivateSources CONFIGURE_DEPENDS
     src/*.cpp src/*.hpp src/*.h src/*.inl)
 
@@ -48,3 +60,4 @@ set_target_properties(cg
     INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 file(COPY data DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+

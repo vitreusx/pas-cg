@@ -42,18 +42,18 @@ Allowed options:
 
 The input to the program consist of the parameter file(s), which allow the user
 to specify the various parameters of the simulation. The (optional) output
-consists of a progress bar and files in the output directory. Usually, there
-will be two parameter files: the defaults (provided with the code), and the
-overrides, so for example we may call:
+consists of a progress bar and files in the output directory. For example, the
+command to run an example simulation could look like:
 
 ```shell
-./cg data/default/inputfile.yml data/${example}/inputfile.yml
+./cg data/${example}/inputfile.yml
 ```
 
-```{warning}
-All the parameters must be included. In particular, unless one modifies the 
-defaults file directly, it is necessary to include it as well as the overrides file.
-```
+The provided parameter/input files contain only the differences from the input
+file with the defaults, which is included by default for the sake of convenience
+and is located at `cg/src/simul/defaults.yml`. To be precise, the implicit
+default parameter file gets overriden by the user-provided parameter files in
+the order in which they are listed.
 
 ## Examples
 
@@ -66,3 +66,7 @@ A number of examples are provided for the purposes of demonstration:
   dihedral custom potential;
 - `glut`: simulation of deforming a box filled with partially structured gluten
   proteins, with the quasi-adiabatic custom potential.
+
+```{warning}
+`glut` example is, at the moment, unfinished.
+```

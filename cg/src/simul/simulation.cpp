@@ -25,7 +25,7 @@ void simulation::parse_args(int argc, char **argv) {
 
 void simulation::load_parameters() {
   using namespace ioxx::xyaml;
-  node whole_params_yml;
+  auto whole_params_yml = defaults_yml();
   for (auto const &param_path : param_paths) {
     auto params_yml = node::import(param_path);
     whole_params_yml.merge(params_yml);
