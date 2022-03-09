@@ -118,17 +118,16 @@ make -j4 cg
 </div>
 <p>The input to the program consist of the parameter file(s), which allow the user
 to specify the various parameters of the simulation. The (optional) output
-consists of a progress bar and files in the output directory. Usually, there
-will be two parameter files: the defaults (provided with the code), and the
-overrides, so for example we may call:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./cg data/default/inputfile.yml data/<span class="si">${</span><span class="nv">example</span><span class="si">}</span>/inputfile.yml
+consists of a progress bar and files in the output directory. For example, the
+command to run an example simulation could look like:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./cg data/<span class="si">${</span><span class="nv">example</span><span class="si">}</span>/inputfile.yml
 </pre></div>
 </div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>All the parameters must be included. In particular, unless one modifies the
-defaults file directly, it is necessary to include it as well as the overrides file.</p>
-</div>
+<p>The provided parameter/input files contain only the differences from the input
+file with the defaults, which is included by default for the sake of convenience
+and is located at <code class="docutils literal notranslate"><span class="pre">cg/src/simul/defaults.yml</span></code>. To be precise, the implicit
+default parameter file gets overriden by the user-provided parameter files in
+the order in which they are listed.</p>
 </div>
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline"></a></h2>
@@ -142,6 +141,10 @@ dihedral custom potential;</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">glut</span></code>: simulation of deforming a box filled with partially structured gluten
 proteins, with the quasi-adiabatic custom potential.</p></li>
 </ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code class="docutils literal notranslate"><span class="pre">glut</span></code> example is, at the moment, unfinished.</p>
+</div>
 </div>
 </div>
 
