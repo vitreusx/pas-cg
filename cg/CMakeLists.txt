@@ -29,15 +29,15 @@ target_compile_options(cg
     $<$<CONFIG:Release>:-Ofast;-march=native>;
     $<$<CONFIG:Debug>:-g>>)
 
-add_subdirectory(ext/ioxx/ioxx)
-add_subdirectory(ext/nitro/nitro)
-add_subdirectory(ext/cparse)
+add_subdirectory(ext/ioxx/ioxx EXCLUDE_FROM_ALL)
+add_subdirectory(ext/nitro/nitro EXCLUDE_FROM_ALL)
+add_subdirectory(ext/cparse EXCLUDE_FROM_ALL)
 
 find_package(OpenMP REQUIRED)
 
-find_package(Eigen3 3.4)
-if (NOT ${EIGEN3_FOUND})
-    add_subdirectory(ext/eigen-3.4.0)
+find_package(Eigen3 3.4 QUIET)
+if (NOT ${Eigen3_FOUND})
+    add_subdirectory(ext/eigen-3.4.0 EXCLUDE_FROM_ALL)
 endif ()
 
 target_link_libraries(cg
@@ -48,9 +48,3 @@ set_target_properties(cg
     INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 file(COPY data DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-
-#add_custom_command(
-#    TARGET cg
-#    POST_BUILD
-#    COMMAND /usr/bin/sh ${CMAKE_CURRENT_SOURCE_DIR}/scripts/gen_asm
-#    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})

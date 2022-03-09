@@ -5,7 +5,12 @@ Atomic Force Microscope (AFM). There are two options available regarding the
 type of the AFM:
 
 - pulling with constant velocity, starting from the original position of the
-  pulled residue and moving in some direction with a given velocity;
+  pulled residue and moving in some direction with a given velocity
+
+```{note}
+The *AFM tip* has the constant velocity, not the residue itself.
+```
+
 - pulling with constant force, which (in effect) adds a given force vector to
   $F_i$.
 
@@ -22,7 +27,7 @@ with given values of $\mathtt{H1}$ and $\mathtt{H2}$.
 ## Parameter file entry
 
 ```yaml
-afm:
+AFM:
   H1: quantity [E/L**2]
   H2: quantity [E/L**4]
   tips:
