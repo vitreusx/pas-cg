@@ -105,7 +105,13 @@ Atomic Force Microscope (AFM). There are two options available regarding the
 type of the AFM:</p>
 <ul class="simple">
 <li><p>pulling with constant velocity, starting from the original position of the
-pulled residue and moving in some direction with a given velocity;</p></li>
+pulled residue and moving in some direction with a given velocity</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <em>AFM tip</em> has the constant velocity, not the residue itself.</p>
+</div>
+<ul class="simple">
 <li><p>pulling with constant force, which (in effect) adds a given force vector to
 <span class="math notranslate nohighlight">\(F_i\)</span>.</p></li>
 </ul>
@@ -120,7 +126,7 @@ given magnitude (since the direction is determined).</p></li>
 with given values of <span class="math notranslate nohighlight">\(\mathtt{H1}\)</span> and <span class="math notranslate nohighlight">\(\mathtt{H2}\)</span>.</p>
 <div class="section" id="parameter-file-entry">
 <h2>Parameter file entry<a class="headerlink" href="#parameter-file-entry" title="Permalink to this headline"></a></h2>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">afm</span><span class="p">:</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">AFM</span><span class="p">:</span>
   <span class="nt">H1</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">quantity [E/L**2]</span>
   <span class="nt">H2</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">quantity [E/L**4]</span>
   <span class="nt">tips</span><span class="p">:</span>
