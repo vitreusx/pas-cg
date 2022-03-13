@@ -1,9 +1,10 @@
 general:
   total time: 100e3 tau
+  equil time: 7500
 
 input:
   seq file:
-    __path: 9aac.yml
+    (at path): 9aac.yml
 
 quasi-adiabatic:
   enabled: false
@@ -18,4 +19,10 @@ lj force variants:
     use sinking variant: true
     per pair:
       depth:
-        __path: mj-matrix.csv
+        (at path): mj-matrix.csv
+
+AFM:
+  tips:
+    - type: const velocity
+      pulled-apart chain: 0
+      magnitude: 5e-3 A/tau

@@ -1,3 +1,7 @@
-#include <cg/simul/simulation.h>
+#include <cg/simul/program.h>
 
-int main(int argc, char **argv) { return cg::simul::simulation()(argc, argv); }
+int main(int argc, char **argv) {
+  auto prog = cg::simul::program();
+  prog.main(argc, argv);
+  return EXIT_SUCCESS;
+}

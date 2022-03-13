@@ -1,5 +1,6 @@
 general:
   total time: 3e6 tau
+  equil time: 0 tau
   seed: 42
   num of threads: 4
   debug mode: false
@@ -379,6 +380,7 @@ lj force variants:
 pseudo-improper dihedral:
   enabled: false
   lambda version: cosine
+  include separated by 4: true
   bb+:
     alpha: 6.4 1/rad
     psi_0: 1.05 rad
@@ -401,6 +403,7 @@ quasi-adiabatic:
   min |cos(h, r)|: 0.92
   min |cos(h, h)| for bb: 0.75
   max cos(n, r): 0.5
+  include separated by 4: true
   disulfides:
     force:
       harmonic:

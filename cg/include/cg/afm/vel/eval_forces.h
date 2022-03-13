@@ -10,7 +10,7 @@ public:
 public:
   nitro::const_view<vec3r> r;
   nitro::view<vec3r> F;
-  real *t;
+  real *t, *V;
   nitro::const_view<tip> afm_tips;
 
 public:

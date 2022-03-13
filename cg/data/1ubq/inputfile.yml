@@ -1,10 +1,11 @@
 general:
   total time: 15e3 tau
+  num of threads: 4
 
 input:
   pdb file:
     source:
-      __path: 1ubq.pdb
+      (at path): 1ubq.pdb
     contact deriv: from all atoms
   morph into SAW:
     perform: true

@@ -5,7 +5,7 @@
 
 namespace cg::pid {
 struct parameters {
-  bool enabled;
+  bool enabled, include4;
 
   pid::lambda_version lambda_version;
 

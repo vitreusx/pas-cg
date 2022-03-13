@@ -2,7 +2,6 @@
 #include "dynamics.h"
 #include "kernels.h"
 #include "parameters.h"
-#include "thread_state.h"
 #include <cg/amino/compiled.h>
 #include <cg/input/model.h>
 #include <cg/utils/random.h>
@@ -13,22 +12,23 @@
 #include <thread>
 
 namespace cg::simul {
-class simulation {
-private:
-  std::vector<std::string> param_paths;
-  void parse_args(int argc, char **argv);
-
+class state {
+public:
   parameters params;
-  void load_parameters();
 
+  bool did_overall_setup = false;
+  void overall_setup();
+
+  bool is_running;
   rand_gen gen;
-  void general_setup();
+  real total_time, equil_time;
+  void setup_gen();
 
   input::model orig_model, model;
-  void load_model();
-
   input::model::res_map_t res_map;
   int num_res;
+  void load_model();
+
   nitro::vector<vec3r> orig_r, r;
   nitro::vector<amino_acid> atype;
   compiled_aa_data comp_aa_data;
@@ -40,11 +40,8 @@ private:
   dynamics dyn;
   void setup_dyn();
 
-  kernels ker;
-
   real report_last_t;
   out::report_state report;
-  std::vector<out::hook const *> hooks;
   void setup_output();
 
   nitro::vector<real> mass_inv, mass_rsqrt;
@@ -83,10 +80,12 @@ private:
   void setup_heur_dih();
 
   nitro::vector<pauli::pair> pauli_pairs;
+  real pauli_cutoff;
   void setup_pauli();
 
   nitro::vector<nat_cont::nat_cont> all_native_contacts, cur_native_contacts;
   nitro::vector<nl::exclusion> nat_cont_excl;
+  real nat_cont_cutoff;
   void setup_nat_cont();
 
   nitro::vector<dh::pair> dh_pairs;
@@ -102,37 +101,21 @@ private:
   nitro::vector<int> neigh_count, cys_indices, qa_removed;
   nitro::vector<bool> part_of_ssbond;
   int num_qa_contacts;
+  real qa_cutoff;
   void setup_qa();
 
   nitro::vector<pid::bundle> pid_bundles;
   nitro::vector<sink_lj> ss_ljs;
+  real pid_cutoff;
   void setup_pid();
+
+public:
+  bool post_equil = false;
+  bool did_post_equil_setup = false;
+  void post_equil_setup();
 
   nitro::vector<afm::vel::tip> vel_afm_tips;
   nitro::vector<afm::force::tip> force_afm_tips;
   void setup_afm();
-
-  void setup(int argc, char **argv);
-
-  class thread {
-  public:
-    thread() = default;
-    explicit thread(simulation *simul);
-    void main_async();
-
-  private:
-    dynamics dyn;
-    rand_gen gen;
-    kernels ker;
-    parameters params;
-    simulation *simul;
-
-    void async_part();
-    void sync_part(bool pre_loop = false);
-    void on_nl_invalidation();
-  };
-
-public:
-  int operator()(int argc, char **argv);
 };
 } // namespace cg::simul

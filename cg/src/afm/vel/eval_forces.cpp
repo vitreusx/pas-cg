@@ -15,7 +15,8 @@ template <typename E> void eval_forces::iter(tip_expr<E> const &tip) const {
   auto r_afm_n = norm(r_afm), r_afm_rn = 1.0f / r_afm_n;
   auto r_afm_u = r_afm * r_afm_rn;
 
-  auto [_, dV_dr] = afm_force(r_afm_n);
+  auto [V_, dV_dr] = afm_force(r_afm_n);
+  *V += V_;
   F[tip.res_idx()] += dV_dr * r_afm_u;
 }
 
