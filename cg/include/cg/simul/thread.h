@@ -108,6 +108,7 @@ public:
 
   afm::force::eval_forces eval_force_afm_forces;
   afm::vel::eval_forces eval_vel_afm_forces;
+  afm::report_stats report_afm_stats;
   void setup_afm();
 };
 } // namespace cg::simul

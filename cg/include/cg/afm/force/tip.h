@@ -12,7 +12,7 @@ template <typename E> struct tip_auto_expr : public tip_expr<E> {
 
 using tip_base = nitro::tuple_wrapper<int, vec3r>;
 
-class tip : public tip_expr<tip>, public tip_base {
+class tip : public tip_auto_expr<tip>, public tip_base {
 public:
   using Base = tip_base;
   using Base::Base;

@@ -17,5 +17,6 @@ public:
   template <typename E> void iter(tip_expr<E> const &tip) const;
   void operator()() const;
   void omp_async() const;
+  real compute_force(vel::tip const &tip) const;
 };
 } // namespace cg::afm::vel

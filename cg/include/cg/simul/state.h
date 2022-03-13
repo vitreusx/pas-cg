@@ -2,6 +2,7 @@
 #include "dynamics.h"
 #include "kernels.h"
 #include "parameters.h"
+#include <cg/afm/compiled.h>
 #include <cg/amino/compiled.h>
 #include <cg/input/model.h>
 #include <cg/utils/random.h>
@@ -101,12 +102,10 @@ public:
   nitro::vector<int> neigh_count, cys_indices, qa_removed;
   nitro::vector<bool> part_of_ssbond;
   int num_qa_contacts;
-  real qa_cutoff;
   void setup_qa();
 
   nitro::vector<pid::bundle> pid_bundles;
   nitro::vector<sink_lj> ss_ljs;
-  real pid_cutoff;
   void setup_pid();
 
 public:
@@ -114,8 +113,7 @@ public:
   bool did_post_equil_setup = false;
   void post_equil_setup();
 
-  nitro::vector<afm::vel::tip> vel_afm_tips;
-  nitro::vector<afm::force::tip> force_afm_tips;
+  afm::compiled_tips afm_tips;
   void setup_afm();
 };
 } // namespace cg::simul

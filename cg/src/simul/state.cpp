@@ -339,25 +339,28 @@ void state::setup_afm() {
     for (auto const &tip : params.afm.tips) {
       if (std::holds_alternative<afm::parameters::single_res_t>(tip)) {
         auto const &tip_v = std::get<afm::parameters::single_res_t>(tip);
+
         if (tip_v.type == afm::parameters::tip_type::CONST_VEL) {
           auto orig = r[tip_v.res_idx];
-          vel_afm_tips.emplace_back(tip_v.res_idx, orig, (vec3r)tip_v.dir);
+          afm_tips.vel.emplace_back(tip_v.res_idx, orig, (vec3r)tip_v.dir);
         } else {
-          force_afm_tips.emplace_back(tip_v.res_idx, (vec3r)tip_v.dir);
+          afm_tips.force.emplace_back(tip_v.res_idx, (vec3r)tip_v.dir);
         }
+
       } else {
         auto const &tip_v = std::get<afm::parameters::pulled_apart_t>(tip);
+        afm_tips.pulled_chains.push_back(tip_v.chain_idx);
         auto first = chain_first[tip_v.chain_idx],
              last = chain_last[tip_v.chain_idx];
         auto r_first = r[first], r_last = r[last];
         auto dir = unit(r_last - r_first);
 
         if (tip_v.type == afm::parameters::tip_type::CONST_VEL) {
-          vel_afm_tips.emplace_back(first, r_first, -dir * tip_v.mag);
-          vel_afm_tips.emplace_back(last, r_last, dir * tip_v.mag);
+          afm_tips.vel.emplace_back(first, r_first, -dir * tip_v.mag);
+          afm_tips.vel.emplace_back(last, r_last, dir * tip_v.mag);
         } else {
-          force_afm_tips.emplace_back(first, -dir * tip_v.mag);
-          force_afm_tips.emplace_back(last, dir * tip_v.mag);
+          afm_tips.force.emplace_back(first, -dir * tip_v.mag);
+          afm_tips.force.emplace_back(last, dir * tip_v.mag);
         }
       }
     }

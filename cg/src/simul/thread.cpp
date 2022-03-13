@@ -524,19 +524,30 @@ void thread::setup_pid() {
 void thread::post_equil_setup() { setup_afm(); }
 
 void thread::setup_afm() {
-  if (!params.afm.tips.empty()) {
+  if (!params.afm.enabled) {
     auto &vel_eval = eval_vel_afm_forces;
     vel_eval.r = st.r.view();
     vel_eval.t = &st.t;
     vel_eval.afm_force.H1 = params.afm.H1;
     vel_eval.afm_force.H2 = params.afm.H2;
-    vel_eval.afm_tips = st.vel_afm_tips.view();
+    vel_eval.afm_tips = st.afm_tips.vel.view();
     vel_eval.V = &dyn.V;
     vel_eval.F = dyn.F.view();
 
     auto &force_eval = eval_force_afm_forces;
-    force_eval.afm_tips = st.force_afm_tips.view();
+    force_eval.afm_tips = st.afm_tips.force.view();
     force_eval.F = dyn.F.view();
+
+    if (params.out.enabled) {
+      auto &report = report_afm_stats;
+      report.tips = &st.afm_tips;
+      report.r = st.r.view();
+      report.v = st.v.view();
+      report.eval_vel_forces = &eval_vel_afm_forces;
+      report.chain_first = st.chain_first.view();
+      report.chain_last = st.chain_last.view();
+      hooks.push_back(&report);
+    }
   }
 }
 
