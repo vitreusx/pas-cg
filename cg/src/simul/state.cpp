@@ -9,7 +9,8 @@ void state::simul_setup() {
   gen = rand_gen(params.gen.seed);
 
   report.out_dir = params.out.output_dir;
-  report_last_t = std::numeric_limits<real>::lowest();
+  report.last_stats_t = std::numeric_limits<real>::lowest();
+  report.last_files_t = report.last_stats_t;
   report.traj_idx = &traj_idx;
   report.simul_first_time = true;
 
@@ -131,9 +132,7 @@ void state::setup_dyn() {
   dyn = dynamics(num_res);
 }
 
-void state::setup_output() {
-  report.traj_first_time = true;
-}
+void state::setup_output() { report.traj_first_time = true; }
 
 void state::setup_langevin() {
   auto &mass = comp_aa_data.mass;
@@ -284,6 +283,9 @@ void state::setup_pauli() {
 }
 
 void state::setup_nat_cont() {
+  if (model.contacts.empty())
+    params.nat_cont.enabled = false;
+
   if (params.nat_cont.enabled) {
     for (int idx = 0; idx < (int)model.contacts.size(); ++idx) {
       auto const &cont = model.contacts[idx];
@@ -307,7 +309,6 @@ void state::setup_nat_cont() {
 }
 
 void state::setup_dh() {
-
   if (params.const_dh.enabled || params.rel_dh.enabled) {
     nl_required = true;
 

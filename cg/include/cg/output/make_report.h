@@ -7,9 +7,9 @@ namespace cg::out {
 
 class make_report {
 public:
-  real period;
-  real *t, *last_t;
-  report_state *state;
+  real stats_period, file_period;
+  real *t;
+  report_data *state;
   std::vector<hook const *> const *hooks;
 
 public:

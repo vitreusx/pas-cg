@@ -43,26 +43,34 @@ bool report_stuff::is_active(nat_cont cont) const {
   return cur_dist(cont) < cont.nat_dist() * params->active_thr;
 }
 
-void report_stuff::report_to(out::report_state &report) const {
+void report_stuff::report_to(out::report_data &report) const {
   auto &nc_node = report.for_step["native contacts"];
 
-  ioxx::xyaml::csv<nat_cont_row> nat_conts_file;
-  nat_conts_file.path = "nat_conts.csv";
-  nat_conts_file.data.header = {"i1",        "chain1",      "i2",
-                                "chain2",    "nat_dist[A]", "cur_dist[A]",
-                                "is active", "formed once", "formation time"};
+  if (report.report_files) {
+    ioxx::xyaml::csv<nat_cont_row> nat_conts_file;
+    nat_conts_file.path = "nat_conts.csv";
+    nat_conts_file.data.header = {"i1",        "chain1",      "i2",
+                                  "chain2",    "nat_dist[A]", "cur_dist[A]",
+                                  "is active", "formed once", "formation time"};
+
+    for (int idx = 0; idx < all_contacts.size(); ++idx) {
+      auto cont = all_contacts[idx];
+      nat_cont_row row(cont, *this);
+      nat_conts_file.data.rows.push_back(row);
+    }
+
+    nc_node["contacts"] = nat_conts_file;
+  }
 
   contact_count num_all, num_bb, num_bs, num_ss, num_ssbond;
 
   for (int idx = 0; idx < all_contacts.size(); ++idx) {
     auto cont = all_contacts[idx];
-    nat_cont_row row(cont, *this);
-    nat_conts_file.data.rows.push_back(row);
     if (is_active(cont)) {
-      auto count_type = chain_idx[row.cont.i1()] == chain_idx[row.cont.i2()]
+      auto count_type = chain_idx[cont.i1()] == chain_idx[cont.i2()]
                             ? count_type::INTRA
                             : count_type::INTER;
-
+ 
       ++num_all[count_type];
       switch (cont.type()) {
       case type::BACK_BACK:
@@ -82,7 +90,6 @@ void report_stuff::report_to(out::report_state &report) const {
       }
     }
   }
-  nc_node["contacts"] = nat_conts_file;
 
   auto &active_node = nc_node["num of active contacts"];
   active_node["all"] = num_all.all();

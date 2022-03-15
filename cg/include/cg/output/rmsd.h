@@ -8,6 +8,6 @@ public:
   nitro::const_view<vec3r> orig_r, cur_r;
 
 public:
-  void report_to(report_state &report) const override;
+  void report_to(report_data &report) const override;
 };
 } // namespace cg::out

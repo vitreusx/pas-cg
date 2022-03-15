@@ -12,6 +12,6 @@ public:
   nitro::const_view<int> chain_first, chain_last;
 
 public:
-  void report_to(out::report_state &report) const override;
+  void report_to(out::report_data &report) const override;
 };
 } // namespace cg::afm

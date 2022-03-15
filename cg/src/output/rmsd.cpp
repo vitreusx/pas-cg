@@ -9,7 +9,7 @@ template <typename T> int sign(T const &value) {
   return (T(0) < value) - (value < T(0));
 }
 
-void compute_rmsd::report_to(report_state &report) const {
+void compute_rmsd::report_to(report_data &report) const {
   int n = orig_r.size();
   Eigen::MatrixX3d orig_R(n, 3), cur_R(n, 3);
   for (int idx = 0; idx < n; ++idx) {

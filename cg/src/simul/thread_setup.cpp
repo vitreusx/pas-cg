@@ -42,9 +42,9 @@ void thread::setup_dyn() { dyn = dynamics(st.num_res); }
 
 void thread::setup_output() {
   if (params.out.enabled) {
-    make_report.period = params.out.period;
+    make_report.stats_period = params.out.stats_period;
+    make_report.file_period = params.out.file_period;
     make_report.t = &st.t;
-    make_report.last_t = &st.report_last_t;
     make_report.hooks = &hooks;
     make_report.state = &st.report;
 
@@ -549,7 +549,7 @@ void thread::setup_pid() {
 void thread::post_equil_setup() { setup_afm(); }
 
 void thread::setup_afm() {
-  if (!params.afm.enabled) {
+  if (params.afm.enabled) {
     auto &vel_eval = eval_vel_afm_forces;
     vel_eval.r = st.r.view();
     vel_eval.t = &st.t;

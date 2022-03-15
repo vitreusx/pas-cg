@@ -66,47 +66,49 @@ struct dihedral_row {
   }
 };
 
-void add_structure::report_to(report_state &report) const {
-  ioxx::xyaml::csv<tether_row> tether_file;
-  tether_file.path = "tethers.csv";
-  tether_file.data.header = {"i1", "i2", "dist[A]", "nat_dist[A]"};
-  for (auto const &tether : model->tethers) {
-    tether_row row;
-    row.i1 = res_map->at(tether.res1);
-    row.i2 = res_map->at(tether.res2);
-    row.dist = tether_value(r[row.i1], r[row.i2]);
-    row.nat_dist = tether.length;
-    tether_file.data.rows.push_back(row);
-  }
-  report.for_step["tethers"] = tether_file;
+void add_structure::report_to(report_data &report) const {
+  if (report.report_files) {
+    ioxx::xyaml::csv<tether_row> tether_file;
+    tether_file.path = "tethers.csv";
+    tether_file.data.header = {"i1", "i2", "dist[A]", "nat_dist[A]"};
+    for (auto const &tether : model->tethers) {
+      tether_row row;
+      row.i1 = res_map->at(tether.res1);
+      row.i2 = res_map->at(tether.res2);
+      row.dist = tether_value(r[row.i1], r[row.i2]);
+      row.nat_dist = tether.length;
+      tether_file.data.rows.push_back(row);
+    }
+    report.for_step["tethers"] = tether_file;
 
-  ioxx::xyaml::csv<angle_row> angle_file;
-  angle_file.path = "angles.csv";
-  angle_file.data.header = {"i1", "i2", "i3", "theta[rad]", "nat_theta[rad]"};
-  for (auto const &angle : model->angles) {
-    angle_row row;
-    row.i1 = res_map->at(angle.res1);
-    row.i2 = res_map->at(angle.res2);
-    row.i3 = res_map->at(angle.res3);
-    row.theta = angle_value(r[row.i1], r[row.i2], r[row.i3]);
-    row.nat_theta = angle.theta;
-    angle_file.data.rows.push_back(row);
-  }
-  report.for_step["angles"] = angle_file;
+    ioxx::xyaml::csv<angle_row> angle_file;
+    angle_file.path = "angles.csv";
+    angle_file.data.header = {"i1", "i2", "i3", "theta[rad]", "nat_theta[rad]"};
+    for (auto const &angle : model->angles) {
+      angle_row row;
+      row.i1 = res_map->at(angle.res1);
+      row.i2 = res_map->at(angle.res2);
+      row.i3 = res_map->at(angle.res3);
+      row.theta = angle_value(r[row.i1], r[row.i2], r[row.i3]);
+      row.nat_theta = angle.theta;
+      angle_file.data.rows.push_back(row);
+    }
+    report.for_step["angles"] = angle_file;
 
-  ioxx::xyaml::csv<dihedral_row> dih_file;
-  dih_file.path = "dihedrals.csv";
-  dih_file.data.header = {"i1", "i2", "i3", "i4", "phi[rad]", "nat_phi[rad]"};
-  for (auto const &dih : model->dihedrals) {
-    dihedral_row row;
-    row.i1 = res_map->at(dih.res1);
-    row.i2 = res_map->at(dih.res2);
-    row.i3 = res_map->at(dih.res3);
-    row.i4 = res_map->at(dih.res4);
-    row.phi = dihedral_value(r[row.i1], r[row.i2], r[row.i3], r[row.i4]);
-    row.nat_phi = dih.phi;
-    dih_file.data.rows.push_back(row);
+    ioxx::xyaml::csv<dihedral_row> dih_file;
+    dih_file.path = "dihedrals.csv";
+    dih_file.data.header = {"i1", "i2", "i3", "i4", "phi[rad]", "nat_phi[rad]"};
+    for (auto const &dih : model->dihedrals) {
+      dihedral_row row;
+      row.i1 = res_map->at(dih.res1);
+      row.i2 = res_map->at(dih.res2);
+      row.i3 = res_map->at(dih.res3);
+      row.i4 = res_map->at(dih.res4);
+      row.phi = dihedral_value(r[row.i1], r[row.i2], r[row.i3], r[row.i4]);
+      row.nat_phi = dih.phi;
+      dih_file.data.rows.push_back(row);
+    }
+    report.for_step["dihedrals"] = dih_file;
   }
-  report.for_step["dihedrals"] = dih_file;
 }
 } // namespace cg::out

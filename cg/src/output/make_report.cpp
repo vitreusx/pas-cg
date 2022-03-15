@@ -2,26 +2,28 @@
 namespace cg::out {
 
 void make_report::operator()() const {
-
-  bool gen_report = false;
-
   if (state->simul_first_time)
     state->simul_init();
 
-  if (state->traj_first_time) {
+  if (state->traj_first_time)
     state->traj_init();
-    gen_report = true;
-  }
 
-  gen_report |= (*t - *last_t >= period);
+  state->report_stats =
+      state->traj_first_time || (*t - state->last_stats_t >= stats_period);
+  state->report_files =
+      state->traj_first_time || (*t - state->last_files_t >= file_period);
 
-  if (gen_report) {
+  if (state->report_stats || state->report_files) {
     state->step_init();
+
     for (auto const *hook : *hooks)
       hook->report_to(*state);
     state->step_finish();
 
-    *last_t = *t;
+    if (state->report_stats)
+      state->last_stats_t = *t;
+    if (state->report_files)
+      state->last_files_t = *t;
   }
 
   state->traj_first_time = false;

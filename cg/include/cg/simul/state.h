@@ -47,8 +47,7 @@ public:
   dynamics dyn;
   void setup_dyn();
 
-  real report_last_t;
-  out::report_state report;
+  out::report_data report;
   void setup_output();
 
   nitro::vector<real> mass_inv, mass_rsqrt;

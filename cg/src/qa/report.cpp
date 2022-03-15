@@ -63,32 +63,36 @@ struct contact_count {
   }
 };
 
-void report_qa_stuff::report_to(out::report_state &report) const {
+void report_qa_stuff::report_to(out::report_data &report) const {
   auto &qa_node = report.for_step["quasi-adiabatic"];
 
-  ioxx::xyaml::csv<sync_values_row> sync_values_file;
-  sync_values_file.path = "sync_values.csv";
-  sync_values_file.data.header = {"idx", "back", "side (all)",
-                                  "side (hydrophobic)", "side (polar)"};
-  for (int idx = 0; idx < sync_values.size(); ++idx) {
-    sync_values_row row;
-    row.idx = idx;
-    row.sync = sync_values[idx];
-    sync_values_file.data.rows.push_back(row);
-  }
-  qa_node["sync values"] = sync_values_file;
-
-  ioxx::xyaml::csv<qa_contact_row> contacts_file;
-  contacts_file.path = "qa_contacts.csv";
-  contacts_file.data.header = {
-      "i1", "i2", "type", "status", "ref_time[tau]", "saturation"};
-  for (int idx = 0; idx < contacts->size(); ++idx) {
-    if (contacts->at(idx).has_item()) {
-      auto row = qa_contact_row(contacts->at(idx).item(), process_cont);
-      contacts_file.data.rows.push_back(row);
+  if (report.report_files) {
+    ioxx::xyaml::csv<sync_values_row> sync_values_file;
+    sync_values_file.path = "sync_values.csv";
+    sync_values_file.data.header = {"idx", "back", "side (all)",
+                                    "side (hydrophobic)", "side (polar)"};
+    for (int idx = 0; idx < sync_values.size(); ++idx) {
+      sync_values_row row;
+      row.idx = idx;
+      row.sync = sync_values[idx];
+      sync_values_file.data.rows.push_back(row);
     }
+
+    qa_node["sync values"] = sync_values_file;
+
+    ioxx::xyaml::csv<qa_contact_row> contacts_file;
+    contacts_file.path = "qa_contacts.csv";
+    contacts_file.data.header = {
+        "i1", "i2", "type", "status", "ref_time[tau]", "saturation"};
+    for (int idx = 0; idx < contacts->size(); ++idx) {
+      if (contacts->at(idx).has_item()) {
+        auto row = qa_contact_row(contacts->at(idx).item(), process_cont);
+        contacts_file.data.rows.push_back(row);
+      }
+    }
+
+    qa_node["contacts"] = contacts_file;
   }
-  qa_node["contacts"] = contacts_file;
 
   contact_count num_all, num_bb, num_bs, num_ss, num_dyn_ss;
   for (int idx = 0; idx < contacts->size(); ++idx) {
@@ -116,18 +120,28 @@ void report_qa_stuff::report_to(out::report_state &report) const {
   }
 
   auto &active_node = qa_node["num of active contacts"];
-  active_node["all"] = num_all.all();
+  report.add_step_scalar("qa-all", active_node["all"], num_all.all());
   active_node["back-back"] = num_bb.all();
-  active_node["back-back (intra)"] = num_bb[count_type::INTRA];
-  active_node["back-back (inter)"] = num_bb[count_type::INTER];
+  report.add_step_scalar("qa-b1-b1", active_node["back-back (intra)"],
+                         num_bb[count_type::INTRA]);
+  report.add_step_scalar("qa-b1-b2", active_node["back-back (inter)"],
+                         num_bb[count_type::INTER]);
   active_node["back-side"] = num_bs.all();
-  active_node["back-side (intra)"] = num_bs[count_type::INTRA];
-  active_node["back-side (inter)"] = num_bs[count_type::INTER];
+  report.add_step_scalar("qa-b1-s1", active_node["back-side (intra)"],
+                         num_bs[count_type::INTRA]);
+  report.add_step_scalar("qa-b1-s2", active_node["back-side (inter)"],
+                         num_bs[count_type::INTER]);
   active_node["side-side"] = num_ss.all();
-  active_node["side-side (intra)"] = num_ss[count_type::INTRA];
-  active_node["side-side (inter)"] = num_ss[count_type::INTER];
+  report.add_step_scalar("qa-s1-s1", active_node["side-side (intra)"],
+                         num_ss[count_type::INTRA]);
+  report.add_step_scalar("qa-s1-s2", active_node["side-side (inter)"],
+                         num_ss[count_type::INTER]);
   active_node["dynamic ssbonds"] = num_dyn_ss.all();
-  active_node["dynamic ssbonds (intra)"] = num_dyn_ss[count_type::INTRA];
-  active_node["dynamic ssbonds (inter)"] = num_dyn_ss[count_type::INTER];
+  report.add_step_scalar("qa-dynss-intra",
+                         active_node["dynamic ssbonds (intra)"],
+                         num_dyn_ss[count_type::INTRA]);
+  report.add_step_scalar("qa-dynss-inter",
+                         active_node["dynamic ssbonds (inter)"],
+                         num_dyn_ss[count_type::INTER]);
 }
 } // namespace cg::qa

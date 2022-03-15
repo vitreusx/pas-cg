@@ -15,6 +15,6 @@ public:
   bool is_active(nat_cont cont) const;
 
 public:
-  void report_to(out::report_state &report) const override;
+  void report_to(out::report_data &report) const override;
 };
 } // namespace cg::nat_cont
