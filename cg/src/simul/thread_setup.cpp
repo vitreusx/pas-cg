@@ -80,7 +80,7 @@ void thread::setup_langevin() {
                      ? (lang::step_base &)lang_step
                      : (lang::step_base &)lang_legacy_step;
 
-    step.temperature = params.lang.temperature;
+    step.temperature = st.temperature;
     step.t = &st.t;
     step.dt = params.lang.dt;
     step.gamma_factor = params.lang.gamma;

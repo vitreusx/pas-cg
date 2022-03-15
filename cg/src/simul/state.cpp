@@ -154,6 +154,19 @@ void state::setup_langevin() {
     y0[idx] = r[idx];
 
   true_t = t;
+
+  if (std::holds_alternative<quantity>(params.lang.temperature)) {
+    auto temp = std::get<quantity>(params.lang.temperature);
+    temperature = temp;
+  }
+  else {
+    auto [temp_start_q, temp_end_q] = std::get<lang::parameters::quantity_range>(
+        params.lang.temperature);
+    real temp_start = temp_start_q, temp_end = temp_end_q;
+
+    auto w = (real)traj_idx / (real)(params.gen.num_of_traj - 1);
+    temperature = temp_start * w + temp_end * ((real)1.0 - w);
+  }
 }
 
 void state::setup_pbar() {

@@ -57,6 +57,7 @@ public:
   nitro::vector<vec3r> v;
   nitro::vector<vec3sr> y0, y1, y2, y3, y4, y5;
   solver_real true_t;
+  real temperature;
   void setup_langevin();
 
   bool pbar_first_time;
