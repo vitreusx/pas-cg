@@ -7,6 +7,12 @@ void state::simul_setup() {
   equil_time = params.gen.equil_time;
   traj_idx = 0;
   gen = rand_gen(params.gen.seed);
+
+  report.out_dir = params.out.output_dir;
+  report_last_t = std::numeric_limits<real>::lowest();
+  report.traj_idx = &traj_idx;
+  report.simul_first_time = true;
+
   load_model();
 }
 
@@ -126,10 +132,7 @@ void state::setup_dyn() {
 }
 
 void state::setup_output() {
-  report.out_dir = params.out.output_dir;
-  report_last_t = std::numeric_limits<real>::lowest();
-  report.traj_idx = &traj_idx;
-  report.on_new_trajectory();
+  report.traj_first_time = true;
 }
 
 void state::setup_langevin() {
