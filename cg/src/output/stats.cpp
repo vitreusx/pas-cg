@@ -17,7 +17,7 @@ struct chain_row {
 };
 
 void add_stats::report_to(report_state &report) const {
-  auto stats_node = report.current["stats"];
+  auto stats_node = report.for_step["stats"];
   stats_node["t"] = *t;
   stats_node["V"] = *V;
 
@@ -42,6 +42,6 @@ void add_stats::report_to(report_state &report) const {
     row.end_to_end_dist = quantity(dist).in("A");
     chains_csv.data.rows.push_back(row);
   }
-  report.current["chains"] = chains_csv;
+  report.for_step["chains"] = chains_csv;
 }
 } // namespace cg::out

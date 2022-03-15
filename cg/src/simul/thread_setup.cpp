@@ -3,7 +3,7 @@ namespace cg::simul {
 
 thread::thread(state &st) : st{st}, params{st.params} {}
 
-void thread::overall_setup() {
+void thread::traj_setup() {
   setup_gen();
   setup_dyn();
   setup_output();
@@ -20,6 +20,11 @@ void thread::overall_setup() {
   setup_dh();
   setup_qa();
   setup_pid();
+}
+
+void thread::finish_trajectory() {
+  did_traj_setup = false;
+  did_post_equil_setup = false;
 }
 
 void thread::setup_gen() {

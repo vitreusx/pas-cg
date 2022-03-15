@@ -17,18 +17,26 @@ class state {
 public:
   parameters params;
 
-  bool did_overall_setup = false;
-  void overall_setup();
-
+  bool did_simul_setup = false;
   bool is_running;
-  rand_gen gen;
   real total_time, equil_time;
-  void setup_gen();
+  void simul_setup();
 
-  input::model orig_model, model;
-  input::model::res_map_t res_map;
+  input::model orig_model;
   int num_res;
   void load_model();
+
+  bool did_traj_setup = false;
+  int traj_idx;
+  void traj_setup();
+  void finish_trajectory();
+
+  rand_gen gen;
+  void setup_gen();
+
+  input::model model;
+  input::model::res_map_t res_map;
+  void morph_model();
 
   nitro::vector<vec3r> orig_r, r;
   nitro::vector<amino_acid> atype;

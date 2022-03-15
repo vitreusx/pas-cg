@@ -13,7 +13,7 @@ void report_gyration_stuff::report_to(report_state &report) const {
   Eigen::Vector3d lambda =
       Eigen::JacobiSVD<decltype(positions)>(positions).singularValues();
 
-  auto node = report.current["kinematics"];
+  auto node = report.for_step["kinematics"];
   node["lambda"] = vec3r(lambda);
   node["radius of gyration"] = lambda.norm();
   node["asphericity"] =

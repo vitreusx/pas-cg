@@ -27,6 +27,6 @@ void compute_rmsd::report_to(report_state &report) const {
   auto R = V * Eigen::Vector3d(1, 1, d).asDiagonal() * U.transpose();
 
   auto rmsd = sqrt((cur_R * R - orig_R).rowwise().squaredNorm().sum());
-  report.current["stats"]["root mean square deviation"] = rmsd;
+  report.for_step["stats"]["root mean square deviation"] = rmsd;
 }
 } // namespace cg::out

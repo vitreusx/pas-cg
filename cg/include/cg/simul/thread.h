@@ -25,8 +25,9 @@ public:
   parameters const &params;
 
 public:
-  bool did_overall_setup = false;
-  void overall_setup();
+  bool did_traj_setup = false;
+  void traj_setup();
+  void finish_trajectory();
 
   rand_gen gen;
   void setup_gen();

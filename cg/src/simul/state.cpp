@@ -1,9 +1,34 @@
 #include "simul/state.h"
 namespace cg::simul {
 
-void state::overall_setup() {
-  setup_gen();
+void state::simul_setup() {
+  is_running = true;
+  total_time = params.gen.total_time;
+  equil_time = params.gen.equil_time;
+  traj_idx = 0;
   load_model();
+}
+
+void state::load_model() {
+  auto &model_file_v = params.input.source;
+  if (std::holds_alternative<input::parameters::pdb_source>(model_file_v)) {
+    auto const &source = std::get<input::parameters::pdb_source>(model_file_v);
+    auto file = source.file;
+    if (source.deriv) {
+      auto all_atoms = source.deriv == pdb_file::contact_deriv::FROM_ATOMS;
+      file.add_contacts(params.aa_data, all_atoms);
+    }
+    orig_model = file.to_model();
+  } else {
+    auto &file = std::get<seq_file>(model_file_v);
+    orig_model = std::move(file.model);
+  }
+  num_res = (int)orig_model.residues.size();
+}
+
+void state::traj_setup() {
+  setup_gen();
+  morph_model();
   compile_model();
   setup_dyn();
   setup_output();
@@ -23,22 +48,20 @@ void state::overall_setup() {
   setup_pid();
 }
 
-void state::load_model() {
-  auto &model_file_v = params.input.source;
-  if (std::holds_alternative<input::parameters::pdb_source>(model_file_v)) {
-    auto const &source = std::get<input::parameters::pdb_source>(model_file_v);
-    auto file = source.file;
-    if (source.deriv) {
-      auto all_atoms = source.deriv == pdb_file::contact_deriv::FROM_ATOMS;
-      file.add_contacts(params.aa_data, all_atoms);
-    }
-    model = file.to_model();
-  } else {
-    auto &file = std::get<seq_file>(model_file_v);
-    model = std::move(file.model);
-  }
+void state::finish_trajectory() {
+  did_traj_setup = false;
+  did_post_equil_setup = false;
+  ++traj_idx;
+}
 
-  orig_model = model;
+void state::setup_gen() {
+  is_running = true;
+  gen = rand_gen(params.gen.seed);
+}
+
+void state::morph_model() {
+  model = orig_model;
+
   if (params.input.morph_into_saw.has_value()) {
     auto &saw_p = params.input.morph_into_saw.value();
     if (saw_p.perform)
@@ -47,8 +70,6 @@ void state::load_model() {
   if (params.input.morph_into_line.has_value()) {
     model.morph_into_line(params.input.morph_into_line.value());
   }
-
-  num_res = (int)model.residues.size();
 }
 
 void state::compile_model() {
@@ -109,10 +130,10 @@ void state::setup_dyn() {
 }
 
 void state::setup_output() {
-  report.first_time = true;
-  report.ord = 0;
-  report.output_dir = params.out.output_dir;
+  report.out_dir = params.out.output_dir;
   report_last_t = std::numeric_limits<real>::lowest();
+  report.traj_idx = &traj_idx;
+  report.on_new_trajectory();
 }
 
 void state::setup_langevin() {
@@ -370,12 +391,5 @@ void state::setup_afm() {
 void state::post_equil_setup() {
   setup_afm();
   post_equil = true;
-}
-
-void state::setup_gen() {
-  is_running = true;
-  total_time = params.gen.total_time;
-  equil_time = params.gen.equil_time;
-  gen = rand_gen(params.gen.seed);
 }
 } // namespace cg::simul

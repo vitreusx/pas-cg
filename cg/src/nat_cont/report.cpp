@@ -44,7 +44,7 @@ bool report_stuff::is_active(nat_cont cont) const {
 }
 
 void report_stuff::report_to(out::report_state &report) const {
-  auto &nc_node = report.current["native contacts"];
+  auto &nc_node = report.for_step["native contacts"];
 
   ioxx::xyaml::csv<nat_cont_row> nat_conts_file;
   nat_conts_file.path = "nat_conts.csv";

@@ -14,26 +14,44 @@ void thread::main() {
 }
 
 void thread::adjust_scenario() {
-  if (!did_overall_setup) {
-    if (!st.did_overall_setup) {
+  if (!st.did_simul_setup) {
 #pragma omp master
-      {
-        st.overall_setup();
-        st.did_overall_setup = true;
-      }
-#pragma omp barrier
+    {
+      st.simul_setup();
+      st.did_simul_setup = true;
     }
+#pragma omp barrier
+  }
 
-    overall_setup();
-    did_overall_setup = true;
+  if (!st.did_traj_setup) {
+#pragma omp master
+    {
+      st.traj_setup();
+      st.did_traj_setup = true;
+    }
+#pragma omp barrier
+  }
+
+  if (!did_traj_setup) {
+    traj_setup();
+    did_traj_setup = true;
   }
 
   if (st.t >= st.total_time) {
-    st.is_running = false;
-    return;
+#pragma omp master
+    {
+      st.finish_trajectory();
+      st.is_running = (st.traj_idx >= params.gen.num_of_traj);
+    }
+
+    finish_trajectory();
+    if (st.is_running)
+      adjust_scenario();
+    else
+      return;
   }
 
-  if (st.t >= st.equil_time && !did_post_equil_setup) {
+  if (st.t >= st.equil_time) {
     if (!st.did_post_equil_setup) {
 #pragma omp master
       {
@@ -43,8 +61,10 @@ void thread::adjust_scenario() {
 #pragma omp barrier
     }
 
-    post_equil_setup();
-    did_post_equil_setup = true;
+    if (!did_post_equil_setup) {
+      post_equil_setup();
+      did_post_equil_setup = true;
+    }
   }
 
 #pragma omp barrier

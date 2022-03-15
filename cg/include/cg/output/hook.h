@@ -3,11 +3,14 @@
 
 namespace cg::out {
 struct report_state {
-  bool first_time;
-  int ord;
-  std::filesystem::path output_dir;
-  ioxx::xyaml::node general, current;
+  bool simul_first_time, traj_first_time;
+  int *traj_idx, step_idx;
+  std::filesystem::path out_dir;
+  ioxx::xyaml::node for_simul, for_traj, for_step;
+
+  void on_new_trajectory();
 };
+
 class hook {
 public:
   virtual ~hook() = default;

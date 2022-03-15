@@ -64,7 +64,7 @@ struct contact_count {
 };
 
 void report_qa_stuff::report_to(out::report_state &report) const {
-  auto &qa_node = report.current["quasi-adiabatic"];
+  auto &qa_node = report.for_step["quasi-adiabatic"];
 
   ioxx::xyaml::csv<sync_values_row> sync_values_file;
   sync_values_file.path = "sync_values.csv";

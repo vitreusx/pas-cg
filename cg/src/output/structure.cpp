@@ -78,7 +78,7 @@ void add_structure::report_to(report_state &report) const {
     row.nat_dist = tether.length;
     tether_file.data.rows.push_back(row);
   }
-  report.current["tethers"] = tether_file;
+  report.for_step["tethers"] = tether_file;
 
   ioxx::xyaml::csv<angle_row> angle_file;
   angle_file.path = "angles.csv";
@@ -92,7 +92,7 @@ void add_structure::report_to(report_state &report) const {
     row.nat_theta = angle.theta;
     angle_file.data.rows.push_back(row);
   }
-  report.current["angles"] = angle_file;
+  report.for_step["angles"] = angle_file;
 
   ioxx::xyaml::csv<dihedral_row> dih_file;
   dih_file.path = "dihedrals.csv";
@@ -107,6 +107,6 @@ void add_structure::report_to(report_state &report) const {
     row.nat_phi = dih.phi;
     dih_file.data.rows.push_back(row);
   }
-  report.current["dihedrals"] = dih_file;
+  report.for_step["dihedrals"] = dih_file;
 }
 } // namespace cg::out
