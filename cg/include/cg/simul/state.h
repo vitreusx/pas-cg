@@ -20,6 +20,7 @@ public:
   bool did_simul_setup = false;
   bool is_running;
   real total_time, equil_time;
+  rand_gen gen;
   void simul_setup();
 
   input::model orig_model;
@@ -30,9 +31,6 @@ public:
   int traj_idx;
   void traj_setup();
   void finish_trajectory();
-
-  rand_gen gen;
-  void setup_gen();
 
   input::model model;
   input::model::res_map_t res_map;

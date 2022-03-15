@@ -6,6 +6,7 @@ void state::simul_setup() {
   total_time = params.gen.total_time;
   equil_time = params.gen.equil_time;
   traj_idx = 0;
+  gen = rand_gen(params.gen.seed);
   load_model();
 }
 
@@ -27,7 +28,6 @@ void state::load_model() {
 }
 
 void state::traj_setup() {
-  setup_gen();
   morph_model();
   compile_model();
   setup_dyn();
@@ -52,11 +52,7 @@ void state::finish_trajectory() {
   did_traj_setup = false;
   did_post_equil_setup = false;
   ++traj_idx;
-}
-
-void state::setup_gen() {
-  is_running = true;
-  gen = rand_gen(params.gen.seed);
+  gen = gen.spawn();
 }
 
 void state::morph_model() {
@@ -158,10 +154,9 @@ void state::setup_langevin() {
   if (std::holds_alternative<quantity>(params.lang.temperature)) {
     auto temp = std::get<quantity>(params.lang.temperature);
     temperature = temp;
-  }
-  else {
-    auto [temp_start_q, temp_end_q] = std::get<lang::parameters::quantity_range>(
-        params.lang.temperature);
+  } else {
+    auto [temp_start_q, temp_end_q] =
+        std::get<lang::parameters::quantity_range>(params.lang.temperature);
     real temp_start = temp_start_q, temp_end = temp_end_q;
 
     auto w = (real)traj_idx / (real)(params.gen.num_of_traj - 1);
