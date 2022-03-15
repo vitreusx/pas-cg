@@ -485,6 +485,7 @@ void thread::setup_pid() {
     auto &eval = eval_pid_forces;
     eval.V = &dyn.V;
     eval.F = dyn.F.view();
+    eval.total_disp = &st.total_disp;
 
     eval.bb_plus_lam.version() = params.pid.lambda_version;
     eval.bb_plus_lam.alpha() = params.pid.bb_plus.alpha;

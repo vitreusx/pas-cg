@@ -18,7 +18,7 @@ public:
   nitro::view<vec3r> F;
   box<real> const *simul_box;
   nitro::vector<bundle> const *bundles;
-  real *V;
+  real *V, *total_disp;
   nitro::const_view<int> prev, next;
 
 public:

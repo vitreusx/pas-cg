@@ -9,6 +9,9 @@ void eval_forces::operator()() {
 
 template <typename E>
 void eval_forces::iter(bundle_expr<E> const &bundle) const {
+  if (bundle.orig_dist() - *total_disp > cutoff)
+    return;
+
   auto i1 = bundle.i1(), i2 = bundle.i2();
   vec3r r1 = r[i1], r2 = r[i2];
   auto r12 = simul_box->r_uv(r1, r2);
@@ -95,7 +98,6 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
     if (dot(rij, rn) < 0.0f)
       psi2 = -psi2;
   }
-
 
   real A = 0.0f, B = 0.0f, C = 0.0f, V_ = 0.0f;
 

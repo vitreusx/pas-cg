@@ -70,24 +70,6 @@ void thread::pre_eval() {
     fix_nl();
 
 #pragma omp barrier
-
-//#pragma omp master
-//  {
-//    st.dyn.reset();
-//
-//    if (params.qa.enabled) {
-//      prepare_nh();
-//      if (st.ss_spec_crit)
-//        count_cys_neigh();
-//    }
-//
-//    if (st.nl_required) {
-//      nl_verify();
-//      if (st.nl_invalid)
-//        fix_nl();
-//    }
-//  }
-//#pragma omp barrier
 }
 
 void thread::fix_nl() {
@@ -106,45 +88,23 @@ void thread::fix_nl() {
   {
 #pragma omp section
     if (params.pauli.enabled)
-        update_pauli_pairs();
+      update_pauli_pairs();
 #pragma omp section
-      if (params.nat_cont.enabled)
-        update_nat_contacts();
+    if (params.nat_cont.enabled)
+      update_nat_contacts();
 #pragma omp section
-      if (params.const_dh.enabled || params.rel_dh.enabled)
-        update_dh_pairs();
+    if (params.const_dh.enabled || params.rel_dh.enabled)
+      update_dh_pairs();
 #pragma omp section
-      if (params.qa.enabled)
-        update_qa_pairs();
+    if (params.qa.enabled)
+      update_qa_pairs();
 #pragma omp section
-      if (params.qa.enabled && st.ss_spec_crit)
-        update_cys_neigh();
+    if (params.qa.enabled && st.ss_spec_crit)
+      update_cys_neigh();
 #pragma omp section
-      if (params.pid.enabled)
-        update_pid_bundles();
+    if (params.pid.enabled)
+      update_pid_bundles();
   }
-
-//  switch (params.nl.algorithm) {
-//  case nl::parameters::CELL:
-//    nl_cell();
-//    break;
-//  case nl::parameters::LEGACY:
-//    nl_legacy();
-//    break;
-//  }
-//
-//  if (params.pauli.enabled)
-//    update_pauli_pairs();
-//  if (params.nat_cont.enabled)
-//    update_nat_contacts();
-//  if (params.const_dh.enabled || params.rel_dh.enabled)
-//    update_dh_pairs();
-//  if (params.qa.enabled)
-//    update_qa_pairs();
-//  if (params.qa.enabled && st.ss_spec_crit)
-//    update_cys_neigh();
-//  if (params.pid.enabled)
-//    update_pid_bundles();
 }
 
 void thread::eval_forces() {
@@ -218,32 +178,5 @@ void thread::post_eval() {
     }
 #pragma omp barrier
   }
-
-//#pragma omp master
-//  {
-//    if (params.pbar.enabled) {
-//      render_pbar();
-//    }
-//
-//    if (params.out.enabled) {
-//      make_report();
-//    }
-//
-//    if (params.qa.enabled) {
-//      qa_finish_processing();
-//    }
-//
-//    if (params.lang.enabled) {
-//      switch (params.lang.type) {
-//      case lang::lang_type::NORMAL:
-//        lang_step();
-//        break;
-//      case lang::lang_type::LEGACY:
-//        lang_legacy_step();
-//        break;
-//      }
-//    }
-//  }
-//#pragma omp barrier
 }
 } // namespace cg::simul
