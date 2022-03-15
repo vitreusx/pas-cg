@@ -1,7 +1,7 @@
 #include "output/export_pdb.h"
 #include "input/pdb_file.h"
 #include <fstream>
-using namespace cg::out;
+namespace cg::out {
 
 void export_pdb::report_to(report_state &report) const {
   using namespace ioxx::xyaml;
@@ -36,3 +36,4 @@ void export_pdb::report_to(report_state &report) const {
   coords_file.rel_path = "model.pdb";
   report.current["model"] = coords_file;
 }
+} // namespace cg::out

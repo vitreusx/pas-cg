@@ -1,6 +1,6 @@
 #include "pid/parameters.h"
 #include "utils/ioxx_interop.h"
-using namespace cg::pid;
+namespace cg::pid {
 
 void parameters::bb_t::load(ioxx::xyaml::node const &p) {
   alpha = p["alpha"].as<quantity>();
@@ -28,3 +28,4 @@ void parameters::load(ioxx::xyaml::node const &p) {
   p["bb-"] >> bb_minus;
   p["ss"] >> ss;
 }
+} // namespace cg::pid

@@ -1,5 +1,5 @@
 #include "pid/eval_forces.h"
-using namespace cg::pid;
+namespace cg::pid {
 
 void eval_forces::operator()() {
   for (int idx = 0; idx < bundles->size(); ++idx) {
@@ -9,16 +9,24 @@ void eval_forces::operator()() {
 
 template <typename E>
 void eval_forces::iter(bundle_expr<E> const &bundle) const {
+  auto i1 = bundle.i1(), i2 = bundle.i2();
+  vec3r r1 = r[i1], r2 = r[i2];
+  auto r12 = simul_box->r_uv(r1, r2);
+  auto r12_rn = norm_inv(r12);
+  if ((real)1.0 > r12_rn * cutoff)
+    return;
+
+  auto r12_n = (real)1.0 / r12_rn;
+
   real psi1, psi2;
   vec3r dpsi1_dr1p, dpsi1_dr1, dpsi1_dr1n, dpsi1_dr2;
   vec3r dpsi2_dr2p, dpsi2_dr2, dpsi2_dr2n, dpsi2_dr1;
 
-  auto i1 = bundle.i1(), i2 = bundle.i2();
   auto type = bundle.type();
   auto i1p = prev[i1], i1n = next[i1], i2p = prev[i2], i2n = next[i2];
 
-  vec3r r1p = r[i1p], r1 = r[i1], r1n = r[i1n];
-  vec3r r2p = r[i2p], r2 = r[i2], r2n = r[i2n];
+  vec3r r1p = r[i1p], r1n = r[i1n];
+  vec3r r2p = r[i2p], r2n = r[i2n];
 
   {
     auto &r1_ = r1p, &r2_ = r1, &r3_ = r1n, &r4_ = r2;
@@ -88,8 +96,6 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
       psi2 = -psi2;
   }
 
-  auto r12 = simul_box->r_uv(r1, r2);
-  auto r12_n = norm(r12), r12_rn = 1.0f / r12_n;
 
   real A = 0.0f, B = 0.0f, C = 0.0f, V_ = 0.0f;
 
@@ -144,3 +150,4 @@ void eval_forces::omp_async() const {
     iter(bundles->at(idx));
   }
 }
+} // namespace cg::pid

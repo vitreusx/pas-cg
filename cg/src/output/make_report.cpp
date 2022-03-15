@@ -1,5 +1,5 @@
 #include "output/make_report.h"
-using namespace cg::out;
+namespace cg::out {
 
 void make_report::operator()() const {
   using namespace ioxx::xyaml;
@@ -26,3 +26,4 @@ void make_report::operator()() const {
 
   state->first_time = false;
 }
+} // namespace cg::out

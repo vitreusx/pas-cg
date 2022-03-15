@@ -1,7 +1,7 @@
 #include "qa/report.h"
 #include "utils/quantity.h"
 #include <ioxx/ioxx.h>
-using namespace cg::qa;
+namespace cg::qa {
 
 struct sync_values_row {
   int idx;
@@ -130,3 +130,4 @@ void report_qa_stuff::report_to(out::report_state &report) const {
   active_node["dynamic ssbonds (intra)"] = num_dyn_ss[count_type::INTRA];
   active_node["dynamic ssbonds (inter)"] = num_dyn_ss[count_type::INTER];
 }
+} // namespace cg::qa

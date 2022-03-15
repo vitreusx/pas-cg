@@ -1,5 +1,5 @@
 #include "dh/update_pairs.h"
-using namespace cg::dh;
+namespace cg::dh {
 
 void update_pairs::operator()() const {
   pairs->clear();
@@ -19,3 +19,4 @@ void update_pairs::operator()() const {
     }
   }
 }
+} // namespace cg::dh

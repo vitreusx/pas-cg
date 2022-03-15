@@ -1,8 +1,8 @@
 #include "nl/cell_update.h"
-#include "order.h"
+#include "nl/order.h"
 #include <algorithm>
 #include <cg/utils/math.h>
-using namespace cg::nl;
+namespace cg::nl {
 
 using vec3i = cg::vec3<int>;
 
@@ -27,7 +27,7 @@ void cell_update::operator()() const {
   }
 
   auto extent = max_r - min_r;
-  auto radius = *max_cutoff * (1.0 + pad_factor);
+  auto radius = *max_cutoff + pad;
 
   vec3r apx_num_cells = extent / radius;
   vec3i num_cells = {(int)floor(apx_num_cells.x()),
@@ -158,7 +158,6 @@ void cell_update::operator()() const {
     }
   }
 
-  auto pad = pad_factor * *max_cutoff;
   nl_data->orig_pad = pad;
   for (int idx = 0; idx < r.size(); ++idx)
     nl_data->orig_r[idx] = r[idx];
@@ -174,3 +173,4 @@ int cell_update::cell_begin(int cell_idx) const {
 int cell_update::cell_end(int cell_idx) const {
   return cell_offset->at(cell_idx) + num_res_in_cell->at(cell_idx);
 }
+} // namespace cg::nl

@@ -1,5 +1,5 @@
 #include "heur/dih/eval_forces.h"
-using namespace cg::heur_dih;
+namespace cg::heur_dih {
 
 void eval_forces::operator()() const {
   for (int idx = 0; idx < dihedrals.size(); ++idx) {
@@ -59,3 +59,4 @@ void eval_forces::omp_async() const {
     iter(dihedrals[idx]);
   }
 }
+} // namespace cg::heur_dih

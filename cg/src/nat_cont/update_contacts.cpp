@@ -1,6 +1,6 @@
 #include "nat_cont/update_contacts.h"
 #include "base_forces/lj.h"
-using namespace cg::nat_cont;
+namespace cg::nat_cont {
 
 void update_contacts::operator()() const {
   contacts->clear();
@@ -18,3 +18,4 @@ void update_contacts::operator()() const {
     }
   }
 }
+} // namespace cg::nat_cont

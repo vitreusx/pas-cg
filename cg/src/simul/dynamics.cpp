@@ -1,10 +1,19 @@
 #include "simul/dynamics.h"
-using namespace cg::simul;
+namespace cg::simul {
 
 dynamics::dynamics(int num_residues) { F = nitro::vector<vec3r>(num_residues); }
 
 void dynamics::reset() {
   V = 0.0;
+  for (int idx = 0; idx < F.size(); ++idx)
+    F[idx] = vec3r::Zero();
+}
+
+void dynamics::omp_reset() {
+#pragma omp atomic write
+  V = 0.0;
+
+#pragma omp for schedule(static) nowait
   for (int idx = 0; idx < F.size(); ++idx)
     F[idx] = vec3r::Zero();
 }
@@ -30,3 +39,4 @@ void dynamics::sanity_check() {
       throw;
   }
 }
+} // namespace cg::simul

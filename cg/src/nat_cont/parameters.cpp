@@ -1,6 +1,6 @@
 #include "nat_cont/parameters.h"
 #include "utils/ioxx_interop.h"
-using namespace cg::nat_cont;
+namespace cg::nat_cont {
 
 void parameters::load(ioxx::xyaml::node const &p) {
   p["enabled"] >> enabled;
@@ -8,3 +8,4 @@ void parameters::load(ioxx::xyaml::node const &p) {
   p["active threshold"] >> active_thr;
   p["disulfide bond force"] >> disulfide_force;
 }
+} // namespace cg::nat_cont

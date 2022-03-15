@@ -1,5 +1,7 @@
 #include "simul/thread.h"
-using namespace cg::simul;
+namespace cg::simul {
+
+thread::thread(state &st) : st{st}, params{st.params} {}
 
 void thread::overall_setup() {
   setup_gen();
@@ -21,6 +23,10 @@ void thread::overall_setup() {
 }
 
 void thread::setup_gen() {
+  gen = st.gen;
+  for (int rep = 0; rep < omp_get_thread_num(); ++rep)
+    gen = gen.spawn();
+
   if (params.gen.debug_mode) {
     feclearexcept(FE_ALL_EXCEPT);
     feenableexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW);
@@ -64,7 +70,6 @@ void thread::setup_output() {
 }
 
 void thread::setup_langevin() {
-
   if (params.lang.enabled) {
     auto &step = params.lang.type == lang::lang_type::NORMAL
                      ? (lang::step_base &)lang_step
@@ -74,7 +79,7 @@ void thread::setup_langevin() {
     step.t = &st.t;
     step.dt = params.lang.dt;
     step.gamma_factor = params.lang.gamma;
-    step.gen = &st.gen;
+    step.gen = &gen;
     step.mass = st.comp_aa_data.mass.view();
     step.num_particles = st.num_res;
     step.atype = st.atype.view();
@@ -118,7 +123,7 @@ void thread::setup_pbar() {
 void thread::setup_nl() {
   if (params.nl.algorithm == nl::parameters::LEGACY) {
     auto &legacy = nl_legacy;
-    legacy.pad_factor = params.nl.pad_factor;
+    legacy.pad = params.nl.pad;
     legacy.r = st.r.view();
     legacy.simul_box = &st.box;
     legacy.t = &st.t;
@@ -130,7 +135,7 @@ void thread::setup_nl() {
     legacy.max_cutoff = &st.max_cutoff;
   } else {
     auto &cell = nl_cell;
-    cell.pad_factor = params.nl.pad_factor;
+    cell.pad = params.nl.pad;
     cell.r = st.r.view();
     cell.simul_box = &st.box;
     cell.t = &st.t;
@@ -154,6 +159,7 @@ void thread::setup_nl() {
   verify.invalid = &st.nl_invalid;
   verify.first_time = &st.verify_first_time;
   verify.num_particles = st.num_res;
+  verify.total_disp = &st.total_disp;
 }
 
 void thread::setup_chir() {
@@ -284,12 +290,12 @@ void thread::setup_nat_cont() {
     eval.V = &dyn.V;
     eval.F = dyn.F.view();
 
-    auto &update_ref = update_nat_contacts;
-    update_ref.r = st.r.view();
-    update_ref.simul_box = &st.box;
-    update_ref.nl = &st.nl;
-    update_ref.all_contacts = st.all_native_contacts.view();
-    update_ref.contacts = &st.cur_native_contacts;
+    auto &update = update_nat_contacts;
+    update.r = st.r.view();
+    update.simul_box = &st.box;
+    update.nl = &st.nl;
+    update.all_contacts = st.all_native_contacts.view();
+    update.contacts = &st.cur_native_contacts;
 
     if (params.out.enabled) {
       auto &report_nc = report_nc_stuff;
@@ -346,21 +352,24 @@ void thread::setup_qa() {
     prep_nh.h = st.h.view();
     prep_nh.prev = st.prev.view();
     prep_nh.next = st.next.view();
+    prep_nh.simul_box = &st.box;
 
     auto &sift = sift_qa_candidates;
     sift.r = st.r.view();
-    sift.atype = st.atype.view();
-    sift.simul_box = &st.box;
-    sift.free_pairs = &st.qa_free_pairs;
-    sift.sync = st.sync_values.view();
-    sift.candidates = &st.qa_candidates;
     sift.n = st.n.view();
     sift.h = st.h.view();
+    sift.simul_box = &st.box;
+    sift.atype = st.atype.view();
+    sift.sync = st.sync_values.view();
+    sift.free_pairs = &st.qa_free_pairs;
+    sift.candidates = &st.qa_candidates;
+    sift.total_disp = &st.total_disp;
 
     sift.min_abs_cos_hr = params.qa.min_cos_hr;
     sift.min_abs_cos_hh = params.qa.min_cos_hh;
     sift.max_cos_nr = params.qa.max_cos_nr;
     sift.formation_tolerance = params.qa.formation_tolerance;
+    sift.disulfide_special_criteria = st.ss_spec_crit;
 
     sift.req_min_dist[(int16_t)qa::contact_type::BACK_BACK()] =
         params.lj_vars.bb.r_min();
@@ -381,12 +390,13 @@ void thread::setup_qa() {
 
     auto &fin_proc = qa_finish_processing;
     fin_proc.candidates = &st.qa_candidates;
-    fin_proc.contacts = &st.qa_contacts;
     fin_proc.sync = st.sync_values.view();
-    fin_proc.free_pairs = &st.qa_free_pairs;
     fin_proc.t = &st.t;
+    fin_proc.contacts = &st.qa_contacts;
+    fin_proc.free_pairs = &st.qa_free_pairs;
     fin_proc.removed = &st.qa_removed;
     fin_proc.num_contacts = &st.num_qa_contacts;
+    fin_proc.disulfide_special_criteria = st.ss_spec_crit;
 
     auto &proc_cont = process_qa_contacts;
     proc_cont.cycle_time = params.qa.phase_dur;
@@ -402,12 +412,16 @@ void thread::setup_qa() {
     proc_cont.removed = &st.qa_removed;
     proc_cont.V = &dyn.V;
     proc_cont.F = dyn.F.view();
+    proc_cont.disulfide_special_criteria = st.ss_spec_crit;
 
     auto &update = update_qa_pairs;
     update.r = st.r.view();
     update.simul_box = &st.box;
     update.nl = &st.nl;
     update.pairs = &st.qa_free_pairs;
+    update.chain_idx = st.chain_idx.view();
+    update.seq_idx = st.seq_idx.view();
+    update.include4 = params.qa.include4;
 
     if (params.qa.disulfide.has_value()) {
       if (st.ss_spec_crit) {
@@ -417,12 +431,11 @@ void thread::setup_qa() {
         sift.disulfide_special_criteria = st.ss_spec_crit;
         sift.neigh = st.neigh_count.view();
 
-        fin_proc.disulfide_special_criteria = st.ss_spec_crit;
         fin_proc.part_of_ssbond = st.part_of_ssbond.view();
 
-        proc_cont.disulfide_special_criteria = st.ss_spec_crit;
         proc_cont.disulfide = params.qa.disulfide->force;
-
+        proc_cont.ss_def_dist = params.qa.disulfide->spec_crit.def_dist;
+        proc_cont.ss_dist_max_div = params.qa.disulfide->spec_crit.max_dist_dev;
         proc_cont.neigh = st.neigh_count.view();
         proc_cont.max_neigh_count = spec_crit_params.max_neigh_count;
         proc_cont.part_of_ssbond = st.part_of_ssbond.view();
@@ -447,12 +460,13 @@ void thread::setup_qa() {
       }
     }
 
-    real cutoff = 0.0;
+    real max_req_dist = 0.0;
     for (int idx = 0; idx < qa::contact_type::NUM_TYPES; ++idx)
-      cutoff = max(cutoff, sift.req_min_dist[idx]);
+      max_req_dist = max(max_req_dist, sift.req_min_dist[idx]);
+    update.max_formation_min_dist = sift.max_req_dist = max_req_dist;
 
 #pragma omp single nowait
-    st.max_cutoff = max(st.max_cutoff, cutoff);
+    st.max_cutoff = max(st.max_cutoff, max_req_dist);
 
     if (params.out.enabled) {
       auto &report_qa = report_qa_stuff;
@@ -504,6 +518,9 @@ void thread::setup_pid() {
     update.simul_box = &st.box;
     update.nl = &st.nl;
     update.bundles = &st.pid_bundles;
+    update.chain_idx = st.chain_idx.view();
+    update.seq_idx = st.seq_idx.view();
+    update.include4 = params.pid.include4;
 
     real cutoff = 0.0;
     cutoff = max(cutoff, params.lj_vars.bb.cutoff());
@@ -514,6 +531,8 @@ void thread::setup_pid() {
         cutoff = max(cutoff, params.lj_vars.ss.at({aa1, aa2}).cutoff());
       }
     }
+
+    eval.cutoff = cutoff;
     update.cutoff = cutoff;
 
 #pragma omp single nowait
@@ -550,161 +569,4 @@ void thread::setup_afm() {
     }
   }
 }
-
-thread::thread(state &st) : st{st}, params{st.params} {}
-
-void thread::main() {
-  do {
-    adjust_scenario();
-    if (!st.is_running)
-      break;
-
-    pre_eval();
-    eval_forces();
-    post_eval();
-  } while (true);
-}
-
-void thread::adjust_scenario() {
-  if (!did_overall_setup) {
-    if (!st.did_overall_setup) {
-#pragma omp master
-      {
-        st.overall_setup();
-        st.did_overall_setup = true;
-      }
-#pragma omp barrier
-    }
-
-    overall_setup();
-    did_overall_setup = true;
-  }
-
-  if (st.t >= st.total_time) {
-    st.is_running = false;
-    return;
-  }
-
-  if (st.t >= st.equil_time && !did_post_equil_setup) {
-    if (!st.did_post_equil_setup) {
-#pragma omp master
-      {
-        st.post_equil_setup();
-        st.did_post_equil_setup = true;
-      }
-#pragma omp barrier
-    }
-
-    post_equil_setup();
-    did_post_equil_setup = true;
-  }
-
-#pragma omp barrier
-}
-
-void thread::pre_eval() {
-#pragma omp master
-  {
-    st.dyn.reset();
-
-    if (params.qa.enabled) {
-      qa_finish_processing();
-      prepare_nh();
-      if (st.ss_spec_crit)
-        count_cys_neigh();
-    }
-
-    if (st.nl_required) {
-      nl_verify();
-      if (st.nl_invalid)
-        fix_nl();
-    }
-  };
-#pragma omp barrier
-}
-
-void thread::fix_nl() {
-  switch (params.nl.algorithm) {
-  case nl::parameters::CELL:
-    nl_cell();
-    break;
-  case nl::parameters::LEGACY:
-    nl_legacy();
-    break;
-  }
-
-  if (params.pauli.enabled)
-    update_pauli_pairs();
-  if (params.nat_cont.enabled)
-    update_nat_contacts();
-  if (params.const_dh.enabled || params.rel_dh.enabled)
-    update_dh_pairs();
-  if (params.qa.enabled) {
-    update_qa_pairs();
-    if (st.ss_spec_crit)
-      update_cys_neigh();
-  }
-  if (params.pid.enabled)
-    update_pid_bundles();
-}
-
-void thread::eval_forces() {
-  dyn.reset();
-
-  if (params.chir.enabled)
-    eval_chir_forces.omp_async();
-  if (params.tether.enabled)
-    eval_tether_forces.omp_async();
-  if (params.nat_ang.enabled)
-    eval_nat_ang_forces.omp_async();
-  if (params.cnd.enabled)
-    eval_cnd_forces.omp_async();
-  if (params.snd.enabled)
-    eval_snd_forces.omp_async();
-  if (params.pauli.enabled)
-    eval_pauli_forces.omp_async();
-  if (params.nat_cont.enabled)
-    eval_nat_cont_forces.omp_async();
-  if (params.const_dh.enabled)
-    eval_const_dh_forces.omp_async();
-  if (params.rel_dh.enabled)
-    eval_rel_dh_forces.omp_async();
-  if (params.heur_ang.enabled)
-    eval_heur_ang_forces.omp_async();
-  if (params.heur_dih.enabled)
-    eval_heur_dih_forces.omp_async();
-  if (params.qa.enabled) {
-    sift_qa_candidates.omp_async();
-    process_qa_contacts.omp_async();
-  }
-  if (params.pid.enabled)
-    eval_pid_forces.omp_async();
-
-  if (st.post_equil) {
-    if (params.afm.enabled) {
-      eval_vel_afm_forces.omp_async();
-      eval_force_afm_forces.omp_async();
-    }
-  }
-
-  dyn.omp_reduce(st.dyn);
-#pragma omp barrier
-}
-
-void thread::post_eval() {
-#pragma omp master
-  {
-    if (params.pbar.enabled)
-      render_pbar();
-
-    if (params.out.enabled)
-      make_report();
-
-    if (params.lang.enabled) {
-      if (params.lang.type == lang::lang_type::NORMAL)
-        lang_step();
-      else
-        lang_legacy_step();
-    }
-  }
-}
+} // namespace cg::simul

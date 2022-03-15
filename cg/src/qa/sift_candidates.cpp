@@ -1,8 +1,7 @@
 #include "qa/sift_candidates.h"
-using namespace cg::qa;
+namespace cg::qa {
 
 void sift_candidates::operator()() const {
-  candidates->clear();
   for (int idx = 0; idx < free_pairs->size(); ++idx) {
     iter(idx);
   }
@@ -15,12 +14,19 @@ void sift_candidates::iter(int idx) const {
     return;
 
   auto pair = node.item();
+  auto orig_dist = pair.orig_dist();
+  if (orig_dist - *total_disp > max_req_dist)
+    return;
 
   auto i1 = pair.i1(), i2 = pair.i2();
 
   auto r1 = r[i1], r2 = r[i2];
   auto r12 = simul_box->r_uv(r1, r2);
   auto r12_rn = norm_inv(r12);
+
+  if ((real)1.0 > r12_rn * max_req_dist)
+    return;
+
   auto r12_u = r12 * r12_rn;
 
   auto n1 = n[i1], n2 = n[i2], h1 = h[i1], h2 = h[i2];
@@ -80,8 +86,8 @@ void sift_candidates::iter(int idx) const {
   }
 
 #pragma omp critical
-  candidates->emplace_back(i1, i2, (real)1.0 / r12_rn, idx, type, sync_diff1,
-                           sync_diff2);
+  candidates->emplace_back(i1, i2, orig_dist, (real)1.0 / r12_rn, idx, type,
+                           sync_diff1, sync_diff2);
 }
 
 void sift_candidates::omp_async() const {
@@ -90,3 +96,4 @@ void sift_candidates::omp_async() const {
     iter(idx);
   }
 }
+} // namespace cg::qa

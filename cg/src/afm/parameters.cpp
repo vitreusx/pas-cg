@@ -1,6 +1,6 @@
 #include "afm/parameters.h"
 #include "utils/ioxx_interop.h"
-using namespace cg::afm;
+namespace cg::afm {
 
 void parameters::load(ioxx::xyaml::node const &node) {
   node["H1"] >> H1;
@@ -29,3 +29,4 @@ void parameters::load(ioxx::xyaml::node const &node) {
   }
   enabled = !tips.empty();
 }
+} // namespace cg::afm

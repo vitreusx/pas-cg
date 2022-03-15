@@ -1,6 +1,6 @@
 #include "heur/dih/parameters.h"
 #include "utils/ioxx_interop.h"
-using namespace cg::heur_dih;
+namespace cg::heur_dih {
 
 void parameters::pair_coeffs::connect(ioxx::row_proxy &proxy) {
   proxy["type2"] & type2;
@@ -20,3 +20,4 @@ void parameters::load(ioxx::xyaml::node const &p) {
     coeffs[aa_heur_pair(row.type2, row.type3)] = row;
   }
 }
+} // namespace cg::heur_dih

@@ -1,6 +1,6 @@
 #include "qa/parameters.h"
 #include "utils/ioxx_interop.h"
-using namespace cg::qa;
+namespace cg::qa {
 
 void parameters::ss_spec_crit_t::load(const ioxx::xyaml::node &node) {
   node["enabled"] >> enabled;
@@ -26,3 +26,4 @@ void parameters::load(ioxx::xyaml::node const &p) {
   p["disulfides"] >> disulfide;
   p["formation tolerance"] >> formation_tolerance;
 }
+} // namespace cg::qa

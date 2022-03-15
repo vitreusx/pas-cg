@@ -1,6 +1,6 @@
 #include "input/parameters.h"
 #include "utils/ioxx_interop.h"
-using namespace cg::input;
+namespace cg::input {
 
 void parameters::load(ioxx::xyaml::node const &p) {
   if (auto pdb_node = p["pdb file"]; pdb_node) {
@@ -26,3 +26,4 @@ void parameters::load(ioxx::xyaml::node const &p) {
       morph_into_line = line_node["bond distance"].as<quantity>();
   }
 }
+} // namespace cg::input

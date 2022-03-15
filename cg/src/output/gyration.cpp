@@ -1,7 +1,7 @@
 #include "output/gyration.h"
 #include "utils/ioxx_interop.h"
 #include <Eigen/SVD>
-using namespace cg::out;
+namespace cg::out {
 
 void report_gyration_stuff::report_to(report_state &report) const {
   Eigen::MatrixX3d positions(r.size(), 3);
@@ -19,3 +19,4 @@ void report_gyration_stuff::report_to(report_state &report) const {
   node["asphericity"] =
       (real)1.5 * pow(lambda.x(), 2.0) - (real)0.5 * lambda.squaredNorm();
 }
+} // namespace cg::out

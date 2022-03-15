@@ -1,7 +1,7 @@
 #include "nat_cont/report.h"
 #include "utils/quantity.h"
 #include <ioxx/ioxx.h>
-using namespace cg::nat_cont;
+namespace cg::nat_cont {
 
 struct nat_cont_row {
   nat_cont cont;
@@ -96,3 +96,4 @@ void report_stuff::report_to(out::report_state &report) const {
   active_node["side-side (intra)"] = num_ss[count_type::INTRA];
   active_node["side-side (inter)"] = num_ss[count_type::INTER];
 }
+} // namespace cg::nat_cont

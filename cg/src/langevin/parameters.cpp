@@ -1,6 +1,6 @@
 #include "langevin/parameters.h"
 #include "utils/ioxx_interop.h"
-using namespace cg::lang;
+namespace cg::lang {
 
 void parameters::load(ioxx::xyaml::node const &p) {
   enabled = p["enabled"].as<bool>();
@@ -16,3 +16,4 @@ void parameters::load(ioxx::xyaml::node const &p) {
       type = lang_type::NORMAL;
   }
 }
+} // namespace cg::lang

@@ -1,5 +1,5 @@
 #include "chir/eval_forces.h"
-using namespace cg::chir;
+namespace cg::chir {
 
 void eval_forces::operator()() const {
   for (int idx = 0; idx < quads.size(); ++idx) {
@@ -36,3 +36,4 @@ void eval_forces::omp_async() const {
     iter(quads[idx]);
   }
 }
+} // namespace cg::chir

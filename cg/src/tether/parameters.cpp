@@ -1,6 +1,6 @@
 #include "tether/parameters.h"
 #include "utils/ioxx_interop.h"
-using namespace cg::tether;
+namespace cg::tether {
 
 void parameters::load(ioxx::xyaml::node const &p) {
   enabled = p["enabled"].as<bool>();
@@ -8,3 +8,4 @@ void parameters::load(ioxx::xyaml::node const &p) {
   H2 = p["H2"].as<quantity>();
   def_length = p["default bond length"].as<quantity>();
 }
+} // namespace cg::tether

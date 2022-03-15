@@ -11,6 +11,7 @@ public:
   dynamics() = default;
   explicit dynamics(int num_residues);
   void reset();
+  void omp_reset();
   void omp_reduce(dynamics &target);
   void sanity_check();
 };

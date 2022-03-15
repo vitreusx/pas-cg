@@ -10,6 +10,7 @@ class sift_candidates {
 public:
   real min_abs_cos_hr, min_abs_cos_hh, max_cos_nr;
   real req_min_dist[contact_type::NUM_TYPES];
+  real max_req_dist;
   polarization_type ptype[amino_acid::NUM_TYPES];
   real formation_tolerance;
 
@@ -21,6 +22,7 @@ public:
   box<real> const *simul_box;
   nitro::const_view<amino_acid> atype;
   nitro::const_view<sync_data> sync;
+  real *total_disp;
 
   nitro::set<free_pair> const *free_pairs;
   nitro::vector<candidate> *candidates;

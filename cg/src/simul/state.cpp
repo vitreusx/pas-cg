@@ -1,5 +1,5 @@
 #include "simul/state.h"
-using namespace cg::simul;
+namespace cg::simul {
 
 void state::overall_setup() {
   setup_gen();
@@ -378,3 +378,4 @@ void state::setup_gen() {
   equil_time = params.gen.equil_time;
   gen = rand_gen(params.gen.seed);
 }
+} // namespace cg::simul

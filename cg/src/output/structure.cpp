@@ -1,8 +1,7 @@
 #include "output/structure.h"
 #include "utils/quantity.h"
 #include <ioxx/ioxx.h>
-using namespace cg;
-using namespace cg::out;
+namespace cg::out {
 
 static auto tether_value(vec3r r1, vec3r r2) { return norm(r2 - r1); }
 
@@ -110,3 +109,4 @@ void add_structure::report_to(report_state &report) const {
   }
   report.current["dihedrals"] = dih_file;
 }
+} // namespace cg::out

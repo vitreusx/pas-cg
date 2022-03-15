@@ -1,7 +1,7 @@
 #include "pbar/render.h"
 #include "utils/text.h"
 #include <iostream>
-using namespace cg::pbar;
+namespace cg::pbar {
 
 static std::string timedelta(uint64_t ms) {
   int ms_part = ms % 1000;
@@ -55,4 +55,4 @@ void render::operator()() const {
     *last_clock = now;
     *is_first = false;
   }
-}
+}}

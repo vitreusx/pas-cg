@@ -1,6 +1,6 @@
 #include "simul/parameters.h"
-#include "default.yml.h"
-using namespace cg::simul;
+#include "simul/default.yml.h"
+namespace cg::simul {
 
 void parameters::load(ioxx::xyaml::node const &from) {
   from["general"] >> gen;
@@ -27,9 +27,10 @@ void parameters::load(ioxx::xyaml::node const &from) {
   from["output"] >> out;
 }
 
-ioxx::xyaml::node cg::simul::defaults_yml() {
+ioxx::xyaml::node defaults_yml() {
   auto default_yml_str =
       std::string((const char *)default_yml, default_yml_len);
   auto default_yml_node = YAML::Load(default_yml_str.c_str());
   return ioxx::xyaml::node(default_yml_node);
 }
+} // namespace cg::simul

@@ -3,16 +3,16 @@
 
 namespace cg::qa {
 template <typename E> struct free_pair_expr : public nitro::ind_expr<E> {
-  EXPR_BODY(i1, i2)
+  EXPR_BODY(i1, i2, orig_dist)
 };
 
 template <typename E> struct free_pair_auto_expr : public free_pair_expr<E> {
-  AUTO_EXPR_BODY(i1, i2)
+  AUTO_EXPR_BODY(i1, i2, orig_dist)
 };
 
-using free_pair_base = nitro::tuple_wrapper<int, int>;
+using free_pair_base = nitro::tuple_wrapper<int, int, real>;
 
-class free_pair : public free_pair_expr<free_pair>, public free_pair_base {
+class free_pair : public free_pair_auto_expr<free_pair>, public free_pair_base {
 public:
   using Base = free_pair_base;
   using Base::Base;

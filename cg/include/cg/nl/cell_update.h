@@ -7,7 +7,7 @@
 namespace cg::nl {
 class cell_update {
 public:
-  real pad_factor;
+  real pad;
 
 public:
   nitro::const_view<vec3r> r;

@@ -1,6 +1,6 @@
 #include "input/pdb_file.h"
-#include "fields.h"
-#include "records.h"
+#include "input/fields.h"
+#include "input/records.h"
 #include "utils/quantity.h"
 #include <map>
 #include <set>

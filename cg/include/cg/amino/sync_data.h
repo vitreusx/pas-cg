@@ -57,7 +57,7 @@ inline auto operator+(sync_data_expr<E1> const &e1,
 }
 
 template <typename E1, typename E2>
-class sync_diff_expr : public sync_data_expr<sync_sum_expr<E1, E2>> {
+class sync_diff_expr : public sync_data_expr<sync_diff_expr<E1, E2>> {
 public:
   sync_diff_expr(E1 const &e1, E2 const &e2) : e1{e1}, e2{e2} {};
 
@@ -87,7 +87,7 @@ template <typename E> struct sync_data_auto_expr : public sync_data_expr<E> {
   AUTO_EXPR_BODY(back, side_all, side_polar, side_hydrophobic)
 };
 
-using sync_data_base = nitro::tuple_wrapper<int16_t, int16_t, int16_t, int16_t>;
+using sync_data_base = nitro::tuple_wrapper<int8_t, int8_t, int8_t, int8_t>;
 
 class sync_data : public sync_data_auto_expr<sync_data>, public sync_data_base {
 public:

@@ -3,7 +3,7 @@
 #include <Eigen/Dense>
 #include <Eigen/SVD>
 
-using namespace cg::out;
+namespace cg::out {
 
 template <typename T> int sign(T const &value) {
   return (T(0) < value) - (value < T(0));
@@ -29,3 +29,4 @@ void compute_rmsd::report_to(report_state &report) const {
   auto rmsd = sqrt((cur_R * R - orig_R).rowwise().squaredNorm().sum());
   report.current["stats"]["root mean square deviation"] = rmsd;
 }
+} // namespace cg::out

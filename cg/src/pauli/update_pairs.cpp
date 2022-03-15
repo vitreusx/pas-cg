@@ -1,5 +1,5 @@
 #include "pauli/update_pairs.h"
-using namespace cg::pauli;
+namespace cg::pauli {
 
 void update_pairs::operator()() const {
   pairs->clear();
@@ -17,3 +17,4 @@ void update_pairs::operator()() const {
     }
   }
 }
+} // namespace cg::pauli

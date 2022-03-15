@@ -57,7 +57,7 @@ public:
 
   nl::data nl;
   bool nl_required, nl_invalid, verify_first_time;
-  real max_cutoff;
+  real max_cutoff, total_disp;
   nitro::vector<int> res_cell_idx, reordered_idx, num_res_in_cell, cell_offset;
   nitro::vector<nl::pair> all_pairs;
   void setup_nl();

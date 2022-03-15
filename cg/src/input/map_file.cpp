@@ -1,4 +1,4 @@
-#include "map_file.h"
+#include "input/map_file.h"
 #include <fstream>
 #include <sstream>
 

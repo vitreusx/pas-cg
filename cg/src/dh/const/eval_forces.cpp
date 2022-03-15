@@ -1,5 +1,5 @@
 #include "dh/const/eval_forces.h"
-using namespace cg::const_dh;
+namespace cg::const_dh {
 
 void eval_forces::set_V_factor(real factor) {
   V_factor = 1.0 / (4.0 * M_PI * factor);
@@ -37,3 +37,4 @@ void eval_forces::omp_async() const {
     iter(es_pairs->at(idx));
   }
 }
+} // namespace cg::const_dh

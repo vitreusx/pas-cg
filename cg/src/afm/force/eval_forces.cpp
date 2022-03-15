@@ -1,5 +1,5 @@
 #include "afm/force/eval_forces.h"
-using namespace cg::afm::force;
+namespace cg::afm::force {
 
 void eval_forces::operator()() const {
   for (int idx = 0; idx < afm_tips.size(); ++idx) {
@@ -17,3 +17,4 @@ void eval_forces::omp_async() const {
     iter(afm_tips[idx]);
   }
 }
+} // namespace cg::afm::force

@@ -30,5 +30,7 @@ public:
 
 public:
   void operator()() const;
+  void omp_reset() const;
+  void omp_async() const;
 };
 } // namespace cg::qa

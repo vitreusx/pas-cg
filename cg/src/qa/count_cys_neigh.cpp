@@ -1,5 +1,5 @@
 #include "qa/count_cys_neigh.h"
-using namespace cg::qa;
+namespace cg::qa {
 
 void update_cys_neigh::operator()() const {
   neigh->clear();
@@ -27,3 +27,22 @@ void count_cys_neigh::operator()() const {
       ++neigh_count[pair.cys_idx()];
   }
 }
+
+void count_cys_neigh::omp_reset() const {
+#pragma omp for schedule(static) nowait
+  for (int idx = 0; idx < cys_indices.size(); ++idx) {
+    neigh_count[cys_indices[idx]] = 0;
+  }
+}
+
+void count_cys_neigh::omp_async() const {
+#pragma omp for schedule(static) nowait
+  for (int idx = 0; idx < neigh->size(); ++idx) {
+    auto pair = neigh->at(idx);
+    auto r_cys = r[pair.cys_idx()], r_nei = r[pair.neigh_idx()];
+    if (norm(simul_box->r_uv(r_cys, r_nei)) < neigh_radius)
+      ++neigh_count[pair.cys_idx()];
+  }
+}
+
+} // namespace cg::qa

@@ -1,5 +1,5 @@
 #include "qa/update_free_pairs.h"
-using namespace cg::qa;
+namespace cg::qa {
 
 void update_free_pairs::operator()() const {
   pairs->clear();
@@ -18,7 +18,8 @@ void update_free_pairs::operator()() const {
       continue;
 
     if (norm_inv(simul_box->r_uv(r1, r2)) > min_norm_inv) {
-      pairs->emplace(i1, i2);
+      pairs->emplace(i1, i2, nl_pair.orig_dist());
     }
   }
 }
+} // namespace cg::qa

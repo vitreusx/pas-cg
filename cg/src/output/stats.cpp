@@ -2,7 +2,7 @@
 #include "utils/ioxx_interop.h"
 #include "utils/math.h"
 #include <ioxx/ioxx.h>
-using namespace cg::out;
+namespace cg::out {
 
 struct chain_row {
   int chain_idx, first, last;
@@ -44,3 +44,4 @@ void add_stats::report_to(report_state &report) const {
   }
   report.current["chains"] = chains_csv;
 }
+} // namespace cg::out

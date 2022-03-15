@@ -1,7 +1,7 @@
 #include "base_forces/lj_variants.h"
 #include "utils/ioxx_interop.h"
 #include "utils/quantity.h"
-using namespace cg;
+namespace cg {
 
 struct per_pair_csv {
   amino_acid type;
@@ -45,7 +45,10 @@ void lj_variants::load(ioxx::xyaml::node const &node) {
       def_r_min = bb.r_min();
   } else {
     def_r_max = def_r_min;
-    per_pair_r_max = per_pair_r_min;
+    if (per_pair_r_min.has_value())
+      per_pair_r_max = per_pair_r_min;
+    else if (per_pair_r_max.has_value())
+      per_pair_r_min = per_pair_r_max;
   }
 
   for (auto const &aa1 : amino_acid::all()) {
@@ -88,3 +91,4 @@ void lj_variants::load(ioxx::xyaml::node const &node) {
     }
   }
 }
+} // namespace cg

@@ -1,6 +1,7 @@
 general:
   total time: 15e3 tau
   num of threads: 4
+  num of trajectories: 10
 
 input:
   pdb file:

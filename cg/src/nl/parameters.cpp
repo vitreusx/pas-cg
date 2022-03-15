@@ -1,6 +1,6 @@
 #include "nl/parameters.h"
 #include "utils/ioxx_interop.h"
-using namespace cg::nl;
+namespace cg::nl {
 
 void parameters::load(ioxx::xyaml::node const &node) {
   std::string algorithm_str;
@@ -9,5 +9,6 @@ void parameters::load(ioxx::xyaml::node const &node) {
     algorithm = CELL;
   else
     algorithm = LEGACY;
-  node["pad factor"] >> pad_factor;
+  node["pad"] >> pad;
 }
+} // namespace cg::nl

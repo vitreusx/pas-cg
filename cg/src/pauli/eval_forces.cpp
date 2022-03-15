@@ -1,6 +1,6 @@
 #include "pauli/eval_forces.h"
 #include "base_forces/shifted_lj.h"
-using namespace cg::pauli;
+namespace cg::pauli {
 
 void eval_forces::operator()() const {
   for (int idx = 0; idx < pairs->size(); ++idx) {
@@ -31,3 +31,4 @@ void eval_forces::omp_async() const {
     iter(pairs->at(idx));
   }
 }
+} // namespace cg::pauli

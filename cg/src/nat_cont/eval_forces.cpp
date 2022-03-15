@@ -1,6 +1,6 @@
 #include "nat_cont/eval_forces.h"
 #include "base_forces/lj.h"
-using namespace cg::nat_cont;
+namespace cg::nat_cont {
 
 void eval_forces::operator()() const {
   for (int idx = 0; idx < contacts->size(); ++idx) {
@@ -48,3 +48,4 @@ void eval_forces::omp_async() const {
     iter(contacts->at(idx));
   }
 }
+} // namespace cg::nat_cont

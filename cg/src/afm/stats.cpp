@@ -1,6 +1,6 @@
 #include "afm/stats.h"
 #include <cg/utils/quantity.h>
-using namespace cg::afm;
+namespace cg::afm {
 
 void report_stats::report_to(out::report_state &report) const {
   using namespace ioxx::xyaml;
@@ -41,3 +41,4 @@ void report_stats::report_to(out::report_state &report) const {
     row["end-to-end distance [A]"] = quantity(dist).in("A");
   }
 }
+} // namespace cg::afm

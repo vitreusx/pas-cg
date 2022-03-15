@@ -5,8 +5,8 @@
 #include <regex>
 #include <stdexcept>
 #include <unordered_map>
-using namespace cg;
-using namespace ioxx;
+
+namespace cg {
 
 struct cparse_unit_init {
   cparse_unit_init() {
@@ -115,14 +115,14 @@ quantity &quantity::operator=(quantity &&other) noexcept {
   return *this;
 }
 
-std::istream &cg::operator>>(std::istream &is, quantity &value) {
+std::istream &operator>>(std::istream &is, quantity &value) {
   std::string repr;
   is >> repr;
   value = quantity(repr);
   return is;
 }
 
-std::ostream &cg::operator<<(std::ostream &os, quantity const &value) {
+std::ostream &operator<<(std::ostream &os, quantity const &value) {
   os << value.repr();
   return os;
 }
@@ -143,3 +143,4 @@ double quantity::in(const std::string &unit) const {
 }
 
 double quantity::num_value() const { return numerical_value; }
+} // namespace cg

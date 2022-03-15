@@ -1,3 +1,9 @@
+general:
+  num of threads: 6
+
 input:
   seq file:
     (at path): glut.yml
+
+output:
+  period: 10 tau

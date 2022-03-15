@@ -5,7 +5,7 @@
 namespace cg::gen {
 struct parameters {
   quantity total_time, equil_time;
-  uint64_t seed, num_of_threads;
+  int seed, num_of_threads, num_of_traj;
   bool debug_mode;
 
   void load(ioxx::xyaml::node const &node);

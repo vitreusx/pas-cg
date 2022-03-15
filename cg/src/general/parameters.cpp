@@ -1,6 +1,6 @@
 #include "general/parameters.h"
 #include "utils/ioxx_interop.h"
-using namespace cg::gen;
+namespace cg::gen {
 
 void parameters::load(ioxx::xyaml::node const &p) {
   p["total time"] >> total_time;
@@ -8,4 +8,6 @@ void parameters::load(ioxx::xyaml::node const &p) {
   p["seed"] >> seed;
   p["num of threads"] >> num_of_threads;
   p["debug mode"] >> debug_mode;
+  p["num of trajectories"] >> num_of_traj;
 }
+} // namespace cg::gen

@@ -4,6 +4,7 @@ general:
   seed: 42
   num of threads: 4
   debug mode: false
+  num of trajectories: 1
 
 input:
   morph into SAW:
@@ -289,7 +290,7 @@ langevin:
 
 neighbor list:
   algorithm: legacy
-  pad factor: 0.25
+  pad: 10.0 A
 
 heurestic angles:
   enabled: true
@@ -379,7 +380,7 @@ lj force variants:
 
 pseudo-improper dihedral:
   enabled: false
-  lambda version: cosine
+  lambda version: algebraic
   include separated by 4: true
   bb+:
     alpha: 6.4 1/rad
@@ -453,5 +454,5 @@ progress bar:
 
 output:
   enabled: true
-  period: 1 tau
+  period: 100 tau
   output dir: output

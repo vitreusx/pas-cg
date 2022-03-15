@@ -1,6 +1,6 @@
 #include "base_forces/disulfide.h"
 #include "utils/ioxx_interop.h"
-using namespace cg;
+namespace cg {
 
 void disulfide_force::load(ioxx::xyaml::node const &node) {
   if (auto harm_node = node["harmonic"]; harm_node) {
@@ -14,3 +14,4 @@ void disulfide_force::load(ioxx::xyaml::node const &node) {
     force = lj(depth, r_min);
   }
 }
+} // namespace cg

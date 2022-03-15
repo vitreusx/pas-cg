@@ -1,6 +1,5 @@
 #include "amino/compiled.h"
-using namespace cg;
-
+namespace cg {
 compiled_aa_data::compiled_aa_data(amino_acid_data const &data) {
   mass = charge = nitro::vector<real>(amino_acid::NUM_TYPES);
   ptype = nitro::vector<polarization_type>(amino_acid::NUM_TYPES);
@@ -17,3 +16,4 @@ compiled_aa_data::compiled_aa_data(amino_acid_data const &data) {
         sync_data(lim.back, lim.side_all, lim.side_polar, lim.side_hydrophobic);
   }
 }
+} // namespace cg

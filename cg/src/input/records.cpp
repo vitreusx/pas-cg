@@ -1,5 +1,5 @@
-#include "records.h"
-#include "fields.h"
+#include "input/records.h"
+#include "input/fields.h"
 
 namespace cg::records {
 std::optional<remark> remark::try_parse(const std::string &line) {

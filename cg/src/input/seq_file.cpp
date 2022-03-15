@@ -1,5 +1,5 @@
 #include "input/seq_file.h"
-#include "map_file.h"
+#include "input/map_file.h"
 #include <ioxx/ioxx.h>
 #include <regex>
 #include <set>

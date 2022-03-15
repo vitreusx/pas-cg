@@ -1,3 +1,11 @@
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release")
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "Staging")
+endif ()
+
+option(FUSED_COMPILE "Build executable non-iteratively, i.e. as a single object file." OFF)
+option(USE_OMP "Use OpenMP" ON)
+
 add_executable(cg)
 
 add_custom_command(
@@ -12,15 +20,38 @@ add_custom_target(defaults ALL
 
 add_dependencies(cg defaults)
 
-file(GLOB_RECURSE PrivateSources CONFIGURE_DEPENDS
-    src/*.cpp src/*.hpp src/*.h src/*.inl)
+set(FUSED_COMPILE OFF)
 
-file(GLOB_RECURSE PublicSources CONFIGURE_DEPENDS
-    include/*.hpp include/*.h include/*.inl)
+if (${FUSED_COMPILE})
+    file(GLOB_RECURSE SourceFiles CONFIGURE_DEPENDS
+        src/*.cpp)
 
-target_sources(cg
-    PRIVATE ${PrivateSources}
-    PUBLIC ${PublicSources})
+    add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/.fused.cpp
+        COMMAND awk '{print}' ${SourceFiles} >.fused.cpp
+        DEPENDS ${SourceFiles}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    )
+
+    add_custom_target(fused_sources ALL
+        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/.fused.cpp)
+
+    add_dependencies(cg fused_sources)
+
+    target_sources(cg
+        PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/.fused.cpp)
+
+else ()
+    file(GLOB_RECURSE PrivateSources CONFIGURE_DEPENDS
+        src/*.cpp src/*.hpp src/*.h src/*.inl)
+
+    file(GLOB_RECURSE PublicSources CONFIGURE_DEPENDS
+        include/*.hpp include/*.h include/*.inl)
+
+    target_sources(cg
+        PRIVATE ${PrivateSources}
+        PUBLIC ${PublicSources})
+endif ()
 
 target_compile_features(cg
     PUBLIC cxx_std_17)
@@ -39,13 +70,17 @@ target_compile_options(cg
     $<$<COMPILE_LANGUAGE:CXX>:
     -Wall;
     $<$<CONFIG:Release>:-Ofast;-march=native>;
+    $<$<CONFIG:Staging>:-Ofast;-march=native;-g>;
     $<$<CONFIG:Debug>:-g>>)
 
 add_subdirectory(ext/ioxx/ioxx EXCLUDE_FROM_ALL)
 add_subdirectory(ext/nitro/nitro EXCLUDE_FROM_ALL)
 add_subdirectory(ext/cparse EXCLUDE_FROM_ALL)
 
-find_package(OpenMP REQUIRED)
+if (${USE_OMP})
+    find_package(OpenMP REQUIRED)
+    target_link_libraries(cg PRIVATE OpenMP::OpenMP_CXX)
+endif ()
 
 find_package(Eigen3 3.4 QUIET)
 if (NOT ${Eigen3_FOUND})
@@ -53,7 +88,7 @@ if (NOT ${Eigen3_FOUND})
 endif ()
 
 target_link_libraries(cg
-    PRIVATE ioxx nitro OpenMP::OpenMP_CXX cparse Eigen3::Eigen)
+    PRIVATE ioxx nitro cparse Eigen3::Eigen)
 
 set_target_properties(cg
     PROPERTIES

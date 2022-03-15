@@ -1,6 +1,5 @@
 #include "qa/process_contacts.h"
-using namespace cg;
-using namespace cg::qa;
+namespace cg::qa {
 
 real process_contacts::saturation_value(const contact &cont) const {
   auto saturation = min(*t - cont.ref_time(), cycle_time) * cycle_time_inv;
@@ -94,3 +93,4 @@ void process_contacts::omp_async() const {
 void process_contacts::set_factor(double breaking_factor) {
   factor = breaking_factor * pow(2.0, -1.0 / 6.0);
 }
+} // namespace cg::qa

@@ -5,7 +5,7 @@
 namespace cg::nl {
 class legacy_update {
 public:
-  real pad_factor;
+  real pad;
 
 public:
   nitro::const_view<vec3r> r;
@@ -19,5 +19,6 @@ public:
 
 public:
   void operator()() const;
+  void omp_async() const;
 };
 } // namespace cg::nl

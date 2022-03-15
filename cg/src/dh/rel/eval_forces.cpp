@@ -1,5 +1,5 @@
 #include "dh/rel/eval_forces.h"
-using namespace cg::rel_dh;
+namespace cg::rel_dh {
 
 void eval_forces::set_V_factor(real permittivity) {
   V_factor = 1.0 / (4.0 * M_PI * permittivity);
@@ -37,3 +37,4 @@ void eval_forces::omp_async() const {
     iter(es_pairs->at(idx));
   }
 }
+} // namespace cg::rel_dh

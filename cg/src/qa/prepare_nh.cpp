@@ -1,5 +1,5 @@
 #include "qa/prepare_nh.h"
-using namespace cg::qa;
+namespace cg::qa {
 
 void prepare_nh::operator()() const {
   for (int idx = 0; idx < num_particles; ++idx) {
@@ -24,3 +24,4 @@ void prepare_nh::omp_async() const {
     iter(idx);
   }
 }
+} // namespace cg::qa

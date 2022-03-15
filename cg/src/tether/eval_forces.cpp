@@ -1,6 +1,6 @@
 #include "tether/eval_forces.h"
 #include "base_forces/harmonic.h"
-using namespace cg::tether;
+namespace cg::tether {
 
 void eval_forces::operator()() const {
   for (int idx = 0; idx < tethers.size(); ++idx) {
@@ -30,3 +30,4 @@ template <typename E> void eval_forces::iter(pair_expr<E> const &tether) const {
   F[i1] += dV_dr * r12_u;
   F[i2] -= dV_dr * r12_u;
 }
+} // namespace cg::tether

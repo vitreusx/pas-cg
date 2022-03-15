@@ -1,5 +1,5 @@
 #include "pid/update_bundles.h"
-using namespace cg::pid;
+namespace cg::pid {
 
 void update_bundles::operator()() const {
   bundles->clear();
@@ -30,3 +30,4 @@ void update_bundles::operator()() const {
     }
   }
 }
+} // namespace cg::pid

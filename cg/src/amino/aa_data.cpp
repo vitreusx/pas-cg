@@ -2,8 +2,7 @@
 #include "utils/ioxx_interop.h"
 #include "utils/quantity.h"
 #include <numeric>
-using namespace cg;
-
+namespace cg {
 void contact_limits::link(ioxx::xyaml::proxy &proxy) {
   proxy["back"] & back;
   proxy["side (all)"] & side_all;
@@ -93,3 +92,4 @@ void amino_acid_data::load(ioxx::xyaml::node const &node) {
 aa_data const &amino_acid_data::operator[](const amino_acid &aa) const {
   return data.at(aa);
 }
+} // namespace cg

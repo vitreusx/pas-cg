@@ -1,11 +1,14 @@
 #include "amino/amino_acid.h"
 #include "utils/quantity.h"
 #include <regex>
-using namespace cg;
 
-size_t std::hash<amino_acid>::operator()(const cg::amino_acid &aa) const {
-  return std::hash<char>()(static_cast<char>((aa_code)aa));
+namespace std {
+size_t hash<cg::amino_acid>::operator()(const cg::amino_acid &aa) const {
+  return std::hash<char>()(static_cast<char>((cg::aa_code)aa));
 }
+} // namespace std
+
+namespace cg {
 
 amino_acid::amino_acid(const aa_code &code) : code{code} {};
 
@@ -94,26 +97,27 @@ std::istream &operator>>(std::istream &is, std::vector<amino_acid> &acids) {
   return is;
 }
 
-bool cg::operator<(amino_acid const &aa1, amino_acid const &aa2) {
+bool operator<(amino_acid const &aa1, amino_acid const &aa2) {
   return (uint8_t)aa1 < (uint8_t)aa2;
 }
 
-bool cg::operator<=(amino_acid const &aa1, amino_acid const &aa2) {
+bool operator<=(amino_acid const &aa1, amino_acid const &aa2) {
   return (uint8_t)aa1 <= (uint8_t)aa2;
 }
 
-bool cg::operator>(amino_acid const &aa1, amino_acid const &aa2) {
+bool operator>(amino_acid const &aa1, amino_acid const &aa2) {
   return (uint8_t)aa1 > (uint8_t)aa2;
 }
 
-bool cg::operator>=(amino_acid const &aa1, amino_acid const &aa2) {
+bool operator>=(amino_acid const &aa1, amino_acid const &aa2) {
   return (uint8_t)aa1 >= (uint8_t)aa2;
 }
 
-bool cg::operator==(amino_acid const &aa1, amino_acid const &aa2) {
+bool operator==(amino_acid const &aa1, amino_acid const &aa2) {
   return (uint8_t)aa1 == (uint8_t)aa2;
 }
 
-bool cg::operator!=(amino_acid const &aa1, amino_acid const &aa2) {
+bool operator!=(amino_acid const &aa1, amino_acid const &aa2) {
   return (uint8_t)aa1 != (uint8_t)aa2;
 }
+} // namespace cg

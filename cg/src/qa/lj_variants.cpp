@@ -1,5 +1,5 @@
 #include "qa/lj_variants.h"
-using namespace cg::qa;
+namespace cg::qa {
 
 lj_variants::lj_variants(const cg::lj_variants &variants) {
   this->variants.resize(contact_type::NUM_TYPES);
@@ -15,3 +15,4 @@ lj_variants::lj_variants(const cg::lj_variants &variants) {
     }
   }
 }
+} // namespace cg::qa

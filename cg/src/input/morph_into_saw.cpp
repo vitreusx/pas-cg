@@ -1,6 +1,6 @@
 #include "input/morph_into_saw.h"
 #include "utils/ioxx_interop.h"
-using namespace cg::input;
+namespace cg::input {
 
 void morph_into_saw_t::link(ioxx::xyaml::proxy &p) {
   p["perform"] & perform;
@@ -10,3 +10,4 @@ void morph_into_saw_t::link(ioxx::xyaml::proxy &p) {
   p["num of retries"] & num_of_retries;
   p["infer simulation box"] & infer_box;
 }
+} // namespace cg::input

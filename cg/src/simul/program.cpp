@@ -2,7 +2,7 @@
 #include <iostream>
 #include <optional>
 #include <string>
-using namespace cg::simul;
+namespace cg::simul {
 
 struct program_args {
   std::string prog;
@@ -117,3 +117,4 @@ void program::parse_args(int argc, char **argv) {
 void program::setup_omp() {
   omp_set_num_threads((int)st.params.gen.num_of_threads);
 }
+} // namespace cg::simul

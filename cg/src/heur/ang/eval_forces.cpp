@@ -1,5 +1,5 @@
 #include "heur/ang/eval_forces.h"
-using namespace cg::heur_ang;
+namespace cg::heur_ang {
 
 void eval_forces::operator()() const {
   for (int idx = 0; idx < angles.size(); ++idx) {
@@ -48,3 +48,4 @@ void eval_forces::omp_async() const {
     iter(angles[idx]);
   }
 }
+} // namespace cg::heur_ang
