@@ -51,7 +51,9 @@
 <li class="toctree-l2"><a class="reference internal" href="general.html">General parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="input.html">Input layer</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Program output</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#emitted-data-and-files">Emitted data and files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#per-simulation-report">Per-simulation report</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#per-trajectory-report">Per-trajectory report</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#per-snapshot-report">Per-snapshot report</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#parameter-file-entry">Parameter file entry</a></li>
 </ul>
 </li>
@@ -108,25 +110,49 @@ regular intervals (in terms of internal time).</p>
 <p>The structure of the output directory is as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>[output]
 ├── report.yml
-├── [other files...]
-├── [snapshot number]
-    ├── report.yml
-    ├── [other files...]
+├── [other per-simul files...]
+├── traj-${traj_idx}
+|   ├── report.yml
+|   ├── [other per-trajectory files...]
+|   ├── snap-${snap_idx}
+|   |   ├── report.yml
+|   |   ├── [other per-snapshot files...]
+|   |   |   ...
 </pre></div>
 </div>
-<p>In <code class="docutils literal notranslate"><span class="pre">report.yml</span></code>, one can find data pertaining to the simulation as a whole.
-Beyond that, data pertaining to the state of the simulation in a given moment is
-emitted in the form of zero-indexed snapshots.</p>
-<div class="section" id="emitted-data-and-files">
-<h2>Emitted data and files<a class="headerlink" href="#emitted-data-and-files" title="Permalink to this headline"></a></h2>
-<p>For the simulation as a whole, following data is emitted:</p>
+<p>The data is outputted to the <code class="docutils literal notranslate"><span class="pre">report.yaml</span></code> files, as well as other files (for
+example, <code class="docutils literal notranslate"><span class="pre">model.pdb</span></code> would contain the PDB model of the system). The data is
+organized into three levels:</p>
+<ul class="simple">
+<li><p>data pertaining to the entire simulation (i.e. all trajectories);</p></li>
+<li><p>data pertaining to a given trajectory;</p></li>
+<li><p>data pertaining to a given <em>snapshot</em>, emitted at a regular interval.</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>At the moment, one does <strong>not</strong> have the option for including or excluding data from the
+output, so for example one may not choose to skip computing the RMSD.</p>
+</div>
+<div class="section" id="per-simulation-report">
+<h2>Per-simulation report<a class="headerlink" href="#per-simulation-report" title="Permalink to this headline"></a></h2>
+<p>At the moment, no per-simulation information is reported.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>One could output the <code class="docutils literal notranslate"><span class="pre">inputfile.yml</span></code> here, in a fashion altogether similar to the original headers of the .out file.</p>
+</div>
+</div>
+<div class="section" id="per-trajectory-report">
+<h2>Per-trajectory report<a class="headerlink" href="#per-trajectory-report" title="Permalink to this headline"></a></h2>
+<p>For a given trajectory, following data is emitted:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">model.pdb</span></code> file, containing <code class="docutils literal notranslate"><span class="pre">MODEL</span></code> entries for all the snapshots. This is
 done chiefly in order to be able to quickly investigate the evolution of the
 system in a tool such as <a class="reference external" href="https://pymol.org/2/">PyMOL</a>.</p></li>
 </ul>
-<p>At regular intervals, following data pertaining to the state of the simulation
-in a given moment is emitted:</p>
+</div>
+<div class="section" id="per-snapshot-report">
+<h2>Per-snapshot report<a class="headerlink" href="#per-snapshot-report" title="Permalink to this headline"></a></h2>
+<p>For a given snapshot, following data is emitted:</p>
 <ul class="simple">
 <li><p>“general” statistics: time, potential, kinetic and total energy;</p></li>
 <li><p>positions of the monomers in the form of a PDB file, <code class="docutils literal notranslate"><span class="pre">model.pdb</span></code>;</p></li>
@@ -151,13 +177,9 @@ implementation follows the Wiki article.</p>
 <h2>Parameter file entry<a class="headerlink" href="#parameter-file-entry" title="Permalink to this headline"></a></h2>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">output</span><span class="p">:</span>
   <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">boolean</span>
-  <span class="nt">period</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">quantity [T]</span>
+  <span class="nt">stats period</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">quantity [T]</span>
+  <span class="nt">file period</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">quantity [T]</span>
 </pre></div>
-</div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>One does <strong>not</strong> have the option for including or excluding data from the
-output, so for example one may not choose to skip computing the RMSD.</p>
 </div>
 </div>
 </div>

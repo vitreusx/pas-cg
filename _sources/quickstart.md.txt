@@ -7,22 +7,58 @@
 - CMake 3.14+;
 - OpenMP.
 
-## Installation
+## Getting the program
+
+### Releases
+
+For convenience, a number of releases are available at
+the [Github page](https://github.com/vitreusx/pas-cg/releases). The releases
+contain:
+
+- the executable `cg`, compiled on the latest Ubuntu version;
+- `data` directory with examples.
+
+For more info, see
+the [workflow file](https://github.com/vitreusx/pas-cg/blob/main/.github/workflows/create-release.yml)
+.
+
+```{warning}
+Some shared libraries may not have the same name as on the Ubuntu machine, resulting in an error. To fix it, check the offending libraries with `ldd cg`.
+```
+
+### Compiling from source
+
+#### Getting the source code
 
 To get the source code, clone
 the [vitreusx/pas-cg](https://github.com/vitreusx/pas-cg) repository and pull
 the submodules. For regular use, shallow clones are sufficient:
 
 ```shell
-git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/vitreusx/pas-cg.git
+git clone --depth 1 \
+  --recurse-submodules \
+  --shallow-submodules \
+  https://github.com/vitreusx/pas-cg.git
 cd pas-cg/
 ```
 
-## Compiling
+#### Compiling
 
 The project is built using [CMake](https://cmake.org/). The two targets of
-interest are `cg`, the program proper, and `docs` for generating the
-documentation. The `cg` target supports `Debug` and `Release` configurations.
+interest are:
+
+- `cg`, the program proper;
+- `docs`, target for generating the documentation.
+
+The `cg` target supports following configurations:
+
+- `Debug`: version without optimizations and with debug info attached;
+- `Release`: fully optimized version;
+- `Staging`: `Release` with debug info attached;
+- `Deployment`: version with optimizations but without `-march=native`.
+
+For example, to compile the program in the Release mode with `make` to
+the `release/` directory, enter:
 
 ```shell
 mkdir release
@@ -34,10 +70,13 @@ make -j4 cg
 ## Running
 
 ```
-Usage: cg [options] param-files...
-Allowed options:
-  --help                print this help message
-  --param-files arg     parameter files
+$ ./cg --help
+PAS CG Coarse Grained Model
+Documentation: https://vitreusx.github.io/pas-cg
+Usage: ./cg [options...]
+  -h,        --help               Print this help message.
+  -p [path], --param-file [path]  Load parameter file.
+  -c [path], --chkpt-file [path]  Load state from checkpoint.
 ```
 
 The input to the program consist of the parameter file(s), which allow the user
@@ -51,20 +90,26 @@ command to run an example simulation could look like:
 
 The provided parameter/input files contain only the differences from the input
 file with the defaults, which is included by default for the sake of convenience
-and is located at `cg/src/simul/defaults.yml`. To be precise, the implicit
-default parameter file gets overriden by the user-provided parameter files in
-the order in which they are listed.
+and is located
+at [`cg/src/simul/defaults.yml`](https://github.com/vitreusx/pas-cg/blob/main/cg/src/simul/default.yml)
+. To be precise, the implicit default parameter file gets overriden by the
+user-provided parameter files in the order in which they are listed.
 
 ## Examples
 
-A number of examples are provided for the purposes of demonstration:
+A number of examples are provided for the purposes of demonstration in
+the [`cg/data/`](https://github.com/vitreusx/pas-cg/tree/main/cg/data)
+directory.
 
-- `1ubq`: folding of ubiquitin, computation of median required time for
-  re-establishing the native contacts;
-- `9aac`: simulation of Atomic Force Microscope (AFM) stretching of an
-  intrinsically disordered protein, $\alpha$-synuclein, with the pseudo-improper
-  dihedral custom potential;
-- `glut`: simulation of deforming a box filled with partially structured gluten
+- [`1ubq`](https://github.com/vitreusx/pas-cg/tree/main/cg/data/1ubq): folding
+  of ubiquitin, computation of median required time for re-establishing the
+  native contacts;
+- [`9aac`](https://github.com/vitreusx/pas-cg/tree/main/cg/data/9aac):
+  simulation of Atomic Force Microscope (AFM) stretching of an intrinsically
+  disordered protein, $\alpha$-synuclein, with the pseudo-improper dihedral
+  custom potential;
+- [`glut`](https://github.com/vitreusx/pas-cg/tree/main/cg/data/1ubq):
+  simulation of deforming a box filled with partially structured gluten
   proteins, with the quasi-adiabatic custom potential.
 
 ```{warning}

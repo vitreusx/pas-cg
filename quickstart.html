@@ -42,8 +42,15 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#compiling">Compiling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-the-program">Getting the program</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#releases">Releases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compiling-from-source">Compiling from source</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#getting-the-source-code">Getting the source code</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#compiling">Compiling</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#running">Running</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
 </ul>
@@ -86,21 +93,57 @@
 <li><p>OpenMP.</p></li>
 </ul>
 </div>
-<div class="section" id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h2>
+<div class="section" id="getting-the-program">
+<h2>Getting the program<a class="headerlink" href="#getting-the-program" title="Permalink to this headline"></a></h2>
+<div class="section" id="releases">
+<h3>Releases<a class="headerlink" href="#releases" title="Permalink to this headline"></a></h3>
+<p>For convenience, a number of releases are available at
+the <a class="reference external" href="https://github.com/vitreusx/pas-cg/releases">Github page</a>. The releases
+contain:</p>
+<ul class="simple">
+<li><p>the executable <code class="docutils literal notranslate"><span class="pre">cg</span></code>, compiled on the latest Ubuntu version;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data</span></code> directory with examples.</p></li>
+</ul>
+<p>For more info, see
+the <a class="reference external" href="https://github.com/vitreusx/pas-cg/blob/main/.github/workflows/create-release.yml">workflow file</a>
+.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Some shared libraries may not have the same name as on the Ubuntu machine, resulting in an error. To fix it, check the offending libraries with <code class="docutils literal notranslate"><span class="pre">ldd</span> <span class="pre">cg</span></code>.</p>
+</div>
+</div>
+<div class="section" id="compiling-from-source">
+<h3>Compiling from source<a class="headerlink" href="#compiling-from-source" title="Permalink to this headline"></a></h3>
+<div class="section" id="getting-the-source-code">
+<h4>Getting the source code<a class="headerlink" href="#getting-the-source-code" title="Permalink to this headline"></a></h4>
 <p>To get the source code, clone
 the <a class="reference external" href="https://github.com/vitreusx/pas-cg">vitreusx/pas-cg</a> repository and pull
 the submodules. For regular use, shallow clones are sufficient:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone --depth <span class="m">1</span> --recurse-submodules --shallow-submodules https://github.com/vitreusx/pas-cg.git
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git clone --depth <span class="m">1</span> <span class="se">\</span>
+  --recurse-submodules <span class="se">\</span>
+  --shallow-submodules <span class="se">\</span>
+  https://github.com/vitreusx/pas-cg.git
 <span class="nb">cd</span> pas-cg/
 </pre></div>
 </div>
 </div>
 <div class="section" id="compiling">
-<h2>Compiling<a class="headerlink" href="#compiling" title="Permalink to this headline"></a></h2>
+<h4>Compiling<a class="headerlink" href="#compiling" title="Permalink to this headline"></a></h4>
 <p>The project is built using <a class="reference external" href="https://cmake.org/">CMake</a>. The two targets of
-interest are <code class="docutils literal notranslate"><span class="pre">cg</span></code>, the program proper, and <code class="docutils literal notranslate"><span class="pre">docs</span></code> for generating the
-documentation. The <code class="docutils literal notranslate"><span class="pre">cg</span></code> target supports <code class="docutils literal notranslate"><span class="pre">Debug</span></code> and <code class="docutils literal notranslate"><span class="pre">Release</span></code> configurations.</p>
+interest are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cg</span></code>, the program proper;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">docs</span></code>, target for generating the documentation.</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">cg</span></code> target supports following configurations:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Debug</span></code>: version without optimizations and with debug info attached;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Release</span></code>: fully optimized version;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Staging</span></code>: <code class="docutils literal notranslate"><span class="pre">Release</span></code> with debug info attached;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Deployment</span></code>: version with optimizations but without <code class="docutils literal notranslate"><span class="pre">-march=native</span></code>.</p></li>
+</ul>
+<p>For example, to compile the program in the Release mode with <code class="docutils literal notranslate"><span class="pre">make</span></code> to
+the <code class="docutils literal notranslate"><span class="pre">release/</span></code> directory, enter:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir release
 <span class="nb">cd</span> release
 cmake -DCMAKE_BUILD_TYPE<span class="o">=</span>Release ..
@@ -108,12 +151,17 @@ make -j4 cg
 </pre></div>
 </div>
 </div>
+</div>
+</div>
 <div class="section" id="running">
 <h2>Running<a class="headerlink" href="#running" title="Permalink to this headline"></a></h2>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Usage</span><span class="p">:</span> <span class="n">cg</span> <span class="p">[</span><span class="n">options</span><span class="p">]</span> <span class="n">param</span><span class="o">-</span><span class="n">files</span><span class="o">...</span>
-<span class="n">Allowed</span> <span class="n">options</span><span class="p">:</span>
-  <span class="o">--</span><span class="n">help</span>                <span class="nb">print</span> <span class="n">this</span> <span class="n">help</span> <span class="n">message</span>
-  <span class="o">--</span><span class="n">param</span><span class="o">-</span><span class="n">files</span> <span class="n">arg</span>     <span class="n">parameter</span> <span class="n">files</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./cg --help
+PAS CG Coarse Grained Model
+Documentation: https://vitreusx.github.io/pas-cg
+Usage: ./cg [options...]
+  -h,        --help               Print this help message.
+  -p [path], --param-file [path]  Load parameter file.
+  -c [path], --chkpt-file [path]  Load state from checkpoint.
 </pre></div>
 </div>
 <p>The input to the program consist of the parameter file(s), which allow the user
@@ -125,20 +173,26 @@ command to run an example simulation could look like:</p>
 </div>
 <p>The provided parameter/input files contain only the differences from the input
 file with the defaults, which is included by default for the sake of convenience
-and is located at <code class="docutils literal notranslate"><span class="pre">cg/src/simul/defaults.yml</span></code>. To be precise, the implicit
-default parameter file gets overriden by the user-provided parameter files in
-the order in which they are listed.</p>
+and is located
+at <a class="reference external" href="https://github.com/vitreusx/pas-cg/blob/main/cg/src/simul/default.yml"><code class="docutils literal notranslate"><span class="pre">cg/src/simul/defaults.yml</span></code></a>
+. To be precise, the implicit default parameter file gets overriden by the
+user-provided parameter files in the order in which they are listed.</p>
 </div>
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline"></a></h2>
-<p>A number of examples are provided for the purposes of demonstration:</p>
+<p>A number of examples are provided for the purposes of demonstration in
+the <a class="reference external" href="https://github.com/vitreusx/pas-cg/tree/main/cg/data"><code class="docutils literal notranslate"><span class="pre">cg/data/</span></code></a>
+directory.</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">1ubq</span></code>: folding of ubiquitin, computation of median required time for
-re-establishing the native contacts;</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">9aac</span></code>: simulation of Atomic Force Microscope (AFM) stretching of an
-intrinsically disordered protein, <span class="math notranslate nohighlight">\(\alpha\)</span>-synuclein, with the pseudo-improper
-dihedral custom potential;</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">glut</span></code>: simulation of deforming a box filled with partially structured gluten
+<li><p><a class="reference external" href="https://github.com/vitreusx/pas-cg/tree/main/cg/data/1ubq"><code class="docutils literal notranslate"><span class="pre">1ubq</span></code></a>: folding
+of ubiquitin, computation of median required time for re-establishing the
+native contacts;</p></li>
+<li><p><a class="reference external" href="https://github.com/vitreusx/pas-cg/tree/main/cg/data/9aac"><code class="docutils literal notranslate"><span class="pre">9aac</span></code></a>:
+simulation of Atomic Force Microscope (AFM) stretching of an intrinsically
+disordered protein, <span class="math notranslate nohighlight">\(\alpha\)</span>-synuclein, with the pseudo-improper dihedral
+custom potential;</p></li>
+<li><p><a class="reference external" href="https://github.com/vitreusx/pas-cg/tree/main/cg/data/1ubq"><code class="docutils literal notranslate"><span class="pre">glut</span></code></a>:
+simulation of deforming a box filled with partially structured gluten
 proteins, with the quasi-adiabatic custom potential.</p></li>
 </ul>
 <div class="admonition warning">

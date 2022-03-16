@@ -15,7 +15,7 @@ path is relative **to the YAML file**.
 file: scalar
 
 file:
-  __path: relpath
+  (at path)): relpath
 ```
 
 This is chiefly done in order to not have to include the file verbatim in the

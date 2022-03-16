@@ -30,6 +30,5 @@ pas-cg                       Repository
 └── README.md
 ```
 
-It is important to take a look at the inputfiles, such
-as `cg/data/default/inputfile.yml` and other associated files, in case the
-explanations in this documentation were unclear. 
+It is important to take a look at the inputfiles and other associated files, in
+case the explanations in this documentation were unclear. 
