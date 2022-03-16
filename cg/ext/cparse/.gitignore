@@ -1,2 +1,2 @@
-test-shunting-yard
-*.o
+/test-shunting-yard
+/*.o
