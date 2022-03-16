@@ -35,7 +35,7 @@ jobs:
         run: |
           mkdir ${PACKAGE}
           rsync -a build/cg/cg ${PACKAGE}
-          rsync -a data ${PACKAGE}
+          rsync -a cg/data ${PACKAGE}
           zip -r ${PACKAGE}.zip ${PACKAGE}
         env:
           PACKAGE: ${{ steps.package_name.outputs.PACKAGE }}
