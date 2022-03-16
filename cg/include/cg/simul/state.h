@@ -15,6 +15,9 @@
 namespace cg::simul {
 class state {
 public:
+  explicit state(parameters &params);
+  void verify_equal(state const &other) const;
+
   parameters params;
 
   bool did_simul_setup = false;
@@ -43,7 +46,7 @@ public:
   nitro::vector<int> prev, next, chain_idx, seq_idx, chain_first, chain_last;
   void compile_model();
 
-  real t, V;
+  real t;
   dynamics dyn;
   void setup_dyn();
 

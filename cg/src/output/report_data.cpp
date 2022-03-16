@@ -11,7 +11,7 @@ void report_data::simul_init() {
 
 void report_data::traj_init() {
   using namespace ioxx::xyaml;
-  step_idx = 0;
+  snap_idx = 0;
   traj_dir = out_dir / format("traj-%d", *traj_idx);
   auto traj_path = traj_dir / "report.yml";
   for_traj = node::new_file(traj_path);
@@ -19,9 +19,9 @@ void report_data::traj_init() {
 
 void report_data::step_init() {
   using namespace ioxx::xyaml;
-  step_dir = traj_dir / format("step-%d", step_idx);
-  auto step_path = step_dir / "report.yml";
-  for_step = node::new_file(step_path);
+  snap_dir = traj_dir / format("snap-%d", snap_idx);
+  auto step_path = snap_dir / "report.yml";
+  for_snap = node::new_file(step_path);
   scalars.emplace_back();
 }
 
@@ -45,8 +45,8 @@ void report_data::step_finish() {
 
   for_simul.save();
   for_traj.save();
-  for_step.save();
-  ++step_idx;
+  for_snap.save();
+  ++snap_idx;
 }
 
 } // namespace cg::out

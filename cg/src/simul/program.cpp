@@ -94,12 +94,10 @@ program_args::program_args(int argc, char **argv) {
 
 void program::main(int argc, char **argv) {
   parse_args(argc, argv);
-  setup_omp();
-
-#pragma omp parallel default(none)
-  {
-    auto thr = thread(st);
-    thr.main();
+  if (!params.gen.debug_mode.determinism) {
+    regular_main();
+  } else {
+    determinism_main();
   }
 }
 
@@ -119,11 +117,47 @@ void program::parse_args(int argc, char **argv) {
       auto slice_yml = node::import(path);
       params_yml.merge(slice_yml);
     }
-    params_yml >> st.params;
+    params_yml >> params;
+  }
+}
+
+void program::regular_main() {
+  setup_omp();
+
+  auto st = state(params);
+  auto team = thread_team(st);
+
+#pragma omp parallel default(none) shared(team)
+  {
+    auto &thr = team.fork();
+    thr.main();
+  }
+}
+
+void program::determinism_main() {
+  setup_omp();
+
+  auto st1 = state(params), st2 = state(params);
+  auto team1 = thread_team(st1), team2 = thread_team(st2);
+
+#pragma omp parallel default(none) shared(st1, team1, st2, team2)
+  {
+    auto &thr1 = team1.fork(), &thr2 = team2.fork();
+
+    do {
+      thr1.loop();
+      thr2.loop();
+#pragma omp barrier
+
+#pragma omp master
+      st1.verify_equal(st2);
+
+#pragma omp barrier
+    } while (st1.is_running && st2.is_running);
   }
 }
 
 void program::setup_omp() {
-  omp_set_num_threads((int)st.params.gen.num_of_threads);
+  omp_set_num_threads((int)params.gen.num_of_threads);
 }
 } // namespace cg::simul

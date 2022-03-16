@@ -23,7 +23,10 @@ amino acids:
       side (polar): integer
 ```
 
-The fields `alt atom radii`, `polarization` and `charge` are optional.
+The fields `alt atom radii`, `polarization` and `charge` are optional. For more
+info, see the `amino acids` entry in
+the [`default.yml`](https://github.com/vitreusx/pas-cg/blob/main/cg/src/simul/default.yml)
+file.
 
 ## Parameter file entry
 

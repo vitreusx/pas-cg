@@ -7,12 +7,25 @@
 #include <cfenv>
 
 namespace cg::simul {
+class thread;
+
+class thread_team {
+public:
+  explicit thread_team(state& st);
+  thread &fork();
+
+public:
+  state& st;
+  std::vector<std::unique_ptr<thread>> threads;
+};
+
 class thread {
 public:
-  explicit thread(state &st);
+  explicit thread(thread_team &team, state &st);
   thread(thread const &) = delete;
 
   void main();
+  void loop();
 
   void adjust_scenario();
   void pre_eval();
@@ -21,6 +34,8 @@ public:
   void fix_nl();
 
 public:
+  int thread_id, num_threads;
+  thread_team &team;
   state &st;
   parameters const &params;
 
@@ -42,8 +57,6 @@ public:
   out::add_structure add_structure;
   qa::report_qa_stuff report_qa_stuff;
   nat_cont::report_stuff report_nc_stuff;
-  out::report_gyration_stuff report_gyr;
-  out::compute_rmsd compute_rmsd;
   void setup_output();
 
   lang::step lang_step;

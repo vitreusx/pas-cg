@@ -16,7 +16,7 @@ void report_stats::report_to(out::report_data &report) const {
       row["force [f77unit*A/tau^2]"] = quantity(force).in("f77unit*A/tau**2");
     }
 
-    report.for_step["const-velocity AFM"] << vel_afm_csv;
+    report.for_snap["const-velocity AFM"] << vel_afm_csv;
 
     csv<> force_afm_csv;
     force_afm_csv.path = "force-afm.csv";
@@ -28,7 +28,7 @@ void report_stats::report_to(out::report_data &report) const {
       row["vel [A/tau]"] = quantity(vel).in("A/tau");
     }
 
-    report.for_step["const-force AFM"] << force_afm_csv;
+    report.for_snap["const-force AFM"] << force_afm_csv;
 
     csv<> pulled_chains_csv;
     pulled_chains_csv.path = "pulled-chains.csv";
@@ -41,7 +41,7 @@ void report_stats::report_to(out::report_data &report) const {
       row["end-to-end distance [A]"] = quantity(dist).in("A");
     }
 
-    report.for_step["pulled-apart chains"] << pulled_chains_csv;
+    report.for_snap["pulled-apart chains"] << pulled_chains_csv;
   }
 
   if (tips->pulled_chains.size() == 1) {

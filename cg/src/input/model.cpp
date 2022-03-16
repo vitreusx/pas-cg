@@ -142,23 +142,29 @@ void model::morph_into_saw(rand_gen &gen,
       }
     }
 
-    double ix_dist_inv = 1.0 / params.intersection_at;
-    bool do_intersect = false;
-    for (int idx1 = 0; idx1 < (int)residues.size(); ++idx1) {
-      auto &res1 = residues[idx1];
-      for (int idx2 = idx1 + 1; idx2 < (int)residues.size(); ++idx2) {
-        auto &res2 = residues[idx2];
-        if (norm_inv(res2->pos - res1->pos) > ix_dist_inv) {
-          do_intersect = true;
-          break;
+    if (params.intersection_at != 0) {
+      double ix_dist_inv = 1.0 / params.intersection_at;
+      bool do_intersect = false;
+      for (int idx1 = 0; idx1 < (int)residues.size(); ++idx1) {
+        auto &res1 = residues[idx1];
+        for (int idx2 = idx1 + 1; idx2 < (int)residues.size(); ++idx2) {
+          auto &res2 = residues[idx2];
+          if (norm_inv(res2->pos - res1->pos) > ix_dist_inv) {
+            do_intersect = true;
+            break;
+          }
         }
+
+        if (do_intersect)
+          break;
       }
 
-      if (do_intersect)
+      if (!do_intersect) {
+        found_conformation = true;
         break;
+      }
     }
-
-    if (!do_intersect) {
+    else {
       found_conformation = true;
       break;
     }

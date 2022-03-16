@@ -19,3 +19,8 @@ arithmetic expression involving these predefined units can be entered.
 ```{warning}
 The system of units is inconsistent. From `f77unit`, `tau` and `eps` one could derive the base unit of mass, yet `f77mass` is **not** equal to it.
 ```
+
+For more info,
+see [`units.h`](https://github.com/vitreusx/pas-cg/blob/main/cg/include/cg/utils/units.h)
+and [`quantity.cpp`](https://github.com/vitreusx/pas-cg/blob/main/cg/src/utils/quantity.cpp)
+.

@@ -6,4 +6,4 @@ input:
     (at path): glut.yml
 
 output:
-  output dir: output/glut
+  output dir: output

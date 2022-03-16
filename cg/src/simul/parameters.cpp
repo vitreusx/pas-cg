@@ -25,6 +25,11 @@ void parameters::load(ioxx::xyaml::node const &from) {
   from["AFM"] >> afm;
   from["progress bar"] >> pbar;
   from["output"] >> out;
+
+  if (gen.debug_mode.determinism) {
+    out.enabled = false;
+    pbar.enabled = false;
+  }
 }
 
 ioxx::xyaml::node defaults_yml() {

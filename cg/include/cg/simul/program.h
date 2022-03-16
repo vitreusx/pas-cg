@@ -9,9 +9,11 @@ public:
   void main(int argc, char **argv);
 
 private:
-  state st;
+  parameters params;
 
   void parse_args(int argc, char **argv);
+  void regular_main();
+  void determinism_main();
   void setup_omp();
 };
 } // namespace cg::simul

@@ -9,26 +9,48 @@ The structure of the output directory is as follows:
 ```
 [output]
 ├── report.yml
-├── [other files...]
-├── [snapshot number]
-    ├── report.yml
-    ├── [other files...]
+├── [other per-simul files...]
+├── traj-${traj_idx}
+|   ├── report.yml
+|   ├── [other per-trajectory files...]
+|   ├── snap-${snap_idx}
+|   |   ├── report.yml
+|   |   ├── [other per-snapshot files...]
+|   |   |   ...
 ```
 
-In `report.yml`, one can find data pertaining to the simulation as a whole.
-Beyond that, data pertaining to the state of the simulation in a given moment is
-emitted in the form of zero-indexed snapshots.
+The data is outputted to the `report.yaml` files, as well as other files (for
+example, `model.pdb` would contain the PDB model of the system). The data is
+organized into three levels:
 
-## Emitted data and files
+- data pertaining to the entire simulation (i.e. all trajectories);
+- data pertaining to a given trajectory;
+- data pertaining to a given *snapshot*, emitted at a regular interval.
 
-For the simulation as a whole, following data is emitted:
+```{warning}
+At the moment, one does **not** have the option for including or excluding data from the
+output, so for example one may not choose to skip computing the RMSD.
+```
+
+## Per-simulation report
+
+At the moment, no per-simulation information is reported.
+
+```{note}
+One could output the `inputfile.yml` here, in a fashion altogether similar to the original headers of the .out file.
+```
+
+## Per-trajectory report
+
+For a given trajectory, following data is emitted:
 
 - `model.pdb` file, containing `MODEL` entries for all the snapshots. This is
   done chiefly in order to be able to quickly investigate the evolution of the
   system in a tool such as [PyMOL](https://pymol.org/2/).
 
-At regular intervals, following data pertaining to the state of the simulation
-in a given moment is emitted:
+## Per-snapshot report
+
+For a given snapshot, following data is emitted:
 
 - "general" statistics: time, potential, kinetic and total energy;
 - positions of the monomers in the form of a PDB file, `model.pdb`;
@@ -53,10 +75,6 @@ implementation follows the Wiki article.
 ```yaml
 output:
   enabled: boolean
-  period: quantity [T]
-```
-
-```{warning}
-One does **not** have the option for including or excluding data from the
-output, so for example one may not choose to skip computing the RMSD.
+  stats period: quantity [T]
+  file period: quantity [T]
 ```

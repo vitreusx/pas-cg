@@ -17,7 +17,7 @@ void export_pdb::report_to(report_data &report) const {
 
     auto pdb_repr = pdb_file(cur_model);
     std::stringstream pdb_ss;
-    pdb_ss << pdb_repr.emit_model(report.step_idx + 1);
+    pdb_ss << pdb_repr.emit_model(report.snap_idx + 1);
 
     if (report.traj_first_time) {
       file gen_model_file;
@@ -35,7 +35,7 @@ void export_pdb::report_to(report_data &report) const {
     file coords_file;
     coords_file.source = pdb_ss.str();
     coords_file.rel_path = "model.pdb";
-    report.for_step["model"] = coords_file;
+    report.for_snap["model"] = coords_file;
   }
 }
 } // namespace cg::out

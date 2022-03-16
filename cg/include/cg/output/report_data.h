@@ -5,9 +5,9 @@
 namespace cg::out {
 struct report_data {
   bool simul_first_time, traj_first_time;
-  int *traj_idx, step_idx;
-  std::filesystem::path out_dir, traj_dir, step_dir;
-  ioxx::xyaml::node for_simul, for_traj, for_step;
+  int *traj_idx, snap_idx;
+  std::filesystem::path out_dir, traj_dir, snap_dir;
+  ioxx::xyaml::node for_simul, for_traj, for_snap;
   bool report_stats, report_files;
   real last_stats_t, last_files_t;
 

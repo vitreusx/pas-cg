@@ -1,11 +1,60 @@
 #include "simul/state.h"
 namespace cg::simul {
 
+state::state(parameters &params) : params(params) {}
+
+static void allclose(real u, real v) {
+  if (abs(u) < 1e-4 && abs(v) < 1e-4)
+    return;
+
+  if (abs(v - u) > 1e-4 * abs(u))
+    throw;
+}
+
+static void allclose(vec3r u, vec3r v) {
+  allclose(u.x(), v.x());
+  allclose(u.y(), v.y());
+  allclose(u.z(), v.z());
+}
+
+static void allclose(nitro::vector<vec3r> const &u,
+                     nitro::vector<vec3r> const &v) {
+  if (u.size() != v.size())
+    throw;
+
+  for (int idx = 0; idx < u.size(); ++idx) {
+    allclose(u[idx], v[idx]);
+  }
+}
+
+void state::verify_equal(const state &other) const {
+  allclose(dyn.V, other.dyn.V);
+  allclose(dyn.F, other.dyn.F);
+  allclose(r, other.r);
+}
+
 void state::simul_setup() {
   is_running = true;
   total_time = params.gen.total_time;
   equil_time = params.gen.equil_time;
   traj_idx = 0;
+
+  if (params.gen.disable_all) {
+    params.chir.enabled = false;
+    params.tether.enabled = false;
+    params.nat_ang.enabled = false;
+    params.heur_ang.enabled = false;
+    params.cnd.enabled = false;
+    params.snd.enabled = false;
+    params.heur_dih.enabled = false;
+    params.pauli.enabled = false;
+    params.nat_cont.enabled = false;
+    params.const_dh.enabled = false;
+    params.rel_dh.enabled = false;
+    params.qa.enabled = false;
+    params.pid.enabled = false;
+  }
+
   gen = rand_gen(params.gen.seed);
 
   report.out_dir = params.out.output_dir;
@@ -128,7 +177,6 @@ void state::compile_model() {
 
 void state::setup_dyn() {
   t = 0;
-  V = 0;
   dyn = dynamics(num_res);
 }
 

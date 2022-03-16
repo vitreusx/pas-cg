@@ -3,8 +3,12 @@ general:
   equil time: 0 tau
   seed: 42
   num of threads: 4
-  debug mode: false
+  debug mode:
+    enabled: false
+    floating point exceptions: false
+    determinism: true
   num of trajectories: 1
+  disable all forces: false
 
 input:
   morph into SAW:

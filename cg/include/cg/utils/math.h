@@ -139,4 +139,9 @@ template <typename T> auto isfinite(T const &x) { return std::isfinite(x); }
 template <typename T, size_t N> auto isfinite(nitro::lane<T, N> const &x) {
   return ::is_finite(x);
 }
+
+template <typename T> int sign(T const &value) {
+  return (T(0) < value) - (value < T(0));
+}
+
 } // namespace cg

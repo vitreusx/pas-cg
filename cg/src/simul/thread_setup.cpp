@@ -1,7 +1,22 @@
 #include "simul/thread.h"
+#include <omp.h>
 namespace cg::simul {
 
-thread::thread(state &st) : st{st}, params{st.params} {}
+thread_team::thread_team(state &st) : st{st} {}
+
+thread &thread_team::fork() {
+#pragma omp critical
+  {
+    auto thread_ptr = std::make_unique<thread>(*this, st);
+    return *threads.emplace_back(std::move(thread_ptr));
+  }
+}
+
+thread::thread(thread_team &team, state &st)
+    : team{team}, st{st}, params{st.params} {
+  thread_id = omp_get_thread_num();
+  num_threads = omp_get_num_threads();
+}
 
 void thread::traj_setup() {
   setup_gen();
@@ -13,6 +28,7 @@ void thread::traj_setup() {
   setup_chir();
   setup_tether();
   setup_nat_ang();
+  setup_heur_ang();
   setup_nat_dih();
   setup_heur_dih();
   setup_pauli();
@@ -32,7 +48,7 @@ void thread::setup_gen() {
   for (int rep = 0; rep < omp_get_thread_num(); ++rep)
     gen = gen.spawn();
 
-  if (params.gen.debug_mode) {
+  if (params.gen.debug_mode.fp_exceptions) {
     feclearexcept(FE_ALL_EXCEPT);
     feenableexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW);
   }
@@ -59,6 +75,7 @@ void thread::setup_output() {
     add_stats.mass = st.comp_aa_data.mass.get_view();
     add_stats.chain_first = st.chain_first.get_view();
     add_stats.chain_last = st.chain_last.get_view();
+    add_stats.chain_idx = st.chain_idx.get_view();
     add_stats.r = st.r.get_view();
     hooks.emplace_back(&add_stats);
 
@@ -66,11 +83,6 @@ void thread::setup_output() {
     add_structure.r = st.r.get_view();
     add_structure.model = &st.model;
     hooks.emplace_back(&add_structure);
-
-    report_gyr.r = st.r.get_view();
-    hooks.emplace_back(&report_gyr);
-
-    compute_rmsd.orig_r = st.orig_r.get_view();
   }
 }
 
@@ -320,8 +332,9 @@ void thread::setup_dh() {
   update.nl = &st.nl;
   update.pairs = &st.dh_pairs;
   update.atype = st.atype.get_view();
-  for (auto const &aa : amino_acid::all())
+  for (auto const &aa : amino_acid::all()) {
     update.q[(uint8_t)aa] = st.comp_aa_data.charge[(uint8_t)aa];
+  }
 
   if (params.const_dh.enabled) {
     auto &eval = eval_const_dh_forces;
@@ -460,7 +473,7 @@ void thread::setup_qa() {
         count_cys.cys_indices = st.cys_indices.get_view();
         count_cys.r = st.r.get_view();
 
-#pragma omp single nowait
+#pragma omp master
         st.max_cutoff = max(st.max_cutoff, (real)spec_crit_params.neigh_radius);
       }
     }
@@ -541,7 +554,7 @@ void thread::setup_pid() {
     eval.cutoff = cutoff;
     update.cutoff = cutoff;
 
-#pragma omp single nowait
+#pragma omp master
     st.max_cutoff = max(st.max_cutoff, cutoff);
   }
 }

@@ -3,33 +3,39 @@ namespace cg::simul {
 
 void thread::main() {
   do {
-    adjust_scenario();
-    if (!st.is_running)
-      break;
+    loop();
+  } while (st.is_running);
+}
 
-    pre_eval();
-    eval_forces();
-    post_eval();
-  } while (true);
+void thread::loop() {
+  adjust_scenario();
+  if (!st.is_running)
+    return;
+
+  pre_eval();
+  eval_forces();
+  post_eval();
 }
 
 void thread::adjust_scenario() {
   if (!st.did_simul_setup) {
 #pragma omp master
-    {
-      st.simul_setup();
-      st.did_simul_setup = true;
-    }
+    st.simul_setup();
+
 #pragma omp barrier
+
+#pragma omp master
+    st.did_simul_setup = true;
   }
 
   if (!st.did_traj_setup) {
 #pragma omp master
-    {
-      st.traj_setup();
-      st.did_traj_setup = true;
-    }
+    st.traj_setup();
+
 #pragma omp barrier
+
+#pragma omp master
+    st.did_traj_setup = true;
   }
 
   if (!did_traj_setup) {
@@ -43,6 +49,7 @@ void thread::adjust_scenario() {
       st.finish_trajectory();
       st.is_running = (st.traj_idx >= params.gen.num_of_traj);
     }
+#pragma omp barrier
 
     finish_trajectory();
     if (st.is_running)
@@ -54,11 +61,12 @@ void thread::adjust_scenario() {
   if (st.t >= st.equil_time) {
     if (!st.did_post_equil_setup) {
 #pragma omp master
-      {
-        st.post_equil_setup();
-        st.did_post_equil_setup = true;
-      }
+      st.post_equil_setup();
+
 #pragma omp barrier
+
+#pragma omp master
+      st.did_post_equil_setup = true;
     }
 
     if (!did_post_equil_setup) {
@@ -166,6 +174,23 @@ void thread::eval_forces() {
     }
   }
 
+  //  for (int tid = 0; tid < num_threads; ++tid) {
+  //    if (thread_id == tid) {
+  //      dyn.reduce(st.dyn);
+  //    }
+  //#pragma omp barrier
+  //  }
+  //#pragma omp barrier
+
+  //#pragma omp barrier
+  //
+  //#pragma omp master
+  //  {
+  //    for (auto &thr_ptr : team.threads)
+  //      thr_ptr->dyn.reduce(st.dyn);
+  //  }
+  //#pragma omp barrier
+
   dyn.omp_reduce(st.dyn);
 #pragma omp barrier
 }
@@ -184,19 +209,18 @@ void thread::post_eval() {
     if (params.qa.enabled) {
       qa_finish_processing();
     }
-  }
 
-  if (params.lang.enabled) {
-#pragma omp barrier
-    switch (params.lang.type) {
-    case lang::lang_type::NORMAL:
-      lang_step.omp_async();
-      break;
-    case lang::lang_type::LEGACY:
-      lang_legacy_step.omp_async();
-      break;
+    if (params.lang.enabled) {
+      switch (params.lang.type) {
+      case lang::lang_type::NORMAL:
+        lang_step();
+        break;
+      case lang::lang_type::LEGACY:
+        lang_legacy_step();
+        break;
+      }
     }
-#pragma omp barrier
   }
+#pragma omp barrier
 }
 } // namespace cg::simul

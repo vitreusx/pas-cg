@@ -44,7 +44,7 @@ bool report_stuff::is_active(nat_cont cont) const {
 }
 
 void report_stuff::report_to(out::report_data &report) const {
-  auto &nc_node = report.for_step["native contacts"];
+  auto &nc_node = report.for_snap["native contacts"];
 
   if (report.report_files) {
     ioxx::xyaml::csv<nat_cont_row> nat_conts_file;
@@ -70,7 +70,7 @@ void report_stuff::report_to(out::report_data &report) const {
       auto count_type = chain_idx[cont.i1()] == chain_idx[cont.i2()]
                             ? count_type::INTRA
                             : count_type::INTER;
- 
+
       ++num_all[count_type];
       switch (cont.type()) {
       case type::BACK_BACK:
