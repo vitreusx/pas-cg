@@ -23,6 +23,7 @@ jobs:
           cmake -DCMAKE_C_COMPILER=/usr/bin/clang \
                 -DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
                 -DCMAKE_BUILD_TYPE=Deployment \
+                -DSINGLE_FILE=ON \
                 -G Ninja ..
           ninja cg
 

@@ -1,11 +1,5 @@
-if (NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Release")
-    set_property(CACHE CMAKE_BUILD_TYPE
-        PROPERTY STRINGS "Debug" "Release" "Staging" "Deployment")
-endif ()
-
-option(FUSED_COMPILE "Build as a single object file." OFF)
 option(USE_OMP "Use OpenMP" ON)
+option(SINGLE_FILE "Concatenate all source files" OFF)
 
 add_executable(cg)
 
@@ -21,7 +15,7 @@ add_custom_target(defaults ALL
 
 add_dependencies(cg defaults)
 
-if (FUSED_COMPILE OR CMAKE_BUILD_TYPE EQUAL "Deployment")
+if (SINGLE_FILE)
     file(GLOB_RECURSE SourceFiles CONFIGURE_DEPENDS
         src/*.cpp)
 
@@ -32,14 +26,13 @@ if (FUSED_COMPILE OR CMAKE_BUILD_TYPE EQUAL "Deployment")
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
 
-    add_custom_target(fused_sources ALL
+    add_custom_target(fused_sources
         DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/.fused.cpp)
 
     add_dependencies(cg fused_sources)
 
     target_sources(cg
         PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/.fused.cpp)
-
 else ()
     file(GLOB_RECURSE PrivateSources CONFIGURE_DEPENDS
         src/*.cpp src/*.hpp src/*.h src/*.inl)
