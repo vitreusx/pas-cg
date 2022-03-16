@@ -6,3 +6,4 @@ build
 venv
 notes
 staging*
+deployment*

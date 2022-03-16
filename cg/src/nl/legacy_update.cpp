@@ -68,7 +68,7 @@ void legacy_update::omp_async() const {
 
   int nat_cont_idx = 0;
 
-#pragma omp for schedule(static) collapse(2)
+#pragma omp for schedule(static)
   for (int i1 = 0; i1 < num_particles; ++i1) {
     auto r1 = r[i1];
     auto chain1 = chain_idx[i1], seq1 = seq_idx[i1];

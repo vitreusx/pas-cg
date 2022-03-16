@@ -27,3 +27,6 @@ AFM:
     - type: const velocity
       pulled-apart chain: 0
       magnitude: 5e-3 A/tau
+
+output:
+  output dir: output/9aac

@@ -6,4 +6,4 @@ input:
     (at path): glut.yml
 
 output:
-  period: 10 tau
+  output dir: output/glut

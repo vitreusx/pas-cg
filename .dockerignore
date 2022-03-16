@@ -1,10 +1,9 @@
 .git
-debug
-debug-gcc
+debug*
 notes
 reference
-release
-release-gcc
+release*
 tests
 venv
-staging
+staging*
+deployment*

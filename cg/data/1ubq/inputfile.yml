@@ -15,4 +15,4 @@ quasi-adiabatic:
   enabled: false
 
 output:
-  period: 100 tau
+  output dir: output/1ubq

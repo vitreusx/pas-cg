@@ -1,9 +1,10 @@
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
-    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "Staging")
+    set_property(CACHE CMAKE_BUILD_TYPE
+        PROPERTY STRINGS "Debug" "Release" "Staging" "Deployment")
 endif ()
 
-option(FUSED_COMPILE "Build executable non-iteratively, i.e. as a single object file." OFF)
+option(FUSED_COMPILE "Build as a single object file." OFF)
 option(USE_OMP "Use OpenMP" ON)
 
 add_executable(cg)
@@ -20,9 +21,7 @@ add_custom_target(defaults ALL
 
 add_dependencies(cg defaults)
 
-set(FUSED_COMPILE OFF)
-
-if (${FUSED_COMPILE})
+if (FUSED_COMPILE OR CMAKE_BUILD_TYPE EQUAL "Deployment")
     file(GLOB_RECURSE SourceFiles CONFIGURE_DEPENDS
         src/*.cpp)
 
@@ -67,11 +66,11 @@ target_include_directories(cg
 
 target_compile_options(cg
     PRIVATE
-    $<$<COMPILE_LANGUAGE:CXX>:
-    -Wall;
-    $<$<CONFIG:Release>:-Ofast;-march=native>;
-    $<$<CONFIG:Staging>:-Ofast;-march=native;-g>;
-    $<$<CONFIG:Debug>:-g>>)
+    -Wall
+    $<$<CONFIG:Deployment>:-Ofast>
+    $<$<CONFIG:Release>:-Ofast;-march=native>
+    $<$<CONFIG:Staging>:-Ofast;-march=native;-g>
+    $<$<CONFIG:Debug>:-g>)
 
 add_subdirectory(ext/ioxx/ioxx EXCLUDE_FROM_ALL)
 add_subdirectory(ext/nitro/nitro EXCLUDE_FROM_ALL)

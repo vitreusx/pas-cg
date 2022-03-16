@@ -1,0 +1,48 @@
+name: Create release
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*.*.*"
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the tag
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Install required packages
+        run: |
+          sudo apt-get install cmake ninja-build clang
+
+      - name: Build the program
+        run: |
+          mkdir build
+          cd build
+          cmake -DCMAKE_C_COMPILER=/usr/bin/clang \
+                -DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
+                -DCMAKE_BUILD_TYPE=Deployment \
+                -G Ninja ..
+          ninja cg
+
+      - name: Set the package name
+        id: package_name
+        run: echo ::set-output name=PACKAGE::pas-cg-${GITHUB_REF#refs/tags/}
+
+      - name: Package the output
+        run: |
+          mkdir ${PACKAGE}
+          rsync -a build/cg/cg ${PACKAGE}
+          rsync -a data ${PACKAGE}
+          zip -r ${PACKAGE}.zip ${PACKAGE}
+        env:
+          PACKAGE: ${{ steps.package_name.outputs.PACKAGE }}
+
+      - name: Add the release
+        uses: softprops/actions-gh-release@v1
+        with:
+          files: ${{ steps.package_name.outputs.PACKAGE }}.zip
+          name: ${{ steps.package_name.outputs.PACKAGE }}

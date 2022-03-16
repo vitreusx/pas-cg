@@ -14,7 +14,7 @@ jobs:
         with:
           submodules: true
 
-      - name: Setup CMake
+      - name: Install required packages
         run: |
           sudo apt-get install cmake python3-sphinx python3-pip doxygen graphviz
           pip install breathe sphinx_rtd_theme myst-parser

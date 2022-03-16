@@ -31,8 +31,7 @@ public:
   using Base::Base;
   using Base::get;
 
-  lj() : lj(0.0, 0.0){};
-  lj(double depth, double r_min) : Base{depth, r_min} {}
+  lj() : lj((real)0.0, (real)0.0){};
 
   static inline real compute_cutoff(real r_min) { return (real)2.0 * r_min; }
 };
