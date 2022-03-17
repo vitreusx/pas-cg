@@ -5,7 +5,8 @@ idea of switchable contacts. The algorithm has three components in total:
 
 1. For the non-local pairs not in contact, we check whether they satisfy the _
    formation criteria_, and if they do, they are added to the list of _candidate
-   contacts_.
+   contacts_. Whether the residues separated by 3 others should be included is
+   controllbed with the `include separated by 3` setting.
 2. For the non-local pairs in contact, we evaluate the potential resulting from
    the contact, and check if the contact satisfies the _breaking criteria_. If
    the contact is completely desaturated, we *mark* them as removed.
@@ -166,6 +167,7 @@ quasi-adiabatic:
   min |cos(h, r)|: number
   min |cos(h, h)| for bb: number
   max cos(n, r): number
+  include separated by 3: boolean
   disulfides:
     force: disulfide force
     special criteria:
@@ -182,9 +184,28 @@ The `disulfide force` type of entry is as in the "Native contacts" section.
 
 Following data is emitted per snapshot:
 
-- A list of current sync values, into `sync_values.csv`;
+- A list of current sync values, into `sync_values.csv`. The columns are:
+    - `idx`: residue index;
+    - `back`: number of backbone slots remaining;
+    - `side (all)`: number of generic sidechain slots remaining;
+    - `side (hydrophobic)`: number of sidechain slots for the hydrophobic
+      residues remaining;
+    - `side (polar)`: number of sidechain slots for the polar residues
+      remaining.
 - A list of current contacts, into `qa_contacts.csv`. Aside from the
-  aforementioned data per contact, computed saturation is also included.
-- Aggregate stats, similar to the ones for the native contacts. Aside from the
-  ones enumerated there, we also include the numbers for the dynamic disulfide
-  bonds. 
+  aforementioned data per contact, computed saturation is also included. To be
+  more specific, the columns are:
+    - `i1`, `i2`: indices of the residues;
+    - `type`: type of contacts (`bb`, `bs`, `sb`, `ss`);
+    - `status`: either `forming or formed`, or `breaking`;
+    - `ref_time[tau]`: the time when the contact began forming or breaking (
+      depending on the `status`) in the units of $\tau$;
+    - `saturation`: the relative strength of the contact, between $0$ and $1$.
+- Aggregate stats, similar to the ones for the [native contacts](nat_cont.md)
+  but with `qa-` prefix instead of `nc-`. For the sake of brevity, they won't be
+  reenumerated here. Beyond the ones analogous to the native-contacts ones, we
+  also include the numbers for the dynamic disulfide bonds:
+    - `dynamic ssbonds`: number of all dynss bonds;
+    - `dynamic ssbonds (intra)`, `dynamic ssbonds (inter)`: number of intra- and
+      inter-chain dynss bonds; The latter two are also outputted to
+      the `scalars.csv` file as `qa-dynss-intra` and `qa-dynss-inter`.

@@ -13,7 +13,7 @@ void report_stats::report_to(out::report_data &report) const {
       auto &row = vel_afm_csv.data.emplace_back();
       row["res idx"] = tip.res_idx();
       auto force = eval_vel_forces->compute_force(tip);
-      row["force [f77unit*A/tau^2]"] = quantity(force).in("f77unit*A/tau**2");
+      row["force [f77unit*A/tau**2]"] = quantity(force).in("f77unit*A/tau**2");
     }
 
     report.for_snap["const-velocity AFM"] << vel_afm_csv;

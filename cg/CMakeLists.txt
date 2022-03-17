@@ -5,9 +5,9 @@ add_executable(cg)
 
 add_custom_command(
     OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/simul/default.yml.h
-    COMMAND xxd -i default.yml >default.yml.h
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/simul/default.yml
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src/simul
+    COMMAND xxd -i default.yml >src/simul/default.yml.h
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/default.yml
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 add_custom_target(defaults ALL

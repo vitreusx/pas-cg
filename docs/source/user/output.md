@@ -12,6 +12,8 @@ The structure of the output directory is as follows:
 ├── [other per-simul files...]
 ├── traj-${traj_idx}
 |   ├── report.yml
+|   ├── scalars.csv
+|   ├── model.pdb
 |   ├── [other per-trajectory files...]
 |   ├── snap-${snap_idx}
 |   |   ├── report.yml
@@ -25,7 +27,9 @@ organized into three levels:
 
 - data pertaining to the entire simulation (i.e. all trajectories);
 - data pertaining to a given trajectory;
-- data pertaining to a given *snapshot*, emitted at a regular interval.
+- data pertaining to a given *snapshot*, emitted at a regular interval. This
+  report may also include files - however, there is an option to emit scalar
+  statistics and the entire files at different intervals.
 
 ```{warning}
 At the moment, one does **not** have the option for including or excluding data from the
@@ -47,6 +51,8 @@ For a given trajectory, following data is emitted:
 - `model.pdb` file, containing `MODEL` entries for all the snapshots. This is
   done chiefly in order to be able to quickly investigate the evolution of the
   system in a tool such as [PyMOL](https://pymol.org/2/).
+- `scalars.csv` file, containing a table with selected scalar values from all
+  the snapshots.
 
 ## Per-snapshot report
 
@@ -61,8 +67,20 @@ For a given snapshot, following data is emitted:
   gyration, asphericity (see the article on
   the [gyration tensor](https://en.wikipedia.org/wiki/Gyration_tensor) for more
   details);
-- data pertaining to native contacts;
-- data pertaining to quasi-adiabatic potential and the created contacts.
+- `chains.csv` file with the kinematic properties for every chain separately;
+- data pertaining to [native contacts](nat_cont.md);
+- data pertaining to [quasi-adiabatic potential](qa.md) and the created
+  contacts;
+- data pertaining to the [AFM tips](afm.md).
+
+The scalars added to the `scalars.csv` file are:
+
+- `t`: time;
+- `V`: potential energy;
+- `K`: kinetic energy;
+- `E`: total energy;
+- `Rg`: radius of gyration of the entire structure;
+- `W`: asphericity of the entire structure.
 
 ```{warning}
 Asphericity is, from what I've seen, computed in a slightly different fashion 

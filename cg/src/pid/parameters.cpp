@@ -16,7 +16,7 @@ void parameters::ss_t::load(ioxx::xyaml::node const &p) {
 
 void parameters::load(ioxx::xyaml::node const &p) {
   enabled = p["enabled"].as<bool>();
-  p["include separated by 4"] >> include4;
+  p["include separated by 3"] >> include4;
 
   auto lambda_version_s = p["lambda version"].as<std::string>();
   if (lambda_version_s == "cosine")

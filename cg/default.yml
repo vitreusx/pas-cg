@@ -385,7 +385,7 @@ lj force variants:
 pseudo-improper dihedral:
   enabled: false
   lambda version: algebraic
-  include separated by 4: true
+  include separated by 3: true
   bb+:
     alpha: 6.4 1/rad
     psi_0: 1.05 rad
@@ -408,7 +408,7 @@ quasi-adiabatic:
   min |cos(h, r)|: 0.92
   min |cos(h, h)| for bb: 0.75
   max cos(n, r): 0.5
-  include separated by 4: true
+  include separated by 3: true
   disulfides:
     force:
       harmonic:

@@ -92,7 +92,7 @@ command to run an example simulation could look like:
 The provided parameter/input files contain only the differences from the input
 file with the defaults, which is included by default for the sake of convenience
 and is located
-at [`cg/src/simul/defaults.yml`](https://github.com/vitreusx/pas-cg/blob/main/cg/src/simul/default.yml)
+at [`cg/defaults.yml`](https://github.com/vitreusx/pas-cg/blob/main/cg/default.yml)
 . To be precise, the implicit default parameter file gets overriden by the
 user-provided parameter files in the order in which they are listed. The output
 directory can be overriden with the `-o` option.

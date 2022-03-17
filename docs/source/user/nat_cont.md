@@ -49,19 +49,33 @@ mutually exclusive.
 
 Following data is emitted per snapshot:
 
-- a list of all native contacts, into `nat_conts.csv`, including:
-    - the indices of the residues in contact, as well as chain indices (for the
-      purposes of determining whether the contact is intra- or interchain);
-    - native and current distance (in Angstrem);
-    - whether a contact is currently active;
-    - whether the contact has been formed previously, and if so, the time at
-      which the contact was first created.
+- a list of all native contacts, into `nat_conts.csv`. The columns of the file
+  are:
+    - `i1`, `i2`: the indices of the residues in contact;
+    - `chain1`, `chain2`: corresponding chain indices, for the purposes of
+      determining whether the contact is intra- or interchain;
+    - `nat_dist[A]`, `cur_dist[A]`: native and current distance (in Angstrem);
+    - `is active`: whether a contact is currently active;
+    - `formed once`: whether the contact has been formed previously;
+    - `formation time`: if `formed once` is `true`, the (internal) time when it
+      was formed for the first time.
 - a number of "aggregate" statistics derived from this list for the active
-  contacts:
-    - number of all active contacts;
-    - number of back-back, back-side and side-side contacts, in total and
-      distinguishing the intra- and interchain contacts.
+  contacts, placed into the `num of active contacts` node:
+    - `all`: number of all active contacts;
+    - `back-back`: number of backbone-backbone contacts (both inter- and
+      intra-chain);
+    - `back-back (intra)`, `back-back (inter)`: number of bb contacts with given
+      type;
+    - analogous statistics for `back-side` and `side-side` type, also with the
+      intra- and inter-chain distinction.
 
-```{note}
+Some of these statistics are added to the `scalars.csv` file, namely:
+
+- `nc-all` for all contacts;
+- `nc-b1-b1` for intra-chain backbone-backbone contacts;
+- `nc-b1-b2` for inter-chain backbone-backbone contacts;
+- `nc-b1-s1`, `nc-b1-s2`, `nc-s1-s1`, `nc-s1-s2`, analogous.
+
+```{warning}
 The data is emitted unconditionally whenever the potential is enabled.
 ```

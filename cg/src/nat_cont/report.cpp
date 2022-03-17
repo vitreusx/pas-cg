@@ -92,15 +92,21 @@ void report_stuff::report_to(out::report_data &report) const {
   }
 
   auto &active_node = nc_node["num of active contacts"];
-  active_node["all"] = num_all.all();
+  report.add_step_scalar("nc-all", active_node["all"], num_all.all());
   active_node["back-back"] = num_bb.all();
-  active_node["back-back (intra)"] = num_bb[count_type::INTRA];
-  active_node["back-back (inter)"] = num_bb[count_type::INTER];
+  report.add_step_scalar("nc-b1-b1", active_node["back-back (intra)"],
+                         num_bb[count_type::INTRA]);
+  report.add_step_scalar("nc-b1-b2", active_node["back-back (inter)"],
+                         num_bb[count_type::INTER]);
   active_node["back-side"] = num_bs.all();
-  active_node["back-side (intra)"] = num_bs[count_type::INTRA];
-  active_node["back-side (inter)"] = num_bs[count_type::INTER];
+  report.add_step_scalar("nc-b1-s1", active_node["back-side (intra)"],
+                         num_bs[count_type::INTRA]);
+  report.add_step_scalar("nc-b1-s2", active_node["back-side (inter)"],
+                         num_bs[count_type::INTER]);
   active_node["side-side"] = num_ss.all();
-  active_node["side-side (intra)"] = num_ss[count_type::INTRA];
-  active_node["side-side (inter)"] = num_ss[count_type::INTER];
+  report.add_step_scalar("nc-s1-s1", active_node["side-side (intra)"],
+                         num_ss[count_type::INTRA]);
+  report.add_step_scalar("nc-s1-s2", active_node["side-side (inter)"],
+                         num_ss[count_type::INTER]);
 }
 } // namespace cg::nat_cont
