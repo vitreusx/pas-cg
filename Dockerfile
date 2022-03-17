@@ -4,7 +4,8 @@ RUN apt-get update && apt-get install -y cmake ninja-build xxd g++
 
 RUN mkdir host
 
-COPY . .
+COPY cg cg
+COPY CMakeLists.txt CMakeLists.txt
 
 RUN mkdir build \
     && cd build \

@@ -121,6 +121,10 @@ directory.
 
 ## Docker
 
+```{warning}
+This method is somewhat experimental.
+```
+
 "As a last resort", one can build and run the program as a Docker container. To
 build the image, run the following commands in the `pas-cg/` directory:
 
@@ -132,12 +136,23 @@ To run the program, execute:
 
 ```shell
 docker run -it \
+  --name ${name} \
   -v $(pwd):/host \
   --user "$(id -u):$(id -g)" \
   "vitreusx/pas-cg:latest" \
   [args...]
 ```
 
+where `${name}` is (optional) human-readable name for the container. These two
+commands are provided as `docker-build` and `docker-run` scripts in the root
+directory. To run them, Bash is required. `docker-build` must be run in the root
+directory. The usage of `docker-run` is:
+
+```
+Usage:
+./docker-run name [args...]
+```
+
 ```{warning}
-This method is somewhat experimental. Moreover, C-c doesn't kill the process - to prematurely end the process, find the id via `docker ps` and run `docker kill`.
+The container cannot be stopped with Ctrl-c. To kill it, use `docker rm -f ${name}`.
 ```

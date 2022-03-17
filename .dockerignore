@@ -1,4 +1,4 @@
-.git
+.git*
 debug*
 notes
 reference
@@ -9,3 +9,6 @@ staging*
 deployment*
 Dockerfile
 .dockerignore
+LICENSE
+README.md
+docker-*
