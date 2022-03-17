@@ -1,10 +1,11 @@
 name: Create docs
 on:
   push:
-    branches:
-      - main
+    paths:
+      - "docs/*"
 jobs:
   create-docs:
+    if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout main branch

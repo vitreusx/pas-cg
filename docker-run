@@ -1,0 +1,7 @@
+#!/usr/bin/sh
+docker build --tag "vitreusx/pas-cg:latest" .
+docker run -it \
+  -v $(pwd):/host \
+  --user "$(id -u):$(id -g)" \
+  "vitreusx/pas-cg:latest" \
+  $@
