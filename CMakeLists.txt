@@ -3,6 +3,6 @@ project(pas-cg LANGUAGES CXX)
 
 add_subdirectory(cg)
 
-if (EXISTS docs)
-    add_subdirectory(docs EXCLUDE_FROM_ALL)
+if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/docs)
+    add_subdirectory(docs)
 endif ()
