@@ -41,7 +41,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">User guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="repo.html">Structure of the repository</a></li>
-<li class="toctree-l2"><a class="reference internal" href="yaml.html">YAML files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="files.html">Parameter and other files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="base_forces.html">Base forces. Variants of the Lennard-Jones potential</a></li>
 <li class="toctree-l2"><a class="reference internal" href="diff.html">Differences with the reference version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="units.html">Internal units. Quantities</a></li>
@@ -101,11 +101,21 @@
   <span class="nt">equil time</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">quantity [T]</span>
   <span class="nt">seed</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">integer</span>
   <span class="nt">num of threads</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">integer</span>
-  <span class="nt">debug mode</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">boolean</span>
+  <span class="nt">debug mode</span><span class="p">:</span>
+    <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">boolean</span>
+    <span class="nt">floating point exceptions</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">boolean</span>
+    <span class="nt">determinism</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">boolean</span>
   <span class="nt">num of trajectories</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">integer</span>
+  <span class="nt">disable all forces</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">boolean</span>
 </pre></div>
 </div>
-<p>The debug mode turns on checking the floating point exceptions.</p>
+<p>For any of the settings in the debug mode, <code class="docutils literal notranslate"><span class="pre">general.debug</span> <span class="pre">mode.enabled</span></code> must be
+set to <code class="docutils literal notranslate"><span class="pre">true</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">general.debug</span> <span class="pre">mode.determinism</span></code> flag turns on a special mode of the program, in
+which two programs are run in parallel and compared against each other. For this
+mode, output is disabled.</p>
+<p><code class="docutils literal notranslate"><span class="pre">general.disable</span> <span class="pre">all</span> <span class="pre">forces</span></code>, well, disables all forces, except for the Langevin
+thermal noise.</p>
 </div>
 
 

@@ -53,6 +53,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#running">Running</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#docker">Docker</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="user/index.html">User guide</a></li>
@@ -90,7 +91,8 @@
 <li><p>Linux operating system;</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">gcc++</span></code> or <code class="docutils literal notranslate"><span class="pre">clang++</span></code> with C++17 support;</p></li>
 <li><p>CMake 3.14+;</p></li>
-<li><p>OpenMP.</p></li>
+<li><p>OpenMP;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xxd</span></code> program installed.</p></li>
 </ul>
 </div>
 <div class="section" id="getting-the-program">
@@ -158,25 +160,27 @@ make -j4 cg
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./cg --help
 PAS CG Coarse Grained Model
 Documentation: https://vitreusx.github.io/pas-cg
-Usage: ./cg [options...]
+Usage: /home/talos/next/code/pas-cg/staging/cg/cg [options...]
   -h,        --help               Print this help message.
   -p [path], --param-file [path]  Load parameter file.
   -c [path], --chkpt-file [path]  Load state from checkpoint.
+  -o [path], --output     [path]  Set the output directory.
 </pre></div>
 </div>
 <p>The input to the program consist of the parameter file(s), which allow the user
 to specify the various parameters of the simulation. The (optional) output
 consists of a progress bar and files in the output directory. For example, the
 command to run an example simulation could look like:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./cg data/<span class="si">${</span><span class="nv">example</span><span class="si">}</span>/inputfile.yml
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./cg -p data/<span class="si">${</span><span class="nv">example</span><span class="si">}</span>/inputfile.yml
 </pre></div>
 </div>
 <p>The provided parameter/input files contain only the differences from the input
 file with the defaults, which is included by default for the sake of convenience
 and is located
-at <a class="reference external" href="https://github.com/vitreusx/pas-cg/blob/main/cg/src/simul/default.yml"><code class="docutils literal notranslate"><span class="pre">cg/src/simul/defaults.yml</span></code></a>
+at <a class="reference external" href="https://github.com/vitreusx/pas-cg/blob/main/cg/default.yml"><code class="docutils literal notranslate"><span class="pre">cg/defaults.yml</span></code></a>
 . To be precise, the implicit default parameter file gets overriden by the
-user-provided parameter files in the order in which they are listed.</p>
+user-provided parameter files in the order in which they are listed. The output
+directory can be overriden with the <code class="docutils literal notranslate"><span class="pre">-o</span></code> option.</p>
 </div>
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline"></a></h2>
@@ -198,6 +202,26 @@ proteins, with the quasi-adiabatic custom potential.</p></li>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p><code class="docutils literal notranslate"><span class="pre">glut</span></code> example is, at the moment, unfinished.</p>
+</div>
+</div>
+<div class="section" id="docker">
+<h2>Docker<a class="headerlink" href="#docker" title="Permalink to this headline"></a></h2>
+<p>“As a last resort”, one can build and run the program as a Docker container. To
+build the image, run the following commands in the <code class="docutils literal notranslate"><span class="pre">pas-cg/</span></code> directory:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker build --tag <span class="s2">&quot;vitreusx/pas-cg:latest&quot;</span> .
+</pre></div>
+</div>
+<p>To run the program, execute:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker run -it <span class="se">\</span>
+  -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/host <span class="se">\</span>
+  --user <span class="s2">&quot;</span><span class="k">$(</span>id -u<span class="k">)</span><span class="s2">:</span><span class="k">$(</span>id -g<span class="k">)</span><span class="s2">&quot;</span> <span class="se">\</span>
+  <span class="s2">&quot;vitreusx/pas-cg:latest&quot;</span> <span class="se">\</span>
+  <span class="o">[</span>args...<span class="o">]</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This method is somewhat experimental. Moreover, C-c doesn’t kill the process - to prematurely end the process, find the id via <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">ps</span></code> and run <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">kill</span></code>.</p>
 </div>
 </div>
 </div>

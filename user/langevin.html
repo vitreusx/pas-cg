@@ -43,7 +43,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">User guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="repo.html">Structure of the repository</a></li>
-<li class="toctree-l2"><a class="reference internal" href="yaml.html">YAML files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="files.html">Parameter and other files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="base_forces.html">Base forces. Variants of the Lennard-Jones potential</a></li>
 <li class="toctree-l2"><a class="reference internal" href="diff.html">Differences with the reference version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="units.html">Internal units. Quantities</a></li>
@@ -143,10 +143,12 @@ per residue, which represent consecutive terms of the Taylor expansion:</p>
   <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">boolean</span>
   <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">one of [normal, legacy]</span>
   <span class="nt">gamma factor</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">quantity [1/T]</span>
-  <span class="nt">temperature</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">quantity [Temp]</span>
+  <span class="nt">temperature</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">a quantity or a pair of quantities, in [Temp]</span>
   <span class="nt">dt</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">quantity [T]</span>
 </pre></div>
 </div>
+<p>If a pair of temperature quantities is provided, then the temperature is
+varied (linearly) for different trajectories.</p>
 </div>
 </div>
 

@@ -42,7 +42,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">User guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="repo.html">Structure of the repository</a></li>
-<li class="toctree-l2"><a class="reference internal" href="yaml.html">YAML files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="files.html">Parameter and other files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="base_forces.html">Base forces. Variants of the Lennard-Jones potential</a></li>
 <li class="toctree-l2"><a class="reference internal" href="diff.html">Differences with the reference version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="units.html">Internal units. Quantities</a></li>
@@ -67,6 +67,7 @@
 <li class="toctree-l2"><a class="reference internal" href="pbar.html">Progress bar</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Atomic Force Microscope (AFM)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#parameter-file-entry">Parameter file entry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#output">Output</a></li>
 </ul>
 </li>
 </ul>
@@ -140,6 +141,40 @@ with given values of <span class="math notranslate nohighlight">\(\mathtt{H1}\)<
 </div>
 <p>For the “single residue” specification, the direction should be a vector of
 quantities appropriate for the type of the tip.</p>
+</div>
+<div class="section" id="output">
+<h2>Output<a class="headerlink" href="#output" title="Permalink to this headline"></a></h2>
+<p>Three files are emitted regarding the state of the AFM tips:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">vel-afm.csv</span></code>: state of the const-velocity AFM tips. For a pulled-apart
+chains, two entries (one for each terminal residue) is included. The columns
+are:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">res</span> <span class="pre">idx</span></code>: index of the pulled residue;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">force</span> <span class="pre">[f77unit*A/tau**2]</span></code>: force acting on the residue.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">force-afm.csv</span></code>: analogous to <code class="docutils literal notranslate"><span class="pre">vel-afm.csv</span></code> but for the const-force AFM tips.
+The columns are:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">res</span> <span class="pre">idx</span></code>: as above;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vel</span> <span class="pre">[A/tau]</span></code>: velocity of the residue.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pulled-chains.csv</span></code>: extra data for the pulled-apart chains:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">chain</span> <span class="pre">idx</span></code>: the index of the chain;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">end-to-end</span> <span class="pre">distance</span> <span class="pre">[A]</span></code>: the distance between the terminal residues.</p></li>
+</ul>
+</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>At the moment, the forces and the velocities are <strong>not</strong> averaged.</p>
+</div>
+<p>If there is only one pulled chain, a scalar is added to
+the <code class="docutils literal notranslate"><span class="pre">scalars.csv</span></code>: <code class="docutils literal notranslate"><span class="pre">chain</span> <span class="pre">length</span> <span class="pre">[A]</span></code>, i.e. the <code class="docutils literal notranslate"><span class="pre">end-to-end</span> <span class="pre">distance</span> <span class="pre">[A]</span></code> for
+the sole pulled-apart chain.</p>
 </div>
 </div>
 

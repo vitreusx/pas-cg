@@ -43,7 +43,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">User guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="repo.html">Structure of the repository</a></li>
-<li class="toctree-l2"><a class="reference internal" href="yaml.html">YAML files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="files.html">Parameter and other files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="base_forces.html">Base forces. Variants of the Lennard-Jones potential</a></li>
 <li class="toctree-l2"><a class="reference internal" href="diff.html">Differences with the reference version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="units.html">Internal units. Quantities</a></li>
@@ -147,27 +147,41 @@ mutually exclusive.</p>
 <h2>Output data<a class="headerlink" href="#output-data" title="Permalink to this headline"></a></h2>
 <p>Following data is emitted per snapshot:</p>
 <ul class="simple">
-<li><p>a list of all native contacts, into <code class="docutils literal notranslate"><span class="pre">nat_conts.csv</span></code>, including:</p>
+<li><p>a list of all native contacts, into <code class="docutils literal notranslate"><span class="pre">nat_conts.csv</span></code>. The columns of the file
+are:</p>
 <ul>
-<li><p>the indices of the residues in contact, as well as chain indices (for the
-purposes of determining whether the contact is intra- or interchain);</p></li>
-<li><p>native and current distance (in Angstrem);</p></li>
-<li><p>whether a contact is currently active;</p></li>
-<li><p>whether the contact has been formed previously, and if so, the time at
-which the contact was first created.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">i1</span></code>, <code class="docutils literal notranslate"><span class="pre">i2</span></code>: the indices of the residues in contact;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chain1</span></code>, <code class="docutils literal notranslate"><span class="pre">chain2</span></code>: corresponding chain indices, for the purposes of
+determining whether the contact is intra- or interchain;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nat_dist[A]</span></code>, <code class="docutils literal notranslate"><span class="pre">cur_dist[A]</span></code>: native and current distance (in Angstrem);</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">is</span> <span class="pre">active</span></code>: whether a contact is currently active;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">formed</span> <span class="pre">once</span></code>: whether the contact has been formed previously;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">formation</span> <span class="pre">time</span></code>: if <code class="docutils literal notranslate"><span class="pre">formed</span> <span class="pre">once</span></code> is <code class="docutils literal notranslate"><span class="pre">true</span></code>, the (internal) time when it
+was formed for the first time.</p></li>
 </ul>
 </li>
 <li><p>a number of “aggregate” statistics derived from this list for the active
-contacts:</p>
+contacts, placed into the <code class="docutils literal notranslate"><span class="pre">num</span> <span class="pre">of</span> <span class="pre">active</span> <span class="pre">contacts</span></code> node:</p>
 <ul>
-<li><p>number of all active contacts;</p></li>
-<li><p>number of back-back, back-side and side-side contacts, in total and
-distinguishing the intra- and interchain contacts.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">all</span></code>: number of all active contacts;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">back-back</span></code>: number of backbone-backbone contacts (both inter- and
+intra-chain);</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">back-back</span> <span class="pre">(intra)</span></code>, <code class="docutils literal notranslate"><span class="pre">back-back</span> <span class="pre">(inter)</span></code>: number of bb contacts with given
+type;</p></li>
+<li><p>analogous statistics for <code class="docutils literal notranslate"><span class="pre">back-side</span></code> and <code class="docutils literal notranslate"><span class="pre">side-side</span></code> type, also with the
+intra- and inter-chain distinction.</p></li>
 </ul>
 </li>
 </ul>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
+<p>Some of these statistics are added to the <code class="docutils literal notranslate"><span class="pre">scalars.csv</span></code> file, namely:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">nc-all</span></code> for all contacts;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nc-b1-b1</span></code> for intra-chain backbone-backbone contacts;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nc-b1-b2</span></code> for inter-chain backbone-backbone contacts;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nc-b1-s1</span></code>, <code class="docutils literal notranslate"><span class="pre">nc-b1-s2</span></code>, <code class="docutils literal notranslate"><span class="pre">nc-s1-s1</span></code>, <code class="docutils literal notranslate"><span class="pre">nc-s1-s2</span></code>, analogous.</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
 <p>The data is emitted unconditionally whenever the potential is enabled.</p>
 </div>
 </div>

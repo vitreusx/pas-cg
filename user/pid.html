@@ -43,7 +43,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">User guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="repo.html">Structure of the repository</a></li>
-<li class="toctree-l2"><a class="reference internal" href="yaml.html">YAML files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="files.html">Parameter and other files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="base_forces.html">Base forces. Variants of the Lennard-Jones potential</a></li>
 <li class="toctree-l2"><a class="reference internal" href="diff.html">Differences with the reference version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="units.html">Internal units. Quantities</a></li>
@@ -110,7 +110,9 @@ is:</p>
 \[ V = \sum V_b(\mathtt{bundle})
 \]</div>
 <p>where the sum is over all the bundles, i.e. all pairs of non-terminal
-non-natively-connected residues along with the neighbors. The bundle term is:</p>
+non-natively-connected residues along with the neighbors; whether the residues
+separated by 3 others should be included is controlled with
+the <code class="docutils literal notranslate"><span class="pre">include</span> <span class="pre">separated</span> <span class="pre">by</span> <span class="pre">3</span></code> setting. The bundle term is:</p>
 <div class="math notranslate nohighlight">
 \[ V_b = \sum_i \lambda_i(\psi_{24}) \lambda_i(\psi_{42}) \phi_i(r_{24})
 \]</div>
@@ -140,6 +142,7 @@ configuration of three consecutive residues <code class="docutils literal notran
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">pseudo-improper dihedral</span><span class="p">:</span>
   <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">boolean</span>
   <span class="nt">lambda version</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">one of [cosine, algebraic]</span>
+  <span class="nt">include separated by 4</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">boolean</span>
   <span class="nt">bb+</span><span class="p">:</span>
     <span class="nt">alpha</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">quantity [1/Angle]</span>
     <span class="nt">psi_0</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">quantity [Angle]</span>

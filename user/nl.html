@@ -43,7 +43,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">User guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="repo.html">Structure of the repository</a></li>
-<li class="toctree-l2"><a class="reference internal" href="yaml.html">YAML files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="files.html">Parameter and other files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="base_forces.html">Base forces. Variants of the Lennard-Jones potential</a></li>
 <li class="toctree-l2"><a class="reference internal" href="diff.html">Differences with the reference version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="units.html">Internal units. Quantities</a></li>
@@ -113,8 +113,7 @@ whether <strong>the sum</strong> of:</p>
 list was recomputed;</p></li>
 <li><p><span class="math notranslate nohighlight">\(L^1\)</span> displacement of the simulation box size;</p></li>
 </ol>
-<p>exceeds the value of the pad. The pad is specified as the <span class="math notranslate nohighlight">\(\mathtt{pad\_factor}\)</span>
-times the (regular) cutoff distance.</p>
+<p>exceeds the value of the pad.</p>
 <p>Two algorithms for the computation exist:</p>
 <ol class="arabic simple">
 <li><p>The “legacy” version, which goes over all the pairs and checks the distance;</p></li>
@@ -127,7 +126,7 @@ native pairs.</p>
 <h2>Parameter file entry<a class="headerlink" href="#parameter-file-entry" title="Permalink to this headline"></a></h2>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">neighbor list</span><span class="p">:</span>
   <span class="nt">algorithm</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">one of [legacy, cell]</span>
-  <span class="nt">pad factor</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">number</span>
+  <span class="nt">pad</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">quantity [A]</span>
 </pre></div>
 </div>
 </div>

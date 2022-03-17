@@ -44,6 +44,9 @@ langevin:
   enabled: boolean
   type: one of [normal, legacy]
   gamma factor: quantity [1/T]
-  temperature: quantity [Temp]
+  temperature: a quantity or a pair of quantities, in [Temp]
   dt: quantity [T]
 ```
+
+If a pair of temperature quantities is provided, then the temperature is
+varied (linearly) for different trajectories.

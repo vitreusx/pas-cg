@@ -12,8 +12,7 @@ whether **the sum** of:
    list was recomputed;
 2. $L^1$ displacement of the simulation box size;
 
-exceeds the value of the pad. The pad is specified as the $\mathtt{pad\_factor}$
-times the (regular) cutoff distance.
+exceeds the value of the pad.
 
 Two algorithms for the computation exist:
 
@@ -29,5 +28,5 @@ native pairs.
 ```yaml
 neighbor list:
   algorithm: one of [legacy, cell]
-  pad factor: number
+  pad: quantity [A]
 ```

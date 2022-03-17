@@ -43,7 +43,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">User guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="repo.html">Structure of the repository</a></li>
-<li class="toctree-l2"><a class="reference internal" href="yaml.html">YAML files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="files.html">Parameter and other files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="base_forces.html">Base forces. Variants of the Lennard-Jones potential</a></li>
 <li class="toctree-l2"><a class="reference internal" href="diff.html">Differences with the reference version</a></li>
 <li class="toctree-l2"><a class="reference internal" href="units.html">Internal units. Quantities</a></li>
@@ -117,7 +117,8 @@ idea of switchable contacts. The algorithm has three components in total:</p>
 <ol class="arabic simple">
 <li><p>For the non-local pairs not in contact, we check whether they satisfy the _
 formation criteria_, and if they do, they are added to the list of <em>candidate
-contacts</em>.</p></li>
+contacts</em>. Whether the residues separated by 3 others should be included is
+controllbed with the <code class="docutils literal notranslate"><span class="pre">include</span> <span class="pre">separated</span> <span class="pre">by</span> <span class="pre">3</span></code> setting.</p></li>
 <li><p>For the non-local pairs in contact, we evaluate the potential resulting from
 the contact, and check if the contact satisfies the <em>breaking criteria</em>. If
 the contact is completely desaturated, we <em>mark</em> them as removed.</p></li>
@@ -285,6 +286,7 @@ Lennard-Jones type.</p></li>
   <span class="l l-Scalar l-Scalar-Plain">min |cos(h, r)|</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">number</span>
   <span class="l l-Scalar l-Scalar-Plain">min |cos(h, h)| for bb</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">number</span>
   <span class="l l-Scalar l-Scalar-Plain">max cos(n, r)</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">number</span>
+  <span class="nt">include separated by 3</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">boolean</span>
   <span class="nt">disulfides</span><span class="p">:</span>
     <span class="nt">force</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">disulfide force</span>
     <span class="nt">special criteria</span><span class="p">:</span>
@@ -301,12 +303,40 @@ Lennard-Jones type.</p></li>
 <h2>Output data<a class="headerlink" href="#output-data" title="Permalink to this headline"></a></h2>
 <p>Following data is emitted per snapshot:</p>
 <ul class="simple">
-<li><p>A list of current sync values, into <code class="docutils literal notranslate"><span class="pre">sync_values.csv</span></code>;</p></li>
+<li><p>A list of current sync values, into <code class="docutils literal notranslate"><span class="pre">sync_values.csv</span></code>. The columns are:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">idx</span></code>: residue index;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">back</span></code>: number of backbone slots remaining;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">side</span> <span class="pre">(all)</span></code>: number of generic sidechain slots remaining;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">side</span> <span class="pre">(hydrophobic)</span></code>: number of sidechain slots for the hydrophobic
+residues remaining;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">side</span> <span class="pre">(polar)</span></code>: number of sidechain slots for the polar residues
+remaining.</p></li>
+</ul>
+</li>
 <li><p>A list of current contacts, into <code class="docutils literal notranslate"><span class="pre">qa_contacts.csv</span></code>. Aside from the
-aforementioned data per contact, computed saturation is also included.</p></li>
-<li><p>Aggregate stats, similar to the ones for the native contacts. Aside from the
-ones enumerated there, we also include the numbers for the dynamic disulfide
-bonds.</p></li>
+aforementioned data per contact, computed saturation is also included. To be
+more specific, the columns are:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">i1</span></code>, <code class="docutils literal notranslate"><span class="pre">i2</span></code>: indices of the residues;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">type</span></code>: type of contacts (<code class="docutils literal notranslate"><span class="pre">bb</span></code>, <code class="docutils literal notranslate"><span class="pre">bs</span></code>, <code class="docutils literal notranslate"><span class="pre">sb</span></code>, <code class="docutils literal notranslate"><span class="pre">ss</span></code>);</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">status</span></code>: either <code class="docutils literal notranslate"><span class="pre">forming</span> <span class="pre">or</span> <span class="pre">formed</span></code>, or <code class="docutils literal notranslate"><span class="pre">breaking</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ref_time[tau]</span></code>: the time when the contact began forming or breaking (
+depending on the <code class="docutils literal notranslate"><span class="pre">status</span></code>) in the units of <span class="math notranslate nohighlight">\(\tau\)</span>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">saturation</span></code>: the relative strength of the contact, between <span class="math notranslate nohighlight">\(0\)</span> and <span class="math notranslate nohighlight">\(1\)</span>.</p></li>
+</ul>
+</li>
+<li><p>Aggregate stats, similar to the ones for the <a class="reference internal" href="nat_cont.html"><span class="doc std std-doc">native contacts</span></a>
+but with <code class="docutils literal notranslate"><span class="pre">qa-</span></code> prefix instead of <code class="docutils literal notranslate"><span class="pre">nc-</span></code>. For the sake of brevity, they won’t be
+reenumerated here. Beyond the ones analogous to the native-contacts ones, we
+also include the numbers for the dynamic disulfide bonds:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">dynamic</span> <span class="pre">ssbonds</span></code>: number of all dynss bonds;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dynamic</span> <span class="pre">ssbonds</span> <span class="pre">(intra)</span></code>, <code class="docutils literal notranslate"><span class="pre">dynamic</span> <span class="pre">ssbonds</span> <span class="pre">(inter)</span></code>: number of intra- and
+inter-chain dynss bonds; The latter two are also outputted to
+the <code class="docutils literal notranslate"><span class="pre">scalars.csv</span></code> file as <code class="docutils literal notranslate"><span class="pre">qa-dynss-intra</span></code> and <code class="docutils literal notranslate"><span class="pre">qa-dynss-inter</span></code>.</p></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>

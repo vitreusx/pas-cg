@@ -10,7 +10,9 @@ $$ V = \sum V_b(\mathtt{bundle})
 $$
 
 where the sum is over all the bundles, i.e. all pairs of non-terminal
-non-natively-connected residues along with the neighbors. The bundle term is:
+non-natively-connected residues along with the neighbors; whether the residues
+separated by 3 others should be included is controlled with
+the `include separated by 3` setting. The bundle term is:
 
 $$ V_b = \sum_i \lambda_i(\psi_{24}) \lambda_i(\psi_{42}) \phi_i(r_{24})
 $$
@@ -43,6 +45,7 @@ $\psi_{24}$ we shall denote the angle between the planes `123` and `143`.
 pseudo-improper dihedral:
   enabled: boolean
   lambda version: one of [cosine, algebraic]
+  include separated by 4: boolean
   bb+:
     alpha: quantity [1/Angle]
     psi_0: quantity [Angle]

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YAML files &mdash; PAS CG  documentation</title>
+  <title>Parameter and other files &mdash; PAS CG  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -41,10 +41,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">User guide</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="repo.html">Structure of the repository</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">YAML files</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#file-nodes">File nodes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#subnodes">Subnodes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#csv-files">CSV files</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Parameter and other files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#parameter-file">Parameter file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#yaml-files">YAML files</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#file-nodes">File nodes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#subnodes">Subnodes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#csv-files">CSV files</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="base_forces.html">Base forces. Variants of the Lennard-Jones potential</a></li>
@@ -89,9 +93,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="index.html">User guide</a> &raquo;</li>
-      <li>YAML files</li>
+      <li>Parameter and other files</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/user/yaml.md.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/user/files.md.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -99,36 +103,47 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <div class="tex2jax_ignore mathjax_ignore section" id="yaml-files">
-<h1>YAML files<a class="headerlink" href="#yaml-files" title="Permalink to this headline"></a></h1>
-<p>The YAML files used throughout the program are standard YAML files. In the
-documentation, we specify schemas for the entries, i.e. associate types with
-various nodes. Aside from the usual types, like numbers or strings or lists
-etc., we introduce a number of custom types.</p>
+  <div class="tex2jax_ignore mathjax_ignore section" id="parameter-and-other-files">
+<h1>Parameter and other files<a class="headerlink" href="#parameter-and-other-files" title="Permalink to this headline"></a></h1>
+<div class="section" id="parameter-file">
+<h2>Parameter file<a class="headerlink" href="#parameter-file" title="Permalink to this headline"></a></h2>
+<p>The parameter file(s) are created in the <a class="reference internal" href="#yaml-files"><span class="std std-doc">YAML</span></a> format. All the
+defaults are located in
+the <a class="reference external" href="https://github.com/vitreusx/pas-cg/tree/main/cg/src/default.yml"><code class="docutils literal notranslate"><span class="pre">cg/default.yml</span></code></a>
+master file.</p>
+</div>
+<div class="section" id="yaml-files">
+<h2>YAML files<a class="headerlink" href="#yaml-files" title="Permalink to this headline"></a></h2>
+<p>The <a class="reference external" href="https://en.wikipedia.org/wiki/YAML">YAML</a> files used throughout the program
+are standard YAML files, with few “conventions” added. In the documentation, we
+specify schemas for the entries, i.e. associate types with various nodes. Aside
+from the usual types, like numbers or strings or lists etc., we introduce a
+number of custom types.</p>
 <div class="section" id="file-nodes">
-<h2>File nodes<a class="headerlink" href="#file-nodes" title="Permalink to this headline"></a></h2>
+<h3>File nodes<a class="headerlink" href="#file-nodes" title="Permalink to this headline"></a></h3>
 <p>Whenever a given YAML entry in the documentation is denoted as <code class="docutils literal notranslate"><span class="pre">file</span></code>, one can
 either provide it as a scalar with the contents, or refer to it by a path. The
 path is relative <strong>to the YAML file</strong>.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">scalar</span>
 
 <span class="nt">file</span><span class="p">:</span>
-  <span class="nt">(at path))</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">relpath</span>
+  <span class="nt">(at path)</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">relpath</span>
 </pre></div>
 </div>
 <p>This is chiefly done in order to not have to include the file verbatim in the
 YAML file, while ensuring the consistency of such “external” references.</p>
 </div>
 <div class="section" id="subnodes">
-<h2>Subnodes<a class="headerlink" href="#subnodes" title="Permalink to this headline"></a></h2>
+<h3>Subnodes<a class="headerlink" href="#subnodes" title="Permalink to this headline"></a></h3>
 <p>In certain cases an entry is denoted as <code class="docutils literal notranslate"><span class="pre">subnode</span></code> - this means that either we
 can provide its value as a regular YAML subnode, or refer to it in another file
 in a manner as above.</p>
 </div>
 <div class="section" id="csv-files">
-<h2>CSV files<a class="headerlink" href="#csv-files" title="Permalink to this headline"></a></h2>
+<h3>CSV files<a class="headerlink" href="#csv-files" title="Permalink to this headline"></a></h3>
 <p>A CSV file (usually denoted as <code class="docutils literal notranslate"><span class="pre">csv</span> <span class="pre">file</span></code>) can be included in the YAML file in
 the same way that a regular file is, by contents or by a path.</p>
+</div>
 </div>
 </div>
 

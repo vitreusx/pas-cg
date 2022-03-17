@@ -41,3 +41,28 @@ AFM:
 
 For the "single residue" specification, the direction should be a vector of
 quantities appropriate for the type of the tip.
+
+## Output
+
+Three files are emitted regarding the state of the AFM tips:
+
+- `vel-afm.csv`: state of the const-velocity AFM tips. For a pulled-apart
+  chains, two entries (one for each terminal residue) is included. The columns
+  are:
+    - `res idx`: index of the pulled residue;
+    - `force [f77unit*A/tau**2]`: force acting on the residue.
+- `force-afm.csv`: analogous to `vel-afm.csv` but for the const-force AFM tips.
+  The columns are:
+    - `res idx`: as above;
+    - `vel [A/tau]`: velocity of the residue.
+- `pulled-chains.csv`: extra data for the pulled-apart chains:
+    - `chain idx`: the index of the chain;
+    - `end-to-end distance [A]`: the distance between the terminal residues.
+
+```{warning}
+At the moment, the forces and the velocities are **not** averaged.
+```
+
+If there is only one pulled chain, a scalar is added to
+the `scalars.csv`: `chain length [A]`, i.e. the `end-to-end distance [A]` for
+the sole pulled-apart chain.
