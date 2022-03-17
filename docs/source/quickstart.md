@@ -5,7 +5,8 @@
 - Linux operating system;
 - `gcc++` or `clang++` with C++17 support;
 - CMake 3.14+;
-- OpenMP.
+- OpenMP;
+- `xxd` program installed.
 
 ## Getting the program
 
