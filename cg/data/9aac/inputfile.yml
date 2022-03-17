@@ -2,7 +2,6 @@ general:
   total time: 100e3 tau
   equil time: 7500 tau
   num of trajectories: 5
-  num of threads: 1
 
 input:
   seq file:
@@ -30,4 +29,4 @@ AFM:
       magnitude: 5e-3 A/tau
 
 output:
-  output dir: output
+  output dir: 9aac

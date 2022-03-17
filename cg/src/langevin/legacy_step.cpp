@@ -18,11 +18,10 @@ void legacy_step::operator()() const {
     auto [noise_x, noise_y] = local_gen.normal_x2<real>();
     auto noise_z = local_gen.normal<real>();
     auto noise = vec3r(noise_x, noise_y, noise_z);
-
-    y1[idx] = y1[idx] + noise_sd * noise * dt * dt_sqrt;
+    y1[idx] += noise * noise_sd * dt * dt_sqrt;
 
     vec3r f = F[idx];
-    sanitize(f);
+    sanitize(f, (real)1e3);
     auto a_ = f * mass_inv[aa_idx] - gamma * dt_inv * y1[idx];
 
     vec3sr error = y2[idx] - a_ * (dt * dt / 2.0);
@@ -68,7 +67,7 @@ void legacy_step::omp_async() const {
     y1[idx] = y1[idx] + noise_sd * noise * dt * dt_sqrt;
 
     vec3r f = F[idx];
-    sanitize(f);
+    sanitize(f, (real)1e3);
     auto a_ = f * mass_inv[aa_idx] - gamma * dt_inv * y1[idx];
 
     vec3sr error = y2[idx] - a_ * (dt * dt / 2.0);

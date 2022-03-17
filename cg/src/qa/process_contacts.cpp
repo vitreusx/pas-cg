@@ -25,8 +25,6 @@ void process_contacts::iter(int idx) const {
   auto i1 = contact.i1(), i2 = contact.i2();
   auto type = contact.type();
   auto status = contact.status();
-  auto sync_diff1 = contact.sync_diff1();
-  auto sync_diff2 = contact.sync_diff2();
 
   auto r1 = r[i1], r2 = r[i2];
   auto r12 = simul_box->r_uv(r1, r2);

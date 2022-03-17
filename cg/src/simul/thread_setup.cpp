@@ -5,11 +5,13 @@ namespace cg::simul {
 thread_team::thread_team(state &st) : st{st} {}
 
 thread &thread_team::fork() {
+  thread *thr;
 #pragma omp critical
   {
     auto thread_ptr = std::make_unique<thread>(*this, st);
-    return *threads.emplace_back(std::move(thread_ptr));
+    thr = threads.emplace_back(std::move(thread_ptr)).get();
   }
+  return *thr;
 }
 
 thread::thread(thread_team &team, state &st)
@@ -36,6 +38,7 @@ void thread::traj_setup() {
   setup_dh();
   setup_qa();
   setup_pid();
+  loop_idx = 0;
 }
 
 void thread::finish_trajectory() {
@@ -50,7 +53,7 @@ void thread::setup_gen() {
 
   if (params.gen.debug_mode.fp_exceptions) {
     feclearexcept(FE_ALL_EXCEPT);
-    feenableexcept(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW);
+    feenableexcept(FE_INVALID | FE_DIVBYZERO);
   }
 }
 

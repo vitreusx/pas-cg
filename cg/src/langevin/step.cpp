@@ -20,7 +20,7 @@ void step::operator()() const {
     auto noise = vec3r(noise_x, noise_y, noise_z);
 
     vec3r f = F[idx];
-    sanitize(f);
+    sanitize(f, (real)1e3);
     auto a_ = f * mass_inv[aa_idx] - gamma * v[idx] + noise_sd * noise;
 
     vec3sr error = y2[idx] - a_ * (dt * dt / 2.0);
@@ -63,7 +63,7 @@ void step::omp_async() const {
     auto noise = vec3r(noise_x, noise_y, noise_z);
 
     vec3r f = F[idx];
-    sanitize(f);
+    sanitize(f, (real)1e3);
     auto a_ = f * mass_inv[aa_idx] - gamma * v[idx] + noise_sd * noise;
 
     vec3sr error = y2[idx] - a_ * (dt * dt / 2.0);

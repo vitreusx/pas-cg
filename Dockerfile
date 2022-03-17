@@ -1,7 +1,6 @@
 FROM ubuntu:20.04
 
-RUN apt-get update
-RUN apt-get install -y cmake ninja-build clang
+RUN apt-get update && apt-get install -y cmake ninja-build xxd g++
 
 ARG BUILD_TYPE
 RUN test -n "${BUILD_TYPE}" \
@@ -11,8 +10,8 @@ COPY . .
 
 RUN mkdir build \
     && cd build \
-    && cmake -DCMAKE_C_COMPILER=/usr/bin/clang \
-             -DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
+    && cmake -DCMAKE_C_COMPILER=/usr/bin/gcc \
+             -DCMAKE_CXX_COMPILER=/usr/bin/g++ \
              -DCMAKE_BUILD_TYPE=${BUILD_TYPE} \
              -G Ninja .. \
     && ninja cg

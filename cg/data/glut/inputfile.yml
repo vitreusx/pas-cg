@@ -1,9 +1,6 @@
-general:
-  num of threads: 6
-
 input:
   seq file:
     (at path): glut.yml
 
 output:
-  output dir: output
+  output dir: glut

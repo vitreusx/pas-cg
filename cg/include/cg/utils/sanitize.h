@@ -2,16 +2,16 @@
 #include <cg/types/amp.h>
 
 namespace cg {
-template <typename T> void sanitize(T &value) {
+template <typename T> void sanitize(T &value, T const &max) {
   if (!cg::isfinite(value))
     value = (T)0;
   else
-    value = cg::clamp(value, (T)-1e3, (T)1e3);
+    value = cg::clamp(value, -max, max);
 }
 
-template <typename T> void sanitize(cg::vec3<T> &v) {
-  sanitize(v.x());
-  sanitize(v.y());
-  sanitize(v.z());
+template <typename T> void sanitize(cg::vec3<T> &v, T const &max) {
+  sanitize(v.x(), max);
+  sanitize(v.y(), max);
+  sanitize(v.z(), max);
 }
 } // namespace cg

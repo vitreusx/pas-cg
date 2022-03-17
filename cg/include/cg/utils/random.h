@@ -1,5 +1,6 @@
 #pragma once
 #include <cg/types/vec3.h>
+#include <cg/utils/sanitize.h>
 
 namespace cg {
 class rand_gen {
@@ -37,19 +38,20 @@ public:
   template <typename U> inline U normal() {
     auto r1 = uniform<U>(), r2 = uniform<U>();
     U r = sqrt((U)(-2.0) * log(r1));
-    if (isnan(r))
-      r = (U)0.0;
     U t = (U)(2.0 * M_PI) * r2;
-    return r * cos(t);
+    auto n1 = r * cos(t);
+    sanitize(n1, (U)5.0);
+    return n1;
   }
 
   template <typename U> inline std::pair<U, U> normal_x2() {
     auto r1 = uniform<U>(), r2 = uniform<U>();
     U r = sqrt((U)(-2.0) * log(r1));
-    if (isnan(r))
-      r = (U)0.0;
     U t = (U)(2.0 * M_PI) * r2;
-    return std::make_pair(r * cos(t), r * sin(t));
+    auto n1 = r * cos(t), n2 = r * sin(t);
+    sanitize(n1, (U)5.0);
+    sanitize(n2, (U)5.0);
+    return std::make_pair(n1, n2);
   }
 
   template <typename U> inline vec3<U> sphere() {

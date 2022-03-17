@@ -11,11 +11,11 @@ class thread;
 
 class thread_team {
 public:
-  explicit thread_team(state& st);
+  explicit thread_team(state &st);
   thread &fork();
 
 public:
-  state& st;
+  state &st;
   std::vector<std::unique_ptr<thread>> threads;
 };
 
@@ -34,7 +34,7 @@ public:
   void fix_nl();
 
 public:
-  int thread_id, num_threads;
+  int thread_id, num_threads, loop_idx;
   thread_team &team;
   state &st;
   parameters const &params;

@@ -14,10 +14,11 @@ struct report_data {
   std::vector<std::string> columns;
   std::vector<std::unordered_map<std::string, std::string>> scalars;
 
-  void simul_init();
-  void traj_init();
-  void step_init();
-  void step_finish();
+  void setup_simul_report();
+  void on_new_trajectory();
+  void setup_traj_report();
+  void setup_step_report();
+  void finalize_step_report();
 
   template <typename T>
   void add_step_scalar(std::string const &key, T const &value) {

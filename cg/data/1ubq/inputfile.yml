@@ -2,9 +2,6 @@ general:
   total time: 15e3 tau
   num of threads: 4
   num of trajectories: 10
-  debug mode:
-    enabled: true
-    floating point exceptions: true
 
 input:
   pdb file:
@@ -14,5 +11,8 @@ input:
   morph into SAW:
     perform: true
 
+quasi-adiabatic:
+  enabled: false
+
 output:
-  output dir: output
+  output dir: 1ubq

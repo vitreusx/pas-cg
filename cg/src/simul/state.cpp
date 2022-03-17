@@ -180,7 +180,7 @@ void state::setup_dyn() {
   dyn = dynamics(num_res);
 }
 
-void state::setup_output() { report.traj_first_time = true; }
+void state::setup_output() { report.on_new_trajectory(); }
 
 void state::setup_langevin() {
   auto &mass = comp_aa_data.mass;
