@@ -9,7 +9,7 @@ struct program_args {
   bool help = false;
   std::optional<std::string> error;
   std::vector<std::filesystem::path> param_paths;
-  std::optional<std::filesystem::path> chkpt_path;
+  std::optional<std::filesystem::path> chkpt_path, output_dir;
 
   enum class state {
     PROG_NAME,
@@ -17,6 +17,7 @@ struct program_args {
     OPTION,
     PARAM_PATH_VALUE,
     CHKPT_PATH_VALUE,
+    OUTPUT_DIR_VALUE,
     HELP,
     INVALID
   };
@@ -39,6 +40,8 @@ void program_args::print_help() {
   std::cout << "  -p [path], --param-file [path]  Load parameter file." << '\n';
   std::cout << "  -c [path], --chkpt-file [path]  Load state from checkpoint."
             << '\n';
+  std::cout << "  -o [path], --output     [path]  Set the output directory."
+            << '\n';
 }
 
 program_args::program_args(int argc, char **argv) {
@@ -59,6 +62,8 @@ program_args::program_args(int argc, char **argv) {
         parser_state = state::PARAM_PATH_VALUE;
       } else if (arg == "-c" || arg == "--chkpt-file") {
         parser_state = state::CHKPT_PATH_VALUE;
+      } else if (arg == "-o" || arg == "--output") {
+        parser_state = state::OUTPUT_DIR_VALUE;
       } else {
         std::stringstream err_ss;
         err_ss << "Invalid option \"" << arg << "\"";
@@ -81,6 +86,10 @@ program_args::program_args(int argc, char **argv) {
         error = err_ss.str();
         parser_state = state::INVALID;
       }
+      break;
+    case state::OUTPUT_DIR_VALUE:
+      output_dir = arg;
+      parser_state = state::OPTION;
       break;
     case state::HELP:
     case state::INVALID:
@@ -118,6 +127,9 @@ void program::parse_args(int argc, char **argv) {
       params_yml.merge(slice_yml);
     }
     params_yml >> params;
+
+    if (args.output_dir.has_value())
+      params.out.output_dir = args.output_dir.value();
   }
 }
 

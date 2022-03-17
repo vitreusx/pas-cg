@@ -73,10 +73,11 @@ make -j4 cg
 $ ./cg --help
 PAS CG Coarse Grained Model
 Documentation: https://vitreusx.github.io/pas-cg
-Usage: ./cg [options...]
+Usage: /home/talos/next/code/pas-cg/staging/cg/cg [options...]
   -h,        --help               Print this help message.
   -p [path], --param-file [path]  Load parameter file.
   -c [path], --chkpt-file [path]  Load state from checkpoint.
+  -o [path], --output     [path]  Set the output directory.
 ```
 
 The input to the program consist of the parameter file(s), which allow the user
@@ -85,7 +86,7 @@ consists of a progress bar and files in the output directory. For example, the
 command to run an example simulation could look like:
 
 ```shell
-./cg data/${example}/inputfile.yml
+./cg -p data/${example}/inputfile.yml
 ```
 
 The provided parameter/input files contain only the differences from the input
@@ -93,7 +94,8 @@ file with the defaults, which is included by default for the sake of convenience
 and is located
 at [`cg/src/simul/defaults.yml`](https://github.com/vitreusx/pas-cg/blob/main/cg/src/simul/default.yml)
 . To be precise, the implicit default parameter file gets overriden by the
-user-provided parameter files in the order in which they are listed.
+user-provided parameter files in the order in which they are listed. The output
+directory can be overriden with the `-o` option.
 
 ## Examples
 
@@ -114,4 +116,27 @@ directory.
 
 ```{warning}
 `glut` example is, at the moment, unfinished.
+```
+
+## Docker
+
+"As a last resort", one can build and run the program as a Docker container. To
+build the image, run the following commands in the `pas-cg/` directory:
+
+```shell
+docker build --tag "vitreusx/pas-cg:latest" .
+```
+
+To run the program, execute:
+
+```shell
+docker run -it \
+  -v $(pwd):/host \
+  --user "$(id -u):$(id -g)" \
+  "vitreusx/pas-cg:latest" \
+  [args...]
+```
+
+```{warning}
+This method is somewhat experimental. Moreover, C-c doesn't kill the process - to prematurely end the process, find the id via `docker ps` and run `docker kill`.
 ```

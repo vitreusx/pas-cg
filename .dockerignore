@@ -7,3 +7,5 @@ tests
 venv
 staging*
 deployment*
+Dockerfile
+.dockerignore
