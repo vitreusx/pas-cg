@@ -6,7 +6,8 @@
 - `gcc++` or `clang++` with C++17 support;
 - CMake 3.14+;
 - OpenMP;
-- `xxd` program installed.
+- `xxd` program installed;
+- Git.
 
 ## Getting the program
 
