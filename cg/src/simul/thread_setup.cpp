@@ -2,7 +2,9 @@
 #include <omp.h>
 namespace cg::simul {
 
-thread_team::thread_team(state &st) : st{st} {}
+thread_team::thread_team(state &st) : st{st} {
+  num_threads = st.params.gen.num_of_threads;
+}
 
 thread &thread_team::fork() {
   thread *thr;
@@ -16,8 +18,7 @@ thread &thread_team::fork() {
 
 thread::thread(thread_team &team, state &st)
     : team{team}, st{st}, params{st.params} {
-  thread_id = omp_get_thread_num();
-  num_threads = omp_get_num_threads();
+  tid = omp_get_thread_num();
 }
 
 void thread::traj_setup() {
@@ -146,7 +147,6 @@ void thread::setup_nl() {
     legacy.pad = params.nl.pad;
     legacy.r = st.r.get_view();
     legacy.simul_box = &st.box;
-    legacy.t = &st.t;
     legacy.chain_idx = st.chain_idx.get_view();
     legacy.seq_idx = st.seq_idx.get_view();
     legacy.num_particles = st.num_res;
@@ -158,7 +158,6 @@ void thread::setup_nl() {
     cell.pad = params.nl.pad;
     cell.r = st.r.get_view();
     cell.simul_box = &st.box;
-    cell.t = &st.t;
     cell.chain_idx = st.chain_idx.get_view();
     cell.seq_idx = st.seq_idx.get_view();
     cell.num_particles = st.num_res;

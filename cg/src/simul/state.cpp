@@ -4,10 +4,10 @@ namespace cg::simul {
 state::state(parameters &params) : params(params) {}
 
 static void allclose(real u, real v) {
-  if (abs(u) < 1e-4 && abs(v) < 1e-4)
+  if (abs(u) < 1e-8 && abs(v) < 1e-8)
     return;
 
-  if (abs(v - u) > 1e-4 * abs(u))
+  if (abs(v - u) > 1e-8 * abs(u))
     throw;
 }
 

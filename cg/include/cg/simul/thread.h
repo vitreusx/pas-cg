@@ -16,6 +16,7 @@ public:
 
 public:
   state &st;
+  int num_threads;
   std::vector<std::unique_ptr<thread>> threads;
 };
 
@@ -34,7 +35,7 @@ public:
   void fix_nl();
 
 public:
-  int thread_id, num_threads, loop_idx;
+  int tid, loop_idx;
   thread_team &team;
   state &st;
   parameters const &params;

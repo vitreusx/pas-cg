@@ -2,6 +2,8 @@
 #include <cg/types/amp.h>
 
 namespace cg::simul {
+class thread;
+
 class dynamics {
 public:
   nitro::vector<vec3r> F;
@@ -16,5 +18,6 @@ public:
 
   void reduce(dynamics &target);
   void omp_reduce(dynamics &target);
+  void omp_reduce_v2(dynamics &target, thread const &thr);
 };
 } // namespace cg::simul

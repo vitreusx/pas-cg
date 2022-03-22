@@ -162,7 +162,6 @@ void cell_update::operator()() const {
   for (int idx = 0; idx < r.size(); ++idx)
     nl_data->orig_r[idx] = r[idx];
   nl_data->orig_box = *simul_box;
-  nl_data->ref_t = *t;
   *invalid = false;
 }
 

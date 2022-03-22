@@ -147,7 +147,7 @@ void thread::eval_forces() {
     }
   }
 
-  dyn.omp_reduce(st.dyn);
+  dyn.omp_reduce_v2(st.dyn, *this);
 #pragma omp barrier
 }
 

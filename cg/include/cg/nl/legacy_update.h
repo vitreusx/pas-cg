@@ -19,6 +19,5 @@ public:
 
 public:
   void operator()() const;
-  void omp_async() const;
 };
 } // namespace cg::nl

@@ -1,5 +1,6 @@
 #include "nat_cont/update_contacts.h"
 #include "base_forces/lj.h"
+
 namespace cg::nat_cont {
 
 void update_contacts::operator()() const {
@@ -13,7 +14,8 @@ void update_contacts::operator()() const {
     auto cutoff = lj::compute_cutoff(nat_dist);
 
     auto r1 = r[idx1], r2 = r[idx2];
-    if (norm(simul_box->r_uv(r1, r2)) < cutoff + nl->orig_pad) {
+    auto cur_dist = norm(simul_box->r_uv(r1, r2));
+    if (cur_dist < cutoff + nl->orig_pad) {
       contacts->push_back(nat_cont);
     }
   }
