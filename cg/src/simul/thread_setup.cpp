@@ -49,7 +49,7 @@ void thread::finish_trajectory() {
 
 void thread::setup_gen() {
   gen = st.gen;
-  for (int rep = 0; rep < omp_get_thread_num(); ++rep)
+  for (int rep = 0; rep < tid; ++rep)
     gen = gen.spawn();
 
   if (params.gen.debug_mode.fp_exceptions) {

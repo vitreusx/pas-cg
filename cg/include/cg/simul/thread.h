@@ -30,9 +30,12 @@ public:
 
   void adjust_scenario();
   void pre_eval();
+  void fix_nl();
+  void pre_eval_async();
+  void fix_nl_async();
   void eval_forces();
   void post_eval();
-  void fix_nl();
+  void post_eval_async();
 
 public:
   int tid, loop_idx;

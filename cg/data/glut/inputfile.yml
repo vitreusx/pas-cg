@@ -1,3 +1,10 @@
+#general:
+#  debug mode:
+#    enabled: true
+#    determinism: true
+general:
+  num of threads: 4
+
 input:
   seq file:
     (at path): glut.yml

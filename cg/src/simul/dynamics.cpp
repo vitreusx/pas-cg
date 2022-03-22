@@ -11,7 +11,7 @@ void dynamics::reset() {
 }
 
 void dynamics::omp_reset() {
-#pragma omp atomic write
+#pragma omp master
   V = 0.0;
 
 #pragma omp for schedule(static) nowait
@@ -34,7 +34,7 @@ void dynamics::omp_reduce(dynamics &target) {
     target.F[idx].omp_atomic_add(F[idx]);
 }
 
-void dynamics::omp_reduce_v2(dynamics &target, thread const& thr) {
+void dynamics::omp_reduce_v2(dynamics &target, thread const &thr) {
   auto num_thr = thr.team.num_threads;
   auto N = F.size();
 

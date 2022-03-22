@@ -84,8 +84,11 @@ void step::omp_async() const {
     v[idx] = y1[idx] * dt_inv;
   }
 
-  *true_t += dt;
-  *t = (real)*true_t;
+#pragma omp master
+  {
+    *true_t += dt;
+    *t = (real)*true_t;
+  }
   *gen = local_gen;
 }
 } // namespace cg::lang

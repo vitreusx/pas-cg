@@ -224,6 +224,7 @@ void state::setup_nl() {
   nl_invalid = true;
   nl_required = false;
   verify_first_time = true;
+  total_disp = 0.0;
   max_cutoff = 0.0;
   nl.orig_r = nitro::vector<vec3r>(num_res);
 

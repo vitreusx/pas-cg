@@ -12,9 +12,11 @@ void thread::loop() {
   if (!st.is_running)
     return;
 
-  pre_eval();
+  //  pre_eval();
+  pre_eval_async();
   eval_forces();
-  post_eval();
+  //  post_eval();
+  post_eval_async();
 }
 
 void thread::adjust_scenario() {
@@ -70,7 +72,7 @@ void thread::pre_eval() {
     st.dyn.reset();
 
     if (params.qa.enabled) {
-      prepare_nh.omp_async();
+      prepare_nh();
       if (st.ss_spec_crit)
         count_cys_neigh();
     }
@@ -106,6 +108,65 @@ void thread::fix_nl() {
     update_cys_neigh();
   if (params.pid.enabled)
     update_pid_bundles();
+}
+
+void thread::pre_eval_async() {
+  st.dyn.omp_reset();
+
+  if (params.qa.enabled) {
+    prepare_nh.omp_async();
+    if (st.ss_spec_crit)
+      count_cys_neigh.omp_reset();
+  }
+
+  if (st.nl_required)
+    nl_verify.omp_async();
+
+#pragma omp barrier
+
+  if (params.qa.enabled && st.ss_spec_crit)
+    count_cys_neigh.omp_async();
+
+  if (st.nl_invalid)
+    fix_nl_async();
+
+#pragma omp barrier
+}
+
+void thread::fix_nl_async() {
+  switch (params.nl.algorithm) {
+  case nl::parameters::CELL:
+#pragma omp master
+    nl_cell();
+    break;
+  case nl::parameters::LEGACY:
+    nl_legacy.omp_async();
+    break;
+  }
+
+#pragma omp barrier
+
+#pragma omp sections
+  {
+#pragma omp section
+    if (params.pauli.enabled)
+      update_pauli_pairs();
+#pragma omp section
+    if (params.nat_cont.enabled)
+      update_nat_contacts();
+#pragma omp section
+    if (params.const_dh.enabled || params.rel_dh.enabled)
+      update_dh_pairs();
+#pragma omp section
+    if (params.qa.enabled)
+      update_qa_pairs();
+#pragma omp section
+    if (params.qa.enabled && st.ss_spec_crit)
+      update_cys_neigh();
+#pragma omp section
+    if (params.pid.enabled)
+      update_pid_bundles();
+  }
 }
 
 void thread::eval_forces() {
@@ -180,4 +241,37 @@ void thread::post_eval() {
 
   ++loop_idx;
 }
+
+void thread::post_eval_async() {
+#pragma omp master
+  {
+    if (params.pbar.enabled) {
+      render_pbar();
+    }
+
+    if (params.out.enabled) {
+      make_report();
+    }
+
+    if (params.qa.enabled) {
+      qa_finish_processing();
+    }
+  }
+
+#pragma omp barrier
+
+  if (params.lang.enabled) {
+    switch (params.lang.type) {
+    case lang::lang_type::NORMAL:
+      lang_step.omp_async();
+      break;
+    case lang::lang_type::LEGACY:
+      lang_legacy_step.omp_async();
+      break;
+    }
+  }
+
+  ++loop_idx;
+}
+
 } // namespace cg::simul

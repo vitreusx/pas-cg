@@ -2,9 +2,6 @@ general:
   total time: 15e3 tau
   num of threads: 4
   num of trajectories: 10
-  debug mode:
-    enabled: true
-    determinism: true
 
 input:
   pdb file:

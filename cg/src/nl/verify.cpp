@@ -27,12 +27,10 @@ void verify::omp_async() const {
       *first_time = false;
       *invalid = true;
     }
+#pragma omp barrier
   } else {
     real max_r_disp = 0.0f;
-#pragma omp atomic write
-    *total_disp = (real)0.0f;
-
-#pragma omp for schedule(static)
+#pragma omp for schedule(static) nowait
     for (int idx = 0; idx < num_particles; ++idx) {
       auto r_ = r[idx], orig_r_ = nl_data->orig_r.at(idx);
       auto dr = simul_box->r_uv(r_, orig_r_);
@@ -46,7 +44,12 @@ void verify::omp_async() const {
     {
       *total_disp = max(*total_disp, thread_disp);
       *invalid = (*total_disp > nl_data->orig_pad);
-    };
+    }
+
+#pragma omp barrier
+
+#pragma omp master
+    *total_disp = (real)0.0f;
   }
 }
 
