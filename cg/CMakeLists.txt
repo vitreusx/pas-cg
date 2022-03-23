@@ -65,8 +65,8 @@ target_compile_options(cg
     $<$<CONFIG:Staging>:-Ofast;-march=native;-g>
     $<$<CONFIG:Debug>:-g>)
 
-add_subdirectory(ext/ioxx/ioxx EXCLUDE_FROM_ALL)
-add_subdirectory(ext/nitro/nitro EXCLUDE_FROM_ALL)
+add_subdirectory(ext/ioxx EXCLUDE_FROM_ALL)
+add_subdirectory(ext/nitro EXCLUDE_FROM_ALL)
 add_subdirectory(ext/cparse EXCLUDE_FROM_ALL)
 
 if (${USE_OMP})
