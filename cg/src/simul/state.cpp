@@ -57,6 +57,7 @@ void state::simul_setup() {
 
   gen = rand_gen(params.gen.seed);
 
+  report = out::report_data();
   report.out_dir = params.out.output_dir;
   report.last_stats_t = std::numeric_limits<real>::lowest();
   report.last_files_t = report.last_stats_t;
@@ -126,6 +127,7 @@ void state::morph_model() {
 
 void state::compile_model() {
   int res_idx = 0;
+  res_map = {};
   for (auto const &res : model.residues)
     res_map[res.get()] = res_idx++;
 
@@ -226,6 +228,7 @@ void state::setup_nl() {
   verify_first_time = true;
   total_disp = 0.0;
   max_cutoff = 0.0;
+  nl = nl::data();
   nl.orig_r = nitro::vector<vec3r>(num_res);
 
   switch (params.nl.algorithm) {
@@ -239,6 +242,7 @@ void state::setup_nl() {
 
 void state::setup_chir() {
   if (params.chir.enabled) {
+    chir_quads = {};
     for (auto const &dihedral : model.dihedrals) {
       auto i1 = res_map[dihedral.res1], i2 = res_map[dihedral.res2],
            i3 = res_map[dihedral.res3], i4 = res_map[dihedral.res4];
@@ -259,6 +263,7 @@ void state::setup_chir() {
 
 void state::setup_tether() {
   if (params.tether.enabled) {
+    tether_pairs = {};
     for (auto const &tether : model.tethers) {
       auto i1 = res_map[tether.res1], i2 = res_map[tether.res2];
       auto nat_dist = (real)tether.length.value_or(params.tether.def_length);
@@ -269,6 +274,7 @@ void state::setup_tether() {
 
 void state::setup_nat_ang() {
   if (params.nat_ang.enabled) {
+    native_angles = {};
     for (auto const &angle : model.angles) {
       if (angle.theta.has_value()) {
         auto i1 = res_map[angle.res1], i2 = res_map[angle.res2],
@@ -283,6 +289,7 @@ void state::setup_nat_ang() {
 
 void state::setup_heur_ang() {
   if (params.heur_ang.enabled) {
+    heur_angles = {};
     for (auto const &angle : model.angles) {
       if (!angle.theta.has_value()) {
         auto i1 = res_map[angle.res1], i2 = res_map[angle.res2],
@@ -297,6 +304,7 @@ void state::setup_heur_ang() {
 
 void state::setup_nat_dih() {
   if (params.cnd.enabled || params.snd.enabled) {
+    native_dihedrals = {};
     for (auto const &dihedral : model.dihedrals) {
       if (dihedral.phi.has_value()) {
         auto i1 = res_map[dihedral.res1], i2 = res_map[dihedral.res2],
@@ -311,6 +319,7 @@ void state::setup_nat_dih() {
 
 void state::setup_heur_dih() {
   if (params.heur_dih.enabled) {
+    heur_dihedrals = {};
     for (auto const &dihedral : model.dihedrals) {
       if (!dihedral.phi.has_value()) {
         auto i1 = res_map[dihedral.res1], i2 = res_map[dihedral.res2],
@@ -336,6 +345,8 @@ void state::setup_nat_cont() {
     params.nat_cont.enabled = false;
 
   if (params.nat_cont.enabled) {
+    all_native_contacts = {};
+    nat_cont_excl = {};
     for (int idx = 0; idx < (int)model.contacts.size(); ++idx) {
       auto const &cont = model.contacts[idx];
       auto i1 = res_map[cont.res1], i2 = res_map[cont.res2];
@@ -418,6 +429,8 @@ void state::setup_pid() {
 
 void state::setup_afm() {
   if (!params.afm.tips.empty()) {
+    afm_tips = afm::compiled_tips();
+
     for (auto const &tip : params.afm.tips) {
       if (std::holds_alternative<afm::parameters::single_res_t>(tip)) {
         auto const &tip_v = std::get<afm::parameters::single_res_t>(tip);

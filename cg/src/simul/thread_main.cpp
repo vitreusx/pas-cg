@@ -12,7 +12,7 @@ void thread::loop() {
   if (!st.is_running)
     return;
 
-  //  pre_eval();
+  //    pre_eval();
   pre_eval_async();
   eval_forces();
   //  post_eval();
@@ -134,6 +134,8 @@ void thread::pre_eval_async() {
 }
 
 void thread::fix_nl_async() {
+#pragma omp barrier
+
   switch (params.nl.algorithm) {
   case nl::parameters::CELL:
 #pragma omp master

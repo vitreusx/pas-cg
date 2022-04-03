@@ -114,6 +114,9 @@ void legacy_update::omp_async() const {
 
 #pragma omp master
   {
+    std::sort(nl_data->non_native.begin(), nl_data->non_native.end());
+    std::sort(nl_data->native.begin(), nl_data->native.end());
+
     nl_data->orig_pad = pad;
     for (int idx = 0; idx < r.size(); ++idx)
       nl_data->orig_r[idx] = r[idx];
