@@ -1,4 +1,3 @@
-#include <boost/serialization/access.hpp>
 #include <cg/simul/program.h>
 
 int main(int argc, char **argv) {
