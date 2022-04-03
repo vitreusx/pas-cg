@@ -68,6 +68,7 @@ target_compile_options(cg
 add_subdirectory(ext/ioxx EXCLUDE_FROM_ALL)
 add_subdirectory(ext/nitro EXCLUDE_FROM_ALL)
 add_subdirectory(ext/cparse EXCLUDE_FROM_ALL)
+add_subdirectory(ext/boost EXCLUDE_FROM_ALL)
 
 if (${USE_OMP})
     find_package(OpenMP REQUIRED)
@@ -80,7 +81,7 @@ if (NOT ${Eigen3_FOUND})
 endif ()
 
 target_link_libraries(cg
-    PRIVATE ioxx nitro cparse Eigen3::Eigen)
+    PRIVATE ioxx nitro cparse Eigen3::Eigen Boost)
 
 set_target_properties(cg
     PROPERTIES
