@@ -87,13 +87,9 @@ set_target_properties(cg
     PROPERTIES
     INTERPROCEDURAL_OPTIMIZATION TRUE)
 
-file(GLOB_RECURSE DataFiles CONFIGURE_DEPENDS
-    data/**)
-
-add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/data"
+add_custom_target(copy_data_dir
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${CMAKE_CURRENT_SOURCE_DIR}/data"
-    "${CMAKE_CURRENT_BINARY_DIR}/data"
-    DEPENDS ${DataFiles})
-add_custom_target(copy_data_dir DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/data")
+    "${CMAKE_CURRENT_BINARY_DIR}/data")
+
 add_dependencies(cg copy_data_dir)

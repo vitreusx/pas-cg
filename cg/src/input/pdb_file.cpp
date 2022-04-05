@@ -52,6 +52,8 @@ void pdb_file::load(std::istream &is) {
       auto &record_r = opt_record.value();
 
       if (auto atom_r = record_r.cast<records::atom>(); atom_r) {
+        if (atom_r->atom_name[0] == 'H')
+          continue;
 
         auto *chain = find_or_add_chain(atom_r->chain_id);
 
@@ -66,6 +68,10 @@ void pdb_file::load(std::istream &is) {
         atm->parent_res = res;
 
         res->atoms.push_back(atm);
+
+        if (!ter_found[atom_r->chain_id])
+          chain->ter_serial = atom_r->serial + 1;
+
       } else if (auto ssbond_r = record_r.cast<records::ssbond>(); ssbond_r) {
         disulfide_bond ss;
         ss.serial = ssbond_r->serial;
