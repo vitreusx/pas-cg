@@ -1,0 +1,21 @@
+#include <cg/heur/ang/parameters.h>
+#include <cg/utils/ioxx_interop.h>
+namespace cg::heur_ang {
+
+void parameters::pair_coeffs::connect(ioxx::row_proxy &proxy) {
+  proxy["type1"] & type1;
+  proxy["type2"] & type2;
+  for (int deg = 0; deg <= 6; ++deg) {
+    auto unit = "eps/rad**" + std::to_string(deg);
+    proxy["a" + std::to_string(deg)] & poly[deg].assumed_(unit);
+  }
+}
+
+void parameters::load(ioxx::xyaml::node const &p) {
+  enabled = p["enabled"].as<bool>();
+  auto coeffs_csv = p["coefficients"].as<ioxx::csv<pair_coeffs>>();
+  for (auto const &row : coeffs_csv.rows) {
+    coeffs[aa_heur_pair(row.type1, row.type2)] = row;
+  }
+}
+} // namespace cg::heur_ang

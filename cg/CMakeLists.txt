@@ -53,7 +53,6 @@ target_include_directories(cg
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
     PRIVATE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/cg>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include/cg>)
 
@@ -65,23 +64,23 @@ target_compile_options(cg
     $<$<CONFIG:Staging>:-Ofast;-march=native;-g>
     $<$<CONFIG:Debug>:-g>)
 
-add_subdirectory(ext/ioxx EXCLUDE_FROM_ALL)
-add_subdirectory(ext/nitro EXCLUDE_FROM_ALL)
 add_subdirectory(ext/cparse EXCLUDE_FROM_ALL)
 add_subdirectory(ext/boost EXCLUDE_FROM_ALL)
+add_subdirectory(ext/vcl-2.01.04 EXCLUDE_FROM_ALL)
+add_subdirectory(ext/yaml-cpp-0.7.0 EXCLUDE_FROM_ALL)
+
+find_package(Eigen3 3.4 QUIET)
+if (NOT "${Eigen3_FOUND}")
+    add_subdirectory(ext/eigen-3.4.0 EXCLUDE_FROM_ALL)
+endif ()
 
 if (${USE_OMP})
     find_package(OpenMP REQUIRED)
     target_link_libraries(cg PRIVATE OpenMP::OpenMP_CXX)
 endif ()
 
-find_package(Eigen3 3.4 QUIET)
-if (NOT ${Eigen3_FOUND})
-    add_subdirectory(ext/eigen-3.4.0 EXCLUDE_FROM_ALL)
-endif ()
-
 target_link_libraries(cg
-    PRIVATE ioxx nitro cparse Eigen3::Eigen Boost)
+    PRIVATE vcl yaml-cpp cparse Boost Eigen3::Eigen)
 
 set_target_properties(cg
     PROPERTIES

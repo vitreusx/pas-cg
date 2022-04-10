@@ -1,5 +1,5 @@
 #pragma once
-#include "input/model.h"
+#include <cg/input/model.h>
 #include <filesystem>
 #include <ioxx/ioxx.h>
 
