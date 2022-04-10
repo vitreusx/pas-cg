@@ -13,6 +13,11 @@
 #include <thread>
 
 namespace cg::simul {
+class state;
+
+std::istream& operator>>(std::istream& is, state& st);
+std::ostream& operator<<(std::ostream& os, state const& st);
+
 class state {
 public:
   explicit state(parameters &params);
@@ -124,5 +129,9 @@ public:
 
   afm::compiled_tips afm_tips;
   void setup_afm();
+
+public:
+  friend std::istream& operator>>(std::istream& is, state& st);
+  friend std::ostream& operator<<(std::ostream& os, state const& st);
 };
 } // namespace cg::simul

@@ -47,7 +47,7 @@ struct parameters {
   out::parameters out;
   afm::parameters afm;
 
-  void load(ioxx::xyaml::node const &from);
+  void link(ioxx::xyaml::proxy &p);
 };
 
 ioxx::xyaml::node defaults_yml();

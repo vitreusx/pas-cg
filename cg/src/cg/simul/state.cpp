@@ -467,4 +467,5 @@ void state::post_equil_setup() {
   setup_afm();
   post_equil = true;
 }
+
 } // namespace cg::simul

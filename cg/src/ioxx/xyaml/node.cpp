@@ -48,7 +48,10 @@ proxy proxy::loading_from(const node &ref) {
   return proxy(ref, proxy_mode::LOAD);
 }
 
-proxy::proxy(const node &ref, proxy_mode mode) : node(ref), mode(mode) {}
+proxy::proxy(const node &ref, proxy_mode mode) : node(ref), mode(mode) {
+  is_loading = (mode == proxy_mode::LOAD);
+  is_saving = (mode == proxy_mode::SAVE);
+}
 
 node node::child(const YAML::Node &node) const {
   auto res = ioxx::xyaml::node(node);

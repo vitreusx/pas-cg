@@ -9,7 +9,7 @@ public:
   ioxx::csv<Row> data;
 };
 
-template <typename Row> struct xyaml_conv<csv<Row>> {
+template <typename Row> struct user_repr<csv<Row>> {
   void load(node const &from, csv<Row> &to) const {
     auto csv_file = from.as<file>();
     to.path = csv_file.rel_path;
@@ -24,15 +24,13 @@ template <typename Row> struct xyaml_conv<csv<Row>> {
   }
 };
 
-template<typename Row> struct xyaml_conv<ioxx::csv<Row>> {
-  void load(node const& from, ioxx::csv<Row> &to) const {
+template <typename Row> struct user_repr<ioxx::csv<Row>> {
+  void load(node const &from, ioxx::csv<Row> &to) const {
     auto csv_file = from.as<file>();
     to = ioxx::csv<Row>(csv_file.fetch());
   }
 
-  void save(node& to, ioxx::csv<Row> const& from) const {
-    to << from.save();
-  }
+  void save(node &to, ioxx::csv<Row> const &from) const { to << from.save(); }
 };
 
 } // namespace ioxx::xyaml

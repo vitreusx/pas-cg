@@ -13,7 +13,7 @@ public:
   std::optional<std::filesystem::path> rel_path, abs_path;
 };
 
-template <> struct xyaml_conv<file> {
+template <> struct user_repr<file> {
   void load(node const &from, file &to) const;
   void save(node &to, file const &from) const;
 };

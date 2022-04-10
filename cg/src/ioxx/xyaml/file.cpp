@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 namespace ioxx::xyaml {
-void xyaml_conv<file>::load(const node &from, file &to) const {
+void user_repr<file>::load(const node &from, file &to) const {
   if (from.IsScalar()) {
     to.source = from.as<std::string>();
     to.rel_path = to.abs_path = std::nullopt;
@@ -15,7 +15,7 @@ void xyaml_conv<file>::load(const node &from, file &to) const {
   }
 }
 
-void xyaml_conv<file>::save(node &to, const file &from) const {
+void user_repr<file>::save(node &to, const file &from) const {
   if (from.rel_path.has_value()) {
     to["(at path)"] = from.rel_path.value().string();
     auto path = to.abs_path(from.rel_path.value());

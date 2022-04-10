@@ -3,7 +3,7 @@
 #include <optional>
 
 namespace ioxx::xyaml {
-template <typename T> struct xyaml_conv<std::optional<T>> {
+template <typename T> struct user_repr<std::optional<T>> {
   void load(node const &from, std::optional<T> &to) const {
     if (from)
       to = from.as<T>();
@@ -15,7 +15,7 @@ template <typename T> struct xyaml_conv<std::optional<T>> {
   }
 };
 
-template <> struct xyaml_conv<std::filesystem::path> {
+template <> struct user_repr<std::filesystem::path> {
   void load(node const &from, std::filesystem::path &to) const;
   void save(node &to, std::filesystem::path const &from) const;
 };

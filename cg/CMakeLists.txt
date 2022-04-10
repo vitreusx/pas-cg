@@ -4,14 +4,14 @@ option(SINGLE_FILE "Concatenate all source files" OFF)
 add_executable(cg)
 
 add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/simul/default.yml.h
-    COMMAND xxd -i default.yml >src/simul/default.yml.h
+    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/cg/simul/default.yml.h
+    COMMAND xxd -i default.yml >src/cg/simul/default.yml.h
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/default.yml
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 add_custom_target(defaults ALL
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/simul/default.yml.h)
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/cg/simul/default.yml.h)
 
 add_dependencies(cg defaults)
 

@@ -2,6 +2,7 @@ general:
   total time: 100e3 tau
   equil time: 7500 tau
   num of trajectories: 5
+  num of threads: 4
 
 input:
   seq file:

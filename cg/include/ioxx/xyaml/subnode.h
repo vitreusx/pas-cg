@@ -11,7 +11,7 @@ public:
   subnode &operator=(node const &base);
 };
 
-template <> struct xyaml_conv<subnode> {
+template <> struct user_repr<subnode> {
   void load(node const &from, subnode &to) const;
   void save(node &to, subnode const &from) const;
 };
