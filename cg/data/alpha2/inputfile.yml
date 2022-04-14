@@ -1,0 +1,19 @@
+general:
+  total time: 15e3 tau
+  num of threads: 1
+  num of trajectories: 4
+
+input:
+  pdb file:
+    source:
+      (at path): 1xq8.pdb
+    contact deriv: from all atoms
+    ignore CRYST1: true
+  morph into SAW:
+    perform: true
+
+quasi-adiabatic:
+  enabled: false
+
+output:
+  output dir: 1xq8

@@ -40,14 +40,14 @@ void state::simul_setup() {
   traj_idx = 0;
 
   if (params.gen.disable_all) {
-    params.chir.enabled = false;
-    params.tether.enabled = false;
-    params.nat_ang.enabled = false;
-    params.heur_ang.enabled = false;
-    params.cnd.enabled = false;
-    params.snd.enabled = false;
+    //    params.chir.enabled = false;
+    //    params.tether.enabled = false;
+    //    params.nat_ang.enabled = false;
+    //    params.heur_ang.enabled = false;
+    //    params.cnd.enabled = false;
+    //    params.snd.enabled = false;
     params.heur_dih.enabled = false;
-    params.pauli.enabled = false;
+    //    params.pauli.enabled = false;
     params.nat_cont.enabled = false;
     params.const_dh.enabled = false;
     params.rel_dh.enabled = false;
@@ -73,6 +73,10 @@ void state::load_model() {
       auto all_atoms = source.deriv == pdb_file::contact_deriv::FROM_ATOMS;
       file.add_contacts(params.aa_data, all_atoms);
     }
+
+    if (source.ignore_cryst1)
+      file.cryst1 = vec3<double>::Zero();
+
     orig_model = file.to_model();
   } else {
     auto &file = std::get<seq_file>(model_file_v);

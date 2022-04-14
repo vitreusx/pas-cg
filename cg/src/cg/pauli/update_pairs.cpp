@@ -12,6 +12,7 @@ void update_pairs::operator()() const {
     auto i1 = pair.i1(), i2 = pair.i2();
 
     auto r1 = r[i1], r2 = r[i2];
+    auto ninv1 = norm_inv(r2 - r1);
     if (norm_inv(simul_box->r_uv(r1, r2)) > min_norm_inv) {
       pairs->emplace_back(i1, i2);
     }

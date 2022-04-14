@@ -11,6 +11,7 @@ struct parameters {
   struct pdb_source {
     pdb_file file;
     std::optional<pdb_file::contact_deriv> deriv;
+    bool ignore_cryst1 = false;
   };
 
   std::variant<seq_file, pdb_source> source;
