@@ -3,9 +3,9 @@
 #include <vector>
 
 namespace ioxx {
-// https://stackoverflow.com/a/30338543
-
 enum class CSVState { UnquotedField, QuotedField, QuotedQuote };
+
+// https://stackoverflow.com/a/30338543
 
 static std::vector<std::string> readCSVRow(const std::string &row) {
   CSVState state = CSVState::UnquotedField;
@@ -16,7 +16,7 @@ static std::vector<std::string> readCSVRow(const std::string &row) {
     case CSVState::UnquotedField:
       switch (c) {
       case ',': // end of field
-        fields.push_back("");
+        fields.emplace_back("");
         i++;
         break;
       case '"':
@@ -40,7 +40,7 @@ static std::vector<std::string> readCSVRow(const std::string &row) {
     case CSVState::QuotedQuote:
       switch (c) {
       case ',': // , after closing quote
-        fields.push_back("");
+        fields.emplace_back("");
         i++;
         state = CSVState::UnquotedField;
         break;
