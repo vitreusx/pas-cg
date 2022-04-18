@@ -89,11 +89,6 @@ std::string escape(std::string const &value) {
   }
 }
 
-static std::ostream &operator<<(std::ostream &os, cell const &cell) {
-  os << cell.value_repr;
-  return os;
-}
-
 template <typename T>
 static void write_row(std::ostream &os, std::vector<T> const &values) {
   for (int cell_idx = 0; cell_idx < values.size(); ++cell_idx) {
@@ -112,7 +107,7 @@ void csv_parser::write(std::ostream &os, const table &tab) const {
   for (int row_idx = 0; row_idx < tab.rows.size(); ++row_idx) {
     if (row_idx > 0)
       os << '\n';
-    write_row(os, tab.rows[row_idx].cells);
+    write_row(os, tab.rows[row_idx].fields);
   }
 }
 } // namespace ioxx::table

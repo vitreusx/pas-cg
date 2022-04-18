@@ -10,43 +10,89 @@ namespace ioxx::table {
 class table;
 class columns;
 
-class cell {
+class dtype {
 public:
-  cell() = default;
-  cell(cell const &other) = default;
-  cell &operator=(cell const &other) = default;
+  dtype() = default;
+  enum class tag { uint_, int_, float_, bool_, string_ };
 
-  template <typename T> cell(T const &init) { *this = init; }
+  template <typename T> static dtype from_type() {
+    if constexpr (std::is_same_v<T, bool>) {
+      return dtype(tag::bool_);
+    } else if constexpr (std::is_integral_v<T>) {
+      if constexpr (std::is_unsigned_v<T>)
+        return dtype(tag::uint_);
+      else
+        return dtype(tag::int_);
+    } else if constexpr (std::is_floating_point_v<T>) {
+      return dtype(tag::float_);
+    } else {
+      return dtype(tag::string_);
+    }
+  }
 
-  template <typename T> cell &operator=(T const &init) {
-    value_repr = convert<std::string>(init);
+public:
+  explicit dtype(tag t);
+  tag t = tag::string_;
+};
+
+class cell_ref {
+public:
+  explicit cell_ref(std::string &field_ref, dtype &dt);
+
+  cell_ref(cell_ref const &other) = delete;
+  cell_ref(cell_ref &&other) = default;
+
+  cell_ref &operator=(cell_ref const &other);
+  cell_ref &operator=(cell_ref &&other);
+
+  template <typename T> cell_ref &operator=(T const &value) {
+    field_ref = convert<std::string>(value);
+    dt = dtype::from_type<T>();
     return *this;
   }
 
-  template <typename T> T as() const { return convert<T>(value_repr); }
+  template <typename T> T as() const { return convert<T>(field_ref); }
 
 public:
-  std::string value_repr;
+  std::string &field_ref;
+  dtype &dt;
+};
+
+class cell_const_ref {
+public:
+  explicit cell_const_ref(std::string const &field_ref);
+  cell_const_ref(cell_ref const &ref);
+
+  cell_const_ref(cell_const_ref const &other) = delete;
+  cell_const_ref(cell_const_ref &&other) = default;
+
+  cell_const_ref &operator=(cell_const_ref const &other) = delete;
+  cell_const_ref &operator=(cell_const_ref &&other) = delete;
+
+  template <typename T> T as() const { return convert<T>(field_ref); }
+
+public:
+  std::string const &field_ref;
 };
 
 class row {
 public:
-  row(table const &super);
-  row(table const &super, std::vector<std::string> const &values);
+  row(table &super);
+  row(table &super, std::vector<std::string> const &values);
 
   row &operator=(std::vector<std::string> const &values);
 
   template <typename... Values>
-  row(table const &super, Values &&...values) : super{super} {
-    cells = {cell(values)...};
+  row(table &super, Values &&...values) : super{super} {
+    fields = {cell(values)...};
   }
 
-  cell &operator[](std::string const &colname);
-  cell const &operator[](std::string const &colname) const;
+  cell_ref operator[](std::string const &colname);
+  cell_const_ref operator[](std::string const &colname) const;
 
 public:
-  table const &super;
-  std::vector<cell> cells;
+  table &super;
+  std::vector<std::string> fields;
 };
 
 class columns {
@@ -56,11 +102,7 @@ public:
 
   columns &operator=(std::vector<std::string> const &names);
 
-  void add(std::string const &name, std::string const &init = "");
-
-  template <typename T> void add(std::string const &name, T const &init) {
-    add(name, convert<std::string>(init));
-  }
+  template <typename T> void add(std::string const &name, T const &init);
 
   int operator[](std::string const &name) const;
 
@@ -69,6 +111,7 @@ public:
 public:
   table &super;
   std::vector<std::string> names;
+  std::vector<dtype> dtypes;
   std::unordered_map<std::string, int> name_to_idx;
 };
 
@@ -93,4 +136,15 @@ public:
   std::vector<row> rows;
   columns cols;
 };
+
+template <typename T>
+void columns::add(const std::string &name, const T &init) {
+  auto col_idx = names.size();
+  names.push_back(name);
+  dtypes.push_back(dtype::from_type<T>());
+  name_to_idx[name] = col_idx;
+
+  for (auto &row : super.rows)
+    row.fields.emplace_back(init);
+}
 } // namespace ioxx::table

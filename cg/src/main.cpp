@@ -22,7 +22,7 @@ int main() {
     row["col4"] = false;
   }
 
-  csv_parser p;
+  sl4_parser p;
   p.write(std::cout, tab);
 
   return EXIT_SUCCESS;
