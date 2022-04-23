@@ -2,35 +2,34 @@
 #include <cg/simul/parameters.h>
 namespace cg::simul {
 
-void parameters::link(ioxx::xyaml::proxy &p) {
-  p["general"] & gen;
-  p["amino acid data"] & aa_data;
-  p["input"] & input;
-  p["langevin"] & lang;
-  p["neighbor list"] & nl;
-  p["heurestic angles"] & heur_ang;
-  p["native angles"] & nat_ang;
-  p["complex native dihedrals"] & cnd;
-  p["simple native dihedrals"] & snd;
-  p["heurestic dihedrals"] & heur_dih;
-  p["constant Debye-Hueckel"] & const_dh;
-  p["relative Debye-Hueckel"] & rel_dh;
-  p["lj force variants"] & lj_vars;
-  p["pseudo-improper dihedral"] & pid;
-  p["quasi-adiabatic"] & qa;
-  p["chirality"] & chir;
-  p["native contacts"] & nat_cont;
-  p["Pauli exclusion"] & pauli;
-  p["tether forces"] & tether;
-  p["AFM"] & afm;
-  p["progress bar"] & pbar;
-  p["output"] & out;
+void parameters::load(ioxx::xyaml::node const& n) {
+  n["general"] >> gen;
+  n["amino acid data"] >> aa_data;
+  n["input"] >> input;
+  n["langevin"] >> lang;
+  n["neighbor list"] >> nl;
+  n["heurestic angles"] >> heur_ang;
+  n["native angles"] >> nat_ang;
+  n["complex native dihedrals"] >> cnd;
+  n["simple native dihedrals"] >> snd;
+  n["heurestic dihedrals"] >> heur_dih;
+  n["constant Debye-Hueckel"] >> const_dh;
+  n["relative Debye-Hueckel"] >> rel_dh;
+  n["lj force variants"] >> lj_vars;
+  n["pseudo-improper dihedral"] >> pid;
+  n["quasi-adiabatic"] >> qa;
+  n["chirality"] >> chir;
+  n["native contacts"] >> nat_cont;
+  n["Pauli exclusion"] >> pauli;
+  n["tether forces"] >> tether;
+  n["AFM"] >> afm;
+  n["progress bar"] >> pbar;
+  n["output"] >> out;
 
-  if (p.is_loading) {
-    if (gen.debug_mode.determinism) {
-      out.enabled = false;
-      pbar.enabled = false;
-    }
+  using prog_mode = gen::parameters::prog_mode;
+  if (gen.mode == prog_mode::check_determinism) {
+    out.enabled = false;
+    pbar.enabled = false;
   }
 }
 

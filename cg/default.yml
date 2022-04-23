@@ -3,12 +3,12 @@ general:
   equil time: 0 tau
   seed: 42
   num of threads: 4
+  mode: perform simulation
   debug mode:
     enabled: false
     floating point exceptions: false
-    determinism: true
+    disable all forces: false
   num of trajectories: 1
-  disable all forces: false
 
 input:
   morph into SAW:

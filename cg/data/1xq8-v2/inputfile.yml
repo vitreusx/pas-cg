@@ -7,7 +7,7 @@ input:
   pdb file:
     source:
       (at path): 1xq8.pdb
-    contact deriv: only from residues
+    contact deriv: from all atoms
     ignore CRYST1: true
   morph into SAW:
     perform: true
@@ -15,14 +15,5 @@ input:
 quasi-adiabatic:
   enabled: false
 
-lj force variants:
-  bb:
-    depth: 0.1 eps
-  ss:
-    use sinking variant: true
-    per pair:
-      depth:
-        (at path): mj-matrix.csv
-
 output:
-  output dir: 1xq8new
+  file prefix: 1xq8-v2

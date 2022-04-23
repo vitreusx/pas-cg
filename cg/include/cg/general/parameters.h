@@ -4,13 +4,17 @@
 
 namespace cg::gen {
 struct parameters {
-  struct debug_mode_t {
-    bool enabled, fp_exceptions, determinism;
+  enum class prog_mode {
+    perform_simulation, check_determinism
   };
 
+  struct debug_mode_t {
+    bool enabled, fp_exceptions, disable_all;
+  };
+
+  prog_mode mode;
   quantity total_time, equil_time;
   int seed, num_of_threads, num_of_traj;
-  bool disable_all;
 
   debug_mode_t debug_mode;
 

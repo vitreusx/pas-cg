@@ -39,15 +39,15 @@ void state::simul_setup() {
   equil_time = params.gen.equil_time;
   traj_idx = 0;
 
-  if (params.gen.disable_all) {
-    //    params.chir.enabled = false;
-    //    params.tether.enabled = false;
-    //    params.nat_ang.enabled = false;
-    //    params.heur_ang.enabled = false;
-    //    params.cnd.enabled = false;
-    //    params.snd.enabled = false;
+  if (params.gen.debug_mode.disable_all) {
+    params.chir.enabled = false;
+    params.tether.enabled = false;
+    params.nat_ang.enabled = false;
+    params.heur_ang.enabled = false;
+    params.cnd.enabled = false;
+    params.snd.enabled = false;
     params.heur_dih.enabled = false;
-    //    params.pauli.enabled = false;
+    params.pauli.enabled = false;
     params.nat_cont.enabled = false;
     params.const_dh.enabled = false;
     params.rel_dh.enabled = false;

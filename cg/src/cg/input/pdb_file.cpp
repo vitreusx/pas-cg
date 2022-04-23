@@ -299,7 +299,7 @@ input::model pdb_file::to_model() const {
 
   std::unordered_map<residue const *, input::model::residue *> res_map;
 
-  auto const &m = models.at(primary_model_serial);
+  auto const &m = primary_model();
 
   int chain_idx = 0;
   for (auto const &[chain_id, pdb_chain] : m.chains) {
@@ -308,17 +308,17 @@ input::model pdb_file::to_model() const {
     xmd_chain->chain_idx = chain_idx++;
 
     int res_seq_idx = 0;
-    for (auto const &[res_seq_num, pdb_res] : pdb_chain.residues) {
+    for (auto const *pdb_res : pdb_chain.order) {
       auto &xmd_res = xmd_model.residues.emplace_back(
           std::make_unique<input::model::residue>());
 
-      xmd_res->type = amino_acid(pdb_res.name);
-      xmd_res->pos = pdb_res.find_by_name("CA")->pos;
+      xmd_res->type = amino_acid(pdb_res->name);
+      xmd_res->pos = pdb_res->find_by_name("CA")->pos;
       xmd_res->parent = xmd_chain.get();
       xmd_res->seq_idx = res_seq_idx++;
 
       xmd_chain->residues.push_back(&*xmd_res);
-      res_map[&pdb_res] = &*xmd_res;
+      res_map[pdb_res] = &*xmd_res;
     }
 
     for (size_t idx = 0; idx + 1 < xmd_chain->residues.size(); ++idx) {
@@ -432,7 +432,7 @@ void pdb_file::add_contacts(amino_acid_data const &data, bool all_atoms) {
     linked_atoms.emplace(pdb_ss.a1, pdb_ss.a2);
   }
 
-  auto &m = models.at(primary_model_serial);
+  auto &m = primary_model();
 
   double alpha = pow(26.0 / 7.0, 1.0 / 6.0);
   for (auto &[chain1_id, chain1] : m.chains) {
@@ -481,43 +481,36 @@ pdb_file::model::model(const model &other) { *this = other; }
 pdb_file::model &pdb_file::model::operator=(const model &other) {
   std::unordered_map<atom const *, atom *> atom_map;
   std::unordered_map<residue const *, residue *> res_map;
-  std::unordered_map<chain const *, chain *> chain_map;
 
   model_serial = other.model_serial;
   chains = other.chains;
 
   for (auto const &[chain_idx, other_chain] : other.chains) {
     auto &cur_chain = chains[chain_idx];
-    chain_map[&other_chain] = &cur_chain;
-    cur_chain = other_chain;
 
-    cur_chain.atoms = {};
     for (auto const &[atom_ser, other_atom] : other_chain.atoms) {
-      auto &cur_atom = cur_chain.atoms[atom_ser];
+      auto &cur_atom = cur_chain.atoms.at(atom_ser);
       atom_map[&other_atom] = &cur_atom;
-      cur_atom = other_atom;
     }
 
-    cur_chain.residues = {};
     for (auto const &[seq_num, other_res] : other_chain.residues) {
-      auto &cur_res = cur_chain.residues[seq_num];
+      auto &cur_res = cur_chain.residues.at(seq_num);
       res_map[&other_res] = &cur_res;
-      cur_res = other_res;
     }
 
     for (auto &[atom_ser, atom] : cur_chain.atoms) {
-      atom.parent_res = res_map[atom.parent_res];
+      atom.parent_res = res_map.at(atom.parent_res);
     }
 
     for (auto &[seq_num, res] : cur_chain.residues) {
-      res.parent_chain = chain_map[res.parent_chain];
+      res.parent_chain = &cur_chain;
       for (auto &atom_ptr : res.atoms) {
-        atom_ptr = atom_map[atom_ptr];
+        atom_ptr = atom_map.at(atom_ptr);
       }
     }
 
     for (auto &res_ptr : cur_chain.order) {
-      res_ptr = res_map[res_ptr];
+      res_ptr = res_map.at(res_ptr);
     }
   }
 

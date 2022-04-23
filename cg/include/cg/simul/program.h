@@ -12,8 +12,8 @@ private:
   parameters params;
 
   void parse_args(int argc, char **argv);
-  void regular_main();
-  void determinism_main();
+  void perform_simulation();
+  void check_determinism();
   void setup_omp();
 };
 } // namespace cg::simul

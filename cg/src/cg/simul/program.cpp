@@ -103,10 +103,15 @@ program_args::program_args(int argc, char **argv) {
 
 void program::main(int argc, char **argv) {
   parse_args(argc, argv);
-  if (!params.gen.debug_mode.determinism) {
-    regular_main();
-  } else {
-    determinism_main();
+
+  using prog_mode = gen::parameters::prog_mode;
+  switch (params.gen.mode) {
+  case prog_mode::perform_simulation:
+    perform_simulation();
+    break;
+  case prog_mode::check_determinism:
+    check_determinism();
+    break;
   }
 }
 
@@ -130,7 +135,7 @@ void program::parse_args(int argc, char **argv) {
   }
 }
 
-void program::regular_main() {
+void program::perform_simulation() {
   setup_omp();
 
   auto st = state(params);
@@ -143,7 +148,7 @@ void program::regular_main() {
   }
 }
 
-void program::determinism_main() {
+void program::check_determinism() {
   setup_omp();
 
   auto st1 = state(params), st2 = state(params);
