@@ -1,6 +1,6 @@
 #pragma once
 #include <cg/types/amp.h>
-#include <nitro/nitro.h>
+#include <cg/vect/vect.h>
 
 namespace cg::nat_ang {
 template <typename E> struct nat_ang_expr : public nitro::ind_expr<E> {

@@ -1,7 +1,7 @@
 #pragma once
 #include "type.h"
 #include <cg/types/amp.h>
-#include <nitro/nitro.h>
+#include <cg/vect/vect.h>
 
 namespace cg::nat_cont {
 template <typename E> struct nat_cont_expr : public nitro::ind_expr<E> {

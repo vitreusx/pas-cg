@@ -1,7 +1,7 @@
 #pragma once
 #include <cg/base_forces/disulfide.h>
+#include <cg/files/files.h>
 #include <cg/utils/quantity.h>
-#include <ioxx/ioxx.h>
 
 namespace cg::nat_cont {
 struct parameters {

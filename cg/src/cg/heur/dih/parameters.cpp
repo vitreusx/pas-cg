@@ -2,22 +2,21 @@
 #include <cg/utils/ioxx_interop.h>
 namespace cg::heur_dih {
 
-void parameters::pair_coeffs::connect(ioxx::row_proxy &proxy) {
-  proxy["type2"] & type2;
-  proxy["type3"] & type3;
-  proxy["const"] & const_.assumed_("eps");
-  proxy["sin"] & sin.assumed_("eps");
-  proxy["cos"] & cos.assumed_("eps");
-  proxy["sin2"] & sin2.assumed_("eps");
-  proxy["cos2"] & cos2.assumed_("eps");
-  proxy["sin_cos"] & sin_cos.assumed_("eps");
-}
-
 void parameters::load(ioxx::xyaml::node const &p) {
-  enabled = p["enabled"].as<bool>();
-  auto coeffs_csv = p["coefficients"].as<ioxx::csv<pair_coeffs>>();
-  for (auto const &row : coeffs_csv.rows) {
-    coeffs[aa_heur_pair(row.type2, row.type3)] = row;
+  p["enabled"] >> enabled;
+  auto coeffs_csv = p["coefficients"].as<ioxx::xyaml::table_file>();
+  for (auto const &row : coeffs_csv->rows) {
+    pair_coeffs pc;
+    row["type2"] >> pc.type2;
+    row["type3"] >> pc.type3;
+    row["const"] >> pc.const_.assumed_("eps");
+    row["sin"] >> pc.sin.assumed_("eps");
+    row["cos"] >> pc.cos.assumed_("eps");
+    row["sin2"] >> pc.sin2.assumed_("eps");
+    row["cos2"] >> pc.cos2.assumed_("eps");
+    row["sin_cos"] >> pc.sin_cos.assumed_("eps");
+
+    coeffs[aa_heur_pair(pc.type2, pc.type3)] = pc;
   }
 }
 } // namespace cg::heur_dih

@@ -54,13 +54,7 @@ public:
   dynamics dyn;
   void setup_dyn();
 
-  std::vector<out::hook const *> hooks;
   out::make_report make_report;
-  out::export_pdb export_pdb;
-  out::add_stats add_stats;
-  out::add_structure add_structure;
-  qa::report_qa_stuff report_qa_stuff;
-  nat_cont::report_stuff report_nc_stuff;
   void setup_output();
 
   lang::step lang_step;
@@ -126,7 +120,7 @@ public:
 
   afm::force::eval_forces eval_force_afm_forces;
   afm::vel::eval_forces eval_vel_afm_forces;
-  afm::report_stats report_afm_stats;
+  //  afm::report_stats report_afm_stats;
   void setup_afm();
 };
 } // namespace cg::simul

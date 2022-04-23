@@ -127,9 +127,6 @@ void program::parse_args(int argc, char **argv) {
       params_yml.merge(slice_yml);
     }
     params_yml >> params;
-
-    if (args.output_dir.has_value())
-      params.out.output_dir = args.output_dir.value();
   }
 }
 

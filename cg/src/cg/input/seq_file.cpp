@@ -1,6 +1,6 @@
+#include <cg/files/files.h>
 #include <cg/input/map_file.h>
 #include <cg/input/seq_file.h>
-#include <ioxx/ioxx.h>
 #include <regex>
 #include <set>
 

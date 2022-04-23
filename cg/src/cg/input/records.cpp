@@ -23,6 +23,18 @@ std::string remark::write() const {
   return line;
 }
 
+std::vector<remark> remark::create(int number, const std::string &text) {
+  auto max_width = 80 - 12 + 1;
+  std::vector<remark> res;
+  for (int off = 0; off < text.size(); off += max_width) {
+    remark& rem = res.emplace_back();
+    rem.number = number;
+    rem.text = text.substr(off, max_width);
+  }
+
+  return res;
+}
+
 std::optional<atom> atom::try_parse(const std::string &line) {
   atom a;
 

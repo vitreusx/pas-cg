@@ -1,6 +1,6 @@
 #pragma once
 #include "chiral_quad.h"
-#include "nitro/nitro.h"
+#include <cg/vect/vect.h>
 
 namespace cg::chir {
 class eval_forces {

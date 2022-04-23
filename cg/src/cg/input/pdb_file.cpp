@@ -11,77 +11,58 @@ namespace cg {
 pdb_file::pdb_file(std::istream &&is) { load(is); }
 
 void pdb_file::load(std::istream &is) {
-  std::unordered_map<char, bool> ter_found;
+  std::unordered_map<int, std::unordered_map<char, bool>> ter_found;
+  int cur_model_serial = 1;
+
+  primary_model_serial = -1;
 
   cryst1 = decltype(cryst1)::Zero();
-
-  auto find_or_add_chain = [&](char chain_id) -> auto {
-    auto chain_iter = chains.find(chain_id);
-    if (chain_iter == chains.end()) {
-      chain c;
-      c.chain_id = chain_id;
-
-      chains[chain_id] = c;
-      chain_iter = chains.find(chain_id);
-    }
-
-    return &chain_iter->second;
-  };
-
-  auto find_or_add_res = [&](chain & c, size_t seq_num,
-                             const std::string &name) -> auto {
-
-    auto res_iter = c.residues.find(seq_num);
-    if (res_iter == c.residues.end()) {
-      residue r;
-      r.seq_num = seq_num;
-      r.name = name;
-      r.parent_chain = &c;
-
-      c.residues[seq_num] = r;
-      res_iter = c.residues.find(seq_num);
-      if (!ter_found[c.chain_id])
-        c.order.push_back(&res_iter->second);
-    }
-
-    return &res_iter->second;
-  };
 
   for (std::string line; std::getline(is, line);) {
     if (auto opt_record = records::record::try_parse(line); opt_record) {
       auto &record_r = opt_record.value();
 
-      if (auto atom_r = record_r.cast<records::atom>(); atom_r) {
+      if (auto model_r = record_r.cast<records::model>(); model_r) {
+        cur_model_serial = model_r->serial;
+      } else if (auto atom_r = record_r.cast<records::atom>(); atom_r) {
         if (atom_r->atom_name[0] == 'H')
           continue;
 
-        auto *chain = find_or_add_chain(atom_r->chain_id);
+        auto &model = find_or_add_model(cur_model_serial);
 
-        auto *res =
-            find_or_add_res(*chain, atom_r->res_seq_num, atom_r->residue_name);
+        auto &chain = find_or_add_chain(model, atom_r->chain_id);
 
-        auto *atm = &chain->atoms[atom_r->serial];
+        auto &res =
+            find_or_add_res(chain, atom_r->res_seq_num, atom_r->residue_name,
+                            ter_found[cur_model_serial][chain.chain_id]);
 
-        atm->name = atom_r->atom_name;
-        atm->serial = atom_r->serial;
-        atm->pos = atom_r->pos * quantity("A");
-        atm->parent_res = res;
+        auto &atm = chain.atoms[atom_r->serial];
 
-        res->atoms.push_back(atm);
+        atm.name = atom_r->atom_name;
+        atm.serial = atom_r->serial;
+        atm.pos = atom_r->pos * quantity("A");
+        atm.parent_res = &res;
 
-        if (!ter_found[atom_r->chain_id])
-          chain->ter_serial = atom_r->serial + 1;
+        res.atoms.push_back(&atm);
+
+        if (!ter_found[cur_model_serial][atom_r->chain_id])
+          chain.ter_serial = atom_r->serial + 1;
+
+        if (primary_model_serial < 0)
+          primary_model_serial = cur_model_serial;
 
       } else if (auto ssbond_r = record_r.cast<records::ssbond>(); ssbond_r) {
         disulfide_bond ss;
         ss.serial = ssbond_r->serial;
         ss.length = ssbond_r->length * quantity("A");
 
-        auto &chain1 = *find_chain(ssbond_r->res[0].chain_id);
+        auto &m = *find_model(cur_model_serial);
+
+        auto &chain1 = *find_chain(m, ssbond_r->res[0].chain_id);
         auto &res1 = *find_res(chain1, ssbond_r->res[0].res_seq_num);
         ss.a1 = res1.find_by_name("SG");
 
-        auto &chain2 = *find_chain(ssbond_r->res[1].chain_id);
+        auto &chain2 = *find_chain(m, ssbond_r->res[1].chain_id);
         auto &res2 = *find_res(chain2, ssbond_r->res[1].res_seq_num);
         ss.a2 = res2.find_by_name("SG");
 
@@ -90,11 +71,13 @@ void pdb_file::load(std::istream &is) {
         link _link;
         _link.length = link_r->length * quantity("A");
 
-        auto &chain1 = *find_chain(link_r->res[0].chain_id);
+        auto &m = *find_model(cur_model_serial);
+
+        auto &chain1 = *find_chain(m, link_r->res[0].chain_id);
         auto &res1 = *find_res(chain1, link_r->res[0].res_seq_num);
         _link.a1 = res1.find_by_name(link_r->res[0].atom_name);
 
-        auto &chain2 = *find_chain(link_r->res[1].chain_id);
+        auto &chain2 = *find_chain(m, link_r->res[1].chain_id);
         auto &res2 = *find_res(chain2, link_r->res[1].res_seq_num);
         _link.a2 = res2.find_by_name(link_r->res[1].atom_name);
 
@@ -102,8 +85,9 @@ void pdb_file::load(std::istream &is) {
       } else if (auto cryst1_r = record_r.cast<records::cryst1>(); cryst1_r) {
         cryst1 = cryst1_r->cell * quantity("A");
       } else if (auto ter_r = record_r.cast<records::ter>(); ter_r) {
-        ter_found[ter_r->chain_id] = true;
-        auto &c = *find_chain(ter_r->chain_id);
+        ter_found[cur_model_serial][ter_r->chain_id] = true;
+        auto &m = *find_model(cur_model_serial);
+        auto &c = *find_chain(m, ter_r->chain_id);
         c.ter_serial = ter_r->serial;
       } else if (auto end_r = record_r.cast<records::end>(); end_r) {
         return;
@@ -118,8 +102,10 @@ pdb_file::pdb_file(const input::model &xmd_model) {
 
   std::unordered_map<input::model::residue const *, residue *> res_map;
 
+  auto &m = find_or_add_model(primary_model_serial);
+
   for (auto const &xmd_chain : xmd_model.chains) {
-    auto &pdb_chain = chains[chain_id];
+    auto &pdb_chain = m.chains[chain_id];
     pdb_chain.chain_id = chain_id;
 
     for (auto const &xmd_res_ref : xmd_chain->residues) {
@@ -178,12 +164,47 @@ pdb_file::atom *pdb_file::residue::find_by_name(const std::string &name) const {
   return nullptr;
 }
 
-pdb_file::chain *pdb_file::find_chain(char chain_id) {
-  auto chain_iter = chains.find(chain_id);
-  if (chain_iter != chains.end())
+pdb_file::model *pdb_file::find_model(int model_serial) {
+  auto model_iter = models.find(model_serial);
+  if (model_iter != models.end())
+    return &model_iter->second;
+  else
+    return nullptr;
+}
+
+pdb_file::model &pdb_file::find_or_add_model(int model_serial) {
+  auto model_iter = models.find(model_serial);
+  if (model_iter == models.end()) {
+    if (models.empty())
+      primary_model_serial = model_serial;
+
+    auto &m = models[model_serial];
+    m.model_serial = model_serial;
+
+    model_iter = models.find(model_serial);
+  }
+
+  return model_iter->second;
+}
+
+pdb_file::chain *pdb_file::find_chain(model &m, char chain_id) {
+  auto chain_iter = m.chains.find(chain_id);
+  if (chain_iter != m.chains.end())
     return &chain_iter->second;
   else
     return nullptr;
+}
+
+pdb_file::chain &pdb_file::find_or_add_chain(model &m, char chain_id) {
+  auto chain_iter = m.chains.find(chain_id);
+  if (chain_iter == m.chains.end()) {
+    auto &c = m.chains[chain_id];
+    c.chain_id = chain_id;
+
+    chain_iter = m.chains.find(chain_id);
+  }
+
+  return chain_iter->second;
 }
 
 pdb_file::residue *pdb_file::find_res(pdb_file::chain &c, size_t seq_num) {
@@ -194,9 +215,82 @@ pdb_file::residue *pdb_file::find_res(pdb_file::chain &c, size_t seq_num) {
     return nullptr;
 }
 
+pdb_file::residue &pdb_file::find_or_add_res(chain &c, size_t seq_num,
+                                             const std::string &name,
+                                             bool chain_terminated) {
+  auto res_iter = c.residues.find(seq_num);
+  if (res_iter == c.residues.end()) {
+    auto &r = c.residues[seq_num];
+    r.seq_num = seq_num;
+    r.name = name;
+    r.parent_chain = &c;
+
+    if (!chain_terminated)
+      c.order.push_back(&r);
+
+    res_iter = c.residues.find(seq_num);
+  }
+
+  return res_iter->second;
+}
+
 std::ostream &operator<<(std::ostream &os, const pdb_file &p) {
-  os << p.emit_model(1);
-  os << p.emit_contacts();
+  bool first = true;
+  for (auto const &[model_serial, model] : p.models) {
+    if (!first)
+      os << '\n';
+    os << model;
+    first = false;
+  }
+
+  if (!first)
+    os << '\n';
+  os << records::end().write();
+
+  return os;
+}
+
+std::ostream &operator<<(std::ostream &os, pdb_file::model const &model) {
+  records::model model_r;
+  model_r.serial = model.model_serial;
+  os << model_r.write();
+
+  for (auto const &[chain_id, chain] : model.chains)
+    os << '\n' << chain;
+
+  os << '\n' << records::endmdl().write();
+  return os;
+}
+
+std::ostream &operator<<(std::ostream &os, pdb_file::chain const &chain) {
+  bool first = true;
+  for (auto const &res : chain.order) {
+    for (auto const &atm : res->atoms) {
+      records::atom atom_r;
+      atom_r.serial = atm->serial;
+      atom_r.chain_id = chain.chain_id;
+      atom_r.res_seq_num = res->seq_num;
+      atom_r.residue_name = res->name;
+      atom_r.atom_name = atm->name;
+      atom_r.pos = atm->pos / quantity("A");
+
+      if (!first)
+        os << '\n';
+      os << atom_r.write();
+      first = false;
+    }
+  }
+
+  auto final_res = chain.order.back();
+  records::ter ter_r;
+  ter_r.chain_id = chain.chain_id;
+  ter_r.res_seq_num = final_res->seq_num;
+  ter_r.serial = chain.ter_serial;
+  ter_r.res_name = final_res->name;
+
+  if (!first)
+    os << '\n';
+  os << ter_r.write();
   return os;
 }
 
@@ -205,8 +299,10 @@ input::model pdb_file::to_model() const {
 
   std::unordered_map<residue const *, input::model::residue *> res_map;
 
+  auto const &m = models.at(primary_model_serial);
+
   int chain_idx = 0;
-  for (auto const &[chain_id, pdb_chain] : chains) {
+  for (auto const &[chain_id, pdb_chain] : m.chains) {
     auto &xmd_chain =
         xmd_model.chains.emplace_back(std::make_unique<input::model::chain>());
     xmd_chain->chain_idx = chain_idx++;
@@ -336,8 +432,10 @@ void pdb_file::add_contacts(amino_acid_data const &data, bool all_atoms) {
     linked_atoms.emplace(pdb_ss.a1, pdb_ss.a2);
   }
 
+  auto &m = models.at(primary_model_serial);
+
   double alpha = pow(26.0 / 7.0, 1.0 / 6.0);
-  for (auto &[chain1_id, chain1] : chains) {
+  for (auto &[chain1_id, chain1] : m.chains) {
     for (auto &[atom1_serial, atom1] : chain1.atoms) {
       if (!all_atoms && atom1.name != "CA")
         continue;
@@ -347,7 +445,7 @@ void pdb_file::add_contacts(amino_acid_data const &data, bool all_atoms) {
                                : data[res1].radius;
       auto seq1 = (int)atom1.parent_res->seq_num;
 
-      for (auto &[chain2_id, chain2] : chains) {
+      for (auto &[chain2_id, chain2] : m.chains) {
         for (auto &[atom2_serial, atom2] : chain2.atoms) {
           if (!all_atoms && atom2.name != "CA")
             continue;
@@ -378,46 +476,68 @@ void pdb_file::add_contacts(amino_acid_data const &data, bool all_atoms) {
   }
 }
 
-pdb_file::pdb_file(const pdb_file &other) { *this = other; }
+pdb_file::model::model(const model &other) { *this = other; }
 
-pdb_file &pdb_file::operator=(const pdb_file &other) {
+pdb_file::model &pdb_file::model::operator=(const model &other) {
   std::unordered_map<atom const *, atom *> atom_map;
   std::unordered_map<residue const *, residue *> res_map;
   std::unordered_map<chain const *, chain *> chain_map;
 
-  chains = {};
+  model_serial = other.model_serial;
+  chains = other.chains;
+
   for (auto const &[chain_idx, other_chain] : other.chains) {
-    auto &xmd_chain = chains[chain_idx];
-    chain_map[&other_chain] = &xmd_chain;
-    xmd_chain = other_chain;
+    auto &cur_chain = chains[chain_idx];
+    chain_map[&other_chain] = &cur_chain;
+    cur_chain = other_chain;
 
-    xmd_chain.atoms = {};
+    cur_chain.atoms = {};
     for (auto const &[atom_ser, other_atom] : other_chain.atoms) {
-      auto &xmd_atom = xmd_chain.atoms[atom_ser];
-      atom_map[&other_atom] = &xmd_atom;
-      xmd_atom = other_atom;
+      auto &cur_atom = cur_chain.atoms[atom_ser];
+      atom_map[&other_atom] = &cur_atom;
+      cur_atom = other_atom;
     }
 
-    xmd_chain.residues = {};
+    cur_chain.residues = {};
     for (auto const &[seq_num, other_res] : other_chain.residues) {
-      auto &xmd_res = xmd_chain.residues[seq_num];
-      res_map[&other_res] = &xmd_res;
-      xmd_res = other_res;
+      auto &cur_res = cur_chain.residues[seq_num];
+      res_map[&other_res] = &cur_res;
+      cur_res = other_res;
     }
 
-    for (auto &[atom_ser, atom] : xmd_chain.atoms) {
+    for (auto &[atom_ser, atom] : cur_chain.atoms) {
       atom.parent_res = res_map[atom.parent_res];
     }
 
-    for (auto &[seq_num, res] : xmd_chain.residues) {
+    for (auto &[seq_num, res] : cur_chain.residues) {
       res.parent_chain = chain_map[res.parent_chain];
       for (auto &atom_ptr : res.atoms) {
         atom_ptr = atom_map[atom_ptr];
       }
     }
 
-    for (auto &res_ptr : xmd_chain.order) {
+    for (auto &res_ptr : cur_chain.order) {
       res_ptr = res_map[res_ptr];
+    }
+  }
+
+  return *this;
+}
+
+pdb_file::pdb_file(const pdb_file &other) { *this = other; }
+
+pdb_file &pdb_file::operator=(const pdb_file &other) {
+  models = other.models;
+
+  std::unordered_map<atom const *, atom *> atom_map;
+  for (auto const &[model_serial, other_model] : other.models) {
+    auto &cur_model = models[model_serial];
+    for (auto const &[chain_id, other_chain] : other_model.chains) {
+      auto &cur_chain = cur_model.chains[chain_id];
+      for (auto const &[atom_serial, other_atom] : other_chain.atoms) {
+        auto &cur_atom = cur_chain.atoms[atom_serial];
+        atom_map[&other_atom] = &cur_atom;
+      }
     }
   }
 
@@ -433,94 +553,11 @@ pdb_file &pdb_file::operator=(const pdb_file &other) {
     xmd_link.a2 = atom_map[xmd_link.a2];
   }
 
+  primary_model_serial = other.primary_model_serial;
   cryst1 = other.cryst1;
 
   return *this;
 }
-
-pdb_model_emitter pdb_file::emit_model(int model_serial) const {
-  return pdb_model_emitter(*this, model_serial);
-}
-
-pdb_contacts_emitter pdb_file::emit_contacts() const {
-  return pdb_contacts_emitter(*this);
-}
-
-std::ostream &operator<<(std::ostream &os, const pdb_model_emitter &emitter) {
-  records::model model_r;
-  model_r.serial = emitter.model_serial;
-  os << model_r.write();
-
-  for (auto const &[chain_id, chain] : emitter.owner.chains) {
-    for (auto const &res : chain.order) {
-      for (auto const &atm : res->atoms) {
-        records::atom atom_r;
-        atom_r.serial = atm->serial;
-        atom_r.chain_id = chain.chain_id;
-        atom_r.res_seq_num = res->seq_num;
-        atom_r.residue_name = res->name;
-        atom_r.atom_name = atm->name;
-        atom_r.pos = atm->pos / quantity("A");
-
-        os << '\n' << atom_r.write();
-      }
-    }
-
-    auto final_res = chain.order.back();
-    records::ter ter_r;
-    ter_r.chain_id = chain.chain_id;
-    ter_r.res_seq_num = final_res->seq_num;
-    ter_r.serial = chain.ter_serial;
-    ter_r.res_name = final_res->name;
-
-    os << '\n' << ter_r.write();
-  }
-
-  os << '\n' << records::endmdl().write();
-
-  return os;
-}
-
-pdb_model_emitter::pdb_model_emitter(const pdb_file &owner, int model_serial)
-    : owner{owner}, model_serial{model_serial} {};
-
-std::ostream &operator<<(std::ostream &os,
-                         const pdb_contacts_emitter &emitter) {
-  for (auto const &[serial, ss] : emitter.owner.disulfide_bonds) {
-    records::ssbond ssbond_r;
-    ssbond_r.serial = ss.serial;
-    ssbond_r.length = ss.length / quantity("A");
-
-    ssbond_r.res[0].res_seq_num = ss.a1->parent_res->seq_num;
-    ssbond_r.res[0].chain_id = ss.a1->parent_res->parent_chain->chain_id;
-    ssbond_r.res[1].res_seq_num = ss.a2->parent_res->seq_num;
-    ssbond_r.res[1].chain_id = ss.a2->parent_res->parent_chain->chain_id;
-
-    os << '\n' << ssbond_r.write();
-  }
-
-  for (auto const &_link : emitter.owner.links) {
-    records::link link_r;
-    link_r.length = _link.length / quantity("A");
-
-    link_r.res[0].chain_id = _link.a1->parent_res->parent_chain->chain_id;
-    link_r.res[0].res_seq_num = _link.a1->parent_res->seq_num;
-    link_r.res[0].atom_name = _link.a1->name;
-    link_r.res[0].res_name = _link.a1->parent_res->name;
-
-    link_r.res[1].chain_id = _link.a2->parent_res->parent_chain->chain_id;
-    link_r.res[1].res_seq_num = _link.a2->parent_res->seq_num;
-    link_r.res[1].atom_name = _link.a2->name;
-    link_r.res[1].res_name = _link.a2->parent_res->name;
-
-    os << '\n' << link_r.write();
-  }
-
-  return os;
-}
-
-pdb_contacts_emitter::pdb_contacts_emitter(const pdb_file &owner)
-    : owner{owner} {};
 
 bool pdb_file::atom::in_backbone() const {
   for (auto const &back_atom : {"N", "CA", "C", "O", "OXT"}) {
@@ -536,5 +573,13 @@ void pdb_file::load(ioxx::xyaml::node const &node) {
   std::stringstream pdb_ss;
   pdb_ss << node.as<file>().fetch();
   load(pdb_ss);
+}
+
+pdb_file::model &pdb_file::primary_model() {
+  return models.at(primary_model_serial);
+}
+
+pdb_file::model const &pdb_file::primary_model() const {
+  return models.at(primary_model_serial);
 }
 } // namespace cg

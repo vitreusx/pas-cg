@@ -458,6 +458,6 @@ progress bar:
 
 output:
   enabled: true
-  stats period: 100 tau
-  file period: 1000 tau
-  output dir: output
+  emit stats every: 1e2 tau
+  emit structure every: 1e3 tau
+  file prefix: output

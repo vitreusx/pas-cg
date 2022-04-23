@@ -1,14 +1,14 @@
 #pragma once
+#include <cg/files/files.h>
 #include <cg/utils/quantity.h>
 #include <filesystem>
-#include <ioxx/ioxx.h>
 
 namespace cg::out {
 struct parameters {
 public:
   bool enabled;
-  quantity stats_period, file_period;
-  std::filesystem::path output_dir;
+  quantity stats_every, struct_every;
+  std::filesystem::path prefix;
 
   void load(ioxx::xyaml::node const &from);
 };

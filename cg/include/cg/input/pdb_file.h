@@ -7,8 +7,6 @@
 
 namespace cg {
 class pdb_file;
-class pdb_model_emitter;
-class pdb_contacts_emitter;
 
 class pdb_file {
 public:
@@ -20,12 +18,10 @@ public:
   pdb_file &operator=(pdb_file const &other);
 
   friend std::ostream &operator<<(std::ostream &os, pdb_file const &p);
-  pdb_model_emitter emit_model(int model_serial) const;
-  pdb_contacts_emitter emit_contacts() const;
 
   void add_contacts(amino_acid_data const &data, bool all_atoms = true);
 
-  enum class contact_deriv { NONE, FROM_ATOMS, FROM_RESIDUES };
+  enum class contact_deriv { FROM_ATOMS, FROM_RESIDUES };
   input::model to_model() const;
 
   struct atom;
@@ -57,8 +53,25 @@ public:
     std::unordered_map<size_t, residue> residues;
     std::vector<residue *> order;
     size_t ter_serial;
+
+    friend std::ostream &operator<<(std::ostream &os, chain const &chain);
   };
-  std::unordered_map<char, chain> chains;
+
+  struct model {
+    int model_serial;
+    std::unordered_map<char, chain> chains;
+
+    model() = default;
+    model(model const &other);
+    model &operator=(model const &other);
+
+    friend std::ostream &operator<<(std::ostream &os, model const &model);
+  };
+
+  int primary_model_serial;
+  std::map<int, model> models;
+  model &primary_model();
+  model const &primary_model() const;
 
   struct disulfide_bond {
     size_t serial;
@@ -76,38 +89,16 @@ public:
   vec3<double> cryst1;
 
   void load(ioxx::xyaml::node const &node);
-
-private:
-  friend class pdb_model_emitter;
-  friend class pdb_contacts_emitter;
-
   void load(std::istream &source);
-  chain *find_chain(char chain_id);
+
+  model *find_model(int model_serial);
+  model &find_or_add_model(int model_serial);
+
+  chain *find_chain(model &m, char chain_id);
+  chain &find_or_add_chain(model &m, char chain_id);
+
   residue *find_res(chain &c, size_t seq_num);
-};
-
-class pdb_model_emitter {
-public:
-  friend std::ostream &operator<<(std::ostream &os,
-                                  pdb_model_emitter const &emitter);
-
-private:
-  friend class pdb_file;
-
-  pdb_file const &owner;
-  int model_serial;
-  explicit pdb_model_emitter(pdb_file const &owner, int model_serial);
-};
-
-class pdb_contacts_emitter {
-public:
-  friend std::ostream &operator<<(std::ostream &os,
-                                  pdb_contacts_emitter const &emitter);
-
-private:
-  friend class pdb_file;
-
-  pdb_file const &owner;
-  explicit pdb_contacts_emitter(pdb_file const &owner);
+  residue &find_or_add_res(chain &c, size_t seq_num, const std::string &name,
+                           bool chain_terminated);
 };
 } // namespace cg

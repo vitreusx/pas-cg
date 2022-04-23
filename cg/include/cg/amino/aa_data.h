@@ -1,7 +1,7 @@
 #pragma once
 #include <cg/amino/amino_acid.h>
+#include <cg/files/files.h>
 #include <cg/utils/quantity.h>
-#include <ioxx/ioxx.h>
 
 namespace cg {
 
@@ -30,6 +30,6 @@ public:
   std::unordered_map<amino_acid, aa_data> data;
   aa_data const &operator[](amino_acid const &aa) const;
 
-  void load(ioxx::xyaml::node const& node);
+  void load(ioxx::xyaml::node const &node);
 };
 } // namespace cg

@@ -1,8 +1,7 @@
 #pragma once
+#include <cg/files/files.h>
 #include <cg/heur/aa_heur_pair.h>
 #include <cg/utils/quantity.h>
-#include <ioxx/csv.h>
-#include <ioxx/ioxx.h>
 #include <unordered_map>
 
 namespace cg::heur_ang {
@@ -12,7 +11,6 @@ struct parameters {
   struct pair_coeffs {
     char type1, type2;
     quantity poly[7];
-    void connect(ioxx::row_proxy &proxy);
   };
   std::unordered_map<aa_heur_pair, pair_coeffs> coeffs;
 

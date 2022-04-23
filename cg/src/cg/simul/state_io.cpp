@@ -82,20 +82,6 @@ private:
   nitro::vector<T> &v;
 };
 
-template <class Archive>
-void serialize(Archive &ar, cg::out::report_data &report,
-               unsigned int version) {
-  ar &report.simul_first_time;
-  ar &report.traj_first_time;
-  ar &report.scalars;
-  ar &report.columns;
-  ar &report.snap_idx;
-  ar &report.report_stats;
-  ar &report.last_stats_t;
-  ar &report.report_files;
-  ar &report.last_files_t;
-}
-
 #define NV(ar, T, x)                                                           \
   {                                                                            \
     auto wrapper = vector_wrapper<T>(x);                                       \
@@ -117,7 +103,6 @@ void serialize(Archive &ar, cg::simul::state &st, unsigned int version) {
   ar &st.box;
 
   ar &st.t;
-  ar &st.report;
 
   NV(ar, cg::vec3r, st.v);
   NV(ar, cg::vec3sr, st.y0);

@@ -1,5 +1,5 @@
 #pragma once
-#include <nitro/nitro.h>
+#include <cg/vect/vect.h>
 
 namespace cg::qa {
 template <typename E> struct cys_neigh_expr : public nitro::ind_expr<E> {

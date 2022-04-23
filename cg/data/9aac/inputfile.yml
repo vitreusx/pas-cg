@@ -30,4 +30,4 @@ AFM:
       magnitude: 5e-3 A/tau
 
 output:
-  output dir: 9aac
+  file prefix: 9aac

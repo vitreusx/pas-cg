@@ -2,8 +2,8 @@
 #include "lj.h"
 #include "sink_lj.h"
 #include <cg/amino/amino_acid.h>
+#include <cg/files/files.h>
 #include <cg/utils/hash.h>
-#include <ioxx/ioxx.h>
 #include <unordered_map>
 
 namespace cg {

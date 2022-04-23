@@ -2,8 +2,8 @@
 #include "morph_into_saw.h"
 #include "pdb_file.h"
 #include "seq_file.h"
+#include <cg/files/files.h>
 #include <cg/utils/quantity.h>
-#include <ioxx/ioxx.h>
 #include <variant>
 
 namespace cg::input {

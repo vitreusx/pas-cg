@@ -63,31 +63,14 @@ void thread::setup_dyn() { dyn = dynamics(st.num_res); }
 
 void thread::setup_output() {
   if (params.out.enabled) {
-    make_report.stats_period = params.out.stats_period;
-    make_report.file_period = params.out.file_period;
+    make_report.struct_every = params.out.struct_every;
+    make_report.stats_every = params.out.stats_every;
+    make_report.prefix = params.out.prefix;
     make_report.t = &st.t;
-    make_report.hooks = &hooks;
-    make_report.state = &st.report;
-
-    export_pdb.ref_model = &st.model;
-    export_pdb.r = st.r.get_view();
-    export_pdb.res_map = &st.res_map;
-    hooks.emplace_back(&export_pdb);
-
-    add_stats.t = &st.t;
-    add_stats.V = &st.dyn.V;
-    add_stats.atype = st.atype.get_view();
-    add_stats.mass = st.comp_aa_data.mass.get_view();
-    add_stats.chain_first = st.chain_first.get_view();
-    add_stats.chain_last = st.chain_last.get_view();
-    add_stats.chain_idx = st.chain_idx.get_view();
-    add_stats.r = st.r.get_view();
-    hooks.emplace_back(&add_stats);
-
-    add_structure.res_map = &st.res_map;
-    add_structure.r = st.r.get_view();
-    add_structure.model = &st.model;
-    hooks.emplace_back(&add_structure);
+    make_report.rep = &st.rep;
+    make_report.model = &st.model;
+    make_report.res_map = &st.res_map;
+    make_report.r = &st.r;
   }
 }
 
@@ -110,8 +93,6 @@ void thread::setup_langevin() {
     step.mass_rsqrt = st.mass_rsqrt.get_view();
 
     step.v = st.v.get_view();
-    if (params.out.enabled)
-      add_stats.v = st.v.get_view();
 
     step.y0 = st.y0.get_view();
     step.y1 = st.y1.get_view();
@@ -316,15 +297,6 @@ void thread::setup_nat_cont() {
     update.nl = &st.nl;
     update.all_contacts = st.all_native_contacts.get_view();
     update.contacts = &st.cur_native_contacts;
-
-    if (params.out.enabled) {
-      auto &report_nc = report_nc_stuff;
-      report_nc.all_contacts = st.all_native_contacts.get_view();
-      report_nc.params = &params.nat_cont;
-      report_nc.r = st.r.get_view();
-      report_nc.chain_idx = st.chain_idx.get_view();
-      hooks.push_back(&report_nc);
-    }
   }
 }
 
@@ -488,16 +460,6 @@ void thread::setup_qa() {
 
 #pragma omp single nowait
     st.max_cutoff = max(st.max_cutoff, max_req_dist);
-
-    if (params.out.enabled) {
-      auto &report_qa = report_qa_stuff;
-      report_qa.dyn_ss = params.qa.disulfide.has_value();
-      report_qa.sync_values = st.sync_values.get_view();
-      report_qa.contacts = &st.qa_contacts;
-      report_qa.process_cont = &process_qa_contacts;
-      report_qa.chain_idx = st.chain_idx.get_view();
-      hooks.push_back(&report_qa);
-    }
   }
 }
 
@@ -578,17 +540,6 @@ void thread::setup_afm() {
     auto &force_eval = eval_force_afm_forces;
     force_eval.afm_tips = st.afm_tips.force.get_view();
     force_eval.F = dyn.F.get_view();
-
-    if (params.out.enabled) {
-      auto &report = report_afm_stats;
-      report.tips = &st.afm_tips;
-      report.r = st.r.get_view();
-      report.v = st.v.get_view();
-      report.eval_vel_forces = &eval_vel_afm_forces;
-      report.chain_first = st.chain_first.get_view();
-      report.chain_last = st.chain_last.get_view();
-      hooks.push_back(&report);
-    }
   }
 }
 } // namespace cg::simul

@@ -1,6 +1,6 @@
 #pragma once
 #include <cg/types/amp.h>
-#include <nitro/nitro.h>
+#include <cg/vect/vect.h>
 
 namespace cg::pid {
 enum lambda_version { COSINE, ALGEBRAIC };

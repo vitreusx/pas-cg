@@ -1,6 +1,6 @@
 #pragma once
+#include <cg/vect/vect.h>
 #include <cmath>
-#include <nitro/nitro.h>
 
 namespace cg {
 template <typename T> auto isnan(T const &x) { return std::isnan(x); }

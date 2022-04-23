@@ -15,4 +15,4 @@ quasi-adiabatic:
   enabled: false
 
 output:
-  output dir: 1ubq
+  file prefix: 1ubq

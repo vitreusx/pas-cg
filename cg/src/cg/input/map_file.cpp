@@ -23,46 +23,34 @@ void map_file::shift(int shift_val) {
   }
 }
 
-void map_file::contact::connect(ioxx::row_proxy &proxy) {
-  proxy["i1"] & i1;
-  proxy["i2"] & i2;
-  proxy["length"] & length;
-}
+void map_file::load(const ioxx::xyaml::node &n) {
+  ioxx::table::table contacts_csv, angles_csv, dihedrals_csv;
 
-void map_file::angle::connect(ioxx::row_proxy &proxy) {
-  proxy["i1"] & i1;
-  proxy["i2"] & i2;
-  proxy["i3"] & i3;
-  proxy["theta"] & theta;
-}
-
-void map_file::dihedral::connect(ioxx::row_proxy &proxy) {
-  proxy["i1"] & i1;
-  proxy["i2"] & i2;
-  proxy["i3"] & i3;
-  proxy["i4"] & i4;
-  proxy["phi"] & phi;
-}
-
-void map_file::link(ioxx::xyaml::proxy &proxy) {
-  ioxx::csv<contact> contacts_csv;
-  ioxx::csv<angle> angles_csv;
-  ioxx::csv<dihedral> dihedrals_csv;
-
-  if (proxy.mode == ioxx::xyaml::proxy_mode::SAVE) {
-    contacts_csv.rows = contacts;
-    angles_csv.rows = angles;
-    dihedrals_csv.rows = dihedrals;
+  n["contacts"] >> contacts_csv;
+  for (auto const &row : contacts_csv.rows) {
+    auto &cont = contacts.emplace_back();
+    row["i1"] >> cont.i1;
+    row["i2"] >> cont.i2;
+    row["length"] >> cont.length;
   }
 
-  proxy["contacts"] & contacts_csv;
-  proxy["angles"] & angles_csv;
-  proxy["dihedrals"] & dihedrals_csv;
+  n["angles"] >> angles_csv;
+  for (auto const &row : angles_csv.rows) {
+    auto &ang = angles.emplace_back();
+    row["i1"] >> ang.i1;
+    row["i2"] >> ang.i2;
+    row["i3"] >> ang.i3;
+    row["theta"] >> ang.theta;
+  }
 
-  if (proxy.mode == ioxx::xyaml::proxy_mode::LOAD) {
-    contacts = contacts_csv.rows;
-    angles = angles_csv.rows;
-    dihedrals = dihedrals_csv.rows;
+  n["dihedrals"] >> dihedrals_csv;
+  for (auto const &row : dihedrals_csv.rows) {
+    auto &dih = dihedrals.emplace_back();
+    row["i1"] >> dih.i1;
+    row["i2"] >> dih.i2;
+    row["i3"] >> dih.i3;
+    row["i4"] >> dih.i4;
+    row["phi"] >> dih.phi;
   }
 }
 } // namespace cg

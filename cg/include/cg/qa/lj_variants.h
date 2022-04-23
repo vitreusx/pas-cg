@@ -2,7 +2,7 @@
 #include "contact_type.h"
 #include <cg/base_forces/lj_variants.h>
 #include <cg/base_forces/sink_lj.h>
-#include <nitro/nitro.h>
+#include <cg/vect/vect.h>
 
 namespace cg::qa {
 class lj_variants {

@@ -1,7 +1,7 @@
 #pragma once
+#include <cg/files/files.h>
 #include <cg/input/model.h>
 #include <filesystem>
-#include <ioxx/ioxx.h>
 
 namespace cg {
 class seq_file {

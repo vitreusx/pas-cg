@@ -1,6 +1,6 @@
 #pragma once
 #include <Eigen/Core>
-#include <nitro/nitro.h>
+#include <cg/vect/vect.h>
 
 namespace cg {
 template <typename Scalar> class vec3;

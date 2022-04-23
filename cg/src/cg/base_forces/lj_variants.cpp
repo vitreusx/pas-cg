@@ -1,17 +1,22 @@
 #include <cg/base_forces/lj_variants.h>
 #include <cg/utils/ioxx_interop.h>
 #include <cg/utils/quantity.h>
+
 namespace cg {
+template <typename T> struct per_pair_values {
+  std::unordered_map<std::pair<amino_acid, amino_acid>, T> values;
 
-struct per_pair_csv {
-  amino_acid type;
-  std::unordered_map<amino_acid, quantity> values;
-
-  void connect(ioxx::row_proxy &row) {
-    type = amino_acid(row["type"].as<std::string>());
-    for (auto const &col : row.header->col_names()) {
-      if (col != "type")
-        row[col] & values[amino_acid(col)];
+  void load(ioxx::xyaml::node const &n) {
+    auto tab = n.as<ioxx::table::table>();
+    for (auto const &row : tab.rows) {
+      auto aa1 = amino_acid(row["type"].as<std::string>());
+      for (auto const &col : tab.cols) {
+        if (col != "type") {
+          auto aa2 = amino_acid(col);
+          auto val = row[col].as<T>();
+          values[{aa1, aa2}] = val;
+        }
+      }
     }
   }
 };
@@ -31,7 +36,7 @@ void lj_variants::load(ioxx::xyaml::node const &node) {
     ss_def_values["r_max"] >> def_r_max;
   }
 
-  std::optional<ioxx::csv<per_pair_csv>> per_pair_depth, per_pair_r_min,
+  std::optional<per_pair_values<quantity>> per_pair_depth, per_pair_r_min,
       per_pair_r_max;
   if (auto ss_per_pair = node["ss"]["per pair"]; ss_per_pair) {
     ss_per_pair["depth"] >> per_pair_depth;
@@ -57,37 +62,24 @@ void lj_variants::load(ioxx::xyaml::node const &node) {
 
       if (def_r_min.has_value())
         ss[{aa1, aa2}].r_min() = def_r_min.value();
+
+      if (per_pair_r_min.has_value())
+        ss[{aa1, aa2}].r_min() =
+            per_pair_r_min.value().values.at({aa1, aa2}).assumed("A");
+
       if (def_r_max.has_value())
         ss[{aa1, aa2}].r_max() = def_r_max.value();
+
+      if (per_pair_r_max.has_value())
+        ss[{aa1, aa2}].r_max() =
+            per_pair_r_max.value().values.at({aa1, aa2}).assumed("A");
+
       if (def_depth.has_value())
         ss[{aa1, aa2}].depth() = def_depth.value();
-    }
-  }
 
-  if (per_pair_r_min.has_value()) {
-    for (auto const &row : per_pair_r_min.value().rows) {
-      auto aa1 = row.type;
-      for (auto const &[aa2, r_min] : row.values) {
-        ss[{aa1, aa2}].r_min() = r_min.assumed("A");
-      }
-    }
-  }
-
-  if (per_pair_r_max.has_value()) {
-    for (auto const &row : per_pair_r_max.value().rows) {
-      auto aa1 = row.type;
-      for (auto const &[aa2, r_max] : row.values) {
-        ss[{aa1, aa2}].r_max() = r_max.assumed("A");
-      }
-    }
-  }
-
-  if (per_pair_depth.has_value()) {
-    for (auto const &row : per_pair_depth.value().rows) {
-      auto aa1 = row.type;
-      for (auto const &[aa2, depth] : row.values) {
-        ss[{aa1, aa2}].depth() = depth.assumed("eps");
-      }
+      if (per_pair_depth.has_value())
+        ss[{aa1, aa2}].depth() =
+            per_pair_depth.value().values.at({aa1, aa2}).assumed("A");
     }
   }
 }

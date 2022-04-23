@@ -15,4 +15,4 @@ quasi-adiabatic:
   enabled: false
 
 output:
-  output dir: 1xq8
+  file prefix: 1xq8

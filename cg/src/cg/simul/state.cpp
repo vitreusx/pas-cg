@@ -57,14 +57,11 @@ void state::simul_setup() {
 
   gen = rand_gen(params.gen.seed);
 
-  report = out::report_data();
-  report.out_dir = params.out.output_dir;
-  report.last_stats_t = std::numeric_limits<real>::lowest();
-  report.last_files_t = report.last_stats_t;
-  report.traj_idx = &traj_idx;
-  report.simul_first_time = true;
-
   load_model();
+
+  rep = out::report();
+  rep.model_serial = 1;
+  rep.full_pdb = pdb_file();
 }
 
 void state::load_model() {
@@ -183,7 +180,10 @@ void state::setup_dyn() {
   dyn = dynamics(num_res);
 }
 
-void state::setup_output() { report.on_new_trajectory(); }
+void state::setup_output() {
+  rep.stats_last = std::numeric_limits<real>::lowest();
+  rep.struct_last = std::numeric_limits<real>::lowest();
+}
 
 void state::setup_langevin() {
   auto &mass = comp_aa_data.mass;

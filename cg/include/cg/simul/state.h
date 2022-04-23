@@ -15,8 +15,8 @@
 namespace cg::simul {
 class state;
 
-std::istream& operator>>(std::istream& is, state& st);
-std::ostream& operator<<(std::ostream& os, state const& st);
+std::istream &operator>>(std::istream &is, state &st);
+std::ostream &operator<<(std::ostream &os, state const &st);
 
 class state {
 public:
@@ -55,7 +55,7 @@ public:
   dynamics dyn;
   void setup_dyn();
 
-  out::report_data report;
+  out::report rep;
   void setup_output();
 
   nitro::vector<real> mass_inv, mass_rsqrt;
@@ -131,7 +131,7 @@ public:
   void setup_afm();
 
 public:
-  friend std::istream& operator>>(std::istream& is, state& st);
-  friend std::ostream& operator<<(std::ostream& os, state const& st);
+  friend std::istream &operator>>(std::istream &is, state &st);
+  friend std::ostream &operator<<(std::ostream &os, state const &st);
 };
 } // namespace cg::simul

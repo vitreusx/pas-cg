@@ -10,4 +10,4 @@ input:
     (at path): glut.yml
 
 output:
-  output dir: glut
+  file prefix: glut

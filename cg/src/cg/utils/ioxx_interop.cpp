@@ -1,4 +1,5 @@
 #include <cg/utils/ioxx_interop.h>
+
 namespace ioxx::xyaml {
 void user_repr<cg::quantity>::load(const node &from, cg::quantity &to) const {
   std::string repr;
