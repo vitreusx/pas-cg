@@ -19,9 +19,12 @@ class div : public element {
 public:
   void write(std::ostream &os) const override;
 
-  element *find(std::string const &id);
-  element &operator[](int idx);
-  element &operator[](std::string const &id);
+  template <typename T> T &find(int idx) {
+    if (idx >= children.size())
+      throw std::runtime_error("index " + std::to_string(idx) +
+                               " is out of bounds for the children array");
+    return *(T *)children[idx].get();
+  }
 
   template <typename T, typename... Args> T &add(Args &&...args) {
     auto ptr = std::make_unique<T>(std::forward<Args>(args)...);
@@ -34,6 +37,13 @@ public:
     auto &el = add<T>(std::forward<Args>(args)...);
     named_children[id] = &el;
     return el;
+  }
+
+  template <typename T> T &find(std::string const &id) {
+    if (auto iter = named_children.find(id); iter != named_children.end())
+      return *(T *)iter->second;
+    else
+      throw std::runtime_error("element with name \"" + id + "\" not found");
   }
 
 public:

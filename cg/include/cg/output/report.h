@@ -12,13 +12,9 @@ class report {
 public:
   real stats_last, struct_last;
   int model_serial;
-  pdb_file full_pdb;
 
-  struct traj_data {
-    int traj_idx;
-    ioxx::table::table scalars;
-  };
-  std::map<int, traj_data> traj;
+  pdb_file full_pdb;
+  ioxx::sl4::div out_root, map_root;
 
   void simul_init();
   void traj_init(int traj_idx);
@@ -47,12 +43,12 @@ public:
   nitro::const_view<vec3r> r, orig_r, v;
   nitro::const_view<real> mass;
   nitro::const_view<amino_acid> atype;
-  nitro::const_view<int> chain_first, chain_last;
   int *traj_idx;
 
   nat_cont::eval_forces const *nc;
   qa::process_contacts const *qa;
   pid::eval_forces const *pid;
+
 
 public:
   void operator()() const;
@@ -60,6 +56,7 @@ public:
 private:
   real kinetic_energy() const;
   real rmsd(nitro::const_view<int> const &indices) const;
+  real gyration_radius(nitro::const_view<int> const &indices) const;
 
   void add_cur_scalars() const;
   void emit_out() const;
@@ -67,6 +64,7 @@ private:
   void add_cur_model() const;
   void emit_pdb() const;
 
+  void add_map_data() const;
   void emit_map() const;
 };
 } // namespace cg::out

@@ -12,7 +12,7 @@ template <typename E> struct bundle_auto_expr : public bundle_expr<E> {
 
 using bundle_base = nitro::tuple_wrapper<int, int, real, int16_t>;
 
-class bundle : public bundle_expr<bundle>, public bundle_base {
+class bundle : public bundle_auto_expr<bundle>, public bundle_base {
 public:
   using Base = bundle_base;
   using Base::Base;

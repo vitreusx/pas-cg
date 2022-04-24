@@ -44,7 +44,7 @@ template <typename E> struct vec3_expr : public nitro::ind_expr<E> {
     x() /= f;
     y() /= f;
     z() /= f;
-    return this;
+    return *this;
   }
 };
 

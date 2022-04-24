@@ -152,4 +152,11 @@ void eval_forces::omp_async() const {
     iter(bundles->at(idx));
   }
 }
+
+bool eval_forces::is_active(const bundle &b) const {
+  auto i1 = b.i1(), i2 = b.i2();
+  vec3r r1 = r[i1], r2 = r[i2];
+  auto r12 = simul_box->r_uv(r1, r2);
+  return norm(r12) <= cutoff;
+}
 } // namespace cg::pid

@@ -16,28 +16,6 @@ void div::write(std::ostream &os) const {
   }
 }
 
-element *div::find(const std::string &id) {
-  if (auto iter = named_children.find(id); iter != named_children.end())
-    return iter->second;
-  else
-    return nullptr;
-}
-
-element &div::operator[](int idx) {
-  if (idx >= children.size())
-    throw std::runtime_error("index out of bounds");
-  else
-    return *children[idx];
-}
-
-element &div::operator[](const std::string &id) {
-  auto *el = find(id);
-  if (el != nullptr)
-    return *el;
-  else
-    throw std::runtime_error("children with id \"" + id + "\" not found");
-}
-
 table::table(ioxx::table::table tab) : tab{tab} {}
 
 void table::write(std::ostream &os) const {

@@ -25,5 +25,7 @@ public:
   template <typename E> void iter(bundle_expr<E> const &bundle) const;
   void operator()();
   void omp_async() const;
+
+  bool is_active(bundle const& bundle) const;
 };
 } // namespace cg::pid

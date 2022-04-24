@@ -49,7 +49,7 @@ static void write_row(std::ostream &os, bool comment,
   bool first = true;
   for (auto const &field : fields) {
     if (!first)
-      os << ' ';
+      os << "   ";
     os << field;
     first = false;
   }
