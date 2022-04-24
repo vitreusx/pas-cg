@@ -21,5 +21,7 @@ public:
   template <typename E> void iter(nat_cont_expr<E> const &nat_cont) const;
   void operator()() const;
   void omp_async() const;
+
+  bool is_active(nat_cont const& nc) const;
 };
 } // namespace cg::nat_cont

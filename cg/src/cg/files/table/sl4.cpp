@@ -31,7 +31,7 @@ static std::string sl4_format(std::string const &repr, dtype dt) {
   }
   case dtype::tag::float_: {
     auto value = convert<double>(repr);
-    return cg::format("%." STR(DBL_DECIMAL_DIG) "g", value);
+    return cg::format("%g", value);
   }
   case dtype::tag::string_: {
     return repr;

@@ -67,10 +67,19 @@ void thread::setup_output() {
     make_report.stats_every = params.out.stats_every;
     make_report.prefix = params.out.prefix;
     make_report.t = &st.t;
+    make_report.V = &st.dyn.V;
     make_report.rep = &st.rep;
     make_report.model = &st.model;
     make_report.res_map = &st.res_map;
-    make_report.r = &st.r;
+    make_report.r = st.r.get_view();
+    make_report.orig_r = st.orig_r.get_view();
+    make_report.v = st.v.get_view();
+    make_report.traj_idx = &st.traj_idx;
+    make_report.nc = nullptr;
+    make_report.qa = nullptr;
+    make_report.pid = nullptr;
+    make_report.mass = st.comp_aa_data.mass.get_view();
+    make_report.atype = st.atype.get_view();
   }
 }
 
@@ -297,6 +306,9 @@ void thread::setup_nat_cont() {
     update.nl = &st.nl;
     update.all_contacts = st.all_native_contacts.get_view();
     update.contacts = &st.cur_native_contacts;
+
+    if (params.out.enabled)
+      make_report.nc = &eval;
   }
 }
 
@@ -460,6 +472,9 @@ void thread::setup_qa() {
 
 #pragma omp single nowait
     st.max_cutoff = max(st.max_cutoff, max_req_dist);
+
+    if (params.out.enabled)
+      make_report.qa = &proc_cont;
   }
 }
 
@@ -521,6 +536,9 @@ void thread::setup_pid() {
 
 #pragma omp master
     st.max_cutoff = max(st.max_cutoff, cutoff);
+
+    if (params.out.enabled)
+      make_report.pid = &eval;
   }
 }
 

@@ -48,4 +48,12 @@ void eval_forces::omp_async() const {
     iter(contacts->at(idx));
   }
 }
+
+bool eval_forces::is_active(const nat_cont &nc) const {
+  auto i1 = nc.i1(), i2 = nc.i2();
+  auto nat_dist = nc.nat_dist();
+  auto r1 = r[i1], r2 = r[i2];
+  auto r12 = simul_box->r_uv(r1, r2);
+  return norm(r12) <= nat_dist * active_thr;
+}
 } // namespace cg::nat_cont

@@ -23,7 +23,12 @@ public:
 class thread {
 public:
   explicit thread(thread_team &team, state &st);
+
   thread(thread const &) = delete;
+  thread& operator=(thread const&) = delete;
+
+  thread(thread&&) = delete;
+  thread& operator=(thread&&) = delete;
 
   void main();
   void loop();

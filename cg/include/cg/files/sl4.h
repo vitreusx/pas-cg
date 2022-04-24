@@ -9,12 +9,15 @@
 namespace ioxx::sl4 {
 class element {
 public:
-  virtual void write(std::ostream &os) = 0;
+  virtual ~element() = default;
+  virtual void write(std::ostream &os) const = 0;
 };
+
+std::ostream &operator<<(std::ostream &os, element const &el);
 
 class div : public element {
 public:
-  void write(std::ostream &os) override;
+  void write(std::ostream &os) const override;
 
   element *find(std::string const &id);
   element &operator[](int idx);
@@ -22,11 +25,12 @@ public:
 
   template <typename T, typename... Args> T &add(Args &&...args) {
     auto ptr = std::make_unique<T>(std::forward<Args>(args)...);
-    return children.emplace_back(std::move(ptr));
+    auto &el_ptr = children.emplace_back(std::move(ptr));
+    return *reinterpret_cast<T *>(el_ptr.get());
   }
 
   template <typename T, typename... Args>
-  T &add(std::string const &id, Args &&...args) {
+  T &named_add(std::string const &id, Args &&...args) {
     auto &el = add<T>(std::forward<Args>(args)...);
     named_children[id] = &el;
     return el;
@@ -44,7 +48,7 @@ public:
 
   ioxx::table::table *operator->();
 
-  void write(std::ostream &os) override;
+  void write(std::ostream &os) const override;
 
 public:
   ioxx::table::table tab;
@@ -57,10 +61,11 @@ public:
   template <typename... Args> explicit comment(Args &&...args) {
     (text += ... += convert<std::string>(args));
     std::for_each(text.begin(), text.end(),
-                  [](char c) -> char { return std::toupper(c); });
+                  [](char &c) { c = (char)std::toupper(c); });
+    text = "#" + text;
   }
 
-  void write(std::ostream &os) override;
+  void write(std::ostream &os) const override;
 
 public:
   std::string text;
@@ -74,7 +79,7 @@ public:
     (text += ... += convert<std::string>(args));
   }
 
-  void write(std::ostream &os) override;
+  void write(std::ostream &os) const override;
 
 public:
   std::string text;

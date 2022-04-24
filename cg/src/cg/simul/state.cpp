@@ -60,8 +60,7 @@ void state::simul_setup() {
   load_model();
 
   rep = out::report();
-  rep.model_serial = 1;
-  rep.full_pdb = pdb_file();
+  rep.simul_init();
 }
 
 void state::load_model() {
@@ -184,10 +183,7 @@ void state::setup_dyn() {
   dyn = dynamics(num_res);
 }
 
-void state::setup_output() {
-  rep.stats_last = std::numeric_limits<real>::lowest();
-  rep.struct_last = std::numeric_limits<real>::lowest();
-}
+void state::setup_output() { rep.traj_init(traj_idx); }
 
 void state::setup_langevin() {
   auto &mass = comp_aa_data.mass;
