@@ -8,7 +8,7 @@
 #define STR(s) STR2(s)
 
 namespace ioxx::table {
-table sl4_parser::read(std::istream &is) const {
+table sl4_parser::read(std::istream &) const {
   throw std::runtime_error("reading in SL4 format is not implemented");
 }
 
@@ -62,46 +62,58 @@ static std::string uppercase(std::string s) {
 }
 
 void sl4_parser::write(std::ostream &os, const table &tab) const {
-  std::vector<int> col_width(tab.num_cols(), 0);
-  std::vector<std::string> out_header(tab.num_cols());
-  std::vector<std::vector<std::string>> out_fields(
-      tab.rows.size(), std::vector<std::string>(tab.num_cols()));
+  auto copy_ = *this;
+  copy_.fit(tab);
+
+  copy_.write(os, tab.cols);
+  for (auto const& row: tab.rows)
+    copy_.write(os, row);
+}
+
+void sl4_parser::fit(const table &tab) {
+  dtypes = tab.cols.dtypes;
+  col_width = std::vector<int>(tab.num_cols(), 0);
 
   for (int col_idx = 0; col_idx < tab.num_cols(); ++col_idx) {
     auto dt = tab.cols.dtypes[col_idx];
-    out_header[col_idx] = uppercase(tab.cols.names[col_idx]);
 
     int width = 0;
     width = std::max(width, (int)tab.cols.names[col_idx].size());
-    for (int row_idx = 0; row_idx < tab.rows.size(); ++row_idx) {
+    for (int row_idx = 0; row_idx < (int)tab.rows.size(); ++row_idx) {
       auto const &repr = tab.rows[row_idx].fields[col_idx];
       auto out_repr = sl4_format(repr, dt);
-      out_fields[row_idx][col_idx] = out_repr;
       width = std::max(width, (int)out_repr.size());
     }
     col_width[col_idx] = width;
   }
+}
 
-  for (int col_idx = 0; col_idx < tab.num_cols(); ++col_idx) {
-    auto &out_header_col = out_header[col_idx];
-    auto padding =
-        std::string(col_width[col_idx] - (int)out_header_col.size(), ' ');
-    out_header_col = padding + out_header_col;
+void sl4_parser::write(std::ostream &os, const columns &cols, bool comment) const {
+  std::vector<std::string> out_header(cols.size());
+
+  for (int col_idx = 0; col_idx < (int)cols.size(); ++col_idx) {
+    auto name = cols.names[col_idx];
+    name = uppercase(name);
+    auto padding = std::string(col_width[col_idx] - name.size(), ' ');
+    name = padding + name;
+    out_header[col_idx] = name;
   }
 
-  for (int row_idx = 0; row_idx < tab.rows.size(); ++row_idx) {
-    for (int col_idx = 0; col_idx < tab.num_cols(); ++col_idx) {
-      auto &out_repr = out_fields[row_idx][col_idx];
-      auto padding =
-          std::string(col_width[col_idx] - (int)out_repr.size(), ' ');
-      out_repr = padding + out_repr;
-    }
+  write_row(os, comment, out_header);
+}
+
+void sl4_parser::write(std::ostream &os, row const& row, bool comment) const {
+  std::vector<std::string> out_fields(col_width.size());
+
+  for (int col_idx = 0; col_idx < (int)col_width.size(); ++col_idx) {
+    auto dt = dtypes[col_idx];
+    auto field = row.fields[col_idx];
+    field = sl4_format(field, dt);
+    auto padding = std::string(col_width[col_idx] - field.size(), ' ');
+    field = padding + field;
+    out_fields[col_idx] = field;
   }
 
-  write_row(os, true, out_header);
-  for (auto const &row : out_fields) {
-    os << '\n';
-    write_row(os, false, row);
-  }
+  write_row(os, comment, out_fields);
 }
 } // namespace ioxx::table

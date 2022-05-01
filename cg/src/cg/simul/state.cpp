@@ -60,7 +60,6 @@ void state::simul_setup() {
   load_model();
 
   rep = out::report();
-  rep.simul_init();
 }
 
 void state::load_model() {

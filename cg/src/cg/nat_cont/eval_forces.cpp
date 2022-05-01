@@ -14,7 +14,7 @@ void eval_forces::iter(nat_cont_expr<E> const &nat_cont) const {
   auto nat_dist = nat_cont.nat_dist();
 
   auto r1 = r[i1], r2 = r[i2];
-  auto r12 = simul_box->r_uv(r1, r2);
+  auto r12 = simul_box->wrap(r1, r2);
   auto r12_rn = norm_inv(r12);
 
   auto r12_u = r12 * r12_rn;
@@ -53,7 +53,7 @@ bool eval_forces::is_active(const nat_cont &nc) const {
   auto i1 = nc.i1(), i2 = nc.i2();
   auto nat_dist = nc.nat_dist();
   auto r1 = r[i1], r2 = r[i2];
-  auto r12 = simul_box->r_uv(r1, r2);
+  auto r12 = simul_box->wrap(r1, r2);
   return norm(r12) <= nat_dist * active_thr;
 }
 } // namespace cg::nat_cont

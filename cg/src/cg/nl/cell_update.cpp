@@ -111,7 +111,7 @@ void cell_update::operator()() const {
                   if (chain0 == chain1 && diff < 3)
                     continue;
 
-                  auto orig_dist_inv = norm_inv(simul_box->r_uv(r0, r1));
+                  auto orig_dist_inv = norm_inv(simul_box->wrap(r0, r1));
                   if (orig_dist_inv < radius_inv)
                     continue;
 

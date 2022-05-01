@@ -17,7 +17,7 @@ void update_free_pairs::operator()() const {
     if (!include4 && chain1 == chain2 && abs(seq1 - seq2) == 4)
       continue;
 
-    if (norm_inv(simul_box->r_uv(r1, r2)) > min_norm_inv) {
+    if (norm_inv(simul_box->wrap(r1, r2)) > min_norm_inv) {
       pairs->emplace(i1, i2, nl_pair.orig_dist());
     }
   }

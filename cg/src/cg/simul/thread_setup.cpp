@@ -59,27 +59,17 @@ void thread::setup_gen() {
   }
 }
 
-void thread::setup_dyn() { dyn = dynamics(st.num_res); }
+void thread::setup_dyn() {
+  dyn = dynamics(st.num_res);
+}
 
 void thread::setup_output() {
   if (params.out.enabled) {
     make_report.struct_every = params.out.struct_every;
     make_report.stats_every = params.out.stats_every;
     make_report.prefix = params.out.prefix;
-    make_report.t = &st.t;
-    make_report.V = &st.dyn.V;
     make_report.rep = &st.rep;
-    make_report.model = &st.model;
-    make_report.res_map = &st.res_map;
-    make_report.r = st.r.get_view();
-    make_report.orig_r = st.orig_r.get_view();
-    make_report.v = st.v.get_view();
-    make_report.traj_idx = &st.traj_idx;
-    make_report.nc = nullptr;
-    make_report.qa = nullptr;
-    make_report.pid = nullptr;
-    make_report.mass = st.comp_aa_data.mass.get_view();
-    make_report.atype = st.atype.get_view();
+    make_report.st = &st;
   }
 }
 
@@ -94,25 +84,25 @@ void thread::setup_langevin() {
     step.dt = params.lang.dt;
     step.gamma_factor = params.lang.gamma;
     step.gen = &gen;
-    step.mass = st.comp_aa_data.mass.get_view();
+    step.mass = st.comp_aa_data.mass;
     step.num_particles = st.num_res;
-    step.atype = st.atype.get_view();
-    step.r = st.r.get_view();
-    step.mass_inv = st.mass_inv.get_view();
-    step.mass_rsqrt = st.mass_rsqrt.get_view();
+    step.atype = st.atype;
+    step.r = st.r;
+    step.mass_inv = st.mass_inv;
+    step.mass_rsqrt = st.mass_rsqrt;
 
-    step.v = st.v.get_view();
+    step.v = st.v;
 
-    step.y0 = st.y0.get_view();
-    step.y1 = st.y1.get_view();
-    step.y2 = st.y2.get_view();
-    step.y3 = st.y3.get_view();
-    step.y4 = st.y4.get_view();
-    step.y5 = st.y5.get_view();
+    step.y0 = st.y0;
+    step.y1 = st.y1;
+    step.y2 = st.y2;
+    step.y3 = st.y3;
+    step.y4 = st.y4;
+    step.y5 = st.y5;
 
     step.true_t = &st.true_t;
 
-    step.F = st.dyn.F.get_view();
+    step.F = st.dyn.F;
   }
 }
 
@@ -136,10 +126,10 @@ void thread::setup_nl() {
   if (params.nl.algorithm == nl::parameters::LEGACY) {
     auto &legacy = nl_legacy;
     legacy.pad = params.nl.pad;
-    legacy.r = st.r.get_view();
+    legacy.r = st.r;
     legacy.simul_box = &st.box;
-    legacy.chain_idx = st.chain_idx.get_view();
-    legacy.seq_idx = st.seq_idx.get_view();
+    legacy.chain_idx = st.chain_idx;
+    legacy.seq_idx = st.seq_idx;
     legacy.num_particles = st.num_res;
     legacy.nl_data = &st.nl;
     legacy.invalid = &st.nl_invalid;
@@ -147,23 +137,23 @@ void thread::setup_nl() {
   } else {
     auto &cell = nl_cell;
     cell.pad = params.nl.pad;
-    cell.r = st.r.get_view();
+    cell.r = st.r;
     cell.simul_box = &st.box;
-    cell.chain_idx = st.chain_idx.get_view();
-    cell.seq_idx = st.seq_idx.get_view();
+    cell.chain_idx = st.chain_idx;
+    cell.seq_idx = st.seq_idx;
     cell.num_particles = st.num_res;
     cell.nl_data = &st.nl;
     cell.invalid = &st.nl_invalid;
     cell.max_cutoff = &st.max_cutoff;
-    cell.res_cell_idx = st.res_cell_idx.get_view();
-    cell.reordered_idx = st.reordered_idx.get_view();
+    cell.res_cell_idx = st.res_cell_idx;
+    cell.reordered_idx = st.reordered_idx;
     cell.num_res_in_cell = &st.num_res_in_cell;
     cell.cell_offset = &st.cell_offset;
     cell.all_pairs = &st.all_pairs;
   }
 
   auto &verify = nl_verify;
-  verify.r = st.r.get_view();
+  verify.r = st.r;
   verify.nl_data = &st.nl;
   verify.simul_box = &st.box;
   verify.invalid = &st.nl_invalid;
@@ -176,9 +166,9 @@ void thread::setup_chir() {
   if (params.chir.enabled) {
     auto &eval = eval_chir_forces;
     eval.e_chi = params.chir.e_chi;
-    eval.quads = st.chir_quads.get_view();
+    eval.quads = st.chir_quads;
     eval.V = &dyn.V;
-    eval.F = dyn.F.get_view();
+    eval.F = dyn.F;
   }
 }
 
@@ -188,10 +178,10 @@ void thread::setup_tether() {
     eval.H1 = params.tether.H1;
     eval.H2 = params.tether.H2;
     eval.def_length = params.tether.def_length;
-    eval.r = st.r.get_view();
-    eval.tethers = st.tether_pairs.get_view();
+    eval.r = st.r;
+    eval.tethers = st.tether_pairs;
     eval.V = &dyn.V;
-    eval.F = dyn.F.get_view();
+    eval.F = dyn.F;
   }
 }
 
@@ -199,20 +189,20 @@ void thread::setup_nat_ang() {
   if (params.nat_ang.enabled) {
     auto &eval = eval_nat_ang_forces;
     eval.k = params.nat_ang.k;
-    eval.r = st.r.get_view();
-    eval.angles = st.native_angles.get_view();
+    eval.r = st.r;
+    eval.angles = st.native_angles;
     eval.V = &dyn.V;
-    eval.F = dyn.F.get_view();
+    eval.F = dyn.F;
   }
 }
 
 void thread::setup_heur_ang() {
   if (params.heur_ang.enabled) {
     auto &eval = eval_heur_ang_forces;
-    eval.r = st.r.get_view();
-    eval.angles = st.heur_angles.get_view();
+    eval.r = st.r;
+    eval.angles = st.heur_angles;
     eval.V = &dyn.V;
-    eval.F = dyn.F.get_view();
+    eval.F = dyn.F;
 
     for (auto const &heur_pair : aa_heur_pair::all()) {
       for (int d = 0; d <= heur_ang::eval_forces::POLY_DEG; ++d) {
@@ -228,28 +218,28 @@ void thread::setup_nat_dih() {
     auto &eval = eval_cnd_forces;
     eval.CDA = params.cnd.CDA;
     eval.CDB = params.cnd.CDB;
-    eval.r = st.r.get_view();
-    eval.dihedrals = st.native_dihedrals.get_view();
+    eval.r = st.r;
+    eval.dihedrals = st.native_dihedrals;
     eval.V = &dyn.V;
-    eval.F = dyn.F.get_view();
+    eval.F = dyn.F;
   }
 
   if (params.snd.enabled) {
     auto &eval = eval_snd_forces;
     eval.CDH = params.snd.CDH;
-    eval.r = st.r.get_view();
-    eval.dihedrals = st.native_dihedrals.get_view();
+    eval.r = st.r;
+    eval.dihedrals = st.native_dihedrals;
     eval.V = &dyn.V;
-    eval.F = dyn.F.get_view();
+    eval.F = dyn.F;
   }
 }
 
 void thread::setup_heur_dih() {
   if (params.heur_dih.enabled) {
     auto &eval = eval_heur_dih_forces;
-    eval.r = st.r.get_view();
+    eval.r = st.r;
     eval.V = &dyn.V;
-    eval.F = dyn.F.get_view();
+    eval.F = dyn.F;
 
     for (auto const &heur_pair : aa_heur_pair::all()) {
       auto idx = (uint8_t)heur_pair;
@@ -269,14 +259,14 @@ void thread::setup_pauli() {
     auto &eval = eval_pauli_forces;
     eval.r_excl = params.pauli.r_excl;
     eval.depth = params.pauli.depth;
-    eval.r = st.r.get_view();
+    eval.r = st.r;
     eval.simul_box = &st.box;
     eval.pairs = &st.pauli_pairs;
     eval.V = &dyn.V;
-    eval.F = dyn.F.get_view();
+    eval.F = dyn.F;
 
     auto &update = update_pauli_pairs;
-    update.r = st.r.get_view();
+    update.r = st.r;
     update.simul_box = &st.box;
     update.nl = &st.nl;
     update.pairs = &st.pauli_pairs;
@@ -286,25 +276,25 @@ void thread::setup_pauli() {
 
 void thread::setup_nat_cont() {
   if (params.nat_cont.enabled) {
-    nl_legacy.all_nat_cont = st.nat_cont_excl.get_view();
-    nl_cell.all_nat_cont = st.nat_cont_excl.get_view();
+    nl_legacy.all_nat_cont = st.nat_cont_excl;
+    nl_cell.all_nat_cont = st.nat_cont_excl;
 
     auto &eval = eval_nat_cont_forces;
     eval.depth = params.nat_cont.lj_depth;
     eval.simul_box = &st.box;
     eval.contacts = &st.cur_native_contacts;
-    eval.r = st.r.get_view();
+    eval.r = st.r;
     eval.active_thr = params.nat_cont.active_thr;
     eval.t = &st.t;
-    eval.all_contacts = st.all_native_contacts.get_view();
+    eval.all_contacts = st.all_native_contacts;
     eval.V = &dyn.V;
-    eval.F = dyn.F.get_view();
+    eval.F = dyn.F;
 
     auto &update = update_nat_contacts;
-    update.r = st.r.get_view();
+    update.r = st.r;
     update.simul_box = &st.box;
     update.nl = &st.nl;
-    update.all_contacts = st.all_native_contacts.get_view();
+    update.all_contacts = st.all_native_contacts;
     update.contacts = &st.cur_native_contacts;
 
     if (params.out.enabled)
@@ -314,11 +304,11 @@ void thread::setup_nat_cont() {
 
 void thread::setup_dh() {
   auto &update = update_dh_pairs;
-  update.r = st.r.get_view();
+  update.r = st.r;
   update.simul_box = &st.box;
   update.nl = &st.nl;
   update.pairs = &st.dh_pairs;
-  update.atype = st.atype.get_view();
+  update.atype = st.atype;
   for (auto const &aa : amino_acid::all()) {
     update.q[(uint8_t)aa] = st.comp_aa_data.charge[(uint8_t)aa];
   }
@@ -327,11 +317,11 @@ void thread::setup_dh() {
     auto &eval = eval_const_dh_forces;
     eval.set_V_factor(params.const_dh.permittivity);
     eval.screen_dist_inv = 1.0 / params.const_dh.screening_dist;
-    eval.r = st.r.get_view();
+    eval.r = st.r;
     eval.simul_box = &st.box;
     eval.es_pairs = &st.dh_pairs;
     eval.V = &dyn.V;
-    eval.F = dyn.F.get_view();
+    eval.F = dyn.F;
     update.cutoff = 2.0 * params.const_dh.screening_dist;
   }
 
@@ -339,11 +329,11 @@ void thread::setup_dh() {
     auto &eval = eval_rel_dh_forces;
     eval.set_V_factor(params.rel_dh.perm_factor);
     eval.screen_dist_inv = 1.0 / params.rel_dh.screening_dist;
-    eval.r = st.r.get_view();
+    eval.r = st.r;
     eval.simul_box = &st.box;
     eval.es_pairs = &st.dh_pairs;
     eval.V = &dyn.V;
-    eval.F = dyn.F.get_view();
+    eval.F = dyn.F;
     update.cutoff = 2.0 * params.rel_dh.screening_dist;
   }
 }
@@ -351,21 +341,21 @@ void thread::setup_dh() {
 void thread::setup_qa() {
   if (params.qa.enabled) {
     auto &prep_nh = prepare_nh;
-    prep_nh.r = st.r.get_view();
+    prep_nh.r = st.r;
     prep_nh.num_particles = st.num_res;
-    prep_nh.n = st.n.get_view();
-    prep_nh.h = st.h.get_view();
-    prep_nh.prev = st.prev.get_view();
-    prep_nh.next = st.next.get_view();
+    prep_nh.n = st.n;
+    prep_nh.h = st.h;
+    prep_nh.prev = st.prev;
+    prep_nh.next = st.next;
     prep_nh.simul_box = &st.box;
 
     auto &sift = sift_qa_candidates;
-    sift.r = st.r.get_view();
-    sift.n = st.n.get_view();
-    sift.h = st.h.get_view();
+    sift.r = st.r;
+    sift.n = st.n;
+    sift.h = st.h;
     sift.simul_box = &st.box;
-    sift.atype = st.atype.get_view();
-    sift.sync = st.sync_values.get_view();
+    sift.atype = st.atype;
+    sift.sync = st.sync_values;
     sift.free_pairs = &st.qa_free_pairs;
     sift.candidates = &st.qa_candidates;
     sift.total_disp = &st.total_disp;
@@ -395,7 +385,7 @@ void thread::setup_qa() {
 
     auto &fin_proc = qa_finish_processing;
     fin_proc.candidates = &st.qa_candidates;
-    fin_proc.sync = st.sync_values.get_view();
+    fin_proc.sync = st.sync_values;
     fin_proc.t = &st.t;
     fin_proc.contacts = &st.qa_contacts;
     fin_proc.free_pairs = &st.qa_free_pairs;
@@ -409,56 +399,56 @@ void thread::setup_qa() {
     proc_cont.ljs = qa::lj_variants(params.lj_vars);
     proc_cont.set_factor(params.qa.breaking_factor);
     proc_cont.t = &st.t;
-    proc_cont.sync = st.sync_values.get_view();
+    proc_cont.sync = st.sync_values;
     proc_cont.contacts = &st.qa_contacts;
     proc_cont.simul_box = &st.box;
-    proc_cont.r = st.r.get_view();
+    proc_cont.r = st.r;
     proc_cont.free_pairs = &st.qa_free_pairs;
     proc_cont.removed = &st.qa_removed;
     proc_cont.V = &dyn.V;
-    proc_cont.F = dyn.F.get_view();
+    proc_cont.F = dyn.F;
     proc_cont.disulfide_special_criteria = st.ss_spec_crit;
 
     auto &update = update_qa_pairs;
-    update.r = st.r.get_view();
+    update.r = st.r;
     update.simul_box = &st.box;
     update.nl = &st.nl;
     update.pairs = &st.qa_free_pairs;
-    update.chain_idx = st.chain_idx.get_view();
-    update.seq_idx = st.seq_idx.get_view();
+    update.chain_idx = st.chain_idx;
+    update.seq_idx = st.seq_idx;
     update.include4 = params.qa.include4;
 
     if (params.qa.disulfide.has_value()) {
       if (st.ss_spec_crit) {
         auto const &spec_crit_params = params.qa.disulfide->spec_crit;
 
-        sift.part_of_ssbond = st.part_of_ssbond.get_view();
+        sift.part_of_ssbond = st.part_of_ssbond;
         sift.disulfide_special_criteria = st.ss_spec_crit;
-        sift.neigh = st.neigh_count.get_view();
+        sift.neigh = st.neigh_count;
 
-        fin_proc.part_of_ssbond = st.part_of_ssbond.get_view();
+        fin_proc.part_of_ssbond = st.part_of_ssbond;
 
         proc_cont.disulfide = params.qa.disulfide->force;
         proc_cont.ss_def_dist = params.qa.disulfide->spec_crit.def_dist;
         proc_cont.ss_dist_max_div = params.qa.disulfide->spec_crit.max_dist_dev;
-        proc_cont.neigh = st.neigh_count.get_view();
+        proc_cont.neigh = st.neigh_count;
         proc_cont.max_neigh_count = spec_crit_params.max_neigh_count;
-        proc_cont.part_of_ssbond = st.part_of_ssbond.get_view();
+        proc_cont.part_of_ssbond = st.part_of_ssbond;
 
         auto &update_cys = update_cys_neigh;
         update_cys.neigh = &st.qa_cys_neigh;
         update_cys.neigh_radius = spec_crit_params.neigh_radius;
         update_cys.nl = &st.nl;
         update_cys.simul_box = &st.box;
-        update_cys.r = st.r.get_view();
+        update_cys.r = st.r;
 
         auto &count_cys = count_cys_neigh;
         count_cys.simul_box = &st.box;
         count_cys.neigh_radius = spec_crit_params.neigh_radius;
         count_cys.neigh = &st.qa_cys_neigh;
-        count_cys.neigh_count = st.neigh_count.get_view();
-        count_cys.cys_indices = st.cys_indices.get_view();
-        count_cys.r = st.r.get_view();
+        count_cys.neigh_count = st.neigh_count;
+        count_cys.cys_indices = st.cys_indices;
+        count_cys.r = st.r;
 
 #pragma omp master
         st.max_cutoff = max(st.max_cutoff, (real)spec_crit_params.neigh_radius);
@@ -482,7 +472,7 @@ void thread::setup_pid() {
   if (params.pid.enabled) {
     auto &eval = eval_pid_forces;
     eval.V = &dyn.V;
-    eval.F = dyn.F.get_view();
+    eval.F = dyn.F;
     eval.total_disp = &st.total_disp;
 
     eval.bb_plus_lam.version() = params.pid.lambda_version;
@@ -499,26 +489,26 @@ void thread::setup_pid() {
 
     eval.ss_lam.alpha() = params.pid.ss.alpha;
     eval.ss_lam.psi_0() = params.pid.ss.psi_0;
-    eval.ss_ljs = st.ss_ljs.get_view();
+    eval.ss_ljs = st.ss_ljs;
 
-    eval.r = st.r.get_view();
+    eval.r = st.r;
     eval.simul_box = &st.box;
     eval.bundles = &st.pid_bundles;
-    eval.prev = st.prev.get_view();
-    eval.next = st.next.get_view();
+    eval.prev = st.prev;
+    eval.next = st.next;
     eval.V = &dyn.V;
-    eval.F = dyn.F.get_view();
+    eval.F = dyn.F;
 
     auto &update = update_pid_bundles;
-    update.r = st.r.get_view();
-    update.prev = st.prev.get_view();
-    update.next = st.next.get_view();
-    update.atype = st.atype.get_view();
+    update.r = st.r;
+    update.prev = st.prev;
+    update.next = st.next;
+    update.atype = st.atype;
     update.simul_box = &st.box;
     update.nl = &st.nl;
     update.bundles = &st.pid_bundles;
-    update.chain_idx = st.chain_idx.get_view();
-    update.seq_idx = st.seq_idx.get_view();
+    update.chain_idx = st.chain_idx;
+    update.seq_idx = st.seq_idx;
     update.include4 = params.pid.include4;
 
     real cutoff = 0.0;
@@ -547,17 +537,17 @@ void thread::post_equil_setup() { setup_afm(); }
 void thread::setup_afm() {
   if (params.afm.enabled) {
     auto &vel_eval = eval_vel_afm_forces;
-    vel_eval.r = st.r.get_view();
+    vel_eval.r = st.r;
     vel_eval.t = &st.t;
     vel_eval.afm_force.H1 = params.afm.H1;
     vel_eval.afm_force.H2 = params.afm.H2;
-    vel_eval.afm_tips = st.afm_tips.vel.get_view();
+    vel_eval.afm_tips = st.afm_tips.vel;
     vel_eval.V = &dyn.V;
-    vel_eval.F = dyn.F.get_view();
+    vel_eval.F = dyn.F;
 
     auto &force_eval = eval_force_afm_forces;
-    force_eval.afm_tips = st.afm_tips.force.get_view();
-    force_eval.F = dyn.F.get_view();
+    force_eval.afm_tips = st.afm_tips.force;
+    force_eval.F = dyn.F;
   }
 }
 } // namespace cg::simul

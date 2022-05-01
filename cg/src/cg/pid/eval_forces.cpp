@@ -14,7 +14,7 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
 
   auto i1 = bundle.i1(), i2 = bundle.i2();
   vec3r r1 = r[i1], r2 = r[i2];
-  auto r12 = simul_box->r_uv(r1, r2);
+  auto r12 = simul_box->wrap(r1, r2);
   auto r12_rn = norm_inv(r12);
   if ((real)1.0 > r12_rn * cutoff)
     return;
@@ -33,7 +33,7 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
 
   {
     auto &r1_ = r1p, &r2_ = r1, &r3_ = r1n, &r4_ = r2;
-    auto r24 = simul_box->r_uv(r2_, r4_);
+    auto r24 = simul_box->wrap(r2_, r4_);
     auto r12 = r2_ - r1_;
     auto r23 = r3_ - r2_;
     auto r13 = r3_ - r1_;
@@ -67,7 +67,7 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
 
   {
     auto &r1_ = r2p, &r2_ = r2, &r3_ = r2n, &r4_ = r1;
-    auto r24 = simul_box->r_uv(r2_, r4_);
+    auto r24 = simul_box->wrap(r2_, r4_);
     auto r12 = r2_ - r1_;
     auto r23 = r3_ - r2_;
     auto r13 = r3_ - r1_;
@@ -156,7 +156,7 @@ void eval_forces::omp_async() const {
 bool eval_forces::is_active(const bundle &b) const {
   auto i1 = b.i1(), i2 = b.i2();
   vec3r r1 = r[i1], r2 = r[i2];
-  auto r12 = simul_box->r_uv(r1, r2);
+  auto r12 = simul_box->wrap(r1, r2);
   return norm(r12) <= cutoff;
 }
 } // namespace cg::pid

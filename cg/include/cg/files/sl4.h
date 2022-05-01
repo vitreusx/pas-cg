@@ -20,7 +20,7 @@ public:
   void write(std::ostream &os) const override;
 
   template <typename T> T &find(int idx) {
-    if (idx >= children.size())
+    if (idx >= (int)children.size())
       throw std::runtime_error("index " + std::to_string(idx) +
                                " is out of bounds for the children array");
     return *(T *)children[idx].get();

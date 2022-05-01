@@ -33,16 +33,17 @@ public:
       cell.z() = (U)1.0 / cell_inv.z();
   }
 
-  template <typename E> inline auto wrap(E const &v) const {
-    vec3<U> in_box_ = v;
-    in_box_.x() -= cell.x() * nearbyint(v.x() * cell_inv.x());
-    in_box_.y() -= cell.y() * nearbyint(v.y() * cell_inv.y());
-    in_box_.z() -= cell.z() * nearbyint(v.z() * cell_inv.z());
+  template <typename E> inline auto wrap(E const &e) const {
+    vec3<U> in_box_ = e;
+    in_box_.x() -= cell.x() * nearbyint(e.x() * cell_inv.x());
+    in_box_.y() -= cell.y() * nearbyint(e.y() * cell_inv.y());
+    in_box_.z() -= cell.z() * nearbyint(e.z() * cell_inv.z());
     return in_box_;
   }
 
-  template <typename E> inline auto r_uv(E const &u, E const &v) const {
-    vec3<U> diff = v - u;
+  template <typename E, typename F>
+  inline auto wrap(E const &e, F const &f) const {
+    vec3<U> diff = f - e;
     return wrap(diff);
   }
 };

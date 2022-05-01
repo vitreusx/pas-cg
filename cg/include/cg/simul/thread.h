@@ -1,4 +1,5 @@
 #pragma once
+#include "kernels.h"
 #include "state.h"
 
 #ifndef _GNU_SOURCE
@@ -25,10 +26,10 @@ public:
   explicit thread(thread_team &team, state &st);
 
   thread(thread const &) = delete;
-  thread& operator=(thread const&) = delete;
+  thread &operator=(thread const &) = delete;
 
-  thread(thread&&) = delete;
-  thread& operator=(thread&&) = delete;
+  thread(thread &&) = delete;
+  thread &operator=(thread &&) = delete;
 
   void main();
   void loop();

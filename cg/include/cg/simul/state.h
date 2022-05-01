@@ -1,11 +1,7 @@
 #pragma once
+#include "data.h"
 #include "dynamics.h"
-#include "kernels.h"
 #include "parameters.h"
-#include <cg/afm/compiled.h>
-#include <cg/amino/compiled.h>
-#include <cg/input/model.h>
-#include <cg/utils/random.h>
 #include <fstream>
 #include <iostream>
 #include <mutex>
@@ -41,7 +37,6 @@ public:
   void finish_trajectory();
 
   input::model model;
-  input::model::res_map_t res_map;
   void morph_model();
 
   nitro::vector<vec3r> orig_r, r;
@@ -49,6 +44,7 @@ public:
   compiled_aa_data comp_aa_data;
   cg::box<real> box;
   nitro::vector<int> prev, next, chain_idx, seq_idx, chain_first, chain_last;
+  input::model::res_map_t res_map;
   void compile_model();
 
   real t;

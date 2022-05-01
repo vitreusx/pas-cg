@@ -32,16 +32,28 @@ public:
       : slices{slice<ISeq>(n, e.template get<ISeq>(),
                            allocs.template get<ISeq>())...} {}
 
-  Idx size() const { return slices.template get<0>().size(); }
-  Idx capacity() const { return slices.template get<0>().capacity(); }
+  Idx size() const {
+    return slices.template get<0>().size();
+  }
+  Idx capacity() const {
+    return slices.template get<0>().capacity();
+  }
 
-  at_expr<Types> operator[](Idx idx) { return get_view()[idx]; }
+  at_expr<Types> operator[](Idx idx) {
+    return get_view()[idx];
+  }
 
-  const_at_expr<Types> operator[](Idx idx) const { return get_view()[idx]; }
+  const_at_expr<Types> operator[](Idx idx) const {
+    return get_view()[idx];
+  }
 
-  at_expr<Types> at(Idx idx) { return get_view().at(idx); }
+  at_expr<Types> at(Idx idx) {
+    return get_view().at(idx);
+  }
 
-  const_at_expr<Types> at(Idx idx) const { return get_view().at(idx); }
+  const_at_expr<Types> at(Idx idx) const {
+    return get_view().at(idx);
+  }
 
   template <size_t N> def_lane_at<Types, N> lane_at(Idx idx) {
     return get_view().lane_at(idx);
@@ -53,21 +65,33 @@ public:
 
   view<Types, Idx> get_view() {
     return par_view<Types, Idx, ISeq...>(
-        slices.template get<ISeq>().get_view()...);
+        slices.template get<ISeq>()...);
+  }
+
+  operator view<Types, Idx>() {
+    return get_view();
   }
 
   const_view<Types, Idx> get_view() const {
     return par_const_view<Types, Idx, ISeq...>(
-        slices.template get<ISeq>().get_view()...);
+        slices.template get<ISeq>()...);
   }
 
-  void clear() { (..., slices.template get<ISeq>().clear()); }
+  operator const_view<Types, Idx>() const {
+    return get_view();
+  }
+
+  void clear() {
+    (..., slices.template get<ISeq>().clear());
+  }
 
   void reserve(Idx new_capacity) {
     (..., slices.template get<ISeq>().reserve(new_capacity));
   }
 
-  void resize(Idx new_size) { resize(new_size, Types()); }
+  void resize(Idx new_size) {
+    resize(new_size, Types());
+  }
 
   template <typename E> void resize(Idx new_size, ind_expr<E> const &e) {
     (..., slices.template get<ISeq>().resize(new_size, e.template get<ISeq>()));
@@ -86,13 +110,21 @@ public:
     return at(size() - 1);
   }
 
-  iterator<Types> begin() { return get_view().begin(); }
+  iterator<Types> begin() {
+    return get_view().begin();
+  }
 
-  const_iterator<Types> begin() const { return get_view().begin(); }
+  const_iterator<Types> begin() const {
+    return get_view().begin();
+  }
 
-  iterator<Types> end() { return get_view().end(); }
+  iterator<Types> end() {
+    return get_view().end();
+  }
 
-  const_iterator<Types> end() const { return get_view().end(); }
+  const_iterator<Types> end() const {
+    return get_view().end();
+  }
 
 private:
   tuple<slice<ISeq>...> slices;

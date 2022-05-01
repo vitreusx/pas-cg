@@ -58,7 +58,7 @@ target_include_directories(cg
 
 target_compile_options(cg
     PRIVATE
-    -Wall
+    -Wall;-Wextra;-Wpedantic
     $<$<CONFIG:Deployment>:-Ofast>
     $<$<CONFIG:Release>:-Ofast;-march=native>
     $<$<CONFIG:Staging>:-Ofast;-march=native;-g>

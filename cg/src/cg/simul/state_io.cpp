@@ -9,20 +9,20 @@
 
 namespace boost::serialization {
 template <class Archive, typename U>
-void serialize(Archive &ar, cg::vec3<U> &v, unsigned int version) {
+void serialize(Archive &ar, cg::vec3<U> &v, unsigned int) {
   ar &v.x();
   ar &v.y();
   ar &v.z();
 }
 
 template <class Archive, typename U>
-void serialize(Archive &ar, cg::box<U> &box, unsigned int version) {
+void serialize(Archive &ar, cg::box<U> &box, unsigned int) {
   ar &box.cell;
   ar &box.cell_inv;
 }
 
 template <class Archive>
-void serialize(Archive &ar, cg::sync_data &sync, unsigned int version) {
+void serialize(Archive &ar, cg::sync_data &sync, unsigned int) {
   ar &sync.back();
   ar &sync.side_all();
   ar &sync.side_polar();
@@ -51,7 +51,7 @@ template <typename T> struct data_of {
 };
 
 template <class Archive, typename T>
-void serialize(Archive &ar, data_of<T> &data, unsigned int version) {
+void serialize(Archive &ar, data_of<T> &data, unsigned int) {
   ar &data.data;
 }
 
@@ -62,16 +62,16 @@ public:
 private:
   friend class boost::serialization::access;
 
-  template <class Archive> void load(Archive &ar, unsigned int version) {
+  template <class Archive> void load(Archive &ar, unsigned int) {
     std::vector<data_of<T>> stl_v;
     ar >> stl_v;
 
     v.clear();
-    for (int idx = 0; idx < stl_v.size(); ++idx)
+    for (int idx = 0; idx < (int)stl_v.size(); ++idx)
       v.emplace_back((T &)stl_v[idx]);
   }
 
-  template <class Archive> void save(Archive &ar, unsigned int version) const {
+  template <class Archive> void save(Archive &ar, unsigned int) const {
     std::vector<data_of<T>> stl_v;
     stl_v.insert(stl_v.end(), v.begin(), v.end());
     ar &stl_v;
@@ -95,7 +95,7 @@ private:
   }
 
 template <class Archive>
-void serialize(Archive &ar, cg::simul::state &st, unsigned int version) {
+void serialize(Archive &ar, cg::simul::state &st, unsigned int) {
   ar &st.did_simul_setup;
   ar &st.is_running;
 

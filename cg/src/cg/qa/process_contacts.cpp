@@ -27,7 +27,7 @@ void process_contacts::iter(int idx) const {
   auto status = contact.status();
 
   auto r1 = r[i1], r2 = r[i2];
-  auto r12 = simul_box->r_uv(r1, r2);
+  auto r12 = simul_box->wrap(r1, r2);
   auto r12_rn = norm_inv(r12);
   auto r12_u = r12 * r12_rn;
 
