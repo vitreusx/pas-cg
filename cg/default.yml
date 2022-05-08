@@ -110,7 +110,7 @@ amino acid data:
         side (polar): 2
     CYS:
       mass: 103.009184505 amu
-      side: [ CG, SG ]
+      side: [ CB, SG ]
       radius: 3.7 A
       polarization: hydrophobic
       contact limits:

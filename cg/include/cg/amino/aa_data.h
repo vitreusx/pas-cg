@@ -22,6 +22,8 @@ struct aa_data {
   polarization_type polarization;
   quantity charge;
   contact_limits limits;
+
+  atom_data const& for_atom(std::string const& atom_name) const;
 };
 
 class amino_acid_data {

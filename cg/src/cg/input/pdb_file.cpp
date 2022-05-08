@@ -8,7 +8,9 @@
 #include <string_view>
 
 namespace cg {
-pdb_file::pdb_file(std::istream &&is) { load(is); }
+pdb_file::pdb_file(std::istream &&is) {
+  load(is);
+}
 
 void pdb_file::load(std::istream &is) {
   std::unordered_map<int, std::unordered_map<char, bool>> ter_found;
@@ -17,6 +19,8 @@ void pdb_file::load(std::istream &is) {
   primary_model_serial = -1;
 
   cryst1 = decltype(cryst1)::Zero();
+
+  std::vector<records::record> post_fx;
 
   for (std::string line; std::getline(is, line);) {
     if (auto opt_record = records::record::try_parse(line); opt_record) {
@@ -50,48 +54,56 @@ void pdb_file::load(std::istream &is) {
 
         if (primary_model_serial < 0)
           primary_model_serial = cur_model_serial;
-
-      } else if (auto ssbond_r = record_r.cast<records::ssbond>(); ssbond_r) {
-        disulfide_bond ss;
-        ss.serial = ssbond_r->serial;
-        ss.length = ssbond_r->length * quantity("A");
-
-        auto &m = *find_model(cur_model_serial);
-
-        auto &chain1 = *find_chain(m, ssbond_r->res[0].chain_id);
-        auto &res1 = *find_res(chain1, ssbond_r->res[0].res_seq_num);
-        ss.a1 = res1.find_by_name("SG");
-
-        auto &chain2 = *find_chain(m, ssbond_r->res[1].chain_id);
-        auto &res2 = *find_res(chain2, ssbond_r->res[1].res_seq_num);
-        ss.a2 = res2.find_by_name("SG");
-
-        disulfide_bonds[ss.serial] = ss;
-      } else if (auto link_r = record_r.cast<records::link>(); link_r) {
-        link _link;
-        _link.length = link_r->length * quantity("A");
-
-        auto &m = *find_model(cur_model_serial);
-
-        auto &chain1 = *find_chain(m, link_r->res[0].chain_id);
-        auto &res1 = *find_res(chain1, link_r->res[0].res_seq_num);
-        _link.a1 = res1.find_by_name(link_r->res[0].atom_name);
-
-        auto &chain2 = *find_chain(m, link_r->res[1].chain_id);
-        auto &res2 = *find_res(chain2, link_r->res[1].res_seq_num);
-        _link.a2 = res2.find_by_name(link_r->res[1].atom_name);
-
-        links.push_back(_link);
-      } else if (auto cryst1_r = record_r.cast<records::cryst1>(); cryst1_r) {
-        cryst1 = cryst1_r->cell * quantity("A");
       } else if (auto ter_r = record_r.cast<records::ter>(); ter_r) {
         ter_found[cur_model_serial][ter_r->chain_id] = true;
         auto &m = *find_model(cur_model_serial);
         auto &c = *find_chain(m, ter_r->chain_id);
         c.ter_serial = ter_r->serial;
       } else if (auto end_r = record_r.cast<records::end>(); end_r) {
-        return;
+        post_fx.push_back(record_r);
+        break;
+      } else {
+        post_fx.push_back(record_r);
       }
+    }
+  }
+
+  for (auto const &record_r : post_fx) {
+    if (auto ssbond_r = record_r.cast<records::ssbond>(); ssbond_r) {
+      disulfide_bond ss;
+      ss.serial = ssbond_r->serial;
+      ss.length = ssbond_r->length * quantity("A");
+
+      auto &m = *find_model(cur_model_serial);
+
+      auto &chain1 = *find_chain(m, ssbond_r->res[0].chain_id);
+      auto &res1 = *find_res(chain1, ssbond_r->res[0].res_seq_num);
+      ss.a1 = res1.find_by_name("SG");
+
+      auto &chain2 = *find_chain(m, ssbond_r->res[1].chain_id);
+      auto &res2 = *find_res(chain2, ssbond_r->res[1].res_seq_num);
+      ss.a2 = res2.find_by_name("SG");
+
+      disulfide_bonds[ss.serial] = ss;
+    } else if (auto link_r = record_r.cast<records::link>(); link_r) {
+      link _link;
+      _link.length = link_r->length * quantity("A");
+
+      auto &m = *find_model(cur_model_serial);
+
+      auto &chain1 = *find_chain(m, link_r->res[0].chain_id);
+      auto &res1 = *find_res(chain1, link_r->res[0].res_seq_num);
+      _link.a1 = res1.find_by_name(link_r->res[0].atom_name);
+
+      auto &chain2 = *find_chain(m, link_r->res[1].chain_id);
+      auto &res2 = *find_res(chain2, link_r->res[1].res_seq_num);
+      _link.a2 = res2.find_by_name(link_r->res[1].atom_name);
+
+      links.push_back(_link);
+    } else if (auto cryst1_r = record_r.cast<records::cryst1>(); cryst1_r) {
+      cryst1 = cryst1_r->cell * quantity("A");
+    } else if (auto end_r = record_r.cast<records::end>(); end_r) {
+      return;
     }
   }
 }
@@ -441,7 +453,7 @@ void pdb_file::add_contacts(amino_acid_data const &data, bool all_atoms) {
         continue;
 
       auto res1 = amino_acid(atom1.parent_res->name);
-      auto radius1 = all_atoms ? data[res1].atoms.at(atom1.name).radius
+      auto radius1 = all_atoms ? data[res1].for_atom(atom1.name).radius
                                : data[res1].radius;
       auto seq1 = (int)atom1.parent_res->seq_num;
 
@@ -453,7 +465,7 @@ void pdb_file::add_contacts(amino_acid_data const &data, bool all_atoms) {
             continue;
 
           auto res2 = amino_acid(atom2.parent_res->name);
-          auto radius2 = all_atoms ? data[res2].atoms.at(atom2.name).radius
+          auto radius2 = all_atoms ? data[res2].for_atom(atom2.name).radius
                                    : data[res2].radius;
           auto seq2 = (int)atom2.parent_res->seq_num;
 
@@ -476,7 +488,9 @@ void pdb_file::add_contacts(amino_acid_data const &data, bool all_atoms) {
   }
 }
 
-pdb_file::model::model(const model &other) { *this = other; }
+pdb_file::model::model(const model &other) {
+  *this = other;
+}
 
 pdb_file::model &pdb_file::model::operator=(const model &other) {
   std::unordered_map<atom const *, atom *> atom_map;
@@ -517,7 +531,9 @@ pdb_file::model &pdb_file::model::operator=(const model &other) {
   return *this;
 }
 
-pdb_file::pdb_file(const pdb_file &other) { *this = other; }
+pdb_file::pdb_file(const pdb_file &other) {
+  *this = other;
+}
 
 pdb_file &pdb_file::operator=(const pdb_file &other) {
   models = other.models;

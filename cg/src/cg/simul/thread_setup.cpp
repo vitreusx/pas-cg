@@ -70,6 +70,9 @@ void thread::setup_output() {
     make_report.prefix = params.out.prefix;
     make_report.rep = &st.rep;
     make_report.st = &st;
+    make_report.pid = nullptr;
+    make_report.qa = nullptr;
+    make_report.nc = nullptr;
   }
 }
 
@@ -532,7 +535,9 @@ void thread::setup_pid() {
   }
 }
 
-void thread::post_equil_setup() { setup_afm(); }
+void thread::post_equil_setup() {
+  setup_afm();
+}
 
 void thread::setup_afm() {
   if (params.afm.enabled) {

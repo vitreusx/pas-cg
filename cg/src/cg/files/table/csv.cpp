@@ -3,7 +3,11 @@
 #include <regex>
 
 namespace ioxx::table {
-enum class csv_parser_state { UnquotedField, QuotedField, QuotedQuote };
+enum class csv_parser_state {
+  UnquotedField,
+  QuotedField,
+  QuotedQuote
+};
 
 // Based on: https://stackoverflow.com/a/30338543
 static std::vector<std::string> read_csv_row(std::string const &row) {
@@ -81,7 +85,7 @@ std::string escape(std::string const &value) {
     static const std::regex quote_re("\"");
     std::string quoted_value;
     std::regex_replace(std::back_inserter(quoted_value), value.begin(),
-                       value.end(), quote_re, "\"\"\"");
+                       value.end(), quote_re, R"(""")");
     quoted_value = "\"" + quoted_value + "\"";
     return quoted_value;
   } else {
@@ -91,7 +95,7 @@ std::string escape(std::string const &value) {
 
 template <typename T>
 static void write_row(std::ostream &os, std::vector<T> const &values) {
-  for (int cell_idx = 0; cell_idx < values.size(); ++cell_idx) {
+  for (int cell_idx = 0; cell_idx < (int)values.size(); ++cell_idx) {
     if (cell_idx > 0)
       os << ',';
     os << values[cell_idx];
@@ -104,7 +108,7 @@ void csv_parser::write(std::ostream &os, const table &tab) const {
     os << '\n';
   }
 
-  for (int row_idx = 0; row_idx < tab.rows.size(); ++row_idx) {
+  for (int row_idx = 0; row_idx < (int)tab.rows.size(); ++row_idx) {
     if (row_idx > 0)
       os << '\n';
     write_row(os, tab.rows[row_idx].fields);

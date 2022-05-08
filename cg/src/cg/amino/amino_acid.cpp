@@ -22,7 +22,14 @@ amino_acid::amino_acid(char letter) {
       {'S', aa_code::SER}, {'T', aa_code::THR}, {'W', aa_code::TRP},
       {'Y', aa_code::TYR}, {'V', aa_code::VAL}};
 
-  code = letter_to_code.at(letter);
+  if (auto iter = letter_to_code.find(letter); iter != letter_to_code.end()) {
+    code = iter->second;
+  } else {
+    std::stringstream error_ss;
+    error_ss << "amino acid with letter code \'" << letter
+             << "\' does not exist.";
+    throw std::runtime_error(error_ss.str());
+  }
 }
 
 amino_acid::amino_acid(const std::string &name) {
@@ -35,7 +42,13 @@ amino_acid::amino_acid(const std::string &name) {
       {"SER", aa_code::SER}, {"THR", aa_code::THR}, {"TRP", aa_code::TRP},
       {"TYR", aa_code::TYR}, {"VAL", aa_code::VAL}};
 
-  code = name_to_code.at(name);
+  if (auto iter = name_to_code.find(name); iter != name_to_code.end()) {
+    code = iter->second;
+  } else {
+    std::stringstream error_ss;
+    error_ss << "amino acid with name \'" << name << "\' does not exist.";
+    throw std::runtime_error(error_ss.str());
+  }
 }
 
 char amino_acid::letter() const {

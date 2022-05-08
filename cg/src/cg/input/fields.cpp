@@ -1,13 +1,18 @@
 #include <cg/input/fields.h>
 #include <cg/utils/text.h>
 #include <regex>
+#include <sstream>
 
 namespace cg::fields {
 achar::achar(size_t i) : i{i - 1} {}
 
-char achar::read(const std::string &line) const { return line[i]; }
+char achar::read(const std::string &line) const {
+  return line[i];
+}
 
-void achar::write(std::string &line, char c) const { line[i] = c; };
+void achar::write(std::string &line, char c) const {
+  line[i] = c;
+};
 
 atom::atom(size_t i, size_t j) : beg{i - 1}, len{j - i + 1} {}
 
@@ -22,14 +27,27 @@ void atom::write(std::string &line, std::string const &atom) const {
 
 character::character(size_t i) : i{i - 1} {};
 
-char character::read(const std::string &line) const { return line[i]; }
+char character::read(const std::string &line) const {
+  return line[i];
+}
 
-void character::write(std::string &line, char c) const { line[i] = c; }
+void character::write(std::string &line, char c) const {
+  line[i] = c;
+}
 
 integer::integer(size_t i, size_t j) : beg{i - 1}, len{j - i + 1} {};
 
 int integer::read(const std::string &line) const {
-  return std::stoi(line.substr(beg, len));
+  try {
+    return std::stoi(line.substr(beg, len));
+  } catch (std::exception &) {
+    std::stringstream error_ss;
+    error_ss << "error while trying to parse \"" << line << "\": columns "
+             << beg << "-" << beg + len - 1
+             << " expected to be an integer, but is \"" << line.substr(beg, len)
+             << "\".";
+    throw std::runtime_error(error_ss.str());
+  }
 }
 
 void integer::write(std::string &line, int n) const {
@@ -51,7 +69,16 @@ real_field::real_field(size_t i, size_t j, int n, int m)
     : beg{i - 1}, len{j - i + 1}, n{n}, m{m} {}
 
 double real_field::read(const std::string &line) const {
-  return std::stod(line.substr(beg, len));
+  try {
+    return std::stod(line.substr(beg, len));
+  } catch (std::exception &) {
+    std::stringstream error_ss;
+    error_ss << "error while trying to parse \"" << line << "\": columns "
+             << beg << "-" << beg + len - 1
+             << " expected to be a double, but is \"" << line.substr(beg, len)
+             << "\".";
+    throw std::runtime_error(error_ss.str());
+  }
 }
 
 void real_field::write(std::string &line, double x) const {
@@ -91,7 +118,9 @@ std::string string::read() const {
   return strip(std::regex_replace(cur_text, std::regex("\\s+"), " "));
 };
 
-void string::clear() { cur_text = ""; }
+void string::clear() {
+  cur_text = "";
+}
 
 void string::write(const std::vector<std::string *> &lines,
                    const std::string &text) const {

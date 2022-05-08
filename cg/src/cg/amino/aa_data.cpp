@@ -92,4 +92,14 @@ void amino_acid_data::load(ioxx::xyaml::node const &node) {
 aa_data const &amino_acid_data::operator[](const amino_acid &aa) const {
   return data.at(aa);
 }
+
+atom_data const &aa_data::for_atom(const std::string &atom_name) const {
+  if (auto iter = atoms.find(atom_name); iter != atoms.end()) {
+    return iter->second;
+  } else {
+    std::stringstream error_ss;
+    error_ss << "no data found for an atom with name \"" << atom_name << "\"";
+    throw std::runtime_error(error_ss.str());
+  }
+}
 } // namespace cg
