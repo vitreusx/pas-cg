@@ -36,4 +36,4 @@ template <typename E> struct expr_impl<E, cg::qa::candidate> {
 template <typename E> struct auto_expr_impl<E, cg::qa::candidate> {
   using type = cg::qa::candidate_auto_expr<E>;
 };
-}; // namespace nitro
+}

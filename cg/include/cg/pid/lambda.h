@@ -59,4 +59,4 @@ template <typename E> struct expr_impl<E, cg::pid::lambda> {
 template <typename E> struct auto_expr_impl<E, cg::pid::lambda> {
   using type = cg::pid::lambda_auto_expr<E>;
 };
-}; // namespace nitro
+}

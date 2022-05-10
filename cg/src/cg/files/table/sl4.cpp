@@ -33,7 +33,8 @@ static std::string sl4_format(std::string const &repr, dtype dt) {
     auto value = convert<double>(repr);
     return cg::format("%g", value);
   }
-  case dtype::tag::string_: {
+  case dtype::tag::string_:
+  default: {
     return repr;
   }
   }
@@ -66,7 +67,7 @@ void sl4_parser::write(std::ostream &os, const table &tab) const {
   copy_.fit(tab);
 
   copy_.write(os, tab.cols);
-  for (auto const& row: tab.rows)
+  for (auto const &row : tab.rows)
     copy_.write(os, row);
 }
 
@@ -88,7 +89,8 @@ void sl4_parser::fit(const table &tab) {
   }
 }
 
-void sl4_parser::write(std::ostream &os, const columns &cols, bool comment) const {
+void sl4_parser::write(std::ostream &os, const columns &cols,
+                       bool comment) const {
   std::vector<std::string> out_header(cols.size());
 
   for (int col_idx = 0; col_idx < (int)cols.size(); ++col_idx) {
@@ -102,7 +104,7 @@ void sl4_parser::write(std::ostream &os, const columns &cols, bool comment) cons
   write_row(os, comment, out_header);
 }
 
-void sl4_parser::write(std::ostream &os, row const& row, bool comment) const {
+void sl4_parser::write(std::ostream &os, row const &row, bool comment) const {
   std::vector<std::string> out_fields(col_width.size());
 
   for (int col_idx = 0; col_idx < (int)col_width.size(); ++col_idx) {

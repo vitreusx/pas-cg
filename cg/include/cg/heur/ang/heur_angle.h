@@ -32,4 +32,4 @@ template <typename E> struct expr_impl<E, cg::heur_ang::heur_ang> {
 template <typename E> struct auto_expr_impl<E, cg::heur_ang::heur_ang> {
   using type = cg::heur_ang::heur_ang_auto_expr<E>;
 };
-}; // namespace nitro
+} // namespace nitro

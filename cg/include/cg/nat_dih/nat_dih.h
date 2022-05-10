@@ -31,4 +31,4 @@ template <typename E> struct expr_impl<E, cg::nat_dih> {
 template <typename E> struct auto_expr_impl<E, cg::nat_dih> {
   using type = cg::nat_dih_auto_expr<E>;
 };
-}; // namespace nitro
+}

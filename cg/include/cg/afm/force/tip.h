@@ -31,4 +31,4 @@ template <typename E> struct expr_impl<E, cg::afm::force::tip> {
 template <typename E> struct auto_expr_impl<E, cg::afm::force::tip> {
   using type = cg::afm::force::tip_auto_expr<E>;
 };
-}; // namespace nitro
+}

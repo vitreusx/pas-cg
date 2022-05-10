@@ -30,4 +30,4 @@ template <typename E> struct expr_impl<E, cg::nl::pair> {
 template <typename E> struct auto_expr_impl<E, cg::nl::pair> {
   using type = cg::nl::pair_auto_expr<E>;
 };
-}; // namespace nitro
+}

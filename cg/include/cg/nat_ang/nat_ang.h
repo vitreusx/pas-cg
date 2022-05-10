@@ -32,4 +32,4 @@ template <typename E> struct expr_impl<E, cg::nat_ang::nat_ang> {
 template <typename E> struct auto_expr_impl<E, cg::nat_ang::nat_ang> {
   using type = cg::nat_ang::nat_ang_auto_expr<E>;
 };
-}; // namespace nitro
+}

@@ -47,4 +47,4 @@ template <typename E> struct expr_impl<E, cg::lj> {
 template <typename E> struct auto_expr_impl<E, cg::lj> {
   using type = cg::lj_auto_expr<E>;
 };
-}; // namespace nitro
+}

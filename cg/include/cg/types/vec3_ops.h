@@ -181,7 +181,7 @@ auto cross(vec3_expr<E1> const &e1, vec3_expr<E2> const &e2) {
 
 template <typename E> auto unit(vec3_expr<E> const &e) {
   return norm_inv(e) * e;
-};
+}
 
 template <typename S, typename E>
 Eigen::Vector3<S> convert(vec3_expr<E> const &e) {

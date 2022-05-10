@@ -31,4 +31,4 @@ template <typename E> struct expr_impl<E, cg::nl::exclusion> {
 template <typename E> struct auto_expr_impl<E, cg::nl::exclusion> {
   using type = cg::nl::exclusion_auto_expr<E>;
 };
-}; // namespace nitro
+}

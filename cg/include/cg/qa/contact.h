@@ -37,4 +37,4 @@ template <typename E> struct expr_impl<E, cg::qa::contact> {
 template <typename E> struct auto_expr_impl<E, cg::qa::contact> {
   using type = cg::qa::contact_auto_expr<E>;
 };
-}; // namespace nitro
+}

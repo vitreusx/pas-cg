@@ -165,7 +165,8 @@ amino acid data:
       mass: 113.084064015 amu
       alt atom radii:
         CD1: 1.88 A
-      side: [ CB, CG1, CG2, CD1 ]
+        CD: 1.88 A # CD1 is sometimes just called CD, for some reason
+      side: [ CB, CG1, CG2, CD1, CD ]
       radius: 4.5 A
       polarization: hydrophobic
       contact limits:

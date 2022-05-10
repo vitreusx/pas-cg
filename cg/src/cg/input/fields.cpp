@@ -12,7 +12,7 @@ char achar::read(const std::string &line) const {
 
 void achar::write(std::string &line, char c) const {
   line[i] = c;
-};
+}
 
 atom::atom(size_t i, size_t j) : beg{i - 1}, len{j - i + 1} {}
 
@@ -25,7 +25,7 @@ void atom::write(std::string &line, std::string const &atom) const {
   format_(line.data() + beg, "%*s", len, atom.c_str());
 }
 
-character::character(size_t i) : i{i - 1} {};
+character::character(size_t i) : i{i - 1} {}
 
 char character::read(const std::string &line) const {
   return line[i];
@@ -35,7 +35,7 @@ void character::write(std::string &line, char c) const {
   line[i] = c;
 }
 
-integer::integer(size_t i, size_t j) : beg{i - 1}, len{j - i + 1} {};
+integer::integer(size_t i, size_t j) : beg{i - 1}, len{j - i + 1} {}
 
 int integer::read(const std::string &line) const {
   try {
@@ -116,7 +116,7 @@ string &string::add(const std::string &line) {
 
 std::string string::read() const {
   return strip(std::regex_replace(cur_text, std::regex("\\s+"), " "));
-};
+}
 
 void string::clear() {
   cur_text = "";
@@ -133,7 +133,7 @@ void string::write(const std::vector<std::string *> &lines,
 }
 
 literal::literal(size_t i, size_t j, std::string const &text)
-    : beg{i - 1}, len{j - i + 1}, text{text} {};
+    : beg{i - 1}, len{j - i + 1}, text{text} {}
 
 bool literal::read(const std::string &line) const {
   auto line_text = line.substr(beg, len);

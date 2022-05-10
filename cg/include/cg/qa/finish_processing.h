@@ -22,4 +22,4 @@ public:
 public:
   void operator()() const;
 };
-}; // namespace cg::qa
+}

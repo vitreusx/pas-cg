@@ -54,4 +54,4 @@ template <typename E> struct expr_impl<E, cg::sink_lj> {
 template <typename E> struct auto_expr_impl<E, cg::sink_lj> {
   using type = cg::sink_lj_auto_expr<E>;
 };
-}; // namespace nitro
+}

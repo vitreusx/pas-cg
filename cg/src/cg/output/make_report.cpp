@@ -154,7 +154,7 @@ void make_report::add_cur_snapshot() const {
   auto &snap = rep->snapshots.emplace_back();
   snap.t = st->t;
   snap.r = st->r;
-  snap.box = st->box;
+  snap.model_box = st->box;
 }
 
 void make_report::emit_pdb() const {
@@ -190,7 +190,7 @@ void make_report::emit_pdb() const {
       auto chain_Rg = gyration_radius(snap.r, chain_indices);
       auto r_first = snap.r[st->chain_first[chain_idx]];
       auto r_last = snap.r[st->chain_last[chain_idx]];
-      auto chain_L = norm(snap.box.wrap(r_first, r_last));
+      auto chain_L = norm(snap.model_box.wrap(r_first, r_last));
       auto chain_W = asphericity(snap.r, chain_indices);
       auto chain_N = chain_indices.size();
 
@@ -250,6 +250,8 @@ static std::string format_nc_type(nat_cont::type const &t) {
     return "ss";
   case nat_cont::type::ANY:
     return "any";
+  default:
+    return "";
   }
 }
 
@@ -270,6 +272,8 @@ static std::string format_qa_status(qa::contact_status const &s) {
     return "formed/forming";
   case qa::contact_status::BREAKING:
     return "breaking";
+  default:
+    return "";
   }
 }
 

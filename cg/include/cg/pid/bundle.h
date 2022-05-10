@@ -30,4 +30,4 @@ template <typename E> struct expr_impl<E, cg::pid::bundle> {
 template <typename E> struct auto_expr_impl<E, cg::pid::bundle> {
   using type = cg::pid::bundle_auto_expr<E>;
 };
-}; // namespace nitro
+}

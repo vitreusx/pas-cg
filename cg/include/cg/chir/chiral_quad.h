@@ -33,4 +33,4 @@ template <typename E> struct expr_impl<E, cg::chir::chiral_quad> {
 template <typename E> struct auto_expr_impl<E, cg::chir::chiral_quad> {
   using type = cg::chir::chiral_quad_auto_expr<E>;
 };
-}; // namespace nitro
+}

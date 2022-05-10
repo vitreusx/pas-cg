@@ -109,4 +109,4 @@ template <typename E> struct expr_impl<E, cg::sync_data> {
 template <typename E> struct auto_expr_impl<E, cg::sync_data> {
   using type = cg::sync_data_auto_expr<E>;
 };
-}; // namespace nitro
+}

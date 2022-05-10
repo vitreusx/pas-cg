@@ -31,4 +31,4 @@ template <typename E> struct expr_impl<E, cg::qa::free_pair> {
 template <typename E> struct auto_expr_impl<E, cg::qa::free_pair> {
   using type = cg::qa::free_pair_auto_expr<E>;
 };
-}; // namespace nitro
+}

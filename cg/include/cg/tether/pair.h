@@ -30,4 +30,4 @@ template <typename E> struct expr_impl<E, cg::tether::pair> {
 template <typename E> struct auto_expr_impl<E, cg::tether::pair> {
   using type = cg::tether::pair_auto_expr<E>;
 };
-}; // namespace nitro
+}
