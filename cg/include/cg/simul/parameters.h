@@ -24,6 +24,8 @@
 
 namespace cg::simul {
 struct parameters {
+  std::string repr;
+  
   chir::parameters chir;
   const_dh::parameters const_dh;
   rel_dh::parameters rel_dh;

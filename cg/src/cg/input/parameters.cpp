@@ -3,9 +3,9 @@
 namespace cg::input {
 
 void parameters::load(ioxx::xyaml::node const &p) {
-  if (auto pdb_node = p["pdb file"]; pdb_node) {
+  if (auto pdb_node = p["pdb file"]; pdb_node && pdb_node["source"]) {
     pdb_source pdb_source;
-    pdb_node["source"] >> pdb_source.file;
+    pdb_node >> pdb_source.file;
 
     if (auto deriv_node = pdb_node["contact deriv"]; deriv_node) {
       auto deriv_type = deriv_node.as<std::string>();
@@ -19,8 +19,10 @@ void parameters::load(ioxx::xyaml::node const &p) {
       pdb_source.ignore_cryst1 = ignore_node.as<bool>();
 
     source = pdb_source;
-  } else if (auto sf_node = p["seq file"]; sf_node) {
-    source = sf_node.as<seq_file>();
+  } else if (auto sf_node = p["seq file"]; sf_node && sf_node["source"]) {
+    seq_file sf;
+    sf_node["source"] >> sf;
+    source = sf;
   }
 
   if (p["morph into SAW"])

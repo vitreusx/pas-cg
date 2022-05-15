@@ -14,7 +14,7 @@ public:
   static std::optional<remark> try_parse(std::string const &line);
   std::string write() const;
 
-  static std::vector<remark> create(int number, std::string const& text);
+  static std::vector<remark> create(int number, std::string const &text);
 };
 
 class atom {

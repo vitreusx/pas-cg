@@ -2,6 +2,7 @@
 #include <cg/utils/ioxx_interop.h>
 #include <cg/utils/quantity.h>
 #include <numeric>
+
 namespace cg {
 void contact_limits::link(ioxx::xyaml::proxy &proxy) {
   proxy["back"] & back;
@@ -16,11 +17,11 @@ void amino_acid_data::load(ioxx::xyaml::node const &node) {
   subnode sub;
   node >> sub;
 
-  std::unordered_map<std::string, double> def_atom_radii;
-  for (auto const &entry : sub["default atom radii"]) {
+  for (auto const &entry : sub["default atom data"]) {
     auto name = entry.first.as<std::string>();
-    auto radius = quantity(entry.second.as<std::string>()).assumed_("A");
-    def_atom_radii[name] = radius;
+    auto &atom_data = def_atoms[name];
+    atom_data.name = name;
+    atom_data.radius = quantity(entry.second.as<std::string>()).assumed_("A");
   }
 
   for (auto const &entry : sub["amino acids"]) {
@@ -28,32 +29,15 @@ void amino_acid_data::load(ioxx::xyaml::node const &node) {
     auto data_node = ioxx::xyaml::node(entry.second);
 
     aa_data &cur_data = data[amino_acid(name)];
-    data_node["mass"] >> cur_data.mass.assumed_("amu");
-    data_node["radius"] >> cur_data.radius.assumed_("A");
+    cur_data.mass = data_node["mass"].as<cg::quantity>().assumed("amu");
+    cur_data.radius = data_node["radius"].as<cg::quantity>().assumed("A");
 
-    auto atom_radii = def_atom_radii;
-    if (auto alt = data_node["alt atom radii"]; alt) {
+    if (auto alt = data_node["alt atom data"]; alt) {
       for (auto const &alt_entry : alt) {
         auto atom_name = alt_entry.first.Scalar();
-        auto alt_radius = quantity(alt_entry.second.Scalar()).assumed_("A");
-        atom_radii[atom_name] = alt_radius;
-      }
-    }
-
-    for (auto const &back_atom : {"N", "CA", "C", "O", "OXT"}) {
-      atom_data &atom_ = cur_data.atoms[back_atom];
-      atom_.name = back_atom;
-      atom_.radius = atom_radii[back_atom];
-      atom_.backbone = true;
-    }
-
-    if (auto side_atoms_node = data_node["side"]; side_atoms_node) {
-      for (auto const &side_atom_node : side_atoms_node) {
-        auto side_atom = side_atom_node.as<std::string>();
-        atom_data &atom_ = cur_data.atoms[side_atom];
-        atom_.name = side_atom;
-        atom_.radius = atom_radii[side_atom];
-        atom_.backbone = false;
+        auto &override = cur_data.overrides[atom_name];
+        override.name = atom_name;
+        override.radius = quantity(alt_entry.second.Scalar()).assumed_("A");
       }
     }
 
@@ -93,13 +77,19 @@ aa_data const &amino_acid_data::operator[](const amino_acid &aa) const {
   return data.at(aa);
 }
 
-atom_data const &aa_data::for_atom(const std::string &atom_name) const {
-  if (auto iter = atoms.find(atom_name); iter != atoms.end()) {
-    return iter->second;
-  } else {
-    std::stringstream error_ss;
-    error_ss << "no data found for an atom with name \"" << atom_name << "\"";
-    throw std::runtime_error(error_ss.str());
+atom_data const &amino_acid_data::for_atom(const amino_acid &res,
+                                           const std::string &name) const {
+  for (int n = (int)name.size(); n > 0; --n) {
+    auto prefix = name.substr(0, n);
+    for (auto *map : {&data.at(res).overrides, &def_atoms}) {
+      if (auto iter = map->find(prefix); iter != map->end())
+        return iter->second;
+    }
   }
+
+  std::stringstream error_ss;
+  error_ss << "no data found for an atom \"" << name << "\" for residue \""
+           << res.name() << "\"";
+  throw std::runtime_error(error_ss.str());
 }
 } // namespace cg

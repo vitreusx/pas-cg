@@ -1,5 +1,5 @@
-#include <fstream>
 #include <cg/files/xyaml/node.h>
+#include <fstream>
 
 namespace ioxx::xyaml {
 
@@ -42,7 +42,9 @@ void node::save() const {
   }
 }
 
-proxy proxy::saving_to(const node &ref) { return proxy(ref, proxy_mode::SAVE); }
+proxy proxy::saving_to(const node &ref) {
+  return proxy(ref, proxy_mode::SAVE);
+}
 
 proxy proxy::loading_from(const node &ref) {
   return proxy(ref, proxy_mode::LOAD);
@@ -76,25 +78,4 @@ void node::merge(const node &other) {
   }
 }
 
-node node::clone() const {
-  auto clone_ = node(YAML::Clone(*this));
-  clone_.loc = loc;
-  if (children) {
-    clone_.children = std::make_shared<std::unordered_map<std::string, node>>();
-    for (auto const &[key, value] : *children) {
-      clone_.children->insert(std::make_pair(key, value.clone()));
-    }
-  }
-  return clone_;
-}
-
-YAML::Node node::flatten() const {
-  auto clone_ = clone();
-  if (children) {
-    for (auto const &[key, value] : *children) {
-      clone_.YAML::Node::operator[](key) = value.flatten();
-    }
-  }
-  return static_cast<YAML::Node const &>(clone_);
-}
 } // namespace ioxx::xyaml

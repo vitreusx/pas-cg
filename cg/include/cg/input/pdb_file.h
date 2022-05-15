@@ -8,10 +8,15 @@
 namespace cg {
 class pdb_file;
 
+struct pdb_load_options {
+  bool skip_unknown = true;
+  std::unordered_map<std::string, amino_acid> aliases;
+  void load(ioxx::xyaml::node const &node);
+};
+
 class pdb_file {
 public:
   pdb_file() = default;
-  explicit pdb_file(std::istream &&is);
   explicit pdb_file(input::model const &xmd_model);
 
   pdb_file(pdb_file const &other);
@@ -21,7 +26,10 @@ public:
 
   void add_contacts(amino_acid_data const &data, bool all_atoms = true);
 
-  enum class contact_deriv { FROM_ATOMS, FROM_RESIDUES };
+  enum class contact_deriv {
+    FROM_ATOMS,
+    FROM_RESIDUES
+  };
   input::model to_model() const;
 
   struct atom;
@@ -41,7 +49,7 @@ public:
   struct residue {
     chain *parent_chain;
     size_t seq_num;
-    std::string name;
+    amino_acid type;
     std::vector<atom *> atoms;
 
     atom *find_by_name(std::string const &name) const;
@@ -89,7 +97,7 @@ public:
   vec3<double> cryst1;
 
   void load(ioxx::xyaml::node const &node);
-  void load(std::istream &source);
+  void load(std::istream &source, pdb_load_options const &load_opts);
 
   model *find_model(int model_serial);
   model &find_or_add_model(int model_serial);
@@ -99,6 +107,7 @@ public:
 
   residue *find_res(chain &c, size_t seq_num);
   residue &find_or_add_res(chain &c, size_t seq_num, const std::string &name,
-                           bool chain_terminated);
+                           bool chain_terminated,
+                           pdb_load_options const &load_opts);
 };
 } // namespace cg

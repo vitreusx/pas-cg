@@ -3,6 +3,8 @@
 namespace cg::simul {
 
 void parameters::load(ioxx::xyaml::node const& n) {
+  repr = YAML::Dump(n.flatten());
+
   n["general"] >> gen;
   n["amino acid data"] >> aa_data;
   n["input"] >> input;

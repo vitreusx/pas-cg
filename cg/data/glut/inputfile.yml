@@ -7,7 +7,8 @@ general:
 
 input:
   seq file:
-    (at path): glut.yml
+    source:
+      (at path): glut.yml
 
 output:
   file prefix: glut

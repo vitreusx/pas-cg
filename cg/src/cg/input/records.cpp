@@ -237,30 +237,25 @@ std::string end::write() const {
 }
 
 std::optional<record> record::try_parse(const std::string &line) {
-  try {
-    if (auto remark_r = remark::try_parse(line); remark_r) {
-      return record(remark_r.value());
-    } else if (auto atom_r = atom::try_parse(line); atom_r) {
-      return record(atom_r.value());
-    } else if (auto ssbond_r = ssbond::try_parse(line); ssbond_r) {
-      return record(ssbond_r.value());
-    } else if (auto link_r = link::try_parse(line); link_r) {
-      return record(link_r.value());
-    } else if (auto cryst1_r = cryst1::try_parse(line); cryst1_r) {
-      return record(cryst1_r.value());
-    } else if (auto ter_r = ter::try_parse(line); ter_r) {
-      return record(ter_r.value());
-    } else if (auto model_r = model::try_parse(line); model_r) {
-      return record(model_r.value());
-    } else if (auto endmdl_r = endmdl::try_parse(line); endmdl_r) {
-      return record(endmdl_r.value());
-    } else if (auto end_r = end::try_parse(line); end_r) {
-      return record(end_r.value());
-    } else {
-      return std::nullopt;
-    }
-  } catch (std::exception &exn) {
-    std::cerr << exn.what() << '\n';
+  if (auto remark_r = remark::try_parse(line); remark_r) {
+    return record(remark_r.value());
+  } else if (auto atom_r = atom::try_parse(line); atom_r) {
+    return record(atom_r.value());
+  } else if (auto ssbond_r = ssbond::try_parse(line); ssbond_r) {
+    return record(ssbond_r.value());
+  } else if (auto link_r = link::try_parse(line); link_r) {
+    return record(link_r.value());
+  } else if (auto cryst1_r = cryst1::try_parse(line); cryst1_r) {
+    return record(cryst1_r.value());
+  } else if (auto ter_r = ter::try_parse(line); ter_r) {
+    return record(ter_r.value());
+  } else if (auto model_r = model::try_parse(line); model_r) {
+    return record(model_r.value());
+  } else if (auto endmdl_r = endmdl::try_parse(line); endmdl_r) {
+    return record(endmdl_r.value());
+  } else if (auto end_r = end::try_parse(line); end_r) {
+    return record(end_r.value());
+  } else {
     return std::nullopt;
   }
 }

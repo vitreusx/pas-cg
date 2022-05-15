@@ -182,7 +182,9 @@ void state::setup_dyn() {
   dyn = dynamics(num_res);
 }
 
-void state::setup_output() { rep.traj_init(traj_idx); }
+void state::setup_output() {
+  rep.traj_init(traj_idx);
+}
 
 void state::setup_langevin() {
   auto &mass = comp_aa_data.mass;

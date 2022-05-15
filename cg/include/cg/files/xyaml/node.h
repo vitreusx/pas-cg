@@ -72,7 +72,6 @@ public:
 
   node child(YAML::Node const &node) const;
 
-  node clone() const;
   YAML::Node flatten() const;
 
 public:
@@ -80,7 +79,10 @@ public:
   mutable std::shared_ptr<std::unordered_map<std::string, node>> children;
 };
 
-enum class proxy_mode { LOAD, SAVE };
+enum class proxy_mode {
+  LOAD,
+  SAVE
+};
 
 class proxy : public node {
 public:
@@ -145,7 +147,8 @@ inline constexpr bool has_class_save =
     std::experimental::is_detected_exact_v<void, class_save_detector, T>;
 
 template <typename T>
-using def_save_detector = decltype(YAML::convert<T>::encode(std::declval<T const&>()));
+using def_save_detector =
+    decltype(YAML::convert<T>::encode(std::declval<T const &>()));
 
 template <typename T>
 inline constexpr bool has_def_save =

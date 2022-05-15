@@ -8,11 +8,7 @@
 #include <string_view>
 
 namespace cg {
-pdb_file::pdb_file(std::istream &&is) {
-  load(is);
-}
-
-void pdb_file::load(std::istream &is) {
+void pdb_file::load(std::istream &is, pdb_load_options const &load_opts) {
   std::unordered_map<int, std::unordered_map<char, bool>> ter_found;
   int cur_model_serial = 1;
 
@@ -23,48 +19,60 @@ void pdb_file::load(std::istream &is) {
   std::vector<records::record> post_fx;
 
   for (std::string line; std::getline(is, line);) {
-    if (auto opt_record = records::record::try_parse(line); opt_record) {
-      auto &record_r = opt_record.value();
-
-      if (auto model_r = record_r.cast<records::model>(); model_r) {
-        cur_model_serial = model_r->serial;
-      } else if (auto atom_r = record_r.cast<records::atom>(); atom_r) {
-        if (atom_r->atom_name[0] == 'H')
-          continue;
-
-        auto &model = find_or_add_model(cur_model_serial);
-
-        auto &chain = find_or_add_chain(model, atom_r->chain_id);
-
-        auto &res =
-            find_or_add_res(chain, atom_r->res_seq_num, atom_r->residue_name,
-                            ter_found[cur_model_serial][chain.chain_id]);
-
-        auto &atm = chain.atoms[atom_r->serial];
-
-        atm.name = atom_r->atom_name;
-        atm.serial = atom_r->serial;
-        atm.pos = atom_r->pos * quantity("A");
-        atm.parent_res = &res;
-
-        res.atoms.push_back(&atm);
-
-        if (!ter_found[cur_model_serial][atom_r->chain_id])
-          chain.ter_serial = atom_r->serial + 1;
-
-        if (primary_model_serial < 0)
-          primary_model_serial = cur_model_serial;
-      } else if (auto ter_r = record_r.cast<records::ter>(); ter_r) {
-        ter_found[cur_model_serial][ter_r->chain_id] = true;
-        auto &m = *find_model(cur_model_serial);
-        auto &c = *find_chain(m, ter_r->chain_id);
-        c.ter_serial = ter_r->serial;
-      } else if (auto end_r = record_r.cast<records::end>(); end_r) {
-        post_fx.push_back(record_r);
-        break;
+    std::optional<records::record> opt_record;
+    try {
+      opt_record = opt_record->try_parse(line);
+    } catch (std::exception &exn) {
+      if (load_opts.skip_unknown) {
+        std::cerr << exn.what() << '\n';
       } else {
-        post_fx.push_back(record_r);
+        throw exn;
       }
+    }
+
+    if (!opt_record)
+      continue;
+
+    auto &record_r = opt_record.value();
+
+    if (auto model_r = record_r.cast<records::model>(); model_r) {
+      cur_model_serial = model_r->serial;
+    } else if (auto atom_r = record_r.cast<records::atom>(); atom_r) {
+      if (atom_r->atom_name[0] == 'H')
+        continue;
+
+      auto &model = find_or_add_model(cur_model_serial);
+
+      auto &chain = find_or_add_chain(model, atom_r->chain_id);
+
+      auto &res = find_or_add_res(
+          chain, atom_r->res_seq_num, atom_r->residue_name,
+          ter_found[cur_model_serial][chain.chain_id], load_opts);
+
+      auto &atm = chain.atoms[atom_r->serial];
+
+      atm.name = atom_r->atom_name;
+      atm.serial = atom_r->serial;
+      atm.pos = atom_r->pos * quantity("A");
+      atm.parent_res = &res;
+
+      res.atoms.push_back(&atm);
+
+      if (!ter_found[cur_model_serial][atom_r->chain_id])
+        chain.ter_serial = atom_r->serial + 1;
+
+      if (primary_model_serial < 0)
+        primary_model_serial = cur_model_serial;
+    } else if (auto ter_r = record_r.cast<records::ter>(); ter_r) {
+      ter_found[cur_model_serial][ter_r->chain_id] = true;
+      auto &m = *find_model(cur_model_serial);
+      auto &c = *find_chain(m, ter_r->chain_id);
+      c.ter_serial = ter_r->serial;
+    } else if (auto end_r = record_r.cast<records::end>(); end_r) {
+      post_fx.push_back(record_r);
+      break;
+    } else {
+      post_fx.push_back(record_r);
     }
   }
 
@@ -131,7 +139,7 @@ pdb_file::pdb_file(const input::model &xmd_model) {
       auto &pdb_res = pdb_chain.residues[res_seq_num];
       pdb_res.parent_chain = &pdb_chain;
       pdb_res.seq_num = res_seq_num;
-      pdb_res.name = xmd_res.type.name();
+      pdb_res.type = xmd_res.type;
 
       ca_atom.parent_res = &pdb_res;
       pdb_res.atoms.push_back(&ca_atom);
@@ -227,15 +235,20 @@ pdb_file::residue *pdb_file::find_res(pdb_file::chain &c, size_t seq_num) {
     return nullptr;
 }
 
-pdb_file::residue &pdb_file::find_or_add_res(chain &c, size_t seq_num,
-                                             const std::string &name,
-                                             bool chain_terminated) {
+pdb_file::residue &
+pdb_file::find_or_add_res(chain &c, size_t seq_num, const std::string &name,
+                          bool chain_terminated,
+                          pdb_load_options const &load_opts) {
   auto res_iter = c.residues.find(seq_num);
   if (res_iter == c.residues.end()) {
     auto &r = c.residues[seq_num];
     r.seq_num = seq_num;
-    r.name = name;
     r.parent_chain = &c;
+
+    if (load_opts.aliases.find(name) != load_opts.aliases.end())
+      r.type = load_opts.aliases.at(name);
+    else
+      r.type = amino_acid(name);
 
     if (!chain_terminated)
       c.order.push_back(&r);
@@ -282,7 +295,7 @@ std::ostream &operator<<(std::ostream &os, pdb_file::chain const &chain) {
       atom_r.serial = atm->serial;
       atom_r.chain_id = chain.chain_id;
       atom_r.res_seq_num = res->seq_num;
-      atom_r.residue_name = res->name;
+      atom_r.residue_name = res->type.name();
       atom_r.atom_name = atm->name;
       atom_r.pos = atm->pos / quantity("A");
 
@@ -298,7 +311,7 @@ std::ostream &operator<<(std::ostream &os, pdb_file::chain const &chain) {
   ter_r.chain_id = chain.chain_id;
   ter_r.res_seq_num = final_res->seq_num;
   ter_r.serial = chain.ter_serial;
-  ter_r.res_name = final_res->name;
+  ter_r.res_name = final_res->type.name();
 
   if (!first)
     os << '\n';
@@ -324,7 +337,7 @@ input::model pdb_file::to_model() const {
       auto &xmd_res = xmd_model.residues.emplace_back(
           std::make_unique<input::model::residue>());
 
-      xmd_res->type = amino_acid(pdb_res->name);
+      xmd_res->type = pdb_res->type;
       xmd_res->pos = pdb_res->find_by_name("CA")->pos;
       xmd_res->parent = xmd_chain.get();
       xmd_res->seq_idx = res_seq_idx++;
@@ -452,8 +465,8 @@ void pdb_file::add_contacts(amino_acid_data const &data, bool all_atoms) {
       if (!all_atoms && atom1.name != "CA")
         continue;
 
-      auto res1 = amino_acid(atom1.parent_res->name);
-      auto radius1 = all_atoms ? data[res1].for_atom(atom1.name).radius
+      auto res1 = atom1.parent_res->type;
+      auto radius1 = all_atoms ? data.for_atom(res1, atom1.name).radius
                                : data[res1].radius;
       auto seq1 = (int)atom1.parent_res->seq_num;
 
@@ -464,8 +477,8 @@ void pdb_file::add_contacts(amino_acid_data const &data, bool all_atoms) {
           if (atom1.parent_res == atom2.parent_res)
             continue;
 
-          auto res2 = amino_acid(atom2.parent_res->name);
-          auto radius2 = all_atoms ? data[res2].for_atom(atom2.name).radius
+          auto res2 = atom2.parent_res->type;
+          auto radius2 = all_atoms ? data.for_atom(res2, atom2.name).radius
                                    : data[res2].radius;
           auto seq2 = (int)atom2.parent_res->seq_num;
 
@@ -576,12 +589,30 @@ bool pdb_file::atom::in_backbone() const {
   return false;
 }
 
+void pdb_load_options::load(const ioxx::xyaml::node &node) {
+  if (node["skip unknown"])
+    node["skip unknown"] >> skip_unknown;
+
+  if (node["aliases"]) {
+    for (auto const &entry : node["aliases"]) {
+      auto alias = entry.first.as<std::string>();
+      auto value = amino_acid(entry.second.as<std::string>());
+      aliases[alias] = value;
+    }
+  }
+}
+
 void pdb_file::load(ioxx::xyaml::node const &node) {
   using namespace ioxx::xyaml;
 
   std::stringstream pdb_ss;
-  pdb_ss << node.as<file>().fetch();
-  load(pdb_ss);
+  pdb_ss << node["source"].as<file>().fetch();
+
+  pdb_load_options load_opts;
+  if (node["load options"])
+    node["load options"] >> load_opts;
+
+  load(pdb_ss, load_opts);
 }
 
 pdb_file::model &pdb_file::primary_model() {

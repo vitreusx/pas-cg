@@ -8,6 +8,22 @@
 #include <memory>
 
 namespace boost::serialization {
+template <class Archive>
+void load(Archive &ar, cg::simul::parameters &params, unsigned int) {
+  std::string repr;
+  ar >> repr;
+  ioxx::xyaml::node(YAML::Load(repr)) >> params;
+}
+
+template <class Archive>
+void save(Archive &ar, cg::simul::parameters const &params, unsigned int) {
+  ar << params.repr;
+}
+} // namespace boost::serialization
+
+BOOST_SERIALIZATION_SPLIT_FREE(cg::simul::parameters)
+
+namespace boost::serialization {
 template <class Archive, typename U>
 void serialize(Archive &ar, cg::vec3<U> &v, unsigned int) {
   ar &v.x();
@@ -43,9 +59,13 @@ template <typename T> struct data_of {
     return *this;
   }
 
-  operator T &() { return *reinterpret_cast<T *>(data); }
+  operator T &() {
+    return *reinterpret_cast<T *>(data);
+  }
 
-  operator T const &() const { return *reinterpret_cast<T const *>(data); }
+  operator T const &() const {
+    return *reinterpret_cast<T const *>(data);
+  }
 
   alignas(T) unsigned char data[sizeof(T)] = {};
 };
@@ -96,6 +116,8 @@ private:
 
 template <class Archive>
 void serialize(Archive &ar, cg::simul::state &st, unsigned int) {
+  ar &st.params;
+
   ar &st.did_simul_setup;
   ar &st.is_running;
 

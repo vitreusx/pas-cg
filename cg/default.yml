@@ -11,6 +11,10 @@ general:
   num of trajectories: 1
 
 input:
+  pdb file:
+    load options:
+      skip unknown: true
+      aliases: { HSD: HIS }
   morph into SAW:
     perform: true
     bond distance: 3.8 A
@@ -24,7 +28,7 @@ input:
     bond distance: 3.8 A
 
 amino acid data:
-  default atom radii:
+  default atom data:
     C: 1.61 A
     CA: 1.88 A
     CB: 1.88 A
@@ -59,14 +63,12 @@ amino acid data:
     OG: 1.46 A
     OG1: 1.46 A
     OH: 1.46 A
-    OXT: 1.42 A
     SG: 1.77 A
     SD: 1.77 A
 
   amino acids:
     ALA:
       mass: 71.037113805 amu
-      side: [ CB ]
       radius: 3.35 A
       polarization: hydrophobic
       contact limits:
@@ -76,7 +78,6 @@ amino acid data:
         side (polar): 1
     ARG:
       mass: 156.101111050 amu
-      side: [ CB, CG, CD, NE, CZ, NH1, NH2 ]
       radius: 3.95 A
       polarization: polar
       charge: 1 e
@@ -87,7 +88,6 @@ amino acid data:
         side (polar): 2
     ASN:
       mass: 114.042927470 amu
-      side: [ CB, CG, OD1, ND2 ]
       radius: 3.65 A
       polarization: polar
       contact limits:
@@ -97,10 +97,9 @@ amino acid data:
         side (polar): 2
     ASP:
       mass: 115.026943065 amu
-      alt atom radii:
+      alt atom data:
         CG: 1.61 A
         OD1: 1.46 A
-      side: [ CB, CG, OD1, OD2 ]
       radius: 3.5 A
       polarization: polar
       charge: -1 e
@@ -111,7 +110,6 @@ amino acid data:
         side (polar): 2
     CYS:
       mass: 103.009184505 amu
-      side: [ CB, SG ]
       radius: 3.7 A
       polarization: hydrophobic
       contact limits:
@@ -121,10 +119,9 @@ amino acid data:
         side (polar): 2
     GLU:
       mass: 129.042593135 amu
-      alt atom radii:
+      alt atom data:
         CD: 1.88 A
         OE1: 1.46 A
-      side: [ CB, CG, CD, OE1, OE2 ]
       radius: 3.65 A
       polarization: polar
       charge: -1 e
@@ -135,7 +132,6 @@ amino acid data:
         side (polar): 2
     GLN:
       mass: 128.058577540 amu
-      side: [ CB, CG, CD, OE1, NE2 ]
       radius: 3.9 A
       polarization: polar
       contact limits:
@@ -145,7 +141,6 @@ amino acid data:
         side (polar): 2
     GLY:
       mass: 57.021463735 amu
-      side: [ ]
       radius: 3.15 A
       contact limits:
         back: 2
@@ -154,7 +149,6 @@ amino acid data:
         side (polar): 0
     HIS:
       mass: 137.058911875 amu
-      side: [ CB, CG, ND1, CD2, CE1, NE2 ]
       radius: 4.0 A
       polarization: polar
       contact limits:
@@ -164,10 +158,8 @@ amino acid data:
         side (polar): 2
     ILE:
       mass: 113.084064015 amu
-      alt atom radii:
-        CD1: 1.88 A
-        CD: 1.88 A # CD1 is sometimes just called CD, for some reason
-      side: [ CB, CG1, CG2, CD1, CD ]
+      alt atom data:
+        CD: 1.88 A
       radius: 4.5 A
       polarization: hydrophobic
       contact limits:
@@ -177,9 +169,8 @@ amino acid data:
         side (polar): 2
     LEU:
       mass: 113.084064015 amu
-      alt atom radii:
+      alt atom data:
         CD2: 1.88 A
-      side: [ CB, CG, CD1, CD2 ]
       radius: 4.6 A
       polarization: hydrophobic
       contact limits:
@@ -189,7 +180,6 @@ amino acid data:
         side (polar): 2
     LYS:
       mass: 128.094963050 amu
-      side: [ CB, CG, CD, CE, NZ ]
       radius: 3.65 A
       polarization: polar
       charge: 1 e
@@ -200,7 +190,6 @@ amino acid data:
         side (polar): 2
     MET:
       mass: 131.040484645 amu
-      side: [ CB, CG, SD, CE ]
       radius: 4.5
       polarization: hydrophobic
       contact limits:
@@ -210,9 +199,8 @@ amino acid data:
         side (polar): 1
     PHE:
       mass: 147.068413945 amu
-      alt atom radii:
+      alt atom data:
         CZ: 1.76 A
-      side: [ CB, CG, CD1, CD2, CE1, CE2, CZ ]
       radius: 4.6 A
       polarization: hydrophobic
       contact limits:
@@ -222,7 +210,6 @@ amino acid data:
         side (polar): 2
     PRO:
       mass: 97.052763875 amu
-      side: [ CB, CG, CD ]
       radius: 3.7 A
       contact limits:
         back: 1
@@ -231,7 +218,6 @@ amino acid data:
         side (polar): 0
     SER:
       mass: 87.032028435 amu
-      side: [ CB, OG ]
       radius: 3.3 A
       polarization: polar
       contact limits:
@@ -241,7 +227,6 @@ amino acid data:
         side (polar): 2
     THR:
       mass: 101.047678505 amu
-      side: [ CB, OG1, CG2 ]
       radius: 3.6 A
       polarization: polar
       contact limits:
@@ -251,11 +236,10 @@ amino acid data:
         side (polar): 2
     TRP:
       mass: 186.079312980 amu
-      alt atom radii:
+      alt atom data:
         CD1: 1.76 A
         CD2: 1.61 A
         CE2: 1.64 A
-      side: [ CB, CG, CD1, NE1, CE2, CD2, CE3, CZ3, CZ2, CH2 ]
       radius: 4.7 A
       polarization: hydrophobic
       contact limits:
@@ -265,10 +249,9 @@ amino acid data:
         side (polar): 3
     TYR:
       mass: 163.063328575 amu
-      alt atom radii:
+      alt atom data:
         CD1: 1.76 A
         CG: 1.61 A
-      side: [ CB, CG, CD1, CD2, CE1, CE2, CZ, OH ]
       radius: 4.5 A
       polarization: hydrophobic
       contact limits:
@@ -278,7 +261,6 @@ amino acid data:
         side (polar): 2
     VAL:
       mass: 99.068413945 amu
-      side: [ CB, CG1, CG2 ]
       radius: 4.0 A
       polarization: hydrophobic
       contact limits:

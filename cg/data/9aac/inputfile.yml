@@ -6,7 +6,8 @@ general:
 
 input:
   seq file:
-    (at path): 9aac.yml
+    source:
+      (at path): 9aac.yml
 
 quasi-adiabatic:
   enabled: false

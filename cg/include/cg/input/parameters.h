@@ -11,6 +11,7 @@ struct parameters {
   struct pdb_source {
     pdb_file file;
     std::optional<pdb_file::contact_deriv> deriv;
+    std::unordered_map<std::string, amino_acid> res_aliases;
     bool ignore_cryst1 = false;
   };
 
