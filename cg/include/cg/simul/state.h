@@ -52,6 +52,7 @@ public:
   void setup_dyn();
 
   out::report rep;
+  real ckpt_last_t;
   void setup_output();
 
   nitro::vector<real> mass_inv, mass_rsqrt;

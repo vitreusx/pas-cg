@@ -3,6 +3,7 @@
 #include <cg/amino/aa_data.h>
 #include <cg/base_forces/lj_variants.h>
 #include <cg/chir/parameters.h>
+#include <cg/ckpt/parameters.h>
 #include <cg/dh/const/parameters.h>
 #include <cg/dh/rel/parameters.h>
 #include <cg/general/parameters.h>
@@ -25,7 +26,7 @@
 namespace cg::simul {
 struct parameters {
   std::string repr;
-  
+
   chir::parameters chir;
   const_dh::parameters const_dh;
   rel_dh::parameters rel_dh;
@@ -48,6 +49,7 @@ struct parameters {
   pauli::parameters pauli;
   out::parameters out;
   afm::parameters afm;
+  ckpt::parameters ckpt;
 
   void load(ioxx::xyaml::node const &p);
 };

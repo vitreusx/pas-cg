@@ -184,6 +184,7 @@ void state::setup_dyn() {
 
 void state::setup_output() {
   rep.traj_init(traj_idx);
+  ckpt_last_t = std::numeric_limits<real>::lowest();
 }
 
 void state::setup_langevin() {

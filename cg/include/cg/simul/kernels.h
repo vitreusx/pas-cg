@@ -2,6 +2,7 @@
 #include <cg/afm/force/eval_forces.h>
 #include <cg/afm/vel/eval_forces.h>
 #include <cg/chir/eval_forces.h>
+#include <cg/ckpt/make_checkpoint.h>
 #include <cg/dh/const/eval_forces.h>
 #include <cg/dh/rel/eval_forces.h>
 #include <cg/dh/update_pairs.h>

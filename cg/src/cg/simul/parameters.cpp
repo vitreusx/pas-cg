@@ -2,7 +2,7 @@
 #include <cg/simul/parameters.h>
 namespace cg::simul {
 
-void parameters::load(ioxx::xyaml::node const& n) {
+void parameters::load(ioxx::xyaml::node const &n) {
   repr = YAML::Dump(n.flatten());
 
   n["general"] >> gen;
@@ -27,6 +27,7 @@ void parameters::load(ioxx::xyaml::node const& n) {
   n["AFM"] >> afm;
   n["progress bar"] >> pbar;
   n["output"] >> out;
+  n["checkpoints"] >> ckpt;
 
   using prog_mode = gen::parameters::prog_mode;
   if (gen.mode == prog_mode::check_determinism) {

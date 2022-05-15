@@ -74,6 +74,13 @@ void thread::setup_output() {
     make_report.qa = nullptr;
     make_report.nc = nullptr;
   }
+
+  if (params.ckpt.enabled) {
+    make_checkpoint.path_fmt = params.ckpt.path_fmt;
+    make_checkpoint.every = params.ckpt.every;
+    make_checkpoint.st = &st;
+    make_checkpoint.last_t = &st.ckpt_last_t;
+  }
 }
 
 void thread::setup_langevin() {

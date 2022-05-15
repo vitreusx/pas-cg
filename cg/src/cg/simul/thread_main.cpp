@@ -66,50 +66,6 @@ void thread::adjust_scenario() {
   }
 }
 
-void thread::pre_eval() {
-#pragma omp master
-  {
-    st.dyn.reset();
-
-    if (params.qa.enabled) {
-      prepare_nh();
-      if (st.ss_spec_crit)
-        count_cys_neigh();
-    }
-
-    if (st.nl_required)
-      nl_verify();
-
-    if (st.nl_invalid)
-      fix_nl();
-  }
-#pragma omp barrier
-}
-
-void thread::fix_nl() {
-  switch (params.nl.algorithm) {
-  case nl::parameters::CELL:
-    nl_cell();
-    break;
-  case nl::parameters::LEGACY:
-    nl_legacy();
-    break;
-  }
-
-  if (params.pauli.enabled)
-    update_pauli_pairs();
-  if (params.nat_cont.enabled)
-    update_nat_contacts();
-  if (params.const_dh.enabled || params.rel_dh.enabled)
-    update_dh_pairs();
-  if (params.qa.enabled)
-    update_qa_pairs();
-  if (params.qa.enabled && st.ss_spec_crit)
-    update_cys_neigh();
-  if (params.pid.enabled)
-    update_pid_bundles();
-}
-
 void thread::pre_eval_async() {
   st.dyn.omp_reset();
 
@@ -214,50 +170,20 @@ void thread::eval_forces() {
 #pragma omp barrier
 }
 
-void thread::post_eval() {
-#pragma omp master
-  {
-    if (params.pbar.enabled) {
-      render_pbar();
-    }
-
-    if (params.out.enabled) {
-      make_report();
-    }
-
-    if (params.qa.enabled) {
-      qa_finish_processing();
-    }
-
-    if (params.lang.enabled) {
-      switch (params.lang.type) {
-      case lang::lang_type::NORMAL:
-        lang_step();
-        break;
-      case lang::lang_type::LEGACY:
-        lang_legacy_step();
-        break;
-      }
-    }
-  }
-
-  ++loop_idx;
-}
-
 void thread::post_eval_async() {
 #pragma omp master
   {
-    if (params.pbar.enabled) {
+    if (params.pbar.enabled)
       render_pbar();
-    }
 
-    if (params.out.enabled) {
+    if (params.out.enabled)
       make_report();
-    }
 
-    if (params.qa.enabled) {
+    if (params.ckpt.enabled)
+      make_checkpoint();
+
+    if (params.qa.enabled)
       qa_finish_processing();
-    }
   }
 
 #pragma omp barrier

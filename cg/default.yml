@@ -445,3 +445,8 @@ output:
   emit stats every: 1e2 tau
   emit structure every: 1e3 tau
   file prefix: output
+
+checkpoints:
+  enabled: true
+  save every: 1e2 tau
+  path format: "ckpt/%.3f"
