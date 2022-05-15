@@ -67,8 +67,10 @@ void sl4_parser::write(std::ostream &os, const table &tab) const {
   copy_.fit(tab);
 
   copy_.write(os, tab.cols);
-  for (auto const &row : tab.rows)
+  for (auto const &row : tab.rows) {
+    os << '\n';
     copy_.write(os, row);
+  }
 }
 
 void sl4_parser::fit(const table &tab) {

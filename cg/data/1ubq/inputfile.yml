@@ -12,7 +12,7 @@ input:
   morph into SAW:
     perform: true
     bond distance: average
-    intersection at: 4.56 A
+#    intersection at: 4.56 A
 
 quasi-adiabatic:
   enabled: false
