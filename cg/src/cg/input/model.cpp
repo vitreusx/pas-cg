@@ -1,10 +1,12 @@
+#include <Eigen/Geometry>
 #include <cg/input/model.h>
 #include <cg/types/mat3x3.h>
-#include <Eigen/Geometry>
 #include <unordered_map>
 
 namespace cg::input {
-model::model(const model &other) { *this = other; }
+model::model(const model &other) {
+  *this = other;
+}
 
 model &model::operator=(const model &other) {
   std::unordered_map<residue const *, residue *> res_map;
@@ -93,23 +95,47 @@ static inline Eigen::Vector3<U> perp_v(Eigen::Vector3<U> const &v) {
 }
 
 void model::morph_into_saw(rand_gen &gen,
-                           input::morph_into_saw_t const &params) {
+                           const input::morph_into_saw_t &params) {
+#ifndef COMPAT_MODE
+  morph_into_saw_def(gen, params);
+#else
+  morph_into_saw_f77(gen, params);
+#endif
+}
+
+void model::morph_into_saw_def(rand_gen &gen,
+                               input::morph_into_saw_t const &params) {
 
   using U = double;
   auto max_spread = M_PI / 3;
   auto max_around = M_2_PI;
 
-  auto vol = (double)residues.size() / params.residue_density;
-  auto cell_a = cbrt(vol);
+  Eigen::AlignedBox3d box;
+  if (params.sample_from_box) {
+    auto vol = (double)residues.size() / params.residue_density;
+    auto cell_a = cbrt(vol);
+    box.min() = {-cell_a / 2.0, -cell_a / 2.0, -cell_a / 2.0};
+    box.max() = -box.min();
+    if (params.with_pbc) {
+      Eigen::Vector3d box_dim = box.max() - box.min();
+      model_box.set_cell(box_dim);
+    }
+  } else {
+    if (params.with_pbc)
+      throw std::runtime_error("with_pbc requires sample_from_box");
+
+    box.min() = Eigen::Vector3d::Zero();
+    box.max() = -box.min();
+  }
 
   double def_bond_distance = params.bond_distance.value_or(0);
 
   bool found_conformation = false;
   for (int retry_idx = 0; retry_idx < params.num_of_retries; ++retry_idx) {
     for (auto const &xmd_chain : chains) {
-      Eigen::Vector3<U> pos{gen.uniform<U>(-cell_a / 2.0, cell_a / 2.0),
-                            gen.uniform<U>(-cell_a / 2.0, cell_a / 2.0),
-                            gen.uniform<U>(-cell_a / 2.0, cell_a / 2.0)};
+      Eigen::Vector3<U> pos{gen.uniform<U>(box.min().x(), box.max().x()),
+                            gen.uniform<U>(box.min().y(), box.max().y()),
+                            gen.uniform<U>(box.min().z(), box.max().z())};
 
       Eigen::Vector3<U> dir = convert<U>(gen.sphere<U>());
 
@@ -123,7 +149,10 @@ void model::morph_into_saw(rand_gen &gen,
           } else {
             auto pos1 = xmd_chain->residues[res_idx]->pos;
             auto pos2 = xmd_chain->residues[res_idx + 1]->pos;
-            bond_length = norm(pos2 - pos1);
+            if (params.with_pbc)
+              bond_length = norm(model_box.wrap(pos1, pos2));
+            else
+              bond_length = norm(pos2 - pos1);
           }
 
           next += dir * bond_length;
@@ -171,30 +200,125 @@ void model::morph_into_saw(rand_gen &gen,
 
   if (!found_conformation)
     throw std::runtime_error("conformation not found!");
+}
 
-  if (params.infer_box) {
-    auto min_val = std::numeric_limits<double>::min();
-    auto x_max = min_val, y_max = min_val, z_max = min_val;
-    auto max_val = std::numeric_limits<double>::max();
-    auto x_min = max_val, y_min = max_val, z_min = max_val;
+static Eigen::Vector3d sample_from_box(Eigen::AlignedBox3d const &box,
+                                       rand_gen &gen) {
+  Eigen::Vector3d v;
+  for (int i = 0; i < 3; ++i) {
+    v[i] = (box.max()[i] - box.min()[i]) * gen.uniform<double>() + box.min()[i];
+  }
+  return v;
+}
 
-    for (auto const &res : residues) {
-      auto const &p = res->pos;
-      x_min = std::min(x_min, p.x());
-      x_max = std::max(x_max, p.x());
-      y_min = std::min(y_min, p.x());
-      y_max = std::max(y_max, p.x());
-      z_min = std::min(z_min, p.x());
-      z_max = std::max(z_max, p.x());
+void model::morph_into_saw_f77(rand_gen &gen,
+                               const input::morph_into_saw_t &params) {
+
+  auto min_dist_sq = pow(params.intersection_at, 2.0);
+
+  using Vector = Eigen::Vector3d;
+
+  double bond = 0.0;
+  if (params.bond_distance.has_value()) {
+    bond = params.bond_distance.value();
+  } else {
+    int num_native = 0;
+    for (auto const &teth : tethers) {
+      if (teth.length.has_value()) {
+        num_native += 1;
+        bond += teth.length.value();
+      }
     }
+    bond = bond / num_native;
+  }
 
-    auto x_ext = x_max - x_min, y_ext = y_max - y_min, z_ext = z_max - z_min;
+  Eigen::AlignedBox3d box;
+  if (params.sample_from_box) {
+    auto vol = (double)residues.size() / params.residue_density;
+    auto cell_a = cbrt(vol);
+    box.min() = {-cell_a / 2.0, -cell_a / 2.0, -cell_a / 2.0};
+    box.max() = -box.min();
+    if (params.with_pbc) {
+      Eigen::Vector3d box_dim = box.max() - box.min();
+      model_box.set_cell(box_dim);
+    }
+  } else {
+    if (params.with_pbc)
+      throw std::runtime_error("with_pbc requires sample_from_box");
 
-    auto x_ext_inv = 1.0 / x_ext, y_ext_inv = 1.0 / y_ext,
-         z_ext_inv = 1.0 / z_ext;
+    box.min() = Eigen::Vector3d::Zero();
+    box.max() = -box.min();
+  }
 
-    model_box.cell = vec3<U>{x_ext, y_ext, z_ext};
-    model_box.cell_inv = vec3<U>{x_ext_inv, y_ext_inv, z_ext_inv};
+  for (auto &chain : chains) {
+    int n = (int)chain->residues.size();
+
+    for (int kter = 0; kter < 9000; ++kter) {
+      std::vector<double> phi(n), theta(n);
+
+      auto pi = acos(-1.0);
+
+      phi[0] = pi / 2.0;
+      theta[0] = 0.0;
+
+      phi[1] = 0.0;
+      theta[1] = gen.uniform<double>() * pi / 3.0;
+
+      for (int i = 2; i < n - 1; ++i) {
+        phi[i] = (2.0 * gen.uniform<double>() - 1.0) * pi;
+        theta[i] = gen.uniform<double>() * pi / 3.0;
+      }
+
+      std::vector<Eigen::Matrix3d> T(n);
+      for (int i = 0; i < n - 1; ++i) {
+        auto ct = cos(theta[i]), st = sin(theta[i]), cp = cos(phi[i]),
+             sp = sin(phi[i]);
+
+        T[i] << ct, st, 0.0, st * cp, -ct * cp, sp, st * sp, -ct * sp, -cp;
+      }
+
+      auto theta0 = acos(1.0 - 2.0 * gen.uniform<double>());
+      auto phi0 = 2.0 * pi * gen.uniform<double>();
+
+      std::vector<Vector> R(n);
+      for (int i = 0; i < n - 1; ++i) {
+        Vector r;
+        r << bond * sin(theta0) * cos(phi0), bond * sin(theta0) * sin(phi0),
+            bond * cos(theta0);
+
+        for (int j = i; j >= 0; --j) {
+          R[i] = T[j] * r;
+          r = R[i];
+        }
+      }
+
+      Vector ran = sample_from_box(box, gen);
+      for (int i = 0; i < n; ++i) {
+        Vector r = ran;
+        for (int j = 0; j < i; ++j) {
+          r += R[j];
+        }
+        residues[i]->pos = r;
+      }
+
+      bool success = true;
+      for (int i = 0; i < n - 3 && success; ++i) {
+        auto r1 = residues[i]->pos;
+        for (int j = i + 3; j < n && success; ++j) {
+          auto r2 = residues[j]->pos;
+          auto dx = !params.with_pbc ? (r2 - r1) : model_box.wrap(r1, r2);
+          if (norm_squared(dx) < min_dist_sq) {
+            success = false;
+            break;
+          }
+        }
+        if (!success)
+          break;
+      }
+
+      if (success)
+        break;
+    }
   }
 }
 

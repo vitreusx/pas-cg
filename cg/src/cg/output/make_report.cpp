@@ -207,6 +207,7 @@ void make_report::emit_pdb() const {
     if (!first_line)
       pdb_of << '\n';
     pdb_of << model_r.write() << '\n';
+    pdb_of << records::endmdl().write() << '\n';
     first_line = false;
 
     auto p = ioxx::table::sl4_parser();

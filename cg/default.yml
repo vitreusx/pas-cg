@@ -17,7 +17,8 @@ input:
     residue density: 1e-4 atom/A**3
     intersection at: 0.0 A
     num of retries: 9001
-    infer simulation box: false
+    sample from box: false
+    with PBC: false
   morph into line:
     perform: false
     bond distance: 3.8 A

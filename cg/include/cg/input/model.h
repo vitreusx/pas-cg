@@ -69,5 +69,9 @@ public:
   box<double> model_box;
 
   using res_map_t = std::unordered_map<residue *, int>;
+
+private:
+  void morph_into_saw_def(rand_gen &gen, input::morph_into_saw_t const &params);
+  void morph_into_saw_f77(rand_gen &gen, input::morph_into_saw_t const &params);
 };
 } // namespace cg::input

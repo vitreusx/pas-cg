@@ -59,10 +59,15 @@ target_include_directories(cg
 target_compile_options(cg
     PRIVATE
     -Wall;-Wextra;-Wpedantic;-Wno-unused-but-set-parameter;
-    $<$<CONFIG:Deployment>:-Ofast>
-    $<$<CONFIG:Release>:-Ofast;-march=native>
-    $<$<CONFIG:Staging>:-Ofast;-march=native;-g>
-    $<$<CONFIG:Debug>:-g>)
+    $<$<CONFIG:Deployment>:-Ofast>;
+    $<$<CONFIG:Release>:-Ofast;-march=native>;
+    $<$<CONFIG:Staging>:-Ofast;-march=native;-g>;
+    $<$<CONFIG:Debug>:-g>;
+    $<$<CONFIG:Compat>:-g>)
+
+target_compile_definitions(cg
+    PRIVATE
+    $<$<CONFIG:Compat>:COMPAT_MODE>)
 
 add_subdirectory(ext/cparse EXCLUDE_FROM_ALL)
 add_subdirectory(ext/boost EXCLUDE_FROM_ALL)
