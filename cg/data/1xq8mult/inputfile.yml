@@ -1,6 +1,6 @@
 general:
   total time: 15e3 tau
-  num of threads: 1
+  num of threads: 4
   num of trajectories: 4
 
 input:

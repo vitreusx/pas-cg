@@ -206,7 +206,7 @@ void make_report::emit_pdb() const {
     model_r.serial = pdb_model.model_serial;
     if (!first_line)
       pdb_of << '\n';
-    pdb_of << model_r.write() << '\n';
+    pdb_of << model_r.write();
     first_line = false;
 
     auto p = ioxx::table::sl4_parser();
@@ -219,7 +219,7 @@ void make_report::emit_pdb() const {
     int row_idx = 0;
     for (auto const &[chain_id, chain] : pdb_model.chains) {
       for (auto const &rem : records::remark::create(1, cols_str))
-        pdb_of << rem.write() << '\n';
+        pdb_of << '\n' << rem.write();
 
       auto const &row = chain_scalars_tab.rows[row_idx];
       ss = {};
@@ -227,14 +227,14 @@ void make_report::emit_pdb() const {
       auto row_str = ss.str();
 
       for (auto const &rem : records::remark::create(1, row_str))
-        pdb_of << rem.write() << '\n';
+        pdb_of << '\n' << rem.write();
 
-      pdb_of << chain;
+      pdb_of << '\n' << chain;
 
       ++row_idx;
     }
 
-    pdb_of << records::endmdl().write() << '\n';
+    pdb_of << '\n' << records::endmdl().write();
   }
 }
 
