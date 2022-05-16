@@ -6,7 +6,7 @@ void make_checkpoint::operator()() const {
   if (*last_t + every <= st->t) {
     std::filesystem::path ckpt_path = format(path_fmt.c_str(), st->t);
     create_directories(ckpt_path.parent_path());
-    std::ofstream ckpt_os(ckpt_path);
+    std::ofstream ckpt_os(ckpt_path, std::ios::binary);
     ckpt_os << *st;
     *last_t = st->t;
   }
