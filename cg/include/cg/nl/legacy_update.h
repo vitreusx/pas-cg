@@ -8,14 +8,14 @@ public:
   real pad;
 
 public:
-  nitro::const_view<vec3r> r;
+  vect::const_view<vec3r> r;
   box<real> const *simul_box;
   data *nl_data;
   int num_particles;
   real const *max_cutoff, *t;
   bool *invalid;
-  nitro::const_view<int> chain_idx, seq_idx;
-  nitro::const_view<exclusion> all_nat_cont;
+  vect::const_view<int> chain_idx, seq_idx;
+  vect::const_view<exclusion> all_nat_cont;
 
 public:
   void operator()() const;

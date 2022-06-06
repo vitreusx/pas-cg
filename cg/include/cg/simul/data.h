@@ -8,6 +8,7 @@
 #include <cg/heur/ang/heur_angle.h>
 #include <cg/heur/dih/heur_dih.h>
 #include <cg/input/model.h>
+#include <cg/local_rep/pair.h>
 #include <cg/nat_ang/nat_ang.h>
 #include <cg/nat_cont/nat_cont.h>
 #include <cg/nat_dih/nat_dih.h>

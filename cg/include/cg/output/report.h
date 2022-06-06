@@ -7,7 +7,7 @@
 namespace cg::out {
 struct snapshot {
   real t;
-  nitro::vector<vec3r> r;
+  vect::vector<vec3r> r;
   box<real> model_box;
 };
 

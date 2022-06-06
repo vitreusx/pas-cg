@@ -8,9 +8,9 @@ public:
   real poly_coeffs[POLY_DEG + 1][NUM_TYPES];
 
 public:
-  nitro::const_view<vec3r> r;
-  nitro::view<vec3r> F;
-  nitro::const_view<heur_ang> angles;
+  vect::const_view<vec3r> r;
+  vect::view<vec3r> F;
+  vect::const_view<heur_ang> angles;
   real *V;
 
 public:

@@ -5,7 +5,8 @@
 namespace cg::gen {
 struct parameters {
   enum class prog_mode {
-    perform_simulation, check_determinism
+    perform_simulation,
+    check_determinism
   };
 
   struct debug_mode_t {
@@ -15,6 +16,7 @@ struct parameters {
   prog_mode mode;
   quantity total_time, equil_time;
   int seed, num_of_threads, num_of_traj;
+  bool pbc_x, pbc_y, pbc_z;
 
   debug_mode_t debug_mode;
 

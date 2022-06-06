@@ -130,6 +130,8 @@ void thread::fix_nl_async() {
 void thread::eval_forces() {
   dyn.reset();
 
+  if (params.lrep.enabled)
+    eval_lrep_forces.omp_async();
   if (params.chir.enabled)
     eval_chir_forces.omp_async();
   if (params.tether.enabled)
@@ -198,6 +200,14 @@ void thread::post_eval_async() {
       break;
     }
   }
+
+  //#ifdef COMPAT_MODE
+  //#pragma omp master
+  //  {
+  //    if (params.out.enabled)
+  //      make_report();
+  //  };
+  //#endif
 
   ++loop_idx;
 }

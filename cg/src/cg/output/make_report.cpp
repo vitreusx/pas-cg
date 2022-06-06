@@ -41,9 +41,9 @@ void make_report::operator()() const {
   }
 }
 
-real make_report::rmsd(nitro::const_view<vec3r> const &orig_r,
-                       nitro::const_view<vec3r> const &cur_r,
-                       const nitro::const_view<int> &indices) {
+real make_report::rmsd(vect::const_view<vec3r> const &orig_r,
+                       vect::const_view<vec3r> const &cur_r,
+                       const vect::const_view<int> &indices) {
   auto n = indices.size();
   Eigen::MatrixX3d orig_R(n, 3), cur_R(n, 3);
   for (int idx = 0; idx < n; ++idx) {
@@ -76,8 +76,8 @@ real make_report::kinetic_energy() const {
   return K;
 }
 
-real make_report::gyration_radius(const nitro::const_view<vec3r> &r,
-                                  const nitro::const_view<int> &indices) {
+real make_report::gyration_radius(const vect::const_view<vec3r> &r,
+                                  const vect::const_view<int> &indices) {
   auto mean_r = vec3r::Zero();
   for (auto const &idx : indices)
     mean_r += r[idx];
@@ -89,8 +89,8 @@ real make_report::gyration_radius(const nitro::const_view<vec3r> &r,
   return sqrt(dr / (float)indices.size());
 }
 
-real make_report::asphericity(const nitro::const_view<vec3r> &r,
-                              const nitro::const_view<int> &indices) {
+real make_report::asphericity(const vect::const_view<vec3r> &r,
+                              const vect::const_view<int> &indices) {
   Eigen::MatrixX3d positions(indices.size(), 3);
   for (int idx = 0; idx < indices.size(); ++idx)
     positions.row(idx) = convert<double>(r[indices[idx]]).transpose();
@@ -111,7 +111,7 @@ void make_report::add_cur_scalars() const {
   auto &scalars = traj_div.find<ioxx::sl4::table>("scalars");
   auto &row = scalars->append_row();
 
-  nitro::vector<int> all_indices(st->r.size());
+  vect::vector<int> all_indices(st->r.size());
   for (int idx = 0; idx < st->r.size(); ++idx)
     all_indices[idx] = idx;
 
@@ -168,7 +168,7 @@ void make_report::emit_pdb() const {
     auto const &snap = rep->snapshots[snap_idx];
 
     auto chain_scalars_tab = ioxx::table::table();
-    auto chain_indices = nitro::vector<int>();
+    auto chain_indices = vect::vector<int>();
 
     auto xmd_model = st->model;
     for (int idx = 0; idx < (int)xmd_model.residues.size(); ++idx) {
@@ -206,7 +206,7 @@ void make_report::emit_pdb() const {
     model_r.serial = pdb_model.model_serial;
     if (!first_line)
       pdb_of << '\n';
-    pdb_of << model_r.write() << '\n';
+    pdb_of << model_r.write();
     first_line = false;
 
     auto p = ioxx::table::sl4_parser();
@@ -219,7 +219,7 @@ void make_report::emit_pdb() const {
     int row_idx = 0;
     for (auto const &[chain_id, chain] : pdb_model.chains) {
       for (auto const &rem : records::remark::create(1, cols_str))
-        pdb_of << rem.write() << '\n';
+        pdb_of << '\n' << rem.write();
 
       auto const &row = chain_scalars_tab.rows[row_idx];
       ss = {};
@@ -227,14 +227,14 @@ void make_report::emit_pdb() const {
       auto row_str = ss.str();
 
       for (auto const &rem : records::remark::create(1, row_str))
-        pdb_of << rem.write() << '\n';
+        pdb_of << '\n' << rem.write();
 
-      pdb_of << chain;
+      pdb_of << '\n' << chain;
 
       ++row_idx;
     }
 
-    pdb_of << records::endmdl().write() << '\n';
+    pdb_of << '\n' << records::endmdl().write();
   }
 }
 
@@ -404,7 +404,8 @@ void make_report::add_map_data() const {
     row["i3"] = i3;
     row["i4"] = i4;
 
-    auto r1 = st->r[i1], r2 = st->r[i2], r3 = st->r[i3], r4 = st->r[i4];
+    auto r1 = st->r[i1], r2 = st->r[i2], r3 = st->r[i3],
+         r4 = st->r[i4];
     row["phi"] = dihedral_value(r1, r2, r3, r4);
 
     if (dih.phi.has_value())

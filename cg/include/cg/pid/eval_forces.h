@@ -10,22 +10,22 @@ class eval_forces {
 public:
   lambda bb_plus_lam, bb_minus_lam, ss_lam;
   lj bb_plus_lj, bb_minus_lj;
-  nitro::const_view<sink_lj> ss_ljs;
+  vect::const_view<sink_lj> ss_ljs;
   real cutoff;
 
 public:
-  nitro::const_view<vec3r> r;
-  nitro::view<vec3r> F;
+  vect::const_view<vec3r> r;
+  vect::view<vec3r> F;
   box<real> const *simul_box;
-  nitro::vector<bundle> const *bundles;
+  vect::vector<bundle> const *bundles;
   real *V, *total_disp;
-  nitro::const_view<int> prev, next;
+  vect::const_view<int> prev, next;
 
 public:
   template <typename E> void iter(bundle_expr<E> const &bundle) const;
   void operator()();
   void omp_async() const;
 
-  bool is_active(bundle const& bundle) const;
+  bool is_active(bundle const &bundle) const;
 };
 } // namespace cg::pid

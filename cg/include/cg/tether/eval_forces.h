@@ -8,9 +8,9 @@ public:
   real def_length;
 
 public:
-  nitro::const_view<vec3r> r;
-  nitro::view<vec3r> F;
-  nitro::const_view<pair> tethers;
+  vect::const_view<vec3r> r;
+  vect::view<vec3r> F;
+  vect::const_view<pair> tethers;
   real *V;
 
 public:

@@ -84,9 +84,9 @@
 //    contacts_file.path = "qa_contacts.csv";
 //    contacts_file.data.header = {
 //        "i1", "i2", "type", "status", "ref_time[tau]", "saturation"};
-//    for (int idx = 0; idx < contacts->size(); ++idx) {
-//      if (contacts->at(idx).has_item()) {
-//        auto row = qa_contact_row(contacts->at(idx).item(), process_cont);
+//    for (int idx = 0; idx < contacts.size(); ++idx) {
+//      if (contacts[idx].has_item()) {
+//        auto row = qa_contact_row(contacts[idx].item(), process_cont);
 //        contacts_file.data.rows.push_back(row);
 //      }
 //    }
@@ -95,11 +95,11 @@
 //  }
 //
 //  contact_count num_all, num_bb, num_bs, num_ss, num_dyn_ss;
-//  for (int idx = 0; idx < contacts->size(); ++idx) {
-//    if (contacts->at(idx).is_vacant())
+//  for (int idx = 0; idx < contacts.size(); ++idx) {
+//    if (contacts[idx].is_vacant())
 //      continue;
 //
-//    auto cont = contacts->at(idx).item();
+//    auto cont = contacts[idx].item();
 //    auto count_type = chain_idx[cont.i1()] == chain_idx[cont.i2()]
 //                          ? count_type::INTRA
 //                          : count_type::INTER;

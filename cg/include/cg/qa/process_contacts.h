@@ -23,16 +23,16 @@ public:
   real saturation_value(contact const &cont) const;
 
 public:
-  nitro::const_view<vec3r> r;
-  nitro::view<vec3r> F;
+  vect::const_view<vec3r> r;
+  vect::view<vec3r> F;
   box<real> const *simul_box;
-  nitro::set<contact> *contacts;
+  vect::set<contact> *contacts;
   real *V, *t;
-  nitro::view<sync_data> sync;
-  nitro::set<free_pair> *free_pairs;
-  nitro::const_view<int> neigh;
-  nitro::view<bool> part_of_ssbond;
-  nitro::vector<int> *removed;
+  vect::view<sync_data> sync;
+  vect::set<free_pair> *free_pairs;
+  vect::const_view<int> neigh;
+  vect::view<bool> part_of_ssbond;
+  vect::vector<int> *removed;
 
 public:
   void iter(int idx) const;

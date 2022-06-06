@@ -70,8 +70,9 @@ public:
 
   template <typename... Args> explicit comment(Args &&...args) {
     (text += ... += convert<std::string>(args));
-    std::for_each(text.begin(), text.end(),
-                  [](char &c) { c = (char)std::toupper(c); });
+    std::for_each(text.begin(), text.end(), [](char &c) {
+      c = (char)std::toupper(c);
+    });
     text = "#" + text;
   }
 

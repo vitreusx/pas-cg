@@ -77,7 +77,7 @@ void serialize(Archive &ar, data_of<T> &data, unsigned int) {
 
 template <typename T> class vector_wrapper {
 public:
-  explicit vector_wrapper(nitro::vector<T> &v) : v{v} {}
+  explicit vector_wrapper(cg::vect::vector<T> &v) : v{v} {}
 
 private:
   friend class boost::serialization::access;
@@ -99,7 +99,7 @@ private:
 
   BOOST_SERIALIZATION_SPLIT_MEMBER()
 
-  nitro::vector<T> &v;
+  cg::vect::vector<T> &v;
 };
 
 #define NV(ar, T, x)                                                           \
@@ -110,7 +110,7 @@ private:
 
 #define NS(ar, T, x)                                                           \
   {                                                                            \
-    auto wrapper = vector_wrapper<nitro::set_node<T>>(x);                      \
+    auto wrapper = vector_wrapper<cg::vect::set_node<T>>(x);                   \
     ar &wrapper;                                                               \
   }
 

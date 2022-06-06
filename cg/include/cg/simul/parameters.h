@@ -11,6 +11,7 @@
 #include <cg/heur/dih/parameters.h>
 #include <cg/input/parameters.h>
 #include <cg/langevin/parameters.h>
+#include <cg/local_rep/parameters.h>
 #include <cg/nat_ang/parameters.h>
 #include <cg/nat_cont/parameters.h>
 #include <cg/nat_dih/complex/parameters.h>
@@ -50,6 +51,7 @@ struct parameters {
   out::parameters out;
   afm::parameters afm;
   ckpt::parameters ckpt;
+  local_rep::parameters lrep;
 
   void load(ioxx::xyaml::node const &p);
 };

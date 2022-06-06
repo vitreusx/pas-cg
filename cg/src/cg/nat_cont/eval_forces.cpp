@@ -8,8 +8,7 @@ void eval_forces::operator()() const {
   }
 }
 
-template <typename E>
-void eval_forces::iter(nat_cont_expr<E> const &nat_cont) const {
+template <typename E> void eval_forces::iter(nat_cont_expr<E> &nat_cont) const {
   auto i1 = nat_cont.i1(), i2 = nat_cont.i2();
   auto nat_dist = nat_cont.nat_dist();
 

@@ -11,6 +11,26 @@ void contact_limits::link(ioxx::xyaml::proxy &proxy) {
   proxy["side (polar)"] & side_polar;
 }
 
+static bool close(double x, double y) {
+  return abs(x - y) / abs(x) < 1e-5;
+}
+
+static double correct(std::string const &name, double radius) {
+  if (name[0] == 'N')
+    return quantity(1.64, "A");
+  else if (name[0] == 'S')
+    return quantity(1.77, "A");
+  else if (name[0] == 'O' && !close(radius, quantity(1.42, "A")) &&
+           !close(radius, quantity(1.46, "A")))
+    return quantity(1.46, "A");
+  else if (name[0] == 'C' && !close(radius, quantity(1.88, "A")) &&
+           !close(radius, quantity(1.76, "A")) &&
+           !close(radius, quantity(1.61, "A")))
+    return quantity(1.88, "A");
+  else
+    return radius;
+}
+
 void amino_acid_data::load(ioxx::xyaml::node const &node) {
   using namespace ioxx::xyaml;
 
@@ -22,6 +42,7 @@ void amino_acid_data::load(ioxx::xyaml::node const &node) {
     auto &atom_data = def_atoms[name];
     atom_data.name = name;
     atom_data.radius = quantity(entry.second.as<std::string>()).assumed_("A");
+    atom_data.radius = correct(atom_data.name, atom_data.radius);
   }
 
   for (auto const &entry : sub["amino acids"]) {
@@ -38,6 +59,7 @@ void amino_acid_data::load(ioxx::xyaml::node const &node) {
         auto &override = cur_data.overrides[atom_name];
         override.name = atom_name;
         override.radius = quantity(alt_entry.second.Scalar()).assumed_("A");
+        override.radius = correct(override.name, override.radius);
       }
     }
 

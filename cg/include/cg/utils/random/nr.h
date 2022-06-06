@@ -12,7 +12,8 @@ private:
                        ir1 = 12211, ir2 = 3791, ntab = 32,
                        ndiv = 1 + imm1 / ntab;
 
-  static constexpr double eps = 1.2e-7f, rnmx = 1.f - eps, am = 1.f / im1;
+  static constexpr double eps = 1.2e-7f, rnmx = 1.f - eps,
+                          am = 1.f / (float)im1;
 
   int iy = 0, idum = -448, idum2 = 123456789;
   int iv[ntab];
@@ -64,7 +65,7 @@ public:
 
   inline uint64_t operator()() {
     double dval = uniform_();
-    return *reinterpret_cast<uint64_t *>(&dval);
+    return uint64_t(dval * (double)std::numeric_limits<uint64_t>::max());
   }
 
   inline rand_gen spawn() {

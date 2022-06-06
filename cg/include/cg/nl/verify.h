@@ -4,7 +4,7 @@
 namespace cg::nl {
 class verify {
 public:
-  nitro::const_view<vec3r> r;
+  vect::const_view<vec3r> r;
   box<real> const *simul_box;
   bool *invalid, *first_time;
   int num_particles;

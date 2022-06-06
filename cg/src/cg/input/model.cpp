@@ -298,14 +298,14 @@ void model::morph_into_saw_f77(rand_gen &gen,
         for (int j = 0; j < i; ++j) {
           r += R[j];
         }
-        residues[i]->pos = r;
+        chain->residues[i]->pos = r;
       }
 
       bool success = true;
       for (int i = 0; i < n - 3 && success; ++i) {
-        auto r1 = residues[i]->pos;
+        auto r1 = chain->residues[i]->pos;
         for (int j = i + 3; j < n && success; ++j) {
-          auto r2 = residues[j]->pos;
+          auto r2 = chain->residues[j]->pos;
           auto dx = !params.with_pbc ? (r2 - r1) : model_box.wrap(r1, r2);
           if (norm_squared(dx) < min_dist_sq) {
             success = false;
@@ -319,6 +319,15 @@ void model::morph_into_saw_f77(rand_gen &gen,
       if (success)
         break;
     }
+  }
+
+  if (!params.with_pbc) {
+    box = Eigen::AlignedBox3d();
+    for (auto const &res : residues)
+      box.extend(convert<double>(res->pos));
+
+    Vector ext = box.max() - box.min();
+    model_box.set_cell(vec3d(ext));
   }
 }
 

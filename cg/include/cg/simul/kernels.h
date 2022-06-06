@@ -10,6 +10,7 @@
 #include <cg/heur/dih/eval_forces.h>
 #include <cg/langevin/legacy_step.h>
 #include <cg/langevin/step.h>
+#include <cg/local_rep/eval_forces.h>
 #include <cg/nat_ang/eval_forces.h>
 #include <cg/nat_cont/eval_forces.h>
 #include <cg/nat_cont/update_contacts.h>

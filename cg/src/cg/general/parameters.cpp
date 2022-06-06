@@ -23,5 +23,26 @@ void parameters::load(ioxx::xyaml::node const &p) {
   dp["disable all forces"] >> debug_mode.disable_all;
   debug_mode.fp_exceptions &= debug_mode.enabled;
   debug_mode.disable_all &= debug_mode.enabled;
+
+  if (auto pbc = p["periodic boundary conditions"]; pbc) {
+    if (pbc.IsScalar()) {
+      auto val = pbc.as<std::string>();
+      if (val == "none") {
+        pbc_x = pbc_y = pbc_z = false;
+      } else if (val == "all") {
+        pbc_x = pbc_y = pbc_z = true;
+      }
+    } else if (pbc.IsSequence()) {
+      for (auto const &item : pbc) {
+        auto val = pbc.child(item).as<std::string>();
+        if (val == "x")
+          pbc_x = true;
+        else if (val == "y")
+          pbc_y = true;
+        else if (val == "z")
+          pbc_z = true;
+      }
+    }
+  }
 }
 } // namespace cg::gen

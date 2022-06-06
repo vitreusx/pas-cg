@@ -109,7 +109,8 @@ void pdb_file::load(std::istream &is, pdb_load_options const &load_opts) {
 
       links.push_back(_link);
     } else if (auto cryst1_r = record_r.cast<records::cryst1>(); cryst1_r) {
-      cryst1 = cryst1_r->cell * quantity("A");
+      if (!load_opts.ignore_cryst1)
+        cryst1 = cryst1_r->cell * quantity("A");
     } else if (auto end_r = record_r.cast<records::end>(); end_r) {
       return;
     }
@@ -446,6 +447,15 @@ input::model pdb_file::to_model() const {
   return xmd_model;
 }
 
+void pdb_file::model::assign_atom_radii(const amino_acid_data &data) {
+  for (auto &[chain_id, chain] : chains) {
+    for (auto &[atom_serial, atom] : chain.atoms) {
+      auto res = atom.parent_res->type;
+      atom._radius = data.for_atom(res, atom.name).radius;
+    }
+  }
+}
+
 void pdb_file::add_contacts(amino_acid_data const &data, bool all_atoms) {
   std::set<std::pair<atom *, atom *>> linked_atoms;
 
@@ -458,6 +468,7 @@ void pdb_file::add_contacts(amino_acid_data const &data, bool all_atoms) {
   }
 
   auto &m = primary_model();
+  m.assign_atom_radii(data);
 
   double alpha = pow(26.0 / 7.0, 1.0 / 6.0);
   for (auto &[chain1_id, chain1] : m.chains) {
@@ -466,8 +477,7 @@ void pdb_file::add_contacts(amino_acid_data const &data, bool all_atoms) {
         continue;
 
       auto res1 = atom1.parent_res->type;
-      auto radius1 = all_atoms ? data.for_atom(res1, atom1.name).radius
-                               : data[res1].radius;
+      auto radius1 = all_atoms ? atom1._radius : data[res1].radius;
       auto seq1 = (int)atom1.parent_res->seq_num;
 
       for (auto &[chain2_id, chain2] : m.chains) {
@@ -478,8 +488,7 @@ void pdb_file::add_contacts(amino_acid_data const &data, bool all_atoms) {
             continue;
 
           auto res2 = atom2.parent_res->type;
-          auto radius2 = all_atoms ? data.for_atom(res2, atom2.name).radius
-                                   : data[res2].radius;
+          auto radius2 = all_atoms ? atom2._radius : data[res2].radius;
           auto seq2 = (int)atom2.parent_res->seq_num;
 
           if (abs(seq1 - seq2) < 3)
@@ -600,6 +609,9 @@ void pdb_load_options::load(const ioxx::xyaml::node &node) {
       aliases[alias] = value;
     }
   }
+
+  if (node["ignore CRYST1"])
+    node["ignore CRYST1"] >> ignore_cryst1;
 }
 
 void pdb_file::load(ioxx::xyaml::node const &node) {
@@ -609,8 +621,7 @@ void pdb_file::load(ioxx::xyaml::node const &node) {
   pdb_ss << node["source"].as<file>().fetch();
 
   pdb_load_options load_opts;
-  if (node["load options"])
-    node["load options"] >> load_opts;
+  node >> load_opts;
 
   load(pdb_ss, load_opts);
 }

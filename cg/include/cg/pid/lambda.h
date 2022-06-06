@@ -3,12 +3,17 @@
 #include <cg/vect/vect.h>
 
 namespace cg::pid {
-enum lambda_version { COSINE, ALGEBRAIC };
+enum lambda_version {
+  COSINE,
+  ALGEBRAIC
+};
 
-template <typename E> struct lambda_expr : public nitro::ind_expr<E> {
-  EXPR_BODY(psi_0, alpha, version)
+template <typename E> struct lambda_expr {
+  EXPR(psi_0, alpha, version)
 
-  bool supp(real psi) const { return abs(alpha() * (psi - psi_0())) < M_PI; }
+  bool supp(real psi) const {
+    return abs(alpha() * (psi - psi_0())) < M_PI;
+  }
 
   inline std::tuple<real, real> operator()(real psi) const {
     switch (version()) {
@@ -33,30 +38,11 @@ template <typename E> struct lambda_expr : public nitro::ind_expr<E> {
   }
 };
 
-template <typename E> struct lambda_auto_expr : public lambda_expr<E> {
-  AUTO_EXPR_BODY(psi_0, alpha, version)
-};
-
-using lambda_base = nitro::tuple_wrapper<int, int, lambda_version>;
-
-class lambda : public lambda_auto_expr<lambda>, public lambda_base {
+class lambda : public lambda_expr<lambda> {
 public:
-  using Base = lambda_base;
-  using Base::Base;
-  using Base::get;
+  INST(lambda, FIELD(real, psi_0), FIELD(real, alpha),
+       FIELD(lambda_version, version))
 
-  lambda() : Base(0, 0, COSINE){};
+  lambda() : lambda(0, 0, COSINE){};
 };
 } // namespace cg::pid
-
-namespace nitro {
-template <> struct is_indexed_impl<cg::pid::lambda> : public std::true_type {};
-
-template <typename E> struct expr_impl<E, cg::pid::lambda> {
-  using type = cg::pid::lambda_expr<E>;
-};
-
-template <typename E> struct auto_expr_impl<E, cg::pid::lambda> {
-  using type = cg::pid::lambda_auto_expr<E>;
-};
-}

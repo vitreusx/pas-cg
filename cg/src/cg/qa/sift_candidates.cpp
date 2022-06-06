@@ -8,7 +8,7 @@ void sift_candidates::operator()() const {
 }
 
 void sift_candidates::iter(int idx) const {
-  auto node = free_pairs->at(idx);
+  auto &node = free_pairs->at(idx);
 
   if (node.is_vacant())
     return;

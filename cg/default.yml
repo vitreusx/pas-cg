@@ -2,27 +2,28 @@ general:
   total time: 3e6 tau
   equil time: 0 tau
   seed: 42
-  num of threads: 4
+  num of threads: 1
   mode: perform simulation
   debug mode:
     enabled: false
     floating point exceptions: false
     disable all forces: false
   num of trajectories: 1
+  periodic boundary conditions: none
 
 input:
   pdb file:
-    load options:
-      skip unknown: true
-      aliases: { HSD: HIS }
+    ignore CRYST1: false
+    skip unknown: true
+    aliases: { HSD: HIS }
   morph into SAW:
     perform: true
     bond distance: 3.8 A
     residue density: 1e-4 atom/A**3
-    intersection at: 0.0 A
+    intersection at: 4.56 A
     num of retries: 9001
-    sample from box: false
-    with PBC: false
+    sample initial positions from the box: true
+    PBC also during SAW: false
   morph into line:
     perform: false
     bond distance: 3.8 A
@@ -170,6 +171,7 @@ amino acid data:
     LEU:
       mass: 113.084064015 amu
       alt atom data:
+        CD1: 1.88 A
         CD2: 1.88 A
       radius: 4.6 A
       polarization: hydrophobic
@@ -272,12 +274,13 @@ amino acid data:
 langevin:
   enabled: true
   gamma factor: 2.0 1/tau
-  temperature: 0.38 eps/kB
+  temperature: 0.35 eps/kB
   dt: 5e-3 tau
   type: legacy
 
 neighbor list:
   algorithm: legacy
+  cutoff: 18.0 A
   pad: 10.0 A
 
 heurestic angles:
@@ -450,3 +453,8 @@ checkpoints:
   enabled: true
   save every: 1e2 tau
   path format: "ckpt/%.3f"
+
+local repulsive:
+  enabled: true
+  exclusion radius: 4.0 A
+  depth: 1.0 eps
