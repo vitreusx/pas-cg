@@ -73,6 +73,9 @@ public:
   nl::verify nl_verify;
   void setup_nl();
 
+  local_rep::eval_forces eval_lrep_forces;
+  void setup_local_rep();
+
   chir::eval_forces eval_chir_forces;
   void setup_chir();
 

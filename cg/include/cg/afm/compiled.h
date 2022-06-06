@@ -6,8 +6,8 @@
 namespace cg::afm {
 class compiled_tips {
 public:
-  nitro::vector<force::tip> force;
-  nitro::vector<vel::tip> vel;
-  nitro::vector<int> pulled_chains;
+  vect::vector<force::tip> force;
+  vect::vector<vel::tip> vel;
+  vect::vector<int> pulled_chains;
 };
 } // namespace cg::afm

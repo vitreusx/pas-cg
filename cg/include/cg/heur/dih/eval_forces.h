@@ -15,9 +15,9 @@ public:
   coeffs_t coeffs;
 
 public:
-  nitro::const_view<vec3r> r;
-  nitro::view<vec3r> F;
-  nitro::const_view<heur_dih> dihedrals;
+  vect::const_view<vec3r> r;
+  vect::view<vec3r> F;
+  vect::const_view<heur_dih> dihedrals;
   real *V;
 
 public:

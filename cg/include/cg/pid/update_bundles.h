@@ -11,12 +11,12 @@ public:
   bool include4;
 
 public:
-  nitro::const_view<vec3r> r;
-  nitro::const_view<int> prev, next, chain_idx, seq_idx;
-  nitro::const_view<amino_acid> atype;
+  vect::const_view<vec3r> r;
+  vect::const_view<int> prev, next, chain_idx, seq_idx;
+  vect::const_view<amino_acid> atype;
   box<real> const *simul_box;
   nl::data const *nl;
-  nitro::vector<bundle> *bundles;
+  vect::vector<bundle> *bundles;
 
 public:
   void operator()() const;

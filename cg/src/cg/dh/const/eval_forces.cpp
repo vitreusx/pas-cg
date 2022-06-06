@@ -1,4 +1,6 @@
 #include <cg/dh/const/eval_forces.h>
+#include <iostream>
+
 namespace cg::const_dh {
 
 void eval_forces::set_V_factor(real factor) {

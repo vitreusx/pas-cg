@@ -13,7 +13,7 @@
 //  return (real)1.5 * pow(lambda.x(), 2.0) - (real)0.5 * norm_squared(lambda);
 //}
 //
-// gyration_stuff add_stats::gyration(const nitro::vector<int> &indices) const {
+// gyration_stuff add_stats::gyration(const vect::vector<int> &indices) const {
 //  Eigen::MatrixX3d positions(indices.size(), 3);
 //  for (int idx = 0; idx < indices.size(); ++idx)
 //    positions.row(idx) = convert<double>(r[indices[idx]]).transpose();
@@ -30,7 +30,7 @@
 //  return data;
 //}
 //
-// real add_stats::rmsd(const nitro::vector<int> &indices) const {
+// real add_stats::rmsd(const vect::vector<int> &indices) const {
 //  auto n = indices.size();
 //  Eigen::MatrixX3d orig_R(n, 3), cur_R(n, 3);
 //  for (int idx = 0; idx < n; ++idx) {
@@ -60,12 +60,13 @@
 //
 //  real K = 0;
 //  for (int idx = 0; idx < v.size(); ++idx)
-//    K += (real)0.5 * mass[(uint8_t)atype[idx]] * ipow<2>(norm(v[idx]));
+//    K += (real)0.5 * mass[(uint8_t)atype[idx]] *
+//    ipow<2>(norm(v[idx]));
 //
 //  report.add_step_scalar("K", stats_node["K"], K);
 //  report.add_step_scalar("E", stats_node["E"], K + *V);
 //
-//  auto all_indices = nitro::vector<int>(r.size());
+//  auto all_indices = vect::vector<int>(r.size());
 //  for (int idx = 0; idx < r.size(); ++idx)
 //    all_indices[idx] = idx;
 //
@@ -89,7 +90,7 @@
 //      row["last"] = last;
 //      row["L"] = quantity(norm(r[last] - r[first])).in("A");
 //
-//      nitro::vector<int> chain_indices;
+//      vect::vector<int> chain_indices;
 //      for (int res_idx = 0; res_idx < r.size(); ++res_idx)
 //        if (chain_idx[res_idx] == idx)
 //          chain_indices.push_back(res_idx);

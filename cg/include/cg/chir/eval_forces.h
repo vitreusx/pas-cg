@@ -8,9 +8,9 @@ public:
   real e_chi;
 
 public:
-  nitro::const_view<vec3r> r;
-  nitro::view<vec3r> F;
-  nitro::const_view<chiral_quad> quads;
+  vect::const_view<vec3r> r;
+  vect::view<vec3r> F;
+  vect::const_view<chiral_quad> quads;
   real *V;
 
 public:

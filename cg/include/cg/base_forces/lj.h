@@ -4,8 +4,8 @@
 #include <cg/vect/vect.h>
 
 namespace cg {
-template <typename E> struct lj_expr : public nitro::ind_expr<E> {
-  EXPR_BODY(depth, r_min)
+template <typename E> struct lj_expr {
+  EXPR(depth, r_min)
 
   decltype(auto) operator()(real r_inv) const {
     auto s = r_inv * r_min(), s6 = ipow<6>(s), s12 = s6 * s6;
@@ -16,35 +16,19 @@ template <typename E> struct lj_expr : public nitro::ind_expr<E> {
     return std::make_tuple(V, dV_dr);
   }
 
-  decltype(auto) cutoff() const { return (real)2.0 * r_min(); }
+  decltype(auto) cutoff() const {
+    return (real)2.0 * r_min();
+  }
 };
 
-template <typename E> struct lj_auto_expr : public lj_expr<E> {
-  AUTO_EXPR_BODY(depth, r_min)
-};
-
-using lj_base = nitro::tuple_wrapper<real, real>;
-
-class lj : public lj_auto_expr<lj>, public lj_base {
+class lj : public lj_expr<lj> {
 public:
-  using Base = lj_base;
-  using Base::Base;
-  using Base::get;
+  INST(lj, FIELD(real, depth), FIELD(real, r_min))
 
   lj() : lj((real)0.0, (real)0.0){};
 
-  static inline real compute_cutoff(real r_min) { return (real)2.0 * r_min; }
+  static inline real compute_cutoff(real r_min) {
+    return (real)2.0 * r_min;
+  }
 };
 } // namespace cg
-
-namespace nitro {
-template <> struct is_indexed_impl<cg::lj> : public std::true_type {};
-
-template <typename E> struct expr_impl<E, cg::lj> {
-  using type = cg::lj_expr<E>;
-};
-
-template <typename E> struct auto_expr_impl<E, cg::lj> {
-  using type = cg::lj_auto_expr<E>;
-};
-}

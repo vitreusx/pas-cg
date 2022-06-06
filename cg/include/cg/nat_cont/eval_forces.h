@@ -10,18 +10,18 @@ public:
   std::optional<disulfide_force> disulfide;
 
 public:
-  nitro::const_view<vec3r> r;
-  nitro::view<vec3r> F;
+  vect::const_view<vec3r> r;
+  vect::view<vec3r> F;
   box<real> const *simul_box;
-  nitro::vector<nat_cont> *contacts;
-  nitro::view<nat_cont> all_contacts;
+  vect::vector<nat_cont> *contacts;
+  vect::view<nat_cont> all_contacts;
   real *V, *t;
 
 public:
-  template <typename E> void iter(nat_cont_expr<E> const &nat_cont) const;
+  template <typename E> void iter(nat_cont_expr<E> &nat_cont) const;
   void operator()() const;
   void omp_async() const;
 
-  bool is_active(nat_cont const& nc) const;
+  bool is_active(nat_cont const &nc) const;
 };
 } // namespace cg::nat_cont

@@ -2,7 +2,9 @@
 #include <cg/simul/thread.h>
 namespace cg::simul {
 
-dynamics::dynamics(int num_residues) { F = nitro::vector<vec3r>(num_residues); }
+dynamics::dynamics(int num_residues) {
+  F = vect::vector<vec3r>(num_residues);
+}
 
 void dynamics::reset() {
   V = 0.0;

@@ -10,13 +10,13 @@ public:
   bool disulfide_special_criteria;
 
 public:
-  nitro::vector<candidate> *candidates;
-  nitro::view<sync_data> sync;
+  vect::vector<candidate> *candidates;
+  vect::view<sync_data> sync;
   real const *t;
-  nitro::set<contact> *contacts;
-  nitro::set<free_pair> *free_pairs;
-  nitro::view<bool> part_of_ssbond;
-  nitro::vector<int> *removed;
+  vect::set<contact> *contacts;
+  vect::set<free_pair> *free_pairs;
+  vect::view<bool> part_of_ssbond;
+  vect::vector<int> *removed;
   int *num_contacts;
 
 public:

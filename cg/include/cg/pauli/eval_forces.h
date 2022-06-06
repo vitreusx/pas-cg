@@ -8,10 +8,10 @@ public:
   real depth, r_excl;
 
 public:
-  nitro::const_view<vec3r> r;
-  nitro::view<vec3r> F;
+  vect::const_view<vec3r> r;
+  vect::view<vec3r> F;
   box<real> const *simul_box;
-  nitro::vector<pair> const *pairs;
+  vect::vector<pair> const *pairs;
   real *V;
 
 public:

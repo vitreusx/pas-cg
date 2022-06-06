@@ -6,9 +6,9 @@
 namespace cg {
 class compiled_aa_data {
 public:
-  nitro::vector<real> mass, charge;
-  nitro::vector<polarization_type> ptype;
-  nitro::vector<sync_data> base_sync;
+  vect::vector<real> mass, charge;
+  vect::vector<polarization_type> ptype;
+  vect::vector<sync_data> base_sync;
 
 public:
   compiled_aa_data() = default;

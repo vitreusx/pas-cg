@@ -1,5 +1,6 @@
 #include <cg/base_forces/lj.h>
 #include <cg/nat_cont/update_contacts.h>
+#include <iostream>
 
 namespace cg::nat_cont {
 
@@ -15,7 +16,7 @@ void update_contacts::operator()() const {
 
     auto r1 = r[idx1], r2 = r[idx2];
     auto cur_dist = norm(simul_box->wrap(r1, r2));
-    if (cur_dist < cutoff + nl->orig_pad) {
+    if (nl->in_range(cur_dist, cutoff)) {
       contacts->push_back(nat_cont);
     }
   }

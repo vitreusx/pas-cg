@@ -5,9 +5,9 @@ namespace cg::snd {
 class eval_forces {
 public:
   real CDH;
-  nitro::const_view<vec3r> r;
-  nitro::view<vec3r> F;
-  nitro::const_view<nat_dih> dihedrals;
+  vect::const_view<vec3r> r;
+  vect::view<vec3r> F;
+  vect::const_view<nat_dih> dihedrals;
   real *V;
 
 public:

@@ -28,6 +28,7 @@ void parameters::load(ioxx::xyaml::node const &n) {
   n["progress bar"] >> pbar;
   n["output"] >> out;
   n["checkpoints"] >> ckpt;
+  n["local repulsive"] >> lrep;
 
   using prog_mode = gen::parameters::prog_mode;
   if (gen.mode == prog_mode::check_determinism) {

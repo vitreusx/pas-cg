@@ -11,7 +11,7 @@
 //
 //    for (int idx = 0; idx < (int)cur_model.residues.size(); ++idx) {
 //      auto *ref_res = ref_model->residues[idx].get();
-//      auto res_idx = res_map->at(ref_res);
+//      auto res_idx = res_map[ref_res];
 //      cur_model.residues[idx]->pos = r[res_idx];
 //    }
 //

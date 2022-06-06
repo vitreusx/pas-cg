@@ -5,10 +5,10 @@
 namespace cg::qa {
 class prepare_nh {
 public:
-  nitro::const_view<vec3r> r;
-  nitro::view<vec3r> n, h;
+  vect::const_view<vec3r> r;
+  vect::view<vec3r> n, h;
   box<real> const *simul_box;
-  nitro::const_view<int> prev, next;
+  vect::const_view<int> prev, next;
   int num_particles;
 
 public:

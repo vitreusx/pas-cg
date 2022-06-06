@@ -73,8 +73,8 @@
 //    tether_file.data.header = {"i1", "i2", "dist[A]", "nat_dist[A]"};
 //    for (auto const &tether : model->tethers) {
 //      tether_row row;
-//      row.i1 = res_map->at(tether.res1);
-//      row.i2 = res_map->at(tether.res2);
+//      row.i1 = res_map[tether.res1];
+//      row.i2 = res_map[tether.res2];
 //      row.dist = tether_value(r[row.i1], r[row.i2]);
 //      row.nat_dist = tether.length;
 //      tether_file.data.rows.push_back(row);
@@ -86,9 +86,9 @@
 //    angle_file.data.header = {"i1", "i2", "i3", "theta[rad]",
 //    "nat_theta[rad]"}; for (auto const &angle : model->angles) {
 //      angle_row row;
-//      row.i1 = res_map->at(angle.res1);
-//      row.i2 = res_map->at(angle.res2);
-//      row.i3 = res_map->at(angle.res3);
+//      row.i1 = res_map[angle.res1];
+//      row.i2 = res_map[angle.res2];
+//      row.i3 = res_map[angle.res3];
 //      row.theta = angle_value(r[row.i1], r[row.i2], r[row.i3]);
 //      row.nat_theta = angle.theta;
 //      angle_file.data.rows.push_back(row);
@@ -100,10 +100,10 @@
 //    dih_file.data.header = {"i1", "i2", "i3", "i4", "phi[rad]",
 //    "nat_phi[rad]"}; for (auto const &dih : model->dihedrals) {
 //      dihedral_row row;
-//      row.i1 = res_map->at(dih.res1);
-//      row.i2 = res_map->at(dih.res2);
-//      row.i3 = res_map->at(dih.res3);
-//      row.i4 = res_map->at(dih.res4);
+//      row.i1 = res_map[dih.res1];
+//      row.i2 = res_map[dih.res2];
+//      row.i3 = res_map[dih.res3];
+//      row.i4 = res_map[dih.res4];
 //      row.phi = dihedral_value(r[row.i1], r[row.i2], r[row.i3], r[row.i4]);
 //      row.nat_phi = dih.phi;
 //      dih_file.data.rows.push_back(row);

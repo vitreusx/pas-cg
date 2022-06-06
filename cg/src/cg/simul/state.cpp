@@ -17,8 +17,8 @@ static void allclose(vec3r u, vec3r v) {
   allclose(u.z(), v.z());
 }
 
-static void allclose(nitro::vector<vec3r> const &u,
-                     nitro::vector<vec3r> const &v) {
+static void allclose(vect::vector<vec3r> const &u,
+                     vect::vector<vec3r> const &v) {
   if (u.size() != v.size())
     throw;
 
@@ -40,6 +40,7 @@ void state::simul_setup() {
   traj_idx = 0;
 
   if (params.gen.debug_mode.disable_all) {
+    params.lrep.enabled = false;
     params.chir.enabled = false;
     params.tether.enabled = false;
     params.nat_ang.enabled = false;
@@ -91,6 +92,7 @@ void state::traj_setup() {
   setup_langevin();
   setup_pbar();
   setup_nl();
+  setup_local_rep();
   setup_chir();
   setup_tether();
   setup_nat_ang();
@@ -114,6 +116,19 @@ void state::finish_trajectory() {
 
 void state::morph_model() {
   model = orig_model;
+  std::sort(
+      model.contacts.begin(), model.contacts.end(),
+      [](auto const &x, auto const &y) -> auto {
+        auto p1 = std::make_pair(x.res1->seq_idx, x.res2->seq_idx);
+        if (p1.first >= p1.second)
+          std::swap(p1.first, p1.second);
+
+        auto p2 = std::make_pair(y.res1->seq_idx, y.res2->seq_idx);
+        if (p2.first >= p2.second)
+          std::swap(p2.first, p2.second);
+
+        return p1 < p2;
+      });
 
   if (params.input.morph_into_saw.has_value()) {
     auto &saw_p = params.input.morph_into_saw.value();
@@ -131,7 +146,7 @@ void state::compile_model() {
   for (auto const &res : model.residues)
     res_map[res.get()] = res_idx++;
 
-  r = nitro::vector<vec3r>(num_res);
+  r = vect::vector<vec3r>(num_res);
   for (auto const &res : model.residues)
     r[res_map.at(res.get())] = res->pos;
 
@@ -140,11 +155,11 @@ void state::compile_model() {
   for (auto const &res : orig_model.residues)
     orig_res_map[res.get()] = res_idx++;
 
-  orig_r = nitro::vector<vec3r>(num_res);
+  orig_r = vect::vector<vec3r>(num_res);
   for (auto const &res : orig_model.residues)
     orig_r[orig_res_map.at(res.get())] = res->pos;
 
-  atype = nitro::vector<amino_acid>(num_res);
+  atype = vect::vector<amino_acid>(num_res);
   for (auto const &res : model.residues)
     atype[res_map.at(res.get())] = res->type;
 
@@ -152,8 +167,14 @@ void state::compile_model() {
 
   box.cell = model.model_box.cell;
   box.cell_inv = model.model_box.cell_inv;
+  if (params.gen.pbc_x)
+    box.cell.x() = box.cell_inv.x() = 0;
+  if (params.gen.pbc_y)
+    box.cell.y() = box.cell_inv.y() = 0;
+  if (params.gen.pbc_z)
+    box.cell.z() = box.cell_inv.z() = 0;
 
-  prev = next = chain_idx = seq_idx = nitro::vector<int>(num_res, -1);
+  prev = next = chain_idx = seq_idx = vect::vector<int>(num_res, -1);
   for (auto const &res : model.residues) {
     if (res->seq_idx > 0) {
       auto prev_ptr = res->parent->residues[res->seq_idx - 1];
@@ -170,7 +191,7 @@ void state::compile_model() {
     seq_idx[res_map.at(res.get())] = res->seq_idx;
   }
 
-  chain_first = chain_last = nitro::vector<int>((int)model.chains.size());
+  chain_first = chain_last = vect::vector<int>((int)model.chains.size());
   for (auto const &chain : model.chains) {
     chain_first[chain->chain_idx] = res_map.at(chain->residues.front());
     chain_last[chain->chain_idx] = res_map.at(chain->residues.back());
@@ -190,17 +211,17 @@ void state::setup_output() {
 void state::setup_langevin() {
   auto &mass = comp_aa_data.mass;
 
-  mass_inv = nitro::vector<real>(mass.size());
+  mass_inv = vect::vector<real>(mass.size());
   for (int aa_idx = 0; aa_idx < mass_inv.size(); ++aa_idx)
     mass_inv[aa_idx] = 1.0 / mass[aa_idx];
 
-  mass_rsqrt = nitro::vector<real>(mass.size());
+  mass_rsqrt = vect::vector<real>(mass.size());
   for (int aa_idx = 0; aa_idx < mass_rsqrt.size(); ++aa_idx)
     mass_rsqrt[aa_idx] = sqrt(mass_inv[aa_idx]);
 
-  v = nitro::vector<vec3r>(num_res, vec3r::Zero());
+  v = vect::vector<vec3r>(num_res, vec3r::Zero());
 
-  y0 = y1 = y2 = y3 = y4 = y5 = nitro::vector<vec3sr>(num_res);
+  y0 = y1 = y2 = y3 = y4 = y5 = vect::vector<vec3sr>(num_res);
   for (int idx = 0; idx < num_res; ++idx)
     y0[idx] = r[idx];
 
@@ -217,6 +238,35 @@ void state::setup_langevin() {
     auto w = (real)traj_idx / (real)(params.gen.num_of_traj - 1);
     temperature = temp_start * w + temp_end * ((real)1.0 - w);
   }
+
+  {
+    vec3sr sum_vel;
+    for (int idx = 0; idx < num_res; ++idx) {
+      auto xx = 2.0 * (gen.uniform<real>() - 0.5);
+      auto yy = 2.0 * (gen.uniform<real>() - 0.5);
+      auto zz = 2.0 * (gen.uniform<real>() - 0.5);
+      auto xyz = 1.0 / sqrt(xx * xx + yy * yy + zz * zz);
+
+      y1[idx] = vec3sr(xx, yy, zz) * xyz;
+      sum_vel += y1[idx];
+    }
+
+    auto x = 0.0;
+    for (int idx = 0; idx < num_res; ++idx) {
+      y1[idx] -= sum_vel / num_res;
+      //      x += norm_squared(y1[idx]);
+      auto &v = y1[idx];
+      x = x + v.x() * v.x() + v.y() * v.y() + v.z() * v.z();
+    }
+
+    auto dt = params.lang.dt;
+    auto delsq = dt * dt;
+    auto aheat = delsq * 3.0 * num_res * temperature;
+    auto heat = sqrt(aheat / x);
+    for (int idx = 0; idx < num_res; ++idx) {
+      y1[idx] *= heat;
+    }
+  }
 }
 
 void state::setup_pbar() {
@@ -230,16 +280,34 @@ void state::setup_nl() {
   nl_required = false;
   verify_first_time = true;
   total_disp = 0.0;
-  max_cutoff = 0.0;
   nl = nl::data();
-  nl.orig_r = nitro::vector<vec3r>(num_res);
+  nl.orig_r = vect::vector<vec3r>(num_res);
+
+  max_cutoff = 0.0;
+  if (params.nl.cutoff.has_value()) {
+    fixed_cutoff = params.nl.cutoff.value();
+    max_cutoff_ptr = &fixed_cutoff;
+    nl.fixed_cutoff = fixed_cutoff;
+  } else {
+    max_cutoff_ptr = &max_cutoff;
+  }
 
   switch (params.nl.algorithm) {
   case nl::parameters::LEGACY:
     break;
   case nl::parameters::CELL:
-    res_cell_idx = reordered_idx = nitro::vector<int>(num_res);
+    res_cell_idx = reordered_idx = vect::vector<int>(num_res);
     break;
+  }
+}
+
+void state::setup_local_rep() {
+  if (params.lrep.enabled) {
+    local_rep_pairs = {};
+    for (auto const &triple : model.angles) {
+      auto i1 = res_map[triple.res1], i3 = res_map[triple.res3];
+      local_rep_pairs.emplace_back(i1, i3);
+    }
   }
 }
 
@@ -388,21 +456,21 @@ void state::setup_dh() {
 
 void state::setup_qa() {
   if (params.qa.enabled) {
-    sync_values = nitro::vector<sync_data>(num_res);
+    sync_values = vect::vector<sync_data>(num_res);
     for (int res_idx = 0; res_idx < num_res; ++res_idx) {
       auto lim = comp_aa_data.base_sync[(uint8_t)atype[res_idx]];
       sync_values[res_idx] = sync_data(
           lim.back(), lim.side_all(), lim.side_polar(), lim.side_hydrophobic());
     }
 
-    n = h = nitro::vector<vec3r>(num_res);
+    n = h = vect::vector<vec3r>(num_res);
     num_qa_contacts = 0;
 
     if (params.qa.disulfide.has_value()) {
-      neigh_count = nitro::vector<int>(num_res, 0);
-      part_of_ssbond = nitro::vector<bool>(num_res, false);
+      neigh_count = vect::vector<int>(num_res, 0);
+      part_of_ssbond = vect::vector<bool>(num_res, false);
 
-      cys_indices = nitro::vector<int>(num_res);
+      cys_indices = vect::vector<int>(num_res);
       for (int idx = 0; idx < num_res; ++idx) {
         if (atype[idx] == amino_acid(aa_code::CYS))
           cys_indices.push_back(idx);
@@ -416,7 +484,7 @@ void state::setup_qa() {
 void state::setup_pid() {
   if (params.pid.enabled) {
     ss_ljs =
-        nitro::vector<sink_lj>(amino_acid::NUM_TYPES * amino_acid::NUM_TYPES);
+        vect::vector<sink_lj>(amino_acid::NUM_TYPES * amino_acid::NUM_TYPES);
     for (auto const &aa1 : amino_acid::all()) {
       auto idx1 = (uint16_t)(uint8_t)aa1;
       for (auto const &aa2 : amino_acid::all()) {

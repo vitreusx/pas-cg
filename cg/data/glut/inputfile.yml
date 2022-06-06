@@ -1,14 +1,12 @@
-#general:
-#  debug mode:
-#    enabled: true
-#    determinism: true
 general:
-  num of threads: 4
+  periodic boundary conditions: all
 
 input:
   seq file:
     source:
       (at path): glut.yml
+  morph into SAW:
+    sample initial positions from the box: true
 
 output:
   file prefix: glut

@@ -15,6 +15,6 @@ public:
   }
 
 private:
-  nitro::vector<sink_lj> variants;
+  vect::vector<sink_lj> variants;
 };
 } // namespace cg::qa

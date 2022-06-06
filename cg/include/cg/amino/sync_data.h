@@ -2,8 +2,8 @@
 #include <cg/types/amp.h>
 
 namespace cg {
-template <typename E> struct sync_data_expr : public nitro::ind_expr<E> {
-  EXPR_BODY(back, side_all, side_polar, side_hydrophobic)
+template <typename E> struct sync_data_expr {
+  EXPR(back, side_all, side_polar, side_hydrophobic)
 
   template <typename F>
   inline auto &operator+=(sync_data_expr<F> const &other) {
@@ -34,11 +34,17 @@ class sync_sum_expr : public sync_data_expr<sync_sum_expr<E1, E2>> {
 public:
   sync_sum_expr(E1 const &e1, E2 const &e2) : e1{e1}, e2{e2} {};
 
-  int8_t back() const { return e1.back() + e2.back(); }
+  int8_t back() const {
+    return e1.back() + e2.back();
+  }
 
-  int8_t side_all() const { return e1.side_all() + e2.side_all(); }
+  int8_t side_all() const {
+    return e1.side_all() + e2.side_all();
+  }
 
-  int8_t side_polar() const { return e1.side_polar() + e2.side_polar(); }
+  int8_t side_polar() const {
+    return e1.side_polar() + e2.side_polar();
+  }
 
   int8_t side_hydrophobic() const {
     return e1.side_hydrophobic() + e2.side_hydrophobic();
@@ -61,11 +67,17 @@ class sync_diff_expr : public sync_data_expr<sync_diff_expr<E1, E2>> {
 public:
   sync_diff_expr(E1 const &e1, E2 const &e2) : e1{e1}, e2{e2} {};
 
-  int8_t back() const { return e1.back() - e2.back(); }
+  int8_t back() const {
+    return e1.back() - e2.back();
+  }
 
-  int8_t side_all() const { return e1.side_all() - e2.side_all(); }
+  int8_t side_all() const {
+    return e1.side_all() - e2.side_all();
+  }
 
-  int8_t side_polar() const { return e1.side_polar() - e2.side_polar(); }
+  int8_t side_polar() const {
+    return e1.side_polar() - e2.side_polar();
+  }
 
   int8_t side_hydrophobic() const {
     return e1.side_hydrophobic() - e2.side_hydrophobic();
@@ -83,30 +95,11 @@ inline auto operator-(sync_data_expr<E1> const &e1,
                                 static_cast<E2 const &>(e2));
 }
 
-template <typename E> struct sync_data_auto_expr : public sync_data_expr<E> {
-  AUTO_EXPR_BODY(back, side_all, side_polar, side_hydrophobic)
-};
-
-using sync_data_base = nitro::tuple_wrapper<int8_t, int8_t, int8_t, int8_t>;
-
-class sync_data : public sync_data_auto_expr<sync_data>, public sync_data_base {
+class sync_data : public sync_data_expr<sync_data> {
 public:
-  using Base = sync_data_base;
-  using Base::Base;
-  using Base::get;
+  INST(sync_data, FIELD(int8_t, back), FIELD(int8_t, side_all),
+       FIELD(int8_t, side_polar), FIELD(int8_t, side_hydrophobic))
 
-  sync_data() : Base(0, 0, 0, 0){};
+  sync_data() : sync_data((int8_t)0, (int8_t)0, (int8_t)0, (int8_t)0){};
 };
 } // namespace cg
-
-namespace nitro {
-template <> struct is_indexed_impl<cg::sync_data> : public std::true_type {};
-
-template <typename E> struct expr_impl<E, cg::sync_data> {
-  using type = cg::sync_data_expr<E>;
-};
-
-template <typename E> struct auto_expr_impl<E, cg::sync_data> {
-  using type = cg::sync_data_auto_expr<E>;
-};
-}

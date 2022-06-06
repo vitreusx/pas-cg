@@ -9,7 +9,7 @@ namespace cg {
 class pdb_file;
 
 struct pdb_load_options {
-  bool skip_unknown = true;
+  bool skip_unknown, ignore_cryst1;
   std::unordered_map<std::string, amino_acid> aliases;
   void load(ioxx::xyaml::node const &node);
 };
@@ -42,6 +42,7 @@ public:
     size_t serial;
     vec3<double> pos;
     residue *parent_res;
+    double _radius;
 
     bool in_backbone() const;
   };
@@ -67,11 +68,13 @@ public:
 
   struct model {
     int model_serial;
-    std::unordered_map<char, chain> chains;
+    std::map<char, chain> chains;
 
     model() = default;
     model(model const &other);
     model &operator=(model const &other);
+
+    void assign_atom_radii(amino_acid_data const &data);
 
     friend std::ostream &operator<<(std::ostream &os, model const &model);
   };

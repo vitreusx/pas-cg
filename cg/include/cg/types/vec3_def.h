@@ -5,8 +5,8 @@
 namespace cg {
 template <typename Scalar> class vec3;
 
-template <typename E> struct vec3_expr : public nitro::ind_expr<E> {
-  EXPR_BODY(x, y, z)
+template <typename E> struct vec3_expr {
+  EXPR(x, y, z)
 
   template <typename F> vec3_expr<E> &omp_atomic_add(vec3_expr<F> const &f) {
 #pragma omp atomic
@@ -48,35 +48,27 @@ template <typename E> struct vec3_expr : public nitro::ind_expr<E> {
   }
 };
 
-template <typename E> struct vec3_auto_expr : public vec3_expr<E> {
-  AUTO_EXPR_BODY(x, y, z)
-};
-
-template <typename Scalar>
-using vec3_base = nitro::tuple_wrapper<Scalar, Scalar, Scalar>;
-
-template <typename Scalar>
-class vec3 : public vec3_auto_expr<vec3<Scalar>>, public vec3_base<Scalar> {
+template <typename Scalar> class vec3 : public vec3_expr<vec3<Scalar>> {
 public:
-  using Base = vec3_base<Scalar>;
-  using Base::get;
+  INST(vec3, FIELD(Scalar, x), FIELD(Scalar, y), FIELD(Scalar, z))
 
-  static vec3<Scalar> Zero() { return {(Scalar)0, (Scalar)0, (Scalar)0}; }
+  static vec3<Scalar> Zero() {
+    return {(Scalar)0, (Scalar)0, (Scalar)0};
+  }
 
-  static vec3<Scalar> UnitX() { return {(Scalar)1, (Scalar)0, (Scalar)0}; }
+  static vec3<Scalar> UnitX() {
+    return {(Scalar)1, (Scalar)0, (Scalar)0};
+  }
 
-  static vec3<Scalar> UnitY() { return {(Scalar)0, (Scalar)1, (Scalar)0}; }
+  static vec3<Scalar> UnitY() {
+    return {(Scalar)0, (Scalar)1, (Scalar)0};
+  }
 
-  static vec3<Scalar> UnitZ() { return {(Scalar)0, (Scalar)0, (Scalar)1}; }
+  static vec3<Scalar> UnitZ() {
+    return {(Scalar)0, (Scalar)0, (Scalar)1};
+  }
 
-  vec3() : Base((Scalar)0, (Scalar)0, (Scalar)0) {}
-
-  vec3(Scalar x, Scalar y, Scalar z)
-      : Base(std::forward<Scalar>(x), std::forward<Scalar>(y),
-             std::forward<Scalar>(z)) {}
-
-  template <typename E>
-  vec3(vec3_expr<E> const &e) : vec3(e.x(), e.y(), e.z()) {}
+  vec3() : vec3((Scalar)0, (Scalar)0, (Scalar)0) {}
 
   template <typename T>
   vec3(Eigen::Vector3<T> const &eigen)
@@ -87,19 +79,3 @@ using vec3f = vec3<float>;
 using vec3d = vec3<double>;
 
 } // namespace cg
-
-namespace nitro {
-
-template <typename Scalar>
-struct is_indexed_impl<cg::vec3<Scalar>> : std::true_type {};
-
-template <typename E, typename Scalar> struct expr_impl<E, cg::vec3<Scalar>> {
-  using type = cg::vec3_expr<E>;
-};
-
-template <typename E, typename Scalar>
-struct auto_expr_impl<E, cg::vec3<Scalar>> {
-  using type = cg::vec3_auto_expr<E>;
-};
-
-} // namespace nitro

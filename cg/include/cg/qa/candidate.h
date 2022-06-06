@@ -4,36 +4,14 @@
 #include <cg/types/amp.h>
 
 namespace cg::qa {
-template <typename E> struct candidate_expr : public nitro::ind_expr<E> {
-  EXPR_BODY(i1, i2, orig_dist, dist, free_pair_idx, type, sync_diff1,
-            sync_diff2)
+template <typename E> struct candidate_expr {
+  EXPR(i1, i2, orig_dist, dist, free_pair_idx, type, sync_diff1, sync_diff2)
 };
 
-template <typename E> struct candidate_auto_expr : public candidate_expr<E> {
-  AUTO_EXPR_BODY(i1, i2, orig_dist, dist, free_pair_idx, type, sync_diff1,
-                 sync_diff2)
-};
-
-using candidate_base = nitro::tuple_wrapper<int, int, real, real, int,
-                                            contact_type, sync_data, sync_data>;
-
-class candidate : public candidate_auto_expr<candidate>, public candidate_base {
+class candidate : public candidate_expr<candidate> {
 public:
-  using Base = candidate_base;
-  using Base::Base;
-  using Base::get;
+  INST(candidate, FIELD(int, i1), FIELD(int, i2), FIELD(real, orig_dist),
+       FIELD(real, dist), FIELD(int, free_pair_idx), FIELD(contact_type, type),
+       FIELD(sync_data, sync_diff1), FIELD(sync_data, sync_diff2));
 };
 } // namespace cg::qa
-
-namespace nitro {
-template <>
-struct is_indexed_impl<cg::qa::candidate> : public std::true_type {};
-
-template <typename E> struct expr_impl<E, cg::qa::candidate> {
-  using type = cg::qa::candidate_expr<E>;
-};
-
-template <typename E> struct auto_expr_impl<E, cg::qa::candidate> {
-  using type = cg::qa::candidate_auto_expr<E>;
-};
-}

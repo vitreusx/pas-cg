@@ -28,6 +28,7 @@ void thread::traj_setup() {
   setup_langevin();
   setup_pbar();
   setup_nl();
+  setup_local_rep();
   setup_chir();
   setup_tether();
   setup_nat_ang();
@@ -143,7 +144,7 @@ void thread::setup_nl() {
     legacy.num_particles = st.num_res;
     legacy.nl_data = &st.nl;
     legacy.invalid = &st.nl_invalid;
-    legacy.max_cutoff = &st.max_cutoff;
+    legacy.max_cutoff = st.max_cutoff_ptr;
   } else {
     auto &cell = nl_cell;
     cell.pad = params.nl.pad;
@@ -154,7 +155,7 @@ void thread::setup_nl() {
     cell.num_particles = st.num_res;
     cell.nl_data = &st.nl;
     cell.invalid = &st.nl_invalid;
-    cell.max_cutoff = &st.max_cutoff;
+    cell.max_cutoff = st.max_cutoff_ptr;
     cell.res_cell_idx = st.res_cell_idx;
     cell.reordered_idx = st.reordered_idx;
     cell.num_res_in_cell = &st.num_res_in_cell;
@@ -170,6 +171,18 @@ void thread::setup_nl() {
   verify.first_time = &st.verify_first_time;
   verify.num_particles = st.num_res;
   verify.total_disp = &st.total_disp;
+}
+
+void thread::setup_local_rep() {
+  if (params.lrep.enabled) {
+    auto &eval = eval_lrep_forces;
+    eval.F = dyn.F;
+    eval.V = &dyn.V;
+    eval.depth = params.lrep.depth;
+    eval.r_excl = params.lrep.r_excl;
+    eval.r = st.r;
+    eval.pairs = st.local_rep_pairs;
+  }
 }
 
 void thread::setup_chir() {
@@ -306,6 +319,14 @@ void thread::setup_nat_cont() {
     update.nl = &st.nl;
     update.all_contacts = st.all_native_contacts;
     update.contacts = &st.cur_native_contacts;
+
+    real max_cutoff = 0.0;
+    for (auto const &cont : st.all_native_contacts) {
+      auto cutoff = lj::compute_cutoff(cont.nat_dist());
+      max_cutoff = max(max_cutoff, cutoff);
+    }
+#pragma omp single nowait
+    st.max_cutoff = max(st.max_cutoff, max_cutoff);
 
     if (params.out.enabled)
       make_report.nc = &eval;

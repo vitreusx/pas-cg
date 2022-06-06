@@ -6,7 +6,7 @@ class thread;
 
 class dynamics {
 public:
-  nitro::vector<vec3r> F;
+  vect::vector<vec3r> F;
   real V = 0.0;
 
 public:

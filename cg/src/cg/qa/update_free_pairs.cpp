@@ -5,7 +5,6 @@ void update_free_pairs::operator()() const {
   pairs->clear();
 
   auto cutoff = max_formation_min_dist;
-  auto min_norm_inv = (real)1.0 / (cutoff + nl->orig_pad);
 
   for (int pair_idx = 0; pair_idx < nl->non_native.size(); ++pair_idx) {
     auto nl_pair = nl->non_native[pair_idx];
@@ -17,7 +16,8 @@ void update_free_pairs::operator()() const {
     if (!include4 && chain1 == chain2 && abs(seq1 - seq2) == 4)
       continue;
 
-    if (norm_inv(simul_box->wrap(r1, r2)) > min_norm_inv) {
+    auto dist = norm(simul_box->wrap(r1, r2));
+    if (nl->in_range(dist, cutoff)) {
       pairs->emplace(i1, i2, nl_pair.orig_dist());
     }
   }

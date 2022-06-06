@@ -67,7 +67,7 @@ target_compile_options(cg
 
 target_compile_definitions(cg
     PRIVATE
-    $<$<CONFIG:Compat>:COMPAT_MODE>)
+    COMPAT_MODE)
 
 add_subdirectory(ext/cparse EXCLUDE_FROM_ALL)
 add_subdirectory(ext/boost EXCLUDE_FROM_ALL)

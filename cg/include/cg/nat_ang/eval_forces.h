@@ -8,9 +8,9 @@ public:
 
 public:
   real *V;
-  nitro::const_view<vec3r> r;
-  nitro::view<vec3r> F;
-  nitro::const_view<nat_ang> angles;
+  vect::const_view<vec3r> r;
+  vect::view<vec3r> F;
+  vect::const_view<nat_ang> angles;
 
 public:
   template <typename E> void iter(nat_ang_expr<E> const &angle) const;

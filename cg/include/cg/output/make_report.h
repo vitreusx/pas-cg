@@ -28,15 +28,15 @@ public:
 private:
   real kinetic_energy() const;
 
-  static real rmsd(nitro::const_view<vec3r> const &orig_r,
-                   nitro::const_view<vec3r> const &cur_r,
-                   nitro::const_view<int> const &indices);
+  static real rmsd(vect::const_view<vec3r> const &orig_r,
+                   vect::const_view<vec3r> const &cur_r,
+                   vect::const_view<int> const &indices);
 
-  static real gyration_radius(nitro::const_view<vec3r> const &r,
-                              nitro::const_view<int> const &indices);
+  static real gyration_radius(vect::const_view<vec3r> const &r,
+                              vect::const_view<int> const &indices);
 
-  static real asphericity(nitro::const_view<vec3r> const &r,
-                          nitro::const_view<int> const &indices);
+  static real asphericity(vect::const_view<vec3r> const &r,
+                          vect::const_view<int> const &indices);
 
   void add_cur_scalars() const;
   void emit_out() const;
