@@ -12,10 +12,8 @@ void thread::loop() {
   if (!st.is_running)
     return;
 
-  //    pre_eval();
   pre_eval_async();
   eval_forces();
-  //  post_eval();
   post_eval_async();
 }
 
@@ -200,14 +198,6 @@ void thread::post_eval_async() {
       break;
     }
   }
-
-  //#ifdef COMPAT_MODE
-  //#pragma omp master
-  //  {
-  //    if (params.out.enabled)
-  //      make_report();
-  //  };
-  //#endif
 
   ++loop_idx;
 }

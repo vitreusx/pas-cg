@@ -1,0 +1,70 @@
+general:
+  total time: 50e3 tau
+  num of threads: 8
+  num of trajectories: 1
+  periodic boundary conditions: all
+
+input:
+  seq file:
+    source:
+      (at path): mhp1a.yml
+  morph into SAW:
+    perform: true
+    bond distance: 3.8 A
+    residue density: 13e-5 atom/A**3
+    intersection at: 4.56 A
+    num of retries: 9001
+    sample initial positions from the box: true
+    PBC also during SAW: true
+
+quasi-adiabatic:
+  enabled: false
+
+native angles:
+  enabled: false
+  
+complex native dihedrals:
+  enabled: false
+  
+native contacts:
+  enabled: false
+  
+pseudo-improper dihedral:
+  enabled: true
+
+lj force variants:
+  bb:
+    depth: 0.1 eps
+  ss:
+    use sinking variant: true
+    per pair:
+      depth:
+        (at path): mj-matrix.csv
+
+langevin:
+  enabled: true
+  gamma factor: 0.5 1/tau
+  temperature: 0.38 eps/kB
+  dt: 5e-3 tau
+  type: legacy
+
+neighbor list:
+  algorithm: legacy
+  cutoff: 20.0 A
+  pad: 10.0 A
+
+local repulsive:
+  enabled: true
+  exclusion radius: 5.0 A
+  depth: 1.0 eps
+
+constant Debye-Hueckel:
+  enabled: true
+  screening distance: 15.0 A
+  permittivity: 80.0 eps_0
+        
+output:
+  enabled: true
+  emit stats every: 1e2 tau
+  emit structure every: 1e2 tau
+  file prefix: mixmdl
