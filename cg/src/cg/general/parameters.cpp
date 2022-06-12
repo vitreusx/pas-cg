@@ -14,6 +14,8 @@ void parameters::load(ioxx::xyaml::node const &p) {
     mode = prog_mode::perform_simulation;
   else if (mode_str == "check determinism")
     mode = prog_mode::check_determinism;
+  else if (mode_str == "run legacy version")
+    mode = prog_mode::run_legacy_version;
   else
     throw std::runtime_error("Unknown value for [general.mode]");
 

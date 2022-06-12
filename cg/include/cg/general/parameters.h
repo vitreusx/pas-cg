@@ -6,7 +6,8 @@ namespace cg::gen {
 struct parameters {
   enum class prog_mode {
     perform_simulation,
-    check_determinism
+    check_determinism,
+    run_legacy_version
   };
 
   struct debug_mode_t {

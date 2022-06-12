@@ -33,7 +33,6 @@ public:
 
   void main();
   void loop();
-
   void adjust_scenario();
   void pre_eval_async();
   void fix_nl_async();

@@ -12,10 +12,8 @@ void thread::loop() {
   if (!st.is_running)
     return;
 
-  //    pre_eval();
   pre_eval_async();
   eval_forces();
-  //  post_eval();
   post_eval_async();
 }
 

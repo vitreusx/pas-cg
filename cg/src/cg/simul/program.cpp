@@ -112,6 +112,9 @@ void program::main(int argc, char **argv) {
   case prog_mode::check_determinism:
     check_determinism();
     break;
+  case prog_mode::run_legacy_version:
+    run_legacy_version();
+    break;
   }
 }
 
@@ -169,6 +172,12 @@ void program::check_determinism() {
 #pragma omp barrier
     } while (st1.is_running && st2.is_running);
   }
+}
+
+void program::run_legacy_version() {
+  auto st = state(params);
+  auto legacy = simul::legacy(st);
+  legacy.main();
 }
 
 void program::setup_omp() {

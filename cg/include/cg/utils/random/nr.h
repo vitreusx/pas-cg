@@ -18,7 +18,12 @@ private:
   int iy = 0, idum = -448, idum2 = 123456789;
   int iv[ntab];
 
-  inline double uniform_(int iseed = 0) {
+public:
+  rand_gen() : rand_gen(0) {}
+
+  inline explicit rand_gen(int seed) : idum{-seed} {}
+
+  inline double ran2(int iseed = 0) {
     int k, j;
     if (iseed != 0)
       idum = -iseed;
@@ -55,16 +60,8 @@ private:
     return std::min(am * iy, rnmx);
   }
 
-public:
-  rand_gen() : rand_gen(0) {}
-
-  inline explicit rand_gen(int seed) {
-    uniform_(seed);
-    uniform_(seed);
-  }
-
   inline uint64_t operator()() {
-    double dval = uniform_();
+    double dval = ran2();
     return uint64_t(dval * (double)std::numeric_limits<uint64_t>::max());
   }
 
@@ -76,7 +73,7 @@ public:
   }
 
   template <typename U> inline U uniform() {
-    return uniform_();
+    return ran2();
   }
 
   template <typename U> inline U uniform(U a, U b) {

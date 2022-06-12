@@ -13,7 +13,6 @@ input:
     perform: true
     bond distance: average
     sample initial positions from the box: false
-#    intersection at: 4.56 A
 
 quasi-adiabatic:
   enabled: false
