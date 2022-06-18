@@ -8,16 +8,14 @@ void parameters::load(ioxx::xyaml::node const &p) {
   p["seed"] >> seed;
   p["num of threads"] >> num_of_threads;
   p["num of trajectories"] >> num_of_traj;
+  p["repulsive cutoff"] >> repulsive_cutoff;
+  p["fixed cutoff"] >> fixed_cutoff;
 
   auto mode_str = p["mode"].as<std::string>();
   if (mode_str == "perform simulation")
     mode = prog_mode::perform_simulation;
   else if (mode_str == "check determinism")
     mode = prog_mode::check_determinism;
-  else if (mode_str == "run legacy version")
-    mode = prog_mode::run_legacy_version;
-  else
-    throw std::runtime_error("Unknown value for [general.mode]");
 
   auto dp = p["debug mode"];
   dp["enabled"] >> debug_mode.enabled;

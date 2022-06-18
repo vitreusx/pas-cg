@@ -1,12 +1,14 @@
 #pragma once
 #include "../pair.h"
 #include <cg/types/box.h>
+#include <optional>
 
 namespace cg::rel_dh {
 class eval_forces {
 public:
   real screen_dist_inv;
   real V_factor;
+  std::optional<real> fixed_cutoff;
   void set_V_factor(real factor);
 
 public:

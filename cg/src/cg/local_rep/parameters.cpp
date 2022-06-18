@@ -4,7 +4,6 @@
 namespace cg::local_rep {
 void parameters::load(const ioxx::xyaml::node &n) {
   n["enabled"] >> enabled;
-  n["exclusion radius"] >> r_excl;
   n["depth"] >> depth;
 }
 } // namespace cg::local_rep

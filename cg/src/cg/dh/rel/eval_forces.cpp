@@ -17,7 +17,11 @@ template <typename E> void eval_forces::iter(dh::pair_expr<E> const &es) const {
 
   auto r1 = r[i1], r2 = r[i2];
   auto r12 = simul_box->wrap(r1, r2);
-  auto r12_n = norm(r12), r12_rn = 1.0f / r12_n;
+
+  auto r12_n = norm(r12);
+  if (fixed_cutoff.has_value() && r12_n > fixed_cutoff.value())
+    return;
+  auto r12_rn = 1.0f / r12_n;
   auto r12_u = r12 * r12_rn;
 
   auto Vij =

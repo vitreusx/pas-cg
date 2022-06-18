@@ -12,7 +12,7 @@ void update_pairs::operator()() const {
 
     auto r1 = r[i1], r2 = r[i2];
     auto dist = norm(simul_box->wrap(r1, r2));
-    if (nl->in_range(dist, cutoff)) {
+    if (dist < cutoff + nl->orig_pad) {
       pairs->emplace_back(i1, i2);
     }
   }

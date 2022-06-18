@@ -13,6 +13,7 @@ public:
   lj_variants ljs;
   real cycle_time, cycle_time_inv;
   real factor;
+  std::optional<real> fixed_cutoff;
 
   bool disulfide_special_criteria;
   std::optional<disulfide_force> disulfide;

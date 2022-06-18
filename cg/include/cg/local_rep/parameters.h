@@ -5,7 +5,7 @@
 namespace cg::local_rep {
 struct parameters {
   bool enabled;
-  quantity r_excl, depth;
+  quantity depth;
 
   void load(ioxx::xyaml::node const &n);
 };

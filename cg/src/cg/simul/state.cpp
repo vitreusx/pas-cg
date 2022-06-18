@@ -167,11 +167,11 @@ void state::compile_model() {
 
   box.cell = model.model_box.cell;
   box.cell_inv = model.model_box.cell_inv;
-  if (params.gen.pbc_x)
+  if (!params.gen.pbc_x)
     box.cell.x() = box.cell_inv.x() = 0;
-  if (params.gen.pbc_y)
+  if (!params.gen.pbc_y)
     box.cell.y() = box.cell_inv.y() = 0;
-  if (params.gen.pbc_z)
+  if (!params.gen.pbc_z)
     box.cell.z() = box.cell_inv.z() = 0;
 
   prev = next = chain_idx = seq_idx = vect::vector<int>(num_res, -1);
@@ -282,15 +282,6 @@ void state::setup_nl() {
   total_disp = 0.0;
   nl = nl::data();
   nl.orig_r = vect::vector<vec3r>(num_res);
-
-  max_cutoff = 0.0;
-  if (params.nl.cutoff.has_value()) {
-    fixed_cutoff = params.nl.cutoff.value();
-    max_cutoff_ptr = &fixed_cutoff;
-    nl.fixed_cutoff = fixed_cutoff;
-  } else {
-    max_cutoff_ptr = &max_cutoff;
-  }
 
   switch (params.nl.algorithm) {
   case nl::parameters::LEGACY:
@@ -406,8 +397,6 @@ void state::setup_heur_dih() {
 void state::setup_pauli() {
   if (params.pauli.enabled) {
     nl_required = true;
-    pauli_cutoff = (real)params.pauli.r_excl;
-    max_cutoff = max(max_cutoff, pauli_cutoff);
   }
 }
 
@@ -421,6 +410,9 @@ void state::setup_nat_cont() {
     for (int idx = 0; idx < (int)model.contacts.size(); ++idx) {
       auto const &cont = model.contacts[idx];
       auto i1 = res_map[cont.res1], i2 = res_map[cont.res2];
+      if (i1 > i2)
+        std::swap(i1, i2);
+
       auto nat_dist = (real)cont.length;
       bool formed = false;
       real formation_t = 0.0;
@@ -428,29 +420,12 @@ void state::setup_nat_cont() {
                                        formation_t, idx);
       nat_cont_excl.emplace_back(i1, i2);
     }
-
-    nat_cont_cutoff = 0.0;
-    for (int cont_idx = 0; cont_idx < all_native_contacts.size(); ++cont_idx) {
-      auto cont_dist = all_native_contacts[cont_idx].nat_dist();
-      nat_cont_cutoff = max(nat_cont_cutoff, lj::compute_cutoff(cont_dist));
-    }
-    nl_required = true;
-    max_cutoff = max(max_cutoff, nat_cont_cutoff);
   }
 }
 
 void state::setup_dh() {
   if (params.const_dh.enabled || params.rel_dh.enabled) {
     nl_required = true;
-
-    real dh_cutoff = 0.0f;
-    if (params.const_dh.enabled) {
-      dh_cutoff = 2.0 * params.const_dh.screening_dist;
-    } else {
-      dh_cutoff = 2.0 * params.rel_dh.screening_dist;
-    }
-
-    max_cutoff = max(max_cutoff, dh_cutoff);
   }
 }
 

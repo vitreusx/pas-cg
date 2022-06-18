@@ -11,6 +11,7 @@ public:
   nl::data const *nl;
   vect::const_view<nat_cont> all_contacts;
   vect::vector<nat_cont> *contacts;
+  std::optional<real> fixed_cutoff;
 
 public:
   void operator()() const;

@@ -4,7 +4,7 @@
 namespace cg::local_rep {
 class eval_forces {
 public:
-  real depth, r_excl;
+  real depth, cutoff;
 
 public:
   vect::const_view<vec3r> r;
@@ -17,4 +17,4 @@ public:
   void operator()() const;
   void omp_async() const;
 };
-}
+} // namespace cg::local_rep

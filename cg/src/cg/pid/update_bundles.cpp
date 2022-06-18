@@ -15,7 +15,7 @@ void update_bundles::operator()() const {
       continue;
 
     auto dist = norm(simul_box->wrap(r1, r2));
-    if (nl->in_range(dist, cutoff)) {
+    if (dist < cutoff + nl->orig_pad) {
       auto prev1 = prev[i1], next1 = next[i1];
       auto prev2 = prev[i2], next2 = next[i2];
       if (prev1 < 0 || next1 < 0 || prev2 < 0 || next2 < 0)

@@ -27,7 +27,7 @@ void cell_update::operator()() const {
   }
 
   auto extent = max_r - min_r;
-  auto radius = *max_cutoff + pad;
+  auto radius = cutoff + pad;
 
   vec3r apx_num_cells = extent / radius;
   vec3i num_cells = {(int)floor(apx_num_cells.x()),

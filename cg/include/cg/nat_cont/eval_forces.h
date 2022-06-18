@@ -8,6 +8,7 @@ class eval_forces {
 public:
   real depth, active_thr;
   std::optional<disulfide_force> disulfide;
+  std::optional<real> fixed_cutoff;
 
 public:
   vect::const_view<vec3r> r;

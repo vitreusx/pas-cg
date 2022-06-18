@@ -144,7 +144,8 @@ void thread::setup_nl() {
     legacy.num_particles = st.num_res;
     legacy.nl_data = &st.nl;
     legacy.invalid = &st.nl_invalid;
-    legacy.max_cutoff = st.max_cutoff_ptr;
+    legacy.cutoff = params.gen.fixed_cutoff.value_or(0);
+    cutoff = &legacy.cutoff;
   } else {
     auto &cell = nl_cell;
     cell.pad = params.nl.pad;
@@ -155,12 +156,13 @@ void thread::setup_nl() {
     cell.num_particles = st.num_res;
     cell.nl_data = &st.nl;
     cell.invalid = &st.nl_invalid;
-    cell.max_cutoff = st.max_cutoff_ptr;
     cell.res_cell_idx = st.res_cell_idx;
     cell.reordered_idx = st.reordered_idx;
     cell.num_res_in_cell = &st.num_res_in_cell;
     cell.cell_offset = &st.cell_offset;
     cell.all_pairs = &st.all_pairs;
+    cell.cutoff = params.gen.fixed_cutoff.value_or(0);
+    cutoff = &cell.cutoff;
   }
 
   auto &verify = nl_verify;
@@ -179,7 +181,7 @@ void thread::setup_local_rep() {
     eval.F = dyn.F;
     eval.V = &dyn.V;
     eval.depth = params.lrep.depth;
-    eval.r_excl = params.lrep.r_excl;
+    eval.cutoff = params.gen.repulsive_cutoff;
     eval.r = st.r;
     eval.pairs = st.local_rep_pairs;
   }
@@ -280,7 +282,7 @@ void thread::setup_heur_dih() {
 void thread::setup_pauli() {
   if (params.pauli.enabled) {
     auto &eval = eval_pauli_forces;
-    eval.r_excl = params.pauli.r_excl;
+    eval.r_excl = params.gen.repulsive_cutoff;
     eval.depth = params.pauli.depth;
     eval.r = st.r;
     eval.simul_box = &st.box;
@@ -293,7 +295,10 @@ void thread::setup_pauli() {
     update.simul_box = &st.box;
     update.nl = &st.nl;
     update.pairs = &st.pauli_pairs;
-    update.r_excl = st.pauli_cutoff;
+    update.r_excl = params.gen.repulsive_cutoff;
+
+    if (!params.gen.fixed_cutoff.has_value())
+      *cutoff = max(*cutoff, eval.r_excl);
   }
 }
 
@@ -312,6 +317,7 @@ void thread::setup_nat_cont() {
     eval.all_contacts = st.all_native_contacts;
     eval.V = &dyn.V;
     eval.F = dyn.F;
+    eval.fixed_cutoff = params.gen.fixed_cutoff;
 
     auto &update = update_nat_contacts;
     update.r = st.r;
@@ -319,14 +325,17 @@ void thread::setup_nat_cont() {
     update.nl = &st.nl;
     update.all_contacts = st.all_native_contacts;
     update.contacts = &st.cur_native_contacts;
+    update.fixed_cutoff = params.gen.fixed_cutoff;
 
-    real max_cutoff = 0.0;
-    for (auto const &cont : st.all_native_contacts) {
-      auto cutoff = lj::compute_cutoff(cont.nat_dist());
-      max_cutoff = max(max_cutoff, cutoff);
+    if (!params.gen.fixed_cutoff.has_value()) {
+      real max_cutoff = 0.0;
+      for (auto const &cont : st.all_native_contacts) {
+        auto cutoff_ = lj::compute_cutoff(cont.nat_dist());
+        max_cutoff = max(max_cutoff, cutoff_);
+      }
+
+      *cutoff = max(*cutoff, max_cutoff);
     }
-#pragma omp single nowait
-    st.max_cutoff = max(st.max_cutoff, max_cutoff);
 
     if (params.out.enabled)
       make_report.nc = &eval;
@@ -344,6 +353,8 @@ void thread::setup_dh() {
     update.q[(uint8_t)aa] = st.comp_aa_data.charge[(uint8_t)aa];
   }
 
+  real cutoff_ = 0;
+
   if (params.const_dh.enabled) {
     auto &eval = eval_const_dh_forces;
     eval.set_V_factor(params.const_dh.permittivity);
@@ -353,7 +364,8 @@ void thread::setup_dh() {
     eval.es_pairs = &st.dh_pairs;
     eval.V = &dyn.V;
     eval.F = dyn.F;
-    update.cutoff = 2.0 * params.const_dh.screening_dist;
+    eval.fixed_cutoff = params.gen.fixed_cutoff;
+    cutoff_ = 2.0 * params.const_dh.screening_dist;
   }
 
   if (params.rel_dh.enabled) {
@@ -365,7 +377,15 @@ void thread::setup_dh() {
     eval.es_pairs = &st.dh_pairs;
     eval.V = &dyn.V;
     eval.F = dyn.F;
-    update.cutoff = 2.0 * params.rel_dh.screening_dist;
+    eval.fixed_cutoff = params.gen.fixed_cutoff;
+    cutoff_ = 2.0 * params.rel_dh.screening_dist;
+  }
+
+  if (params.gen.fixed_cutoff.has_value()) {
+    update.cutoff = params.gen.fixed_cutoff.value();
+  } else {
+    update.cutoff = cutoff_;
+    *cutoff = max(*cutoff, cutoff_);
   }
 }
 
@@ -439,6 +459,7 @@ void thread::setup_qa() {
     proc_cont.V = &dyn.V;
     proc_cont.F = dyn.F;
     proc_cont.disulfide_special_criteria = st.ss_spec_crit;
+    proc_cont.fixed_cutoff = params.gen.fixed_cutoff;
 
     auto &update = update_qa_pairs;
     update.r = st.r;
@@ -481,8 +502,8 @@ void thread::setup_qa() {
         count_cys.cys_indices = st.cys_indices;
         count_cys.r = st.r;
 
-#pragma omp master
-        st.max_cutoff = max(st.max_cutoff, (real)spec_crit_params.neigh_radius);
+        if (!params.gen.fixed_cutoff.has_value())
+          *cutoff = max(*cutoff, (real)spec_crit_params.neigh_radius);
       }
     }
 
@@ -491,8 +512,9 @@ void thread::setup_qa() {
       max_req_dist = max(max_req_dist, sift.req_min_dist[idx]);
     update.max_formation_min_dist = sift.max_req_dist = max_req_dist;
 
-#pragma omp single nowait
-    st.max_cutoff = max(st.max_cutoff, max_req_dist);
+    update.fixed_cutoff = params.gen.fixed_cutoff;
+    if (!params.gen.fixed_cutoff.has_value())
+      *cutoff = max(*cutoff, max_req_dist);
 
     if (params.out.enabled)
       make_report.qa = &proc_cont;
@@ -542,21 +564,22 @@ void thread::setup_pid() {
     update.seq_idx = st.seq_idx;
     update.include4 = params.pid.include4;
 
-    real cutoff = 0.0;
-    cutoff = max(cutoff, params.lj_vars.bb.cutoff());
-    cutoff = max(cutoff, params.lj_vars.bs.cutoff());
-    cutoff = max(cutoff, params.lj_vars.sb.cutoff());
-    for (auto const &aa1 : amino_acid::all()) {
-      for (auto const &aa2 : amino_acid::all()) {
-        cutoff = max(cutoff, params.lj_vars.ss.at({aa1, aa2}).cutoff());
+    if (!params.gen.fixed_cutoff.has_value()) {
+      real cutoff_ = 0.0;
+      cutoff_ = max(cutoff_, params.lj_vars.bb.cutoff());
+      cutoff_ = max(cutoff_, params.lj_vars.bs.cutoff());
+      cutoff_ = max(cutoff_, params.lj_vars.sb.cutoff());
+      for (auto const &aa1 : amino_acid::all()) {
+        for (auto const &aa2 : amino_acid::all()) {
+          cutoff_ = max(cutoff_, params.lj_vars.ss.at({aa1, aa2}).cutoff());
+        }
       }
+
+      eval.cutoff = update.cutoff = cutoff_;
+      *cutoff = max(*cutoff, cutoff_);
+    } else {
+      eval.cutoff = update.cutoff = params.gen.fixed_cutoff.value();
     }
-
-    eval.cutoff = cutoff;
-    update.cutoff = cutoff;
-
-#pragma omp master
-    st.max_cutoff = max(st.max_cutoff, cutoff);
 
     if (params.out.enabled)
       make_report.pid = &eval;

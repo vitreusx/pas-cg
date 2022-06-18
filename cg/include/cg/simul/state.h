@@ -68,7 +68,7 @@ public:
 
   nl::data nl;
   bool nl_required, nl_invalid, verify_first_time;
-  real fixed_cutoff, max_cutoff, *max_cutoff_ptr, total_disp;
+  real total_disp;
   vect::vector<int> res_cell_idx, reordered_idx, num_res_in_cell, cell_offset;
   vect::vector<nl::pair> all_pairs;
   void setup_nl();
@@ -95,12 +95,10 @@ public:
   void setup_heur_dih();
 
   vect::vector<pauli::pair> pauli_pairs;
-  real pauli_cutoff;
   void setup_pauli();
 
   vect::vector<nat_cont::nat_cont> all_native_contacts, cur_native_contacts;
   vect::vector<nl::exclusion> nat_cont_excl;
-  real nat_cont_cutoff;
   void setup_nat_cont();
 
   vect::vector<dh::pair> dh_pairs;

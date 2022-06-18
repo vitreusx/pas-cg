@@ -1,15 +1,14 @@
 #pragma once
-#include "kernels.h"
+#include "parameters.h"
 #include "state.h"
 
 namespace cg::simul {
-class legacy {
+class openmp {
 public:
-  explicit legacy(state &st);
-
+  explicit openmp(state const &st);
   void main();
 
-public:
-  state &st;
+private:
+  state st;
 };
 } // namespace cg::simul

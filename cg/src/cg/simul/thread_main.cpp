@@ -128,36 +128,41 @@ void thread::fix_nl_async() {
 void thread::eval_forces() {
   dyn.reset();
 
-  if (params.lrep.enabled)
-    eval_lrep_forces.omp_async();
   if (params.chir.enabled)
     eval_chir_forces.omp_async();
   if (params.tether.enabled)
     eval_tether_forces.omp_async();
+  if (params.lrep.enabled)
+    eval_lrep_forces.omp_async();
+  if (params.nat_cont.enabled)
+    eval_nat_cont_forces.omp_async();
+
   if (params.nat_ang.enabled)
     eval_nat_ang_forces.omp_async();
+  if (params.heur_ang.enabled)
+    eval_heur_ang_forces.omp_async();
+
+  if (params.heur_dih.enabled)
+    eval_heur_dih_forces.omp_async();
   if (params.cnd.enabled)
     eval_cnd_forces.omp_async();
   if (params.snd.enabled)
     eval_snd_forces.omp_async();
-  if (params.pauli.enabled)
-    eval_pauli_forces.omp_async();
-  if (params.nat_cont.enabled)
-    eval_nat_cont_forces.omp_async();
+
   if (params.const_dh.enabled)
     eval_const_dh_forces.omp_async();
   if (params.rel_dh.enabled)
     eval_rel_dh_forces.omp_async();
-  if (params.heur_ang.enabled)
-    eval_heur_ang_forces.omp_async();
-  if (params.heur_dih.enabled)
-    eval_heur_dih_forces.omp_async();
+
   if (params.qa.enabled) {
     sift_qa_candidates.omp_async();
     process_qa_contacts.omp_async();
   }
   if (params.pid.enabled)
     eval_pid_forces.omp_async();
+
+  if (params.pauli.enabled)
+    eval_pauli_forces.omp_async();
 
   if (st.post_equil) {
     if (params.afm.enabled) {

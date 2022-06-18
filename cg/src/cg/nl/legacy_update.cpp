@@ -3,7 +3,7 @@
 namespace cg::nl {
 
 void legacy_update::operator()() const {
-  auto req_r = *max_cutoff + pad;
+  auto req_r = cutoff + pad;
 
   nl_data->native.clear();
   nl_data->non_native.clear();
@@ -56,7 +56,7 @@ void legacy_update::operator()() const {
 }
 
 void legacy_update::omp_async() const {
-  auto req_r = *max_cutoff + pad;
+  auto req_r = cutoff + pad;
 
 #pragma omp master
   {

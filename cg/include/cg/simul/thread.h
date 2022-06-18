@@ -70,6 +70,7 @@ public:
   nl::legacy_update nl_legacy;
   nl::cell_update nl_cell;
   nl::verify nl_verify;
+  real *cutoff;
   void setup_nl();
 
   local_rep::eval_forces eval_lrep_forces;

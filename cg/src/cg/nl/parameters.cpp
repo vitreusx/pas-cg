@@ -9,8 +9,6 @@ void parameters::load(ioxx::xyaml::node const &node) {
     algorithm = CELL;
   else
     algorithm = LEGACY;
-  if (node["cutoff"].as<std::string>() != "auto")
-    node["cutoff"] >> cutoff;
   node["pad"] >> pad;
 }
 } // namespace cg::nl

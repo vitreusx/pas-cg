@@ -29,6 +29,9 @@ void process_contacts::iter(int idx) const {
   auto r1 = r[i1], r2 = r[i2];
   auto r12 = simul_box->wrap(r1, r2);
   auto r12_rn = norm_inv(r12);
+  if (fixed_cutoff.has_value() && r12_rn * fixed_cutoff.value() < 1.0)
+    return;
+  
   auto r12_u = r12 * r12_rn;
 
   auto saturation = saturation_value(contact);

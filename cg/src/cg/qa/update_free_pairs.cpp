@@ -17,7 +17,7 @@ void update_free_pairs::operator()() const {
       continue;
 
     auto dist = norm(simul_box->wrap(r1, r2));
-    if (nl->in_range(dist, cutoff)) {
+    if (dist < cutoff + nl->orig_pad) {
       pairs->emplace(i1, i2, nl_pair.orig_dist());
     }
   }

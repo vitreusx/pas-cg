@@ -7,14 +7,14 @@
 namespace cg::nl {
 class cell_update {
 public:
-  real pad;
+  real cutoff, pad;
 
 public:
   vect::const_view<vec3r> r;
   box<real> const *simul_box;
   data *nl_data;
   int num_particles;
-  real const *max_cutoff, *t;
+  real *t;
   bool *invalid;
   vect::const_view<int> chain_idx, seq_idx;
   vect::const_view<exclusion> all_nat_cont;

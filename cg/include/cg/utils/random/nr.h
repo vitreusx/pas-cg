@@ -21,7 +21,10 @@ private:
 public:
   rand_gen() : rand_gen(0) {}
 
-  inline explicit rand_gen(int seed) : idum{-seed} {}
+  inline explicit rand_gen(int seed) {
+    ran2(seed);
+    ran2(seed);
+  }
 
   inline double ran2(int iseed = 0) {
     int k, j;
