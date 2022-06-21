@@ -35,6 +35,9 @@ void parameters::load(ioxx::xyaml::node const &n) {
     out.enabled = false;
     pbar.enabled = false;
   }
+
+  if (qa.enabled || pid.enabled)
+    pauli.enabled = false;
 }
 
 ioxx::xyaml::node defaults_yml() {

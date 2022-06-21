@@ -15,7 +15,7 @@ template <typename E> void eval_forces::iter(pair_expr<E> const &pair) const {
   auto r12 = simul_box->wrap(r1, r2);
   auto r12_rn = norm_inv(r12);
 
-  if (1.0f < r12_rn * r_excl)
+  if (1.0f > r12_rn * r_excl)
     return;
 
   auto r12_u = r12 * r12_rn;

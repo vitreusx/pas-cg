@@ -155,7 +155,7 @@ void thread::eval_forces() {
     eval_rel_dh_forces.omp_async();
 
   if (params.qa.enabled) {
-    sift_qa_candidates.omp_async();
+    qa_loop_over_candidates.omp_async();
     process_qa_contacts.omp_async();
   }
   if (params.pid.enabled)

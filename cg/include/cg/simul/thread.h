@@ -112,7 +112,7 @@ public:
   qa::update_cys_neigh update_cys_neigh;
   qa::prepare_nh prepare_nh;
   qa::count_cys_neigh count_cys_neigh;
-  qa::sift_candidates sift_qa_candidates;
+  qa::loop_over_candidates qa_loop_over_candidates;
   qa::process_contacts process_qa_contacts;
   qa::finish_processing qa_finish_processing;
   void setup_qa();

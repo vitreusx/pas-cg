@@ -6,11 +6,11 @@
 #include <cg/types/box.h>
 
 namespace cg::qa {
-class sift_candidates {
+class loop_over_candidates {
 public:
   real min_abs_cos_hr, min_abs_cos_hh, max_cos_nr;
   real req_min_dist[contact_type::NUM_TYPES];
-  real max_req_dist;
+  real max_req_dist, rep_cutoff, rep_depth;
   polarization_type ptype[amino_acid::NUM_TYPES];
   real formation_tolerance;
 
@@ -19,10 +19,11 @@ public:
 
 public:
   vect::const_view<vec3r> r, n, h;
+  vect::view<vec3r> F;
   box<real> const *simul_box;
   vect::const_view<amino_acid> atype;
   vect::const_view<sync_data> sync;
-  real *total_disp;
+  real *V, *total_disp;
 
   vect::set<free_pair> const *free_pairs;
   vect::vector<candidate> *candidates;

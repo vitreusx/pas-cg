@@ -27,9 +27,9 @@
 #include <cg/pid/update_bundles.h>
 #include <cg/qa/count_cys_neigh.h>
 #include <cg/qa/finish_processing.h>
+#include <cg/qa/loop_over_candidates.h>
 #include <cg/qa/prepare_nh.h>
 #include <cg/qa/process_contacts.h>
-#include <cg/qa/sift_candidates.h>
 #include <cg/qa/update_free_pairs.h>
 #include <cg/tether/eval_forces.h>
 #include <cg/utils/random.h>

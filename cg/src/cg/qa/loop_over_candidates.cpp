@@ -1,13 +1,15 @@
-#include <cg/qa/sift_candidates.h>
+#include <cg/base_forces/shifted_lj.h>
+#include <cg/qa/loop_over_candidates.h>
+
 namespace cg::qa {
 
-void sift_candidates::operator()() const {
+void loop_over_candidates::operator()() const {
   for (int idx = 0; idx < free_pairs->size(); ++idx) {
     iter(idx);
   }
 }
 
-void sift_candidates::iter(int idx) const {
+void loop_over_candidates::iter(int idx) const {
   auto &node = free_pairs->at(idx);
 
   if (node.is_vacant())
@@ -23,11 +25,17 @@ void sift_candidates::iter(int idx) const {
   auto r1 = r[i1], r2 = r[i2];
   auto r12 = simul_box->wrap(r1, r2);
   auto r12_rn = norm_inv(r12);
+  auto r12_u = r12 * r12_rn;
 
   if ((real)1.0 > r12_rn * max_req_dist)
     return;
 
-  auto r12_u = r12 * r12_rn;
+  if (1.0 < r12_rn * rep_cutoff) {
+    auto [V_, dV_dr] = shifted_lj(rep_depth, rep_cutoff)(r12_rn);
+    *V += V_;
+    F[i1] += r12_u * dV_dr;
+    F[i2] -= r12_u * dV_dr;
+  }
 
   auto n1 = n[i1], n2 = n[i2], h1 = h[i1], h2 = h[i2];
 
@@ -90,7 +98,7 @@ void sift_candidates::iter(int idx) const {
                            sync_diff1, sync_diff2);
 }
 
-void sift_candidates::omp_async() const {
+void loop_over_candidates::omp_async() const {
 #pragma omp for schedule(static) nowait
   for (int idx = 0; idx < free_pairs->size(); ++idx) {
     iter(idx);

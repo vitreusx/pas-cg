@@ -400,39 +400,44 @@ void thread::setup_qa() {
     prep_nh.next = st.next;
     prep_nh.simul_box = &st.box;
 
-    auto &sift = sift_qa_candidates;
-    sift.r = st.r;
-    sift.n = st.n;
-    sift.h = st.h;
-    sift.simul_box = &st.box;
-    sift.atype = st.atype;
-    sift.sync = st.sync_values;
-    sift.free_pairs = &st.qa_free_pairs;
-    sift.candidates = &st.qa_candidates;
-    sift.total_disp = &st.total_disp;
+    auto &loop = qa_loop_over_candidates;
+    loop.r = st.r;
+    loop.n = st.n;
+    loop.h = st.h;
+    loop.simul_box = &st.box;
+    loop.atype = st.atype;
+    loop.sync = st.sync_values;
+    loop.free_pairs = &st.qa_free_pairs;
+    loop.candidates = &st.qa_candidates;
+    loop.total_disp = &st.total_disp;
 
-    sift.min_abs_cos_hr = params.qa.min_cos_hr;
-    sift.min_abs_cos_hh = params.qa.min_cos_hh;
-    sift.max_cos_nr = params.qa.max_cos_nr;
-    sift.formation_tolerance = params.qa.formation_tolerance;
-    sift.disulfide_special_criteria = st.ss_spec_crit;
+    loop.min_abs_cos_hr = params.qa.min_cos_hr;
+    loop.min_abs_cos_hh = params.qa.min_cos_hh;
+    loop.max_cos_nr = params.qa.max_cos_nr;
+    loop.formation_tolerance = params.qa.formation_tolerance;
+    loop.disulfide_special_criteria = st.ss_spec_crit;
 
-    sift.req_min_dist[(int16_t)qa::contact_type::BACK_BACK()] =
+    loop.rep_cutoff = params.gen.repulsive_cutoff;
+    loop.rep_depth = params.pauli.depth;
+    loop.F = dyn.F;
+    loop.V = &dyn.V;
+
+    loop.req_min_dist[(int16_t)qa::contact_type::BACK_BACK()] =
         params.lj_vars.bb.r_min();
-    sift.req_min_dist[(int16_t)qa::contact_type::BACK_SIDE()] =
+    loop.req_min_dist[(int16_t)qa::contact_type::BACK_SIDE()] =
         params.lj_vars.bs.r_min();
-    sift.req_min_dist[(int16_t)qa::contact_type::SIDE_BACK()] =
+    loop.req_min_dist[(int16_t)qa::contact_type::SIDE_BACK()] =
         params.lj_vars.sb.r_min();
 
     for (auto const &aa1 : amino_acid::all()) {
       for (auto const &aa2 : amino_acid::all()) {
-        sift.req_min_dist[(int16_t)qa::contact_type::SIDE_SIDE(aa1, aa2)] =
+        loop.req_min_dist[(int16_t)qa::contact_type::SIDE_SIDE(aa1, aa2)] =
             params.lj_vars.ss.at({aa1, aa2}).r_max();
       }
     }
 
     for (auto const &aa : amino_acid::all())
-      sift.ptype[(uint8_t)aa] = st.comp_aa_data.ptype[(uint8_t)aa];
+      loop.ptype[(uint8_t)aa] = st.comp_aa_data.ptype[(uint8_t)aa];
 
     auto &fin_proc = qa_finish_processing;
     fin_proc.candidates = &st.qa_candidates;
@@ -474,9 +479,9 @@ void thread::setup_qa() {
       if (st.ss_spec_crit) {
         auto const &spec_crit_params = params.qa.disulfide->spec_crit;
 
-        sift.part_of_ssbond = st.part_of_ssbond;
-        sift.disulfide_special_criteria = st.ss_spec_crit;
-        sift.neigh = st.neigh_count;
+        loop.part_of_ssbond = st.part_of_ssbond;
+        loop.disulfide_special_criteria = st.ss_spec_crit;
+        loop.neigh = st.neigh_count;
 
         fin_proc.part_of_ssbond = st.part_of_ssbond;
 
@@ -509,8 +514,8 @@ void thread::setup_qa() {
 
     real max_req_dist = 0.0;
     for (int idx = 0; idx < qa::contact_type::NUM_TYPES; ++idx)
-      max_req_dist = max(max_req_dist, sift.req_min_dist[idx]);
-    update.max_formation_min_dist = sift.max_req_dist = max_req_dist;
+      max_req_dist = max(max_req_dist, loop.req_min_dist[idx]);
+    update.max_formation_min_dist = loop.max_req_dist = max_req_dist;
 
     update.fixed_cutoff = params.gen.fixed_cutoff;
     if (!params.gen.fixed_cutoff.has_value())
