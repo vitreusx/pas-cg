@@ -11,7 +11,7 @@ general:
   num of trajectories: 1
   periodic boundary conditions: none
   fixed cutoff: 18 A
-  repulsive cutoff: 4 A
+  repulsive cutoff: 5 A
 
 input:
   pdb file:
@@ -21,11 +21,10 @@ input:
   morph into SAW:
     perform: true
     bond distance: 3.8 A
-    residue density: 1e-4 atom/A**3
+    initial box density: 1e-4 residue/A**3
+    PBC also during SAW: false
     intersection at: 4.56 A
     num of retries: 9001
-    sample initial positions from the box: true
-    PBC also during SAW: false
   morph into line:
     perform: false
     bond distance: 3.8 A
@@ -100,12 +99,12 @@ pseudo-improper dihedral:
     alpha: 6.4 1/rad
     psi_0: 1.05 rad
     r_min: 5.6 A
-    depth: 1 eps
+    depth: 0.2 eps
   bb-:
     alpha: 6.0 1/rad
     psi_0: -1.44 rad
     r_min: 6.2 A
-    depth: 1 eps
+    depth: 0.2 eps
   ss:
     alpha: 1.2 1/rad
     psi_0: -0.23 rad

@@ -1,5 +1,5 @@
-#include <cg/utils/quantity.h>
 #include <algorithm>
+#include <cg/utils/quantity.h>
 #include <cparse/builtin-features.inc>
 #include <cparse/shunting-yard.h>
 #include <regex>
@@ -25,6 +25,7 @@ struct cparse_unit_init {
                                                         {"ms", millisecond},
                                                         {"s", second},
                                                         {"atom", atom},
+                                                        {"residue", atom},
                                                         {"mol", mol},
                                                         {"eps", eps},
                                                         {"kcal", kcal},
@@ -55,7 +56,9 @@ static double parse(std::string const &s) {
   return calculator::calculate(s.c_str()).asDouble();
 }
 
-quantity::quantity(double value) { numerical_value = value; }
+quantity::quantity(double value) {
+  numerical_value = value;
+}
 
 quantity::quantity(double numerical_value, std::string const &unit) {
   this->numerical_value = numerical_value;
@@ -142,5 +145,7 @@ double quantity::in(const std::string &unit) const {
   return (double)*this / parse(unit);
 }
 
-double quantity::num_value() const { return numerical_value; }
+double quantity::num_value() const {
+  return numerical_value;
+}
 } // namespace cg

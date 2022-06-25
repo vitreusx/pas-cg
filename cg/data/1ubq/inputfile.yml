@@ -10,9 +10,8 @@ input:
       (at path): 1ubq.pdb
     contact deriv: from all atoms
   morph into SAW:
-    perform: true
+    initial box density: 0 residue/A**3
     bond distance: average
-    sample initial positions from the box: false
 
 quasi-adiabatic:
   enabled: false

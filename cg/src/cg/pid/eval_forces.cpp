@@ -28,99 +28,69 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
   auto type = bundle.type();
   auto i1p = prev[i1], i1n = next[i1], i2p = prev[i2], i2n = next[i2];
 
-  vec3r r1p = r[i1p], r1n = r[i1n];
-  vec3r r2p = r[i2p], r2n = r[i2n];
-
   {
-    auto &r1_ = r1p, &r2_ = r1, &r3_ = r1n, &r4_ = r2;
-    auto r24 = simul_box->wrap(r2_, r4_);
-    auto r12 = r2_ - r1_;
-    auto r23 = r3_ - r2_;
-    auto r13 = r3_ - r1_;
-    auto r14 = r12 + r24;
-
-    auto rij = -r23;
-    auto rkj = -r13;
-    auto rkl = -r14;
-    auto rm = cross(r23, r12);
-    auto rn = cross(r13, r14);
-    auto rm_rn = norm_inv(rm);
-    auto rn_rn = norm_inv(rn);
+    auto i1_ = i1, i2_ = i1n, i3_ = i1p, i4_ = i2;
+    auto r1_ = r[i1_], r2_ = r[i2_], r3_ = r[i3_], r4_ = r[i4_];
+    auto rij = r1_ - r2_, rkj = r3_ - r2_, rkl = r3_ - r4_;
+    auto rm = cross(rij, rkj), rn = cross(rkj, rkl);
+    auto rm_ninv = norm_inv(rm), rn_ninv = norm_inv(rn),
+         rkj_ninv = norm_inv(rkj);
     auto rkj_n = norm(rkj);
+    auto fi = rm * rkj_n * rm_ninv * rm_ninv;
+    auto fl = -rn * rkj_n * rn_ninv * rn_ninv;
+    auto df = (fi * dot(rij, rkj) - fl * dot(rkl, rkj)) * rkj_ninv * rkj_ninv;
+    auto fj = -fi + df, fk = -fl - df;
 
-    auto fi = rm * rkj_n * rm_rn;
-    auto fl = -rn * rkj_n * rn_rn;
-    auto df = (fi * dot(rij, rkj) - fl * dot(rkl, rkj)) / (rkj_n * rkj_n);
-    auto fj = -fi + df;
-    auto fk = -fl - df;
-
-    dpsi1_dr1p = fi;
-    dpsi1_dr1 = fj;
-    dpsi1_dr1n = fk;
+    dpsi1_dr1 = fi;
+    dpsi1_dr1n = fj;
+    dpsi1_dr1p = fk;
     dpsi1_dr2 = fl;
 
-    auto cos_psi1 = dot(rm, rn) * rm_rn * rn_rn;
+    auto cos_psi1 = dot(rm, rn) * rm_ninv * rn_ninv;
     psi1 = acos(cos_psi1);
-    if (dot(rij, rn) < 0.0f)
+    if (dot(rij, rn) < (real)0.0)
       psi1 = -psi1;
   }
 
   {
-    auto &r1_ = r2p, &r2_ = r2, &r3_ = r2n, &r4_ = r1;
-    auto r24 = simul_box->wrap(r2_, r4_);
-    auto r12 = r2_ - r1_;
-    auto r23 = r3_ - r2_;
-    auto r13 = r3_ - r1_;
-    auto r14 = r12 + r24;
-
-    auto rij = -r23;
-    auto rkj = -r13;
-    auto rkl = -r14;
-    auto rm = cross(r23, r12);
-    auto rn = cross(r13, r14);
-    auto rm_rn = norm_inv(rm);
-    auto rn_rn = norm_inv(rn);
+    auto i1_ = i2, i2_ = i2n, i3_ = i2p, i4_ = i1;
+    auto r1_ = r[i1_], r2_ = r[i2_], r3_ = r[i3_], r4_ = r[i4_];
+    auto rij = r1_ - r2_, rkj = r3_ - r2_, rkl = r3_ - r4_;
+    auto rm = cross(rij, rkj), rn = cross(rkj, rkl);
+    auto rm_ninv = norm_inv(rm), rn_ninv = norm_inv(rn),
+         rkj_ninv = norm_inv(rkj);
     auto rkj_n = norm(rkj);
+    auto fi = rm * rkj_n * rm_ninv * rm_ninv;
+    auto fl = -rn * rkj_n * rn_ninv * rn_ninv;
+    auto df = (fi * dot(rij, rkj) - fl * dot(rkl, rkj)) * rkj_ninv * rkj_ninv;
+    auto fj = -fi + df, fk = -fl - df;
 
-    auto fi = rm * rkj_n * rm_rn;
-    auto fl = -rn * rkj_n * rn_rn;
-    auto df = (fi * dot(rij, rkj) - fl * dot(rkl, rkj)) / (rkj_n * rkj_n);
-    auto fj = -fi + df;
-    auto fk = -fl - df;
+    dpsi2_dr2 = fi;
+    dpsi2_dr2n = fj;
+    dpsi2_dr2p = fk;
+    dpsi2_dr1 = fl;
 
-    dpsi1_dr1p = fi;
-    dpsi1_dr1 = fj;
-    dpsi1_dr1n = fk;
-    dpsi1_dr2 = fl;
-
-    auto cos_psi2 = dot(rm, rn) * rm_rn * rn_rn;
+    auto cos_psi2 = dot(rm, rn) * rm_ninv * rn_ninv;
     psi2 = acos(cos_psi2);
-    if (dot(rij, rn) < 0.0f)
+    if (dot(rij, rn) < (real)0.0)
       psi2 = -psi2;
   }
 
-  real A = 0.0f, B = 0.0f, C = 0.0f, V_ = 0.0f;
+  real dV_dpsi1 = 0.0f, dV_dpsi2 = 0.0f, dV_dr = 0.0f, V_ = 0.0f;
 
-  if (bb_plus_lam.supp(psi1) && bb_plus_lam.supp(psi2)) {
-    auto [lam1, deriv1] = bb_plus_lam(psi1);
-    auto [lam2, deriv2] = bb_plus_lam(psi2);
-    auto [lj_V, lj_dV_dr] = bb_plus_lj(r12_rn);
+  auto &bb_lam_1 = bb_plus_lam.supp(psi1) ? bb_plus_lam : bb_minus_lam;
+  auto &bb_lam_2 = bb_plus_lam.supp(psi2) ? bb_plus_lam : bb_minus_lam;
+  auto &bb_lj = bb_plus_lam.supp(psi2) ? bb_plus_lj : bb_minus_lj;
 
-    V_ += lam1 * lam2 * lj_V;
-    A += deriv1 * lam2 * lj_V;
-    B += deriv2 * lam1 * lj_V;
-    C += lam1 * lam2 * lj_dV_dr;
-  }
-
-  if (bb_minus_lam.supp(psi1) && bb_minus_lam.supp(psi2)) {
-    auto [lam1, deriv1] = bb_minus_lam(psi1);
-    auto [lam2, deriv2] = bb_minus_lam(psi2);
-    auto [lj_V, lj_dV_dr] = bb_minus_lj(r12_rn);
+  if (bb_lam_1.supp(psi1) && bb_lam_2.supp(psi2)) {
+    auto [lam1, deriv1] = bb_lam_1(psi1);
+    auto [lam2, deriv2] = bb_lam_2(psi2);
+    auto [lj_V, lj_dV_dr] = bb_lj(r12_rn);
 
     V_ += lam1 * lam2 * lj_V;
-    A += deriv1 * lam2 * lj_V;
-    B += deriv2 * lam1 * lj_V;
-    C += lam1 * lam2 * lj_dV_dr;
+    dV_dpsi1 += deriv1 * lam2 * lj_V;
+    dV_dpsi2 += deriv2 * lam1 * lj_V;
+    dV_dr += lam1 * lam2 * lj_dV_dr;
   }
 
   sink_lj ss_sink_lj = ss_ljs[type];
@@ -130,20 +100,20 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
     auto [lj_V, lj_dV_dr] = ss_sink_lj(r12_n, r12_rn);
 
     V_ += lam1 * lam2 * lj_V;
-    A += deriv1 * lam2 * lj_V;
-    B += deriv2 * lam1 * lj_V;
-    C += lam1 * lam2 * lj_dV_dr;
+    dV_dpsi1 += deriv1 * lam2 * lj_V;
+    dV_dpsi2 += deriv2 * lam1 * lj_V;
+    dV_dr += lam1 * lam2 * lj_dV_dr;
   }
 
   *V += V_;
 
   auto r12_u = r12 * r12_rn;
-  F[i1p] -= A * dpsi1_dr1p;
-  F[i1] -= A * dpsi1_dr1 + B * dpsi2_dr1 + C * r12_u;
-  F[i1n] -= A * dpsi1_dr1n;
-  F[i2p] -= B * dpsi2_dr2p;
-  F[i2] -= A * dpsi1_dr2 + B * dpsi2_dr2 - C * r12_u;
-  F[i2n] -= B * dpsi2_dr2n;
+  F[i1p] -= dV_dpsi1 * dpsi1_dr1p;
+  F[i1] -= dV_dpsi1 * dpsi1_dr1 + dV_dpsi2 * dpsi2_dr1 - dV_dr * r12_u;
+  F[i1n] -= dV_dpsi1 * dpsi1_dr1n;
+  F[i2p] -= dV_dpsi2 * dpsi2_dr2p;
+  F[i2] -= dV_dpsi1 * dpsi1_dr2 + dV_dpsi2 * dpsi2_dr2 + dV_dr * r12_u;
+  F[i2n] -= dV_dpsi2 * dpsi2_dr2n;
 }
 
 void eval_forces::omp_async() const {

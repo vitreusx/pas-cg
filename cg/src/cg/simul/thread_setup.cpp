@@ -545,6 +545,7 @@ void thread::setup_pid() {
     eval.bb_minus_lj.r_min() = params.pid.bb_minus.r_min;
     eval.bb_minus_lj.depth() = params.pid.bb_minus.depth;
 
+    eval.ss_lam.version() = params.pid.lambda_version;
     eval.ss_lam.alpha() = params.pid.ss.alpha;
     eval.ss_lam.psi_0() = params.pid.ss.psi_0;
     eval.ss_ljs = st.ss_ljs;

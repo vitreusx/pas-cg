@@ -1,8 +1,10 @@
 general:
   total time: 50e3 tau
-  num of threads: 8
+  num of threads: 1
   num of trajectories: 1
   periodic boundary conditions: all
+  repulsive cutoff: 5 A
+  fixed cutoff: 20 A
 
 input:
   seq file:
@@ -11,10 +13,9 @@ input:
   morph into SAW:
     perform: true
     bond distance: 3.8 A
-    residue density: 13e-5 atom/A**3
+    residue density: 13e-5 residue/A**3
     intersection at: 4.56 A
     num of retries: 9001
-    sample initial positions from the box: true
     PBC also during SAW: true
 
 quasi-adiabatic:
@@ -50,12 +51,10 @@ langevin:
 
 neighbor list:
   algorithm: legacy
-  cutoff: 20.0 A
   pad: 10.0 A
 
 local repulsive:
   enabled: true
-  exclusion radius: 5.0 A
   depth: 1.0 eps
 
 constant Debye-Hueckel:

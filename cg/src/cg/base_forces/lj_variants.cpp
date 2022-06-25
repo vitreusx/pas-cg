@@ -78,8 +78,7 @@ void lj_variants::load(ioxx::xyaml::node const &node) {
         ss[{aa1, aa2}].depth() = def_depth.value();
 
       if (per_pair_depth.has_value())
-        ss[{aa1, aa2}].depth() =
-            per_pair_depth.value().values.at({aa1, aa2}).assumed("A");
+        ss[{aa1, aa2}].depth() = per_pair_depth.value().values.at({aa1, aa2});
     }
   }
 }

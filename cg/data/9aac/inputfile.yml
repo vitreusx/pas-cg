@@ -2,22 +2,30 @@ general:
   total time: 100e3 tau
   equil time: 7500 tau
   num of trajectories: 5
-  num of threads: 4
+  num of threads: 1
+  seed: 77977
+
+langevin:
+  temperature: 0.38 eps/kB
 
 input:
   seq file:
     source:
       (at path): 9aac.yml
+  morph into SAW:
+    initial box density: 0 residue/A**3
 
 quasi-adiabatic:
   enabled: false
 
 pseudo-improper dihedral:
   enabled: true
+  bb+:
+    depth: 0.1 eps
+  bb-:
+    depth: 0.1 eps
 
 lj force variants:
-  bb:
-    depth: 0.1 eps
   ss:
     use sinking variant: true
     per pair:

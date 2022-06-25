@@ -4,10 +4,9 @@ namespace cg::input {
 
 void morph_into_saw_t::link(ioxx::xyaml::proxy &p) {
   p["perform"] & perform;
-  p["residue density"] & residue_density;
+  p["initial box density"] & init_box_density;
   p["intersection at"] & intersection_at;
   p["num of retries"] & num_of_retries;
-  p["sample initial positions from the box"] & sample_from_box;
   p["PBC also during SAW"] & with_pbc;
 
   auto bond_dist_str = p["bond distance"].as<std::optional<std::string>>();

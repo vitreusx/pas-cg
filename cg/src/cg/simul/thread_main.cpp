@@ -136,18 +136,8 @@ void thread::eval_forces() {
     eval_lrep_forces.omp_async();
   if (params.nat_cont.enabled)
     eval_nat_cont_forces.omp_async();
-
-  if (params.nat_ang.enabled)
-    eval_nat_ang_forces.omp_async();
-  if (params.heur_ang.enabled)
-    eval_heur_ang_forces.omp_async();
-
-  if (params.heur_dih.enabled)
-    eval_heur_dih_forces.omp_async();
-  if (params.cnd.enabled)
-    eval_cnd_forces.omp_async();
-  if (params.snd.enabled)
-    eval_snd_forces.omp_async();
+  if (params.pauli.enabled)
+    eval_pauli_forces.omp_async();
 
   if (params.const_dh.enabled)
     eval_const_dh_forces.omp_async();
@@ -161,8 +151,17 @@ void thread::eval_forces() {
   if (params.pid.enabled)
     eval_pid_forces.omp_async();
 
-  if (params.pauli.enabled)
-    eval_pauli_forces.omp_async();
+  if (params.nat_ang.enabled)
+    eval_nat_ang_forces.omp_async();
+  if (params.heur_ang.enabled)
+    eval_heur_ang_forces.omp_async();
+
+  if (params.heur_dih.enabled)
+    eval_heur_dih_forces.omp_async();
+  if (params.cnd.enabled)
+    eval_cnd_forces.omp_async();
+  if (params.snd.enabled)
+    eval_snd_forces.omp_async();
 
   if (st.post_equil) {
     if (params.afm.enabled) {
@@ -203,14 +202,6 @@ void thread::post_eval_async() {
       break;
     }
   }
-
-  //#ifdef COMPAT_MODE
-  //#pragma omp master
-  //  {
-  //    if (params.out.enabled)
-  //      make_report();
-  //  };
-  //#endif
 
   ++loop_idx;
 }

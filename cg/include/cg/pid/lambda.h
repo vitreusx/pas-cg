@@ -19,18 +19,27 @@ template <typename E> struct lambda_expr {
     switch (version()) {
     case COSINE: {
       auto s = alpha() * (psi - psi_0());
-      auto val = 0.5f * cos(s) + 0.5f;
-      auto deriv = -0.5f * alpha() * sin(s);
-      return std::make_tuple(val, deriv);
+      if (abs(s) >= M_PI) {
+        return std::make_tuple((real)0, (real)0);
+      } else {
+        auto val = 0.5f * cos(s) + 0.5f;
+        auto deriv = -0.5f * alpha() * sin(s);
+        return std::make_tuple(val, deriv);
+      }
     }
     case ALGEBRAIC: {
-      auto s = alpha() * (psi - psi_0());
-      auto t = abs(s / M_PI);
-      auto x_inv = 1.0f / (2.0f * t * t - 2.0f * t - 1);
-      auto val = (t * t - 2.0f * t + 1.0f) * x_inv;
-      auto deriv = (2.0f * t * (t - 1.0f)) * x_inv * x_inv / M_PI;
-      deriv *= (s < 0.0f ? -1.0f : 1.0f);
-      return std::make_tuple(val, deriv);
+      auto t = alpha() * (psi - psi_0()) * M_1_PI, a = abs(t);
+      if (a >= M_PI) {
+        return std::make_tuple((real)0, (real)0);
+      } else {
+        auto x = 2 * a * (a - 1);
+        auto val = 1.0 - (a * a) / (x + 1);
+        auto dval_da = x / ((x + 1) * (x + 1));
+        auto dval_dpsi = alpha() * M_1_PI * dval_da;
+        if (t < 0)
+          dval_dpsi = -dval_dpsi;
+        return std::make_tuple(val, dval_dpsi);
+      }
     }
     default:
       return std::make_tuple((real)0, (real)0);

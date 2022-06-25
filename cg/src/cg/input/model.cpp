@@ -111,8 +111,8 @@ void model::morph_into_saw_def(rand_gen &gen,
   auto max_around = M_2_PI;
 
   Eigen::AlignedBox3d box;
-  if (params.sample_from_box) {
-    auto vol = (double)residues.size() / params.residue_density;
+  if (params.init_box_density > 0) {
+    auto vol = (double)residues.size() / params.init_box_density;
     auto cell_a = cbrt(vol);
     box.min() = {-cell_a / 2.0, -cell_a / 2.0, -cell_a / 2.0};
     box.max() = -box.min();
@@ -233,8 +233,8 @@ void model::morph_into_saw_f77(rand_gen &gen,
   }
 
   Eigen::AlignedBox3d box;
-  if (params.sample_from_box) {
-    auto vol = (double)residues.size() / params.residue_density;
+  if (params.init_box_density > 0) {
+    auto vol = (double)residues.size() / params.init_box_density;
     auto cell_a = cbrt(vol);
     box.min() = {-cell_a / 2.0, -cell_a / 2.0, -cell_a / 2.0};
     box.max() = -box.min();
@@ -244,10 +244,9 @@ void model::morph_into_saw_f77(rand_gen &gen,
     }
   } else {
     if (params.with_pbc)
-      throw std::runtime_error("with_pbc requires sample_from_box");
+      throw std::runtime_error("with_pbc requires non-zero box");
 
-    box.min() = Eigen::Vector3d::Zero();
-    box.max() = -box.min();
+    box.max() = box.min() = Eigen::Vector3d::Zero();
   }
 
   for (auto &chain : chains) {
