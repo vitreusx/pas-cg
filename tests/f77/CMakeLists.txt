@@ -8,7 +8,7 @@ target_sources(cg-f77 PRIVATE cg.f)
 target_compile_options(cg-f77
     PRIVATE
     -std=legacy
-    $<$<CONFIG:Debug>:-g;-O1>
+    $<$<CONFIG:Debug>:-g>
     $<$<CONFIG:Release>:-Ofast;-march=native>)
 
 #find_package(OpenMP REQUIRED)

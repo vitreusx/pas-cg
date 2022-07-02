@@ -5,7 +5,7 @@
 namespace cg::nat_ang {
 struct parameters {
   bool enabled;
-  quantity k;
+  quantity CBA;
   void load(ioxx::xyaml::node const &node);
 };
 } // namespace cg::nat_ang

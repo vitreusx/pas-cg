@@ -9,7 +9,7 @@ namespace cg::pid {
 class eval_forces {
 public:
   lambda bb_plus_lam, bb_minus_lam, ss_lam;
-  lj bb_plus_lj, bb_minus_lj;
+  sink_lj bb_plus_lj, bb_minus_lj;
   vect::const_view<sink_lj> ss_ljs;
   real cutoff;
 

@@ -56,7 +56,7 @@ heurestic angles:
 
 native angles:
   enabled: true
-  k: 30.0 eps/rad**2
+  CBA: 30.0 eps/rad**2
 
 complex native dihedrals:
   enabled: true
@@ -94,16 +94,20 @@ relative Debye-Hueckel:
 pseudo-improper dihedral:
   enabled: false
   lambda version: algebraic
-  include separated by 3: true
+  include (i, i+4): true
   bb+:
     alpha: 6.4 1/rad
     psi_0: 1.05 rad
-    r_min: 5.6 A
+    sinking: true
+    r_min: 0.0 A
+    r_max: 5.6 A
     depth: 0.2 eps
   bb-:
     alpha: 6.0 1/rad
     psi_0: -1.44 rad
-    r_min: 6.2 A
+    sinking: true
+    r_min: 0.0 A
+    r_max: 6.2 A
     depth: 0.2 eps
   ss:
     alpha: 1.2 1/rad
@@ -117,7 +121,7 @@ quasi-adiabatic:
   min |cos(h, r)|: 0.92
   min |cos(h, h)| for bb: 0.75
   max cos(n, r): 0.5
-  include separated by 3: true
+  include (i, i+4): true
   disulfides:
     force:
       harmonic:
@@ -181,14 +185,17 @@ local repulsive:
 
 lj force variants:
   bb:
+    sinking: false
     r_min: 5.0 A
     depth: 1.0 eps
   bs:
+    sinking: false
     r_min: 6.8 A
     depth: 1.0 eps
   ss:
-    use sinking variant: false
+    sinking: false
     default:
+      r_min: 5.0 A
       depth: 1.0 eps
     per pair:
       r_max: |

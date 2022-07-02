@@ -1,6 +1,6 @@
 general:
   total time: 50e3 tau
-  num of threads: 1
+  num of threads: 8
   num of trajectories: 1
   periodic boundary conditions: all
   repulsive cutoff: 5 A

@@ -4,6 +4,6 @@ namespace cg::nat_ang {
 
 void parameters::load(ioxx::xyaml::node const &p) {
   enabled = p["enabled"].as<bool>();
-  k = p["k"].as<quantity>();
+  CBA = p["CBA"].as<quantity>();
 }
 } // namespace cg::nat_ang

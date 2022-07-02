@@ -6,6 +6,10 @@ void parameters::bb_t::load(ioxx::xyaml::node const &p) {
   alpha = p["alpha"].as<quantity>();
   psi_0 = p["psi_0"].as<quantity>();
   r_min = p["r_min"].as<quantity>();
+  if (p["sinking"].as<bool>())
+    r_max = p["r_max"].as<quantity>();
+  else
+    r_max = r_min;
   depth = p["depth"].as<quantity>();
 }
 
@@ -16,7 +20,7 @@ void parameters::ss_t::load(ioxx::xyaml::node const &p) {
 
 void parameters::load(ioxx::xyaml::node const &p) {
   enabled = p["enabled"].as<bool>();
-  p["include separated by 3"] >> include4;
+  p["include (i, i+4)"] >> include4;
 
   auto lambda_version_s = p["lambda version"].as<std::string>();
   if (lambda_version_s == "cosine")

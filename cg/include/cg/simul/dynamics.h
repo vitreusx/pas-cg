@@ -19,5 +19,6 @@ public:
   void reduce(dynamics &target);
   void omp_reduce(dynamics &target);
   void omp_reduce_v2(dynamics &target, thread const &thr);
+  void omp_reduce_v3(dynamics &target, thread const &thr);
 };
 } // namespace cg::simul

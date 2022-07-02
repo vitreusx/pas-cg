@@ -213,7 +213,7 @@ void thread::setup_tether() {
 void thread::setup_nat_ang() {
   if (params.nat_ang.enabled) {
     auto &eval = eval_nat_ang_forces;
-    eval.k = params.nat_ang.k;
+    eval.CBA = params.nat_ang.CBA;
     eval.r = st.r;
     eval.angles = st.native_angles;
     eval.V = &dyn.V;
@@ -537,12 +537,14 @@ void thread::setup_pid() {
     eval.bb_plus_lam.alpha() = params.pid.bb_plus.alpha;
     eval.bb_plus_lam.psi_0() = params.pid.bb_plus.psi_0;
     eval.bb_plus_lj.r_min() = params.pid.bb_plus.r_min;
+    eval.bb_plus_lj.r_max() = params.pid.bb_plus.r_max;
     eval.bb_plus_lj.depth() = params.pid.bb_plus.depth;
 
     eval.bb_minus_lam.version() = params.pid.lambda_version;
     eval.bb_minus_lam.alpha() = params.pid.bb_minus.alpha;
     eval.bb_minus_lam.psi_0() = params.pid.bb_minus.psi_0;
     eval.bb_minus_lj.r_min() = params.pid.bb_minus.r_min;
+    eval.bb_minus_lj.r_max() = params.pid.bb_minus.r_max;
     eval.bb_minus_lj.depth() = params.pid.bb_minus.depth;
 
     eval.ss_lam.version() = params.pid.lambda_version;

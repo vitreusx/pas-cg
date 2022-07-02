@@ -17,7 +17,7 @@ void parameters::disulfide_t::load(const ioxx::xyaml::node &node) {
 
 void parameters::load(ioxx::xyaml::node const &p) {
   p["enabled"] >> enabled;
-  p["include separated by 3"] >> include4;
+  p["include (i, i+4)"] >> include4;
   p["phase duration"] >> phase_dur;
   p["breaking factor"] >> breaking_factor;
   p["min |cos(h, r)|"] >> min_cos_hr;

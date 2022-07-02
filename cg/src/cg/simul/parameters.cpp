@@ -36,7 +36,7 @@ void parameters::load(ioxx::xyaml::node const &n) {
     pbar.enabled = false;
   }
 
-  if (qa.enabled || pid.enabled)
+  if (qa.enabled)
     pauli.enabled = false;
 }
 

@@ -4,7 +4,7 @@
 namespace cg::nat_ang {
 class eval_forces {
 public:
-  real k;
+  real CBA;
 
 public:
   real *V;

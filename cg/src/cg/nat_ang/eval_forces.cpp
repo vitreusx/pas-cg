@@ -26,9 +26,9 @@ void eval_forces::iter(nat_ang_expr<E> const &angle) const {
   auto theta = acos(cos_theta);
 
   auto dtheta = theta - nat_theta;
-  *V += (real)0.5 * k * dtheta * dtheta;
+  *V += CBA * dtheta * dtheta;
 
-  auto dV_dtheta = k * dtheta;
+  auto dV_dtheta = (real)2.0 * CBA * dtheta;
   F[i1] -= dV_dtheta * dtheta_dr1;
   F[i2] -= dV_dtheta * dtheta_dr2;
   F[i3] -= dV_dtheta * dtheta_dr3;

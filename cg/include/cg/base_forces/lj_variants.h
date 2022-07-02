@@ -8,7 +8,7 @@
 
 namespace cg {
 struct lj_variants {
-  lj bb, bs, sb;
+  sink_lj bb, bs, sb;
   std::unordered_map<std::pair<amino_acid, amino_acid>, sink_lj> ss;
 
   void load(ioxx::xyaml::node const &node);

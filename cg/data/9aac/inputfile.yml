@@ -20,14 +20,19 @@ quasi-adiabatic:
 
 pseudo-improper dihedral:
   enabled: true
+  include (i, i+4): false
   bb+:
     depth: 0.1 eps
+    r_min: 0.0 A
   bb-:
     depth: 0.1 eps
+    r_min: 0.0 A
 
 lj force variants:
   ss:
-    use sinking variant: true
+    sinking: true
+    default:
+      r_min: 0.0 A
     per pair:
       depth:
         (at path): mj-matrix.csv

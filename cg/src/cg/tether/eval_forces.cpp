@@ -24,6 +24,7 @@ template <typename E> void eval_forces::iter(pair_expr<E> const &tether) const {
 
   auto r12_n = norm(r12);
   auto [V_, dV_dr] = harmonic(H1, H2, nat_dist)(r12_n);
+  dV_dr = clamp(dV_dr, (real)-1e3, (real)1e3);
 
   auto r12_u = r12 / r12_n;
   *V += V_;

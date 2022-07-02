@@ -24,9 +24,18 @@ template <typename T> struct per_pair_values {
 void lj_variants::load(ioxx::xyaml::node const &node) {
   bb.r_min() = node["bb"]["r_min"].as<quantity>();
   bb.depth() = node["bb"]["depth"].as<quantity>();
+  if (node["bb"]["sinking"].as<bool>())
+    bb.r_max() = node["bb"]["r_max"].as<quantity>();
+  else
+    bb.r_max() = bb.r_min();
 
   bs.r_min() = node["bs"]["r_min"].as<quantity>();
   bs.depth() = node["bs"]["depth"].as<quantity>();
+  if (node["bs"]["sinking"].as<bool>())
+    bs.r_max() = node["bs"]["r_max"].as<quantity>();
+  else
+    bs.r_max() = bs.r_min();
+
   sb = bs;
 
   std::optional<quantity> def_depth, def_r_min, def_r_max;
@@ -44,7 +53,7 @@ void lj_variants::load(ioxx::xyaml::node const &node) {
     ss_per_pair["r_max"] >> per_pair_r_max;
   }
 
-  auto use_sinking = node["ss"]["use sinking variant"].as<bool>();
+  auto use_sinking = node["ss"]["sinking"].as<bool>();
   if (use_sinking) {
     if (!def_r_min.has_value())
       def_r_min = bb.r_min();

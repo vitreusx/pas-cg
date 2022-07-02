@@ -6,6 +6,7 @@
 #include <set>
 #include <sstream>
 #include <string_view>
+#include <cg/utils/angles.h>
 
 namespace cg {
 void pdb_file::load(std::istream &is, pdb_load_options const &load_opts) {
@@ -364,8 +365,7 @@ input::model pdb_file::to_model() const {
       if (idx + 2 < xmd_chain->residues.size()) {
         auto *res3 = xmd_chain->residues[idx + 2];
         auto r3 = res3->pos;
-        auto r12_u = unit(r2 - r1), r23_u = unit(r3 - r2);
-        auto theta = acos(dot(r12_u, r23_u));
+        auto theta = bond_angle(r1, r2, r3);
 
         auto &xmd_angle = xmd_model.angles.emplace_back();
         xmd_angle.res1 = res1;
@@ -376,13 +376,7 @@ input::model pdb_file::to_model() const {
         if (idx + 3 < xmd_chain->residues.size()) {
           auto *res4 = xmd_chain->residues[idx + 3];
           auto r4 = res4->pos;
-
-          auto r12 = r2 - r1, r23 = r3 - r2, r34 = r4 - r3;
-          auto x12_23 = cross(r12, r23), x23_34 = cross(r23, r34);
-          auto x12_23_u = unit(x12_23), x23_34_u = unit(x23_34);
-          auto phi = acos(dot(x12_23_u, x23_34_u));
-          if (dot(x12_23, r34) < 0.0f)
-            phi = -phi;
+          auto phi = dihedral_angle(r1, r2, r3, r4);
 
           auto &xmd_dihedral = xmd_model.dihedrals.emplace_back();
           xmd_dihedral.res1 = res1;

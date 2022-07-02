@@ -52,4 +52,9 @@ void dynamics::omp_reduce_v2(dynamics &target, thread const &thr) {
 #pragma omp barrier
   }
 }
+
+void dynamics::omp_reduce_v3(dynamics &target, const thread &thr) {
+
+}
+
 } // namespace cg::simul

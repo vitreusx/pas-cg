@@ -26,7 +26,7 @@ template <typename E> void eval_forces::iter(dh::pair_expr<E> const &es) const {
 
   auto Vij =
       V_factor * q1_x_q2 * exp(-r12_n * screen_dist_inv) * r12_rn * r12_rn;
-  auto dVij_dr = -Vij * (screen_dist_inv + r12_rn);
+  auto dVij_dr = -Vij * (screen_dist_inv + (real)2.0 * r12_rn);
 
   *V += Vij;
 
