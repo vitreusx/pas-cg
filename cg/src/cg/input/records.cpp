@@ -143,6 +143,11 @@ std::optional<cryst1> cryst1::try_parse(const std::string &line) {
   c1.cell.x() = fields::real_field(7, 15, 9, 3).read(line);
   c1.cell.y() = fields::real_field(16, 24, 9, 3).read(line);
   c1.cell.z() = fields::real_field(25, 33, 9, 3).read(line);
+  c1.alpha = fields::real_field(34, 40, 7, 2).read(line);
+  c1.beta = fields::real_field(41, 47, 7, 2).read(line);
+  c1.gamma = fields::real_field(48, 54, 7, 2).read(line);
+  c1.sgroup = fields::lstring(56, 66).read(line);
+  c1.z = fields::integer(67, 70).read(line);
 
   return c1;
 }
@@ -154,6 +159,11 @@ std::string cryst1::write() const {
   fields::real_field(7, 15, 9, 3).write(line, cell.x());
   fields::real_field(16, 24, 9, 3).write(line, cell.y());
   fields::real_field(25, 33, 9, 3).write(line, cell.z());
+  fields::real_field(34, 40, 7, 2).write(line, alpha);
+  fields::real_field(41, 47, 7, 2).write(line, beta);
+  fields::real_field(48, 54, 7, 2).write(line, gamma);
+  fields::lstring(56, 66).write(line, sgroup);
+  fields::integer(67, 70).write(line, z);
 
   return line;
 }

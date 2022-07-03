@@ -265,6 +265,7 @@ void thread::setup_heur_dih() {
     eval.r = st.r;
     eval.V = &dyn.V;
     eval.F = dyn.F;
+    eval.dihedrals = st.heur_dihedrals;
 
     for (auto const &heur_pair : aa_heur_pair::all()) {
       auto idx = (uint8_t)heur_pair;

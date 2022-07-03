@@ -209,6 +209,10 @@ void make_report::emit_pdb() const {
     pdb_of << model_r.write();
     first_line = false;
 
+    auto cryst1_r = records::cryst1();
+    cryst1_r.cell = snap.model_box.cell;
+    pdb_of << '\n' << cryst1_r.write();
+
     auto p = ioxx::table::sl4_parser();
     p.fit(chain_scalars_tab);
 

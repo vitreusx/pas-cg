@@ -63,6 +63,9 @@ public:
 class cryst1 {
 public:
   vec3<double> cell;
+  double alpha = 90.0, beta = 90.0, gamma = 90.0;
+  std::string sgroup = "P 1";
+  int z = 1;
 
 public:
   static std::optional<cryst1> try_parse(std::string const &line);
