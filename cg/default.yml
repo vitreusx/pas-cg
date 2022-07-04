@@ -28,6 +28,7 @@ input:
   morph into line:
     perform: false
     bond distance: 3.8 A
+  normalize mass: true
 
 langevin:
   enabled: true

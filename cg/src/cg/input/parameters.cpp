@@ -32,5 +32,7 @@ void parameters::load(ioxx::xyaml::node const &p) {
     if (line_node["perform"].as<bool>())
       morph_into_line = line_node["bond distance"].as<quantity>();
   }
+
+  p["normalize mass"] >> normalize_mass;
 }
 } // namespace cg::input

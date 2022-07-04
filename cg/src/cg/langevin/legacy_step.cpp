@@ -54,6 +54,12 @@ void legacy_step::omp_async() const {
   auto gamma_factor_sqrt = sqrt(gamma_factor);
   auto dt_sqrt = sqrt(dt);
 
+  if (*t == 0) {
+#pragma omp for schedule(static)
+    for (int idx = 0; idx < num_particles; ++idx)
+      y2[idx] = F[idx] * (dt * dt / (real)2.0);
+  }
+
 #pragma omp for schedule(static) nowait
   for (int idx = 0; idx < num_particles; ++idx) {
     auto aa_idx = (uint8_t)atype[idx];

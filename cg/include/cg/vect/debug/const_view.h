@@ -5,7 +5,12 @@ namespace nitro::debug {
 template <typename T> class const_view {
 public:
   const_view() = default;
-  explicit const_view(std::deque<T> const *data) : data{data} {};
+  explicit const_view(std::deque<T> const *data) : data{data} {
+    if (data)
+      n = data->size();
+    else
+      n = 0;
+  };
 
   T const &operator[](int idx) const {
     return data->at(idx);
@@ -32,5 +37,6 @@ public:
 
 protected:
   std::deque<T> const *data = nullptr;
+  int n = 0;
 };
 } // namespace nitro::debug

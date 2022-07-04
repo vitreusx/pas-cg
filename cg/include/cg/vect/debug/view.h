@@ -6,7 +6,12 @@ namespace nitro::debug {
 template <typename T> class view {
 public:
   view() = default;
-  explicit view(std::deque<T> *data) : data{data} {};
+  explicit view(std::deque<T> *data) : data{data} {
+    if (data)
+      n = data->size();
+    else
+      n = 0;
+  };
 
   T &operator[](int idx) const {
     return data->at(idx);

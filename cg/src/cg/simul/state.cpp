@@ -164,6 +164,10 @@ void state::compile_model() {
     atype[res_map.at(res.get())] = res->type;
 
   comp_aa_data = compiled_aa_data(params.aa_data);
+  if (params.input.normalize_mass) {
+    for (auto &x : comp_aa_data.mass)
+      x = 1.0;
+  }
 
   box.cell = model.model_box.cell;
   box.cell_inv = model.model_box.cell_inv;
