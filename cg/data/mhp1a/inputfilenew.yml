@@ -13,7 +13,7 @@ input:
   morph into SAW:
     perform: true
     bond distance: 3.8 A
-    residue density: 13e-5 residue/A**3
+    initial box density: 13e-5 residue/A**3
     intersection at: 4.56 A
     num of retries: 9001
     PBC also during SAW: true

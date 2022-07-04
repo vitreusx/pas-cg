@@ -210,7 +210,9 @@ void make_report::emit_pdb() const {
     first_line = false;
 
     auto cryst1_r = records::cryst1();
-    cryst1_r.cell = snap.model_box.cell;
+    cryst1_r.cell.x() = quantity(snap.model_box.cell.x()).in("A");
+    cryst1_r.cell.y() = quantity(snap.model_box.cell.y()).in("A");
+    cryst1_r.cell.z() = quantity(snap.model_box.cell.z()).in("A");
     pdb_of << '\n' << cryst1_r.write();
 
     auto p = ioxx::table::sl4_parser();
@@ -408,8 +410,7 @@ void make_report::add_map_data() const {
     row["i3"] = i3;
     row["i4"] = i4;
 
-    auto r1 = st->r[i1], r2 = st->r[i2], r3 = st->r[i3],
-         r4 = st->r[i4];
+    auto r1 = st->r[i1], r2 = st->r[i2], r3 = st->r[i3], r4 = st->r[i4];
     row["phi"] = dihedral_value(r1, r2, r3, r4);
 
     if (dih.phi.has_value())
