@@ -56,7 +56,7 @@ public:
   void setup_output();
 
   vect::vector<real> mass_inv, mass_rsqrt;
-  vect::vector<vec3r> v;
+  vect::vector<vec3r> v, noise;
   vect::vector<vec3sr> y0, y1, y2, y3, y4, y5;
   solver_real true_t;
   real temperature;
@@ -117,7 +117,6 @@ public:
   void setup_qa();
 
   vect::vector<pid::bundle> pid_bundles;
-  vect::vector<sink_lj> ss_ljs;
   void setup_pid();
 
 public:

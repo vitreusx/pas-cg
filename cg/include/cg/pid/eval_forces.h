@@ -10,7 +10,7 @@ class eval_forces {
 public:
   lambda bb_plus_lam, bb_minus_lam, ss_lam;
   sink_lj bb_plus_lj, bb_minus_lj;
-  vect::const_view<sink_lj> ss_ljs;
+  vect::vector<sink_lj> ss_ljs;
   real cutoff;
 
 public:

@@ -3,6 +3,7 @@
 
 namespace cg::simul {
 class thread;
+class thread_team;
 
 class dynamics {
 public:
@@ -19,5 +20,6 @@ public:
   void reduce(dynamics &target);
   void omp_reduce(dynamics &target);
   void omp_reduce_v2(dynamics &target, thread const &thr);
+  void omp_reduce_v3(dynamics &target, thread_team const &team);
 };
 } // namespace cg::simul

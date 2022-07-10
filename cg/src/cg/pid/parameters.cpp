@@ -1,35 +1,35 @@
 #include <cg/pid/parameters.h>
 #include <cg/utils/ioxx_interop.h>
+
 namespace cg::pid {
-
-void parameters::bb_t::load(ioxx::xyaml::node const &p) {
-  alpha = p["alpha"].as<quantity>();
-  psi_0 = p["psi_0"].as<quantity>();
-  r_min = p["r_min"].as<quantity>();
-  if (p["sinking"].as<bool>())
-    r_max = p["r_max"].as<quantity>();
-  else
-    r_max = r_min;
-  depth = p["depth"].as<quantity>();
+void parameters::lambda_params::load(const ioxx::xyaml::node &node) {
+  node["alpha"] >> alpha;
+  node["psi_0"] >> psi_0;
 }
 
-void parameters::ss_t::load(ioxx::xyaml::node const &p) {
-  alpha = p["alpha"].as<quantity>();
-  psi_0 = p["psi_0"].as<quantity>();
-}
+void parameters::load(const ioxx::xyaml::node &node) {
+  node["enabled"] >> enabled;
+  node["include (i, i+4)"] >> include4;
 
-void parameters::load(ioxx::xyaml::node const &p) {
-  enabled = p["enabled"].as<bool>();
-  p["include (i, i+4)"] >> include4;
+  auto lambda_n = node["lambda"];
+  auto lambda_variant_name = lambda_n["variant"].as<std::string>();
+  if (lambda_variant_name == "cosine")
+    lambda_variant = lambda_version::COSINE;
+  else if (lambda_variant_name == "algebraic")
+    lambda_variant = lambda_version::ALGEBRAIC;
 
-  auto lambda_version_s = p["lambda version"].as<std::string>();
-  if (lambda_version_s == "cosine")
-    lambda_version = lambda_version::COSINE;
-  else if (lambda_version_s == "algebraic")
-    lambda_version = lambda_version::ALGEBRAIC;
+  lambda_n["bb+"] >> bb_plus_lambda;
+  lambda_n["bb-"] >> bb_minus_lambda;
+  lambda_n["ss"] >> ss_lambda;
 
-  p["bb+"] >> bb_plus;
-  p["bb-"] >> bb_minus;
-  p["ss"] >> ss;
+  auto forces_n = node["forces"];
+  forces_n["variant"] >> def_force_variant;
+  bb_plus_force.variant = def_force_variant;
+  bb_minus_force.variant = def_force_variant;
+  ss_force.variant = def_force_variant;
+
+  forces_n["bb-"] >> bb_minus_force;
+  forces_n["bb+"] >> bb_plus_force;
+  forces_n["ss"] >> ss_force;
 }
 } // namespace cg::pid

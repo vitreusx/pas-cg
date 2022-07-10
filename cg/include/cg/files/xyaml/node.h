@@ -74,6 +74,8 @@ public:
 
   YAML::Node flatten() const;
 
+  operator bool() const;
+
 public:
   std::optional<std::filesystem::path> loc = std::nullopt;
   mutable std::shared_ptr<std::unordered_map<std::string, node>> children;

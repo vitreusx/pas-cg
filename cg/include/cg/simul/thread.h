@@ -19,6 +19,7 @@ public:
   state &st;
   int num_threads;
   std::vector<std::unique_ptr<thread>> threads;
+  std::vector<vect::const_view<vec3r>> forces;
 };
 
 class thread {

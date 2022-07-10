@@ -1,5 +1,7 @@
 #pragma once
+#include <cg/files/files.h>
 #include <cg/types/amp.h>
+#include <cg/utils/quantity.h>
 
 namespace cg {
 class harmonic {
@@ -13,7 +15,7 @@ public:
       : H1{H1}, H2{H2}, nat_r{nat_r} {};
 
 public:
-  inline std::tuple<real, real> operator()(real r) const {
+  inline auto operator()(real r) const {
     auto dr = r - nat_r, dr2 = dr * dr;
     auto V = (real)0.5 * dr2 * (H1 + H2 * dr2);
     auto dV_dr = dr * (H1 + (real)2.0 * H2 * dr2);
@@ -21,6 +23,14 @@ public:
     return std::make_tuple(V, dV_dr);
   }
 
-  static inline real cutoff(real nat_r) { return (real)2.0 * nat_r; }
+  static inline auto cutoff(real nat_r) {
+    return (real)2.0 * nat_r;
+  }
+};
+
+struct harmonic_specs {
+  std::optional<quantity> H1, H2, nat_r;
+  void load(ioxx::xyaml::node const &node);
+  operator harmonic() const;
 };
 } // namespace cg

@@ -78,4 +78,9 @@ void node::merge(const node &other) {
   }
 }
 
+node::operator bool() const {
+  return this->YAML::Node::operator bool() &&
+         (!IsScalar() || Scalar() != "null");
+}
+
 } // namespace ioxx::xyaml

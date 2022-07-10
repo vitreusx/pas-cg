@@ -31,7 +31,7 @@ void process_contacts::iter(int idx) const {
   auto r12_rn = norm_inv(r12);
   if (fixed_cutoff.has_value() && r12_rn * fixed_cutoff.value() < 1.0)
     return;
-  
+
   auto r12_u = r12 * r12_rn;
 
   auto saturation = saturation_value(contact);
@@ -39,7 +39,7 @@ void process_contacts::iter(int idx) const {
   static contact_type ss_type =
       contact_type::SIDE_SIDE(aa_code::CYS, aa_code::CYS);
   if (!disulfide.has_value() || (int16_t)type != (int16_t)ss_type) {
-    auto lj_force = ljs[type];
+    auto lj_force = ljs[(int16_t)type];
     auto r12_n = r12_rn * norm_squared(r12);
     auto [Vij, dVij_dr] = lj_force(r12_n, r12_rn);
     *V += saturation * Vij;
@@ -48,7 +48,7 @@ void process_contacts::iter(int idx) const {
     F[i2] -= f;
 
     if (status == FORMING_OR_FORMED && saturation == 1.0f) {
-      if (factor * lj_force.r_max() * r12_rn < 1.0f) {
+      if (factor * lj_force.r_high() * r12_rn < 1.0f) {
         contact.status() = BREAKING;
         contact.ref_time() = *t;
       }
@@ -72,7 +72,7 @@ void process_contacts::iter(int idx) const {
           contact.ref_time() = *t;
         }
       } else {
-        if (factor * ljs[ss_type].r_max() * r12_rn < 1.0f) {
+        if (factor * ljs[(int16_t)ss_type].r_high() * r12_rn < 1.0f) {
           contact.status() = BREAKING;
           contact.ref_time() = *t;
         }

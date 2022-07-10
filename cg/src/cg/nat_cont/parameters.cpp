@@ -1,5 +1,6 @@
 #include <cg/nat_cont/parameters.h>
 #include <cg/utils/ioxx_interop.h>
+
 namespace cg::nat_cont {
 
 void parameters::load(ioxx::xyaml::node const &p) {

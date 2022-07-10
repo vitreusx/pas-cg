@@ -27,6 +27,8 @@ public:
   static const int NUM_TYPES =
       4 + amino_acid::NUM_TYPES * amino_acid::NUM_TYPES;
 
+  static std::vector<contact_type> all();
+
   bool operator==(contact_type const &other) const;
   bool operator!=(contact_type const &other) const;
 

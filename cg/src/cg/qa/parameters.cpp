@@ -1,7 +1,7 @@
 #include <cg/qa/parameters.h>
 #include <cg/utils/ioxx_interop.h>
-namespace cg::qa {
 
+namespace cg::qa {
 void parameters::ss_spec_crit_t::load(const ioxx::xyaml::node &node) {
   node["enabled"] >> enabled;
   node["max neigh count"] >> max_neigh_count;
@@ -25,5 +25,15 @@ void parameters::load(ioxx::xyaml::node const &p) {
   p["max cos(n, r)"] >> max_cos_nr;
   p["disulfides"] >> disulfide;
   p["formation tolerance"] >> formation_tolerance;
+
+  auto forces_n = p["forces"];
+  forces_n["variant"] >> def_force_variant;
+  bb.variant = def_force_variant;
+  bs.variant = def_force_variant;
+  ss.variant = def_force_variant;
+
+  forces_n["bb"] >> bb;
+  forces_n["bs"] >> bs;
+  forces_n["ss"] >> ss;
 }
 } // namespace cg::qa

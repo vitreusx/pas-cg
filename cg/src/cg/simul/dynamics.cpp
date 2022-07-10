@@ -53,4 +53,19 @@ void dynamics::omp_reduce_v2(dynamics &target, thread const &thr) {
   }
 }
 
+void dynamics::omp_reduce_v3(dynamics &target, const thread_team &team) {
+#pragma omp atomic
+  target.V += V;
+
+#pragma omp barrier
+
+#pragma omp for schedule(static) nowait
+  for (int idx = 0; idx < F.size(); ++idx) {
+    vec3r f;
+    for (auto const &F_ : team.forces)
+      f += F_[idx];
+    target.F[idx] += f;
+  }
+}
+
 } // namespace cg::simul

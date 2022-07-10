@@ -1,6 +1,10 @@
 #pragma once
+#include <cg/amino/amino_acid.h>
+#include <cg/files/files.h>
 #include <cg/types/amp.h>
+#include <cg/utils/hash.h>
 #include <cg/utils/math.h>
+#include <cg/utils/quantity.h>
 #include <cg/vect/vect.h>
 
 namespace cg {
@@ -30,5 +34,16 @@ public:
   static inline real compute_cutoff(real r_min) {
     return (real)2.0 * r_min;
   }
+};
+
+struct lj_specs {
+  std::optional<quantity> depth, r_min;
+  operator lj() const;
+  void load(ioxx::xyaml::node const &node);
+};
+
+struct ss_lj_specs {
+  std::unordered_map<std::pair<amino_acid, amino_acid>, lj_specs> ss_specs;
+  void load(ioxx::xyaml::node const &node);
 };
 } // namespace cg

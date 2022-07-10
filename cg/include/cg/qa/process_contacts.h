@@ -2,15 +2,15 @@
 #include "contact.h"
 #include "cys_neigh.h"
 #include "free_pair.h"
-#include "lj_variants.h"
 #include <cg/amino/sync_data.h>
 #include <cg/base_forces/disulfide.h>
+#include <cg/base_forces/sink_lj.h>
 #include <cg/types/box.h>
 
 namespace cg::qa {
 class process_contacts {
 public:
-  lj_variants ljs;
+  vect::vector<sink_lj> ljs;
   real cycle_time, cycle_time_inv;
   real factor;
   std::optional<real> fixed_cutoff;

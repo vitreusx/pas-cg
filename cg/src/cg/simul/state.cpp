@@ -271,6 +271,8 @@ void state::setup_langevin() {
       y1[idx] *= heat;
     }
   }
+
+  noise = vect::vector<vec3r>(num_res);
 }
 
 void state::setup_pbar() {
@@ -462,17 +464,6 @@ void state::setup_qa() {
 
 void state::setup_pid() {
   if (params.pid.enabled) {
-    ss_ljs =
-        vect::vector<sink_lj>(amino_acid::NUM_TYPES * amino_acid::NUM_TYPES);
-    for (auto const &aa1 : amino_acid::all()) {
-      auto idx1 = (uint16_t)(uint8_t)aa1;
-      for (auto const &aa2 : amino_acid::all()) {
-        auto idx2 = (uint16_t)(uint8_t)aa2;
-        auto ss_idx = idx1 * (uint16_t)amino_acid::NUM_TYPES + idx2;
-        ss_ljs[ss_idx] = params.lj_vars.ss[{aa1, aa2}];
-      }
-    }
-
     nl_required = true;
   }
 }

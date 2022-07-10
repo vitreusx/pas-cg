@@ -60,17 +60,24 @@ void legacy_step::omp_async() const {
       y2[idx] = F[idx] * (dt * dt / (real)2.0);
   }
 
+#pragma omp master
+  {
+    for (int idx = 0; idx < num_particles; ++idx)
+      noise[idx].x() = local_gen.normal<real>();
+    for (int idx = 0; idx < num_particles; ++idx)
+      noise[idx].y() = local_gen.normal<real>();
+    for (int idx = 0; idx < num_particles; ++idx)
+      noise[idx].z() = local_gen.normal<real>();
+  };
+#pragma omp barrier
+
 #pragma omp for schedule(static) nowait
   for (int idx = 0; idx < num_particles; ++idx) {
     auto aa_idx = (uint8_t)atype[idx];
     auto gamma = gamma_factor * mass[aa_idx];
     auto noise_sd = noise_factor * gamma_factor_sqrt * mass_rsqrt[aa_idx];
 
-    auto [noise_x, noise_y] = local_gen.normal_x2<real>();
-    auto noise_z = local_gen.normal<real>();
-    auto noise = vec3r(noise_x, noise_y, noise_z);
-
-    y1[idx] = y1[idx] + noise_sd * noise * dt * dt_sqrt;
+    y1[idx] = y1[idx] + noise_sd * noise[idx] * dt * dt_sqrt;
 
     vec3r f = F[idx];
     //    sanitize(f, (real)1e3);

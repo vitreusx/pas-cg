@@ -62,6 +62,8 @@ void thread::setup_gen() {
 
 void thread::setup_dyn() {
   dyn = dynamics(st.num_res);
+#pragma omp critical
+  team.forces.push_back(dyn.F);
 }
 
 void thread::setup_output() {
@@ -114,6 +116,9 @@ void thread::setup_langevin() {
     step.true_t = &st.true_t;
 
     step.F = st.dyn.F;
+
+    if (params.lang.type == lang::lang_type::LEGACY)
+      lang_legacy_step.noise = st.noise;
   }
 }
 
@@ -320,6 +325,22 @@ void thread::setup_nat_cont() {
     eval.F = dyn.F;
     eval.fixed_cutoff = params.gen.fixed_cutoff;
 
+    auto get_disul_force = [&](force_spec spec) -> disulfide_force {
+      disulfide_force res;
+      if (spec.variant == "harmonic")
+        res.force = (harmonic)spec.harmonic.value();
+      else if (spec.variant == "lj")
+        res.force = (lj)spec.lj.value();
+      else
+        throw std::runtime_error("invalid force spec for disulfide force");
+      return res;
+    };
+
+    if (params.nat_cont.ss_force.has_value())
+      eval.disulfide = get_disul_force(params.nat_cont.ss_force.value());
+    else
+      eval.disulfide = std::nullopt;
+
     auto &update = update_nat_contacts;
     update.r = st.r;
     update.simul_box = &st.box;
@@ -423,20 +444,6 @@ void thread::setup_qa() {
     loop.F = dyn.F;
     loop.V = &dyn.V;
 
-    loop.req_min_dist[(int16_t)qa::contact_type::BACK_BACK()] =
-        params.lj_vars.bb.r_min();
-    loop.req_min_dist[(int16_t)qa::contact_type::BACK_SIDE()] =
-        params.lj_vars.bs.r_min();
-    loop.req_min_dist[(int16_t)qa::contact_type::SIDE_BACK()] =
-        params.lj_vars.sb.r_min();
-
-    for (auto const &aa1 : amino_acid::all()) {
-      for (auto const &aa2 : amino_acid::all()) {
-        loop.req_min_dist[(int16_t)qa::contact_type::SIDE_SIDE(aa1, aa2)] =
-            params.lj_vars.ss.at({aa1, aa2}).r_max();
-      }
-    }
-
     for (auto const &aa : amino_acid::all())
       loop.ptype[(uint8_t)aa] = st.comp_aa_data.ptype[(uint8_t)aa];
 
@@ -453,7 +460,6 @@ void thread::setup_qa() {
     auto &proc_cont = process_qa_contacts;
     proc_cont.cycle_time = params.qa.phase_dur;
     proc_cont.cycle_time_inv = 1.0 / proc_cont.cycle_time;
-    proc_cont.ljs = qa::lj_variants(params.lj_vars);
     proc_cont.set_factor(params.qa.breaking_factor);
     proc_cont.t = &st.t;
     proc_cont.sync = st.sync_values;
@@ -466,6 +472,67 @@ void thread::setup_qa() {
     proc_cont.F = dyn.F;
     proc_cont.disulfide_special_criteria = st.ss_spec_crit;
     proc_cont.fixed_cutoff = params.gen.fixed_cutoff;
+
+    auto get_force = [&](force_spec spec) -> sink_lj {
+      if (spec.variant == "lj") {
+        return sink_lj((lj)spec.lj.value());
+      } else if (spec.variant == "sink lj") {
+        auto sink_lj_ = spec.sink_lj.value_or(sink_lj_specs());
+        auto lj_ = spec.lj.value();
+
+        if (!sink_lj_.depth.has_value())
+          sink_lj_.depth = lj_.depth;
+        if (!sink_lj_.r_low.has_value())
+          sink_lj_.r_low = params.gen.repulsive_cutoff;
+        if (!sink_lj_.r_high.has_value())
+          sink_lj_.r_high = lj_.r_min;
+
+        return sink_lj_;
+      } else {
+        throw std::runtime_error("invalid force spec for QA potential");
+      }
+    };
+
+    auto get_ss_force = [&](ss_force_spec spec, amino_acid aa1,
+                            amino_acid aa2) -> sink_lj {
+      if (spec.variant == "lj") {
+        return sink_lj((lj)spec.lj->ss_specs.at({aa1, aa2}));
+      } else if (spec.variant == "sink lj") {
+        auto sink_lj_ = spec.sink_lj.has_value()
+                            ? spec.sink_lj->ss_specs.at({aa1, aa2})
+                            : sink_lj_specs();
+        auto lj_ = spec.lj->ss_specs.at({aa1, aa2});
+
+        if (!sink_lj_.depth.has_value())
+          sink_lj_.depth = lj_.depth;
+        if (!sink_lj_.r_low.has_value())
+          sink_lj_.r_low = params.gen.repulsive_cutoff;
+        if (!sink_lj_.r_high.has_value())
+          sink_lj_.r_high = lj_.r_min;
+
+        return sink_lj_;
+      } else {
+        throw std::runtime_error("invalid force spec for QA potential");
+      }
+    };
+
+    proc_cont.ljs = vect::vector<sink_lj>(qa::contact_type::NUM_TYPES);
+    proc_cont.ljs[(int16_t)qa::contact_type::BACK_BACK()] =
+        get_force(params.qa.bb);
+    proc_cont.ljs[(int16_t)qa::contact_type::BACK_SIDE()] =
+        proc_cont.ljs[(int16_t)qa::contact_type::SIDE_BACK()] =
+            get_force(params.qa.bs);
+
+    for (auto const &aa1 : amino_acid::all()) {
+      for (auto const &aa2 : amino_acid::all()) {
+        proc_cont.ljs[(int16_t)qa::contact_type::SIDE_SIDE(aa1, aa2)] =
+            get_ss_force(params.qa.ss, aa1, aa2);
+      }
+    }
+
+    for (auto const &ctype : qa::contact_type::all())
+      loop.req_min_dist[(int16_t)ctype] =
+          proc_cont.ljs[(int16_t)ctype].r_high();
 
     auto &update = update_qa_pairs;
     update.r = st.r;
@@ -486,7 +553,18 @@ void thread::setup_qa() {
 
         fin_proc.part_of_ssbond = st.part_of_ssbond;
 
-        proc_cont.disulfide = params.qa.disulfide->force;
+        auto get_disul_force = [&](force_spec spec) -> disulfide_force {
+          disulfide_force res;
+          if (spec.variant == "harmonic")
+            res.force = (harmonic)spec.harmonic.value();
+          else if (spec.variant == "lj")
+            res.force = (lj)spec.lj.value();
+          else
+            throw std::runtime_error("invalid force spec for disulfide force");
+          return res;
+        };
+
+        proc_cont.disulfide = get_disul_force(params.qa.disulfide->force);
         proc_cont.ss_def_dist = params.qa.disulfide->spec_crit.def_dist;
         proc_cont.ss_dist_max_div = params.qa.disulfide->spec_crit.max_dist_dev;
         proc_cont.neigh = st.neigh_count;
@@ -514,8 +592,9 @@ void thread::setup_qa() {
     }
 
     real max_req_dist = 0.0;
-    for (int idx = 0; idx < qa::contact_type::NUM_TYPES; ++idx)
-      max_req_dist = max(max_req_dist, loop.req_min_dist[idx]);
+    for (auto const &x : loop.req_min_dist)
+      max_req_dist = max(max_req_dist, x);
+
     update.max_formation_min_dist = loop.max_req_dist = max_req_dist;
 
     update.fixed_cutoff = params.gen.fixed_cutoff;
@@ -534,24 +613,74 @@ void thread::setup_pid() {
     eval.F = dyn.F;
     eval.total_disp = &st.total_disp;
 
-    eval.bb_plus_lam.version() = params.pid.lambda_version;
-    eval.bb_plus_lam.alpha() = params.pid.bb_plus.alpha;
-    eval.bb_plus_lam.psi_0() = params.pid.bb_plus.psi_0;
-    eval.bb_plus_lj.r_min() = params.pid.bb_plus.r_min;
-    eval.bb_plus_lj.r_max() = params.pid.bb_plus.r_max;
-    eval.bb_plus_lj.depth() = params.pid.bb_plus.depth;
+    eval.bb_plus_lam.version() = params.pid.lambda_variant;
+    eval.bb_plus_lam.alpha() = params.pid.bb_plus_lambda.alpha;
+    eval.bb_plus_lam.psi_0() = params.pid.bb_plus_lambda.psi_0;
 
-    eval.bb_minus_lam.version() = params.pid.lambda_version;
-    eval.bb_minus_lam.alpha() = params.pid.bb_minus.alpha;
-    eval.bb_minus_lam.psi_0() = params.pid.bb_minus.psi_0;
-    eval.bb_minus_lj.r_min() = params.pid.bb_minus.r_min;
-    eval.bb_minus_lj.r_max() = params.pid.bb_minus.r_max;
-    eval.bb_minus_lj.depth() = params.pid.bb_minus.depth;
+    eval.bb_minus_lam.version() = params.pid.lambda_variant;
+    eval.bb_minus_lam.alpha() = params.pid.bb_minus_lambda.alpha;
+    eval.bb_minus_lam.psi_0() = params.pid.bb_minus_lambda.psi_0;
 
-    eval.ss_lam.version() = params.pid.lambda_version;
-    eval.ss_lam.alpha() = params.pid.ss.alpha;
-    eval.ss_lam.psi_0() = params.pid.ss.psi_0;
-    eval.ss_ljs = st.ss_ljs;
+    eval.ss_lam.version() = params.pid.lambda_variant;
+    eval.ss_lam.alpha() = params.pid.ss_lambda.alpha;
+    eval.ss_lam.psi_0() = params.pid.ss_lambda.psi_0;
+
+    auto get_force = [&](force_spec spec) -> sink_lj {
+      if (spec.variant == "lj") {
+        return sink_lj((lj)spec.lj.value());
+      } else if (spec.variant == "sink lj") {
+        auto sink_lj_ = spec.sink_lj.value_or(sink_lj_specs());
+        auto lj_ = spec.lj.value();
+
+        if (!sink_lj_.depth.has_value())
+          sink_lj_.depth = lj_.depth;
+        if (!sink_lj_.r_low.has_value())
+          sink_lj_.r_low = 0;
+        if (!sink_lj_.r_high.has_value())
+          sink_lj_.r_high = lj_.r_min;
+
+        return sink_lj_;
+      } else {
+        throw std::runtime_error("invalid force spec for PID potential");
+      }
+    };
+
+    auto get_ss_force = [&](ss_force_spec spec, amino_acid aa1,
+                            amino_acid aa2) -> sink_lj {
+      if (spec.variant == "lj") {
+        return sink_lj((lj)spec.lj->ss_specs.at({aa1, aa2}));
+      } else if (spec.variant == "sink lj") {
+        auto sink_lj_ = spec.sink_lj.has_value()
+                            ? spec.sink_lj->ss_specs.at({aa1, aa2})
+                            : sink_lj_specs();
+        auto lj_ = spec.lj->ss_specs.at({aa1, aa2});
+
+        if (!sink_lj_.depth.has_value())
+          sink_lj_.depth = lj_.depth;
+        if (!sink_lj_.r_low.has_value())
+          sink_lj_.r_low = 0;
+        if (!sink_lj_.r_high.has_value())
+          sink_lj_.r_high = lj_.r_min;
+
+        return sink_lj_;
+      } else {
+        throw std::runtime_error("invalid force spec for PID potential");
+      }
+    };
+
+    eval.bb_plus_lj = get_force(params.pid.bb_plus_force);
+    eval.bb_minus_lj = get_force(params.pid.bb_minus_force);
+
+    eval.ss_ljs =
+        vect::vector<sink_lj>(amino_acid::NUM_TYPES * amino_acid::NUM_TYPES);
+    for (auto const &aa1 : amino_acid::all()) {
+      auto idx1 = (uint16_t)(uint8_t)aa1;
+      for (auto const &aa2 : amino_acid::all()) {
+        auto idx2 = (uint16_t)(uint8_t)aa2;
+        auto ss_idx = idx1 * (uint16_t)amino_acid::NUM_TYPES + idx2;
+        eval.ss_ljs[ss_idx] = get_ss_force(params.pid.ss_force, aa1, aa2);
+      }
+    }
 
     eval.r = st.r;
     eval.simul_box = &st.box;
@@ -575,14 +704,10 @@ void thread::setup_pid() {
 
     if (!params.gen.fixed_cutoff.has_value()) {
       real cutoff_ = 0.0;
-      cutoff_ = max(cutoff_, params.lj_vars.bb.cutoff());
-      cutoff_ = max(cutoff_, params.lj_vars.bs.cutoff());
-      cutoff_ = max(cutoff_, params.lj_vars.sb.cutoff());
-      for (auto const &aa1 : amino_acid::all()) {
-        for (auto const &aa2 : amino_acid::all()) {
-          cutoff_ = max(cutoff_, params.lj_vars.ss.at({aa1, aa2}).cutoff());
-        }
-      }
+      cutoff_ = max(cutoff_, eval.bb_plus_lj.cutoff());
+      cutoff_ = max(cutoff_, eval.bb_minus_lj.cutoff());
+      for (auto const &ss_lj : eval.ss_ljs)
+        cutoff_ = max(cutoff_, ss_lj.cutoff());
 
       eval.cutoff = update.cutoff = cutoff_;
       *cutoff = max(*cutoff, cutoff_);

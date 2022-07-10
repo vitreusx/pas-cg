@@ -1,7 +1,6 @@
 #pragma once
 #include <cg/afm/parameters.h>
 #include <cg/amino/aa_data.h>
-#include <cg/base_forces/lj_variants.h>
 #include <cg/chir/parameters.h>
 #include <cg/ckpt/parameters.h>
 #include <cg/dh/const/parameters.h>
@@ -45,7 +44,6 @@ struct parameters {
   tether::parameters tether;
   gen::parameters gen;
   amino_acid_data aa_data;
-  lj_variants lj_vars;
   qa::parameters qa;
   pauli::parameters pauli;
   out::parameters out;

@@ -32,15 +32,19 @@ native contacts:
   
 pseudo-improper dihedral:
   enabled: true
-
-lj force variants:
-  bb:
-    depth: 0.1 eps
-  ss:
-    use sinking variant: true
-    per pair:
-      depth:
-        (at path): mj-matrix.csv
+  forces:
+    variant: sink lj
+    bb+:
+      sink lj params:
+        depth: 0.1 eps
+    bb-:
+      sink lj params:
+        depth: 0.1 eps
+    ss:
+      sink lj params:
+        per pair:
+          depth:
+            (at path): mj-matrix-v2.csv
 
 langevin:
   enabled: true
