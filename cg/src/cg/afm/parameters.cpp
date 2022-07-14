@@ -1,5 +1,5 @@
 #include <cg/afm/parameters.h>
-#include <cg/utils/ioxx_interop.h>
+
 namespace cg::afm {
 
 void parameters::load(ioxx::xyaml::node const &node) {

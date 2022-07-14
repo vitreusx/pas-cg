@@ -1,4 +1,4 @@
-#include <cg/chir/eval_forces.h>
+#include <cg/chir/rel.h>
 namespace cg::chir {
 
 void eval_forces::operator()() const {

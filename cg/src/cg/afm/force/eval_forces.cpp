@@ -1,4 +1,4 @@
-#include <cg/afm/force/eval_forces.h>
+#include <cg/afm/force/const.h>
 namespace cg::afm::force {
 
 void eval_forces::operator()() const {

@@ -84,17 +84,11 @@ public:
   void setup_tether();
 
   nat_ang::eval_forces eval_nat_ang_forces;
-  void setup_nat_ang();
-
   heur_ang::eval_forces eval_heur_ang_forces;
-  void setup_heur_ang();
-
   cnd::eval_forces eval_cnd_forces;
   snd::eval_forces eval_snd_forces;
-  void setup_nat_dih();
-
   heur_dih::eval_forces eval_heur_dih_forces;
-  void setup_heur_dih();
+  void setup_angles();
 
   pauli::update_pairs update_pauli_pairs;
   pauli::eval_forces eval_pauli_forces;
@@ -127,7 +121,7 @@ public:
   void post_equil_setup();
 
   afm::force::eval_forces eval_force_afm_forces;
-  afm::vel::eval_forces eval_vel_afm_forces;
+  afm::vel::simple eval_vel_afm_forces;
   //  afm::report_stats report_afm_stats;
   void setup_afm();
 };

@@ -16,7 +16,7 @@ input:
 quasi-adiabatic:
   enabled: false
 
-constant Debye-Hueckel:
+Debye-Hueckel:
   enabled: false
 
 output:

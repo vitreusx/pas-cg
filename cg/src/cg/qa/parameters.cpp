@@ -1,5 +1,5 @@
 #include <cg/qa/parameters.h>
-#include <cg/utils/ioxx_interop.h>
+
 
 namespace cg::qa {
 void parameters::ss_spec_crit_t::load(const ioxx::xyaml::node &node) {

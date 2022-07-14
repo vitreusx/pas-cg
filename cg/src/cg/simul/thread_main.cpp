@@ -111,7 +111,7 @@ void thread::fix_nl_async() {
     if (params.nat_cont.enabled)
       update_nat_contacts();
 #pragma omp section
-    if (params.const_dh.enabled || params.rel_dh.enabled)
+    if (params.dh.enabled)
       update_dh_pairs();
 #pragma omp section
     if (params.qa.enabled)
@@ -139,10 +139,10 @@ void thread::eval_forces() {
   if (params.pauli.enabled)
     eval_pauli_forces.omp_async();
 
-  if (params.const_dh.enabled)
+  if (params.dh.enabled) {
     eval_const_dh_forces.omp_async();
-  if (params.rel_dh.enabled)
     eval_rel_dh_forces.omp_async();
+  }
 
   if (params.qa.enabled) {
     qa_loop_over_candidates.omp_async();
@@ -151,17 +151,16 @@ void thread::eval_forces() {
   if (params.pid.enabled)
     eval_pid_forces.omp_async();
 
-  if (params.nat_ang.enabled)
+  if (params.angles.nat_ang.enabled)
     eval_nat_ang_forces.omp_async();
-  if (params.heur_ang.enabled)
+  if (params.angles.heur_ang.enabled)
     eval_heur_ang_forces.omp_async();
-
-  if (params.heur_dih.enabled)
+  if (params.angles.heur_dih.enabled)
     eval_heur_dih_forces.omp_async();
-  if (params.cnd.enabled)
+  if (params.angles.nat_dih.enabled) {
     eval_cnd_forces.omp_async();
-  if (params.snd.enabled)
     eval_snd_forces.omp_async();
+  }
 
   if (st.post_equil) {
     if (params.afm.enabled) {

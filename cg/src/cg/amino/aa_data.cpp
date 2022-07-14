@@ -1,5 +1,5 @@
 #include <cg/amino/aa_data.h>
-#include <cg/utils/ioxx_interop.h>
+
 #include <cg/utils/quantity.h>
 #include <numeric>
 

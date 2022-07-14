@@ -1,5 +1,5 @@
 #include <cg/langevin/parameters.h>
-#include <cg/utils/ioxx_interop.h>
+
 namespace cg::lang {
 
 void parameters::load(ioxx::xyaml::node const &p) {

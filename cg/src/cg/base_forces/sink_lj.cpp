@@ -1,6 +1,6 @@
 #include "per_pair.h"
 #include <cg/base_forces/sink_lj.h>
-#include <cg/utils/ioxx_interop.h>
+
 
 namespace cg {
 void sink_lj_specs::load(const ioxx::xyaml::node &node) {

@@ -145,7 +145,7 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
       dV_dr += lam1 * lam2 * lj_dV_dr;
     }
   }
-  
+
   *V += V_;
 
   auto r12_u = r12 * r12_rn;

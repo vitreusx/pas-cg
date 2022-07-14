@@ -83,16 +83,10 @@ public:
   void setup_tether();
 
   vect::vector<nat_ang::nat_ang> native_angles;
-  void setup_nat_ang();
-
   vect::vector<heur_ang::heur_ang> heur_angles;
-  void setup_heur_ang();
-
   vect::vector<nat_dih> native_dihedrals;
-  void setup_nat_dih();
-
   vect::vector<heur_dih::heur_dih> heur_dihedrals;
-  void setup_heur_dih();
+  void setup_angles();
 
   vect::vector<pauli::pair> pauli_pairs;
   void setup_pauli();

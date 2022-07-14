@@ -20,12 +20,6 @@ input:
 
 quasi-adiabatic:
   enabled: false
-
-native angles:
-  enabled: false
-  
-complex native dihedrals:
-  enabled: false
   
 native contacts:
   enabled: false
@@ -61,10 +55,12 @@ local repulsive:
   enabled: true
   depth: 1.0 eps
 
-constant Debye-Hueckel:
+Debye-Hueckel:
   enabled: true
   screening distance: 15.0 A
-  permittivity: 80.0 eps_0
+  variant: constant
+  constant variant params:
+    permittivity: 80.0 eps_0
         
 output:
   enabled: true

@@ -1,5 +1,5 @@
 #include <cg/input/parameters.h>
-#include <cg/utils/ioxx_interop.h>
+
 namespace cg::input {
 
 void parameters::load(ioxx::xyaml::node const &p) {
@@ -17,6 +17,7 @@ void parameters::load(ioxx::xyaml::node const &p) {
 
     if (auto ignore_node = pdb_node["ignore CRYST1"]; ignore_node)
       pdb_source.ignore_cryst1 = ignore_node.as<bool>();
+    pdb_node["load native structure"] >> pdb_source.load_structure;
 
     source = pdb_source;
   } else if (auto sf_node = p["seq file"]; sf_node && sf_node["source"]) {

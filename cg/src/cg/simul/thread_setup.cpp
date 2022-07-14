@@ -31,10 +31,7 @@ void thread::traj_setup() {
   setup_local_rep();
   setup_chir();
   setup_tether();
-  setup_nat_ang();
-  setup_heur_ang();
-  setup_nat_dih();
-  setup_heur_dih();
+  setup_angles();
   setup_pauli();
   setup_nat_cont();
   setup_dh();
@@ -215,19 +212,17 @@ void thread::setup_tether() {
   }
 }
 
-void thread::setup_nat_ang() {
-  if (params.nat_ang.enabled) {
+void thread::setup_angles() {
+  if (params.angles.nat_ang.enabled) {
     auto &eval = eval_nat_ang_forces;
-    eval.CBA = params.nat_ang.CBA;
+    eval.CBA = params.angles.nat_ang.CBA;
     eval.r = st.r;
     eval.angles = st.native_angles;
     eval.V = &dyn.V;
     eval.F = dyn.F;
   }
-}
 
-void thread::setup_heur_ang() {
-  if (params.heur_ang.enabled) {
+  if (params.angles.heur_ang.enabled) {
     auto &eval = eval_heur_ang_forces;
     eval.r = st.r;
     eval.angles = st.heur_angles;
@@ -237,35 +232,32 @@ void thread::setup_heur_ang() {
     for (auto const &heur_pair : aa_heur_pair::all()) {
       for (int d = 0; d <= heur_ang::eval_forces::POLY_DEG; ++d) {
         eval.poly_coeffs[d][(uint8_t)heur_pair] =
-            params.heur_ang.coeffs.at(heur_pair).poly[d];
+            params.angles.heur_ang.coeffs.at(heur_pair).poly[d];
       }
     }
   }
-}
 
-void thread::setup_nat_dih() {
-  if (params.cnd.enabled) {
-    auto &eval = eval_cnd_forces;
-    eval.CDA = params.cnd.CDA;
-    eval.CDB = params.cnd.CDB;
-    eval.r = st.r;
-    eval.dihedrals = st.native_dihedrals;
-    eval.V = &dyn.V;
-    eval.F = dyn.F;
+  if (params.angles.nat_dih.enabled) {
+    auto nat_dih_var = params.angles.nat_dih.variant;
+    if (nat_dih_var == "complex") {
+      auto &eval = eval_cnd_forces;
+      eval.CDA = params.angles.nat_dih.complex.CDA;
+      eval.CDB = params.angles.nat_dih.complex.CDB;
+      eval.r = st.r;
+      eval.dihedrals = st.native_dihedrals;
+      eval.V = &dyn.V;
+      eval.F = dyn.F;
+    } else if (nat_dih_var == "simple") {
+      auto &eval = eval_snd_forces;
+      eval.CDH = params.angles.nat_dih.simple.CDH;
+      eval.r = st.r;
+      eval.dihedrals = st.native_dihedrals;
+      eval.V = &dyn.V;
+      eval.F = dyn.F;
+    }
   }
 
-  if (params.snd.enabled) {
-    auto &eval = eval_snd_forces;
-    eval.CDH = params.snd.CDH;
-    eval.r = st.r;
-    eval.dihedrals = st.native_dihedrals;
-    eval.V = &dyn.V;
-    eval.F = dyn.F;
-  }
-}
-
-void thread::setup_heur_dih() {
-  if (params.heur_dih.enabled) {
+  if (params.angles.heur_dih.enabled) {
     auto &eval = eval_heur_dih_forces;
     eval.r = st.r;
     eval.V = &dyn.V;
@@ -274,7 +266,7 @@ void thread::setup_heur_dih() {
 
     for (auto const &heur_pair : aa_heur_pair::all()) {
       auto idx = (uint8_t)heur_pair;
-      auto const &coeffs = params.heur_dih.coeffs.at(heur_pair);
+      auto const &coeffs = params.angles.heur_dih.coeffs.at(heur_pair);
       eval.coeffs.const_[idx] = coeffs.const_;
       eval.coeffs.sin[idx] = coeffs.sin;
       eval.coeffs.cos[idx] = coeffs.cos;
@@ -377,30 +369,29 @@ void thread::setup_dh() {
 
   real cutoff_ = 0;
 
-  if (params.const_dh.enabled) {
+  auto dh_var = params.dh.variant;
+  if (dh_var == "constant") {
     auto &eval = eval_const_dh_forces;
-    eval.set_V_factor(params.const_dh.permittivity);
-    eval.screen_dist_inv = 1.0 / params.const_dh.screening_dist;
+    eval.set_V_factor(params.dh.const_dh.permittivity);
+    eval.screen_dist_inv = 1.0 / params.dh.screening_dist;
     eval.r = st.r;
     eval.simul_box = &st.box;
     eval.es_pairs = &st.dh_pairs;
     eval.V = &dyn.V;
     eval.F = dyn.F;
     eval.fixed_cutoff = params.gen.fixed_cutoff;
-    cutoff_ = 2.0 * params.const_dh.screening_dist;
-  }
-
-  if (params.rel_dh.enabled) {
+    cutoff_ = 2.0 * params.dh.screening_dist;
+  } else if (dh_var == "relative") {
     auto &eval = eval_rel_dh_forces;
-    eval.set_V_factor(params.rel_dh.perm_factor);
-    eval.screen_dist_inv = 1.0 / params.rel_dh.screening_dist;
+    eval.set_V_factor(params.dh.rel_dh.perm_factor);
+    eval.screen_dist_inv = 1.0 / params.dh.screening_dist;
     eval.r = st.r;
     eval.simul_box = &st.box;
     eval.es_pairs = &st.dh_pairs;
     eval.V = &dyn.V;
     eval.F = dyn.F;
     eval.fixed_cutoff = params.gen.fixed_cutoff;
-    cutoff_ = 2.0 * params.rel_dh.screening_dist;
+    cutoff_ = 2.0 * params.dh.screening_dist;
   }
 
   if (params.gen.fixed_cutoff.has_value()) {

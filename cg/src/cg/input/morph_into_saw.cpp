@@ -1,5 +1,5 @@
 #include <cg/input/morph_into_saw.h>
-#include <cg/utils/ioxx_interop.h>
+
 namespace cg::input {
 
 void morph_into_saw_t::link(ioxx::xyaml::proxy &p) {

@@ -30,7 +30,7 @@ public:
     FROM_ATOMS,
     FROM_RESIDUES
   };
-  input::model to_model() const;
+  input::model to_model(bool load_structure) const;
 
   struct atom;
   struct residue;

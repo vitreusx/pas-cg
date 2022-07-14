@@ -1,6 +1,6 @@
 #include "per_pair.h"
 #include <cg/base_forces/shifted_lj.h>
-#include <cg/utils/ioxx_interop.h>
+
 
 namespace cg {
 void shifted_lj_specs::load(const ioxx::xyaml::node &node) {

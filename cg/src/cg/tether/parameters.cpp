@@ -1,5 +1,5 @@
 #include <cg/tether/parameters.h>
-#include <cg/utils/ioxx_interop.h>
+
 namespace cg::tether {
 
 void parameters::load(ioxx::xyaml::node const &p) {

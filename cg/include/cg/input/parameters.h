@@ -12,7 +12,7 @@ struct parameters {
     pdb_file file;
     std::optional<pdb_file::contact_deriv> deriv;
     std::unordered_map<std::string, amino_acid> res_aliases;
-    bool ignore_cryst1;
+    bool ignore_cryst1, load_structure;
   };
 
   std::variant<seq_file, pdb_source> source;

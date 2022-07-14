@@ -1,5 +1,5 @@
 #include <cg/base_forces/harmonic.h>
-#include <cg/utils/ioxx_interop.h>
+
 
 namespace cg {
 void harmonic_specs::load(const ioxx::xyaml::node &node) {

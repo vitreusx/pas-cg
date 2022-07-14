@@ -10,13 +10,8 @@ void parameters::load(ioxx::xyaml::node const &n) {
   n["input"] >> input;
   n["langevin"] >> lang;
   n["neighbor list"] >> nl;
-  n["heurestic angles"] >> heur_ang;
-  n["native angles"] >> nat_ang;
-  n["complex native dihedrals"] >> cnd;
-  n["simple native dihedrals"] >> snd;
-  n["heurestic dihedrals"] >> heur_dih;
-  n["constant Debye-Hueckel"] >> const_dh;
-  n["relative Debye-Hueckel"] >> rel_dh;
+  n["angle potentials"] >> angles;
+  n["Debye-Hueckel"] >> dh;
   n["pseudo-improper dihedral"] >> pid;
   n["quasi-adiabatic"] >> qa;
   n["chirality"] >> chir;

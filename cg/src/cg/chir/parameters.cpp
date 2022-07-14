@@ -1,5 +1,5 @@
 #include <cg/chir/parameters.h>
-#include <cg/utils/ioxx_interop.h>
+
 namespace cg::chir {
 
 void parameters::load(ioxx::xyaml::node const &p) {

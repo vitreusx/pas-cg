@@ -43,15 +43,13 @@ void state::simul_setup() {
     params.lrep.enabled = false;
     params.chir.enabled = false;
     params.tether.enabled = false;
-    params.nat_ang.enabled = false;
-    params.heur_ang.enabled = false;
-    params.cnd.enabled = false;
-    params.snd.enabled = false;
-    params.heur_dih.enabled = false;
+    params.angles.nat_ang.enabled = false;
+    params.angles.heur_ang.enabled = false;
+    params.angles.nat_dih.enabled = false;
+    params.angles.heur_dih.enabled = false;
     params.pauli.enabled = false;
     params.nat_cont.enabled = false;
-    params.const_dh.enabled = false;
-    params.rel_dh.enabled = false;
+    params.dh.enabled = false;
     params.qa.enabled = false;
     params.pid.enabled = false;
   }
@@ -76,7 +74,7 @@ void state::load_model() {
     if (source.ignore_cryst1)
       file.cryst1 = vec3<double>::Zero();
 
-    orig_model = file.to_model();
+    orig_model = file.to_model(source.load_structure);
   } else {
     auto &file = std::get<seq_file>(model_file_v);
     orig_model = std::move(file.model);
@@ -95,10 +93,7 @@ void state::traj_setup() {
   setup_local_rep();
   setup_chir();
   setup_tether();
-  setup_nat_ang();
-  setup_heur_ang();
-  setup_nat_dih();
-  setup_heur_dih();
+  setup_angles();
   setup_pauli();
   setup_nat_cont();
   setup_dh();
@@ -118,7 +113,7 @@ void state::morph_model() {
   model = orig_model;
   std::sort(
       model.contacts.begin(), model.contacts.end(),
-      [](auto const &x, auto const &y) -> auto {
+      [](auto const &x, auto const &y) -> auto{
         auto p1 = std::make_pair(x.res1->seq_idx, x.res2->seq_idx);
         if (p1.first >= p1.second)
           std::swap(p1.first, p1.second);
@@ -340,8 +335,8 @@ void state::setup_tether() {
   }
 }
 
-void state::setup_nat_ang() {
-  if (params.nat_ang.enabled) {
+void state::setup_angles() {
+  if (params.angles.nat_ang.enabled) {
     native_angles = {};
     for (auto const &angle : model.angles) {
       if (angle.theta.has_value()) {
@@ -353,10 +348,8 @@ void state::setup_nat_ang() {
       }
     }
   }
-}
 
-void state::setup_heur_ang() {
-  if (params.heur_ang.enabled) {
+  if (params.angles.heur_ang.enabled) {
     heur_angles = {};
     for (auto const &angle : model.angles) {
       if (!angle.theta.has_value()) {
@@ -368,10 +361,8 @@ void state::setup_heur_ang() {
       }
     }
   }
-}
 
-void state::setup_nat_dih() {
-  if (params.cnd.enabled || params.snd.enabled) {
+  if (params.angles.nat_dih.enabled) {
     native_dihedrals = {};
     for (auto const &dihedral : model.dihedrals) {
       if (dihedral.phi.has_value()) {
@@ -383,10 +374,8 @@ void state::setup_nat_dih() {
       }
     }
   }
-}
 
-void state::setup_heur_dih() {
-  if (params.heur_dih.enabled) {
+  if (params.angles.heur_dih.enabled) {
     heur_dihedrals = {};
     for (auto const &dihedral : model.dihedrals) {
       if (!dihedral.phi.has_value()) {
@@ -430,7 +419,7 @@ void state::setup_nat_cont() {
 }
 
 void state::setup_dh() {
-  if (params.const_dh.enabled || params.rel_dh.enabled) {
+  if (params.dh.enabled) {
     nl_required = true;
   }
 }

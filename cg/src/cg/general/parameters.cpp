@@ -1,5 +1,5 @@
 #include <cg/general/parameters.h>
-#include <cg/utils/ioxx_interop.h>
+
 namespace cg::gen {
 
 void parameters::load(ioxx::xyaml::node const &p) {

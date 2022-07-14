@@ -1,7 +1,7 @@
 #include "per_pair.h"
 #include <cg/base_forces/lj.h>
 #include <cg/utils/hash.h>
-#include <cg/utils/ioxx_interop.h>
+
 
 namespace cg {
 void lj_specs::load(const ioxx::xyaml::node &node) {
