@@ -41,7 +41,7 @@ void amino_acid_data::load(ioxx::xyaml::node const &node) {
     auto name = entry.first.as<std::string>();
     auto &atom_data = def_atoms[name];
     atom_data.name = name;
-    atom_data.radius = quantity(entry.second.as<std::string>()).assumed_("A");
+    atom_data.radius = quantity(entry.second.as<std::string>()).assumed("A");
     atom_data.radius = correct(atom_data.name, atom_data.radius);
   }
 
@@ -58,7 +58,7 @@ void amino_acid_data::load(ioxx::xyaml::node const &node) {
         auto atom_name = alt_entry.first.Scalar();
         auto &override = cur_data.overrides[atom_name];
         override.name = atom_name;
-        override.radius = quantity(alt_entry.second.Scalar()).assumed_("A");
+        override.radius = quantity(alt_entry.second.Scalar()).assumed("A");
         override.radius = correct(override.name, override.radius);
       }
     }
@@ -75,7 +75,7 @@ void amino_acid_data::load(ioxx::xyaml::node const &node) {
 
     cur_data.charge = 0.0;
     if (auto charge_node = data_node["charge"]; charge_node) {
-      auto charge = quantity(charge_node.as<std::string>()).assumed_("e");
+      auto charge = quantity(charge_node.as<std::string>()).assumed("e");
       cur_data.charge = charge;
     }
 
@@ -84,7 +84,7 @@ void amino_acid_data::load(ioxx::xyaml::node const &node) {
 
   auto avg_mass = std::accumulate(
       data.begin(), data.end(), 0.0,
-      [](auto const &sum, auto const &entry) -> auto {
+      [](auto const &sum, auto const &entry) -> auto{
         auto const &[name, res_data] = entry;
         return sum + res_data.mass;
       });

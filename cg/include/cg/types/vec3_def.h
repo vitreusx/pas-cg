@@ -68,7 +68,7 @@ public:
     return {(Scalar)0, (Scalar)0, (Scalar)1};
   }
 
-  vec3() : vec3((Scalar)0, (Scalar)0, (Scalar)0) {}
+  vec3() : vec3((Scalar)0.0, (Scalar)0.0, (Scalar)0.0) {}
 
   template <typename T>
   vec3(Eigen::Vector3<T> const &eigen)

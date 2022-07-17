@@ -94,114 +94,6 @@ static inline Eigen::Vector3<U> perp_v(Eigen::Vector3<U> const &v) {
   return perp.normalized();
 }
 
-void model::morph_into_saw(rand_gen &gen,
-                           const input::morph_into_saw_t &params) {
-#ifndef COMPAT_MODE
-  morph_into_saw_def(gen, params);
-#else
-  morph_into_saw_f77(gen, params);
-#endif
-}
-
-void model::morph_into_saw_def(rand_gen &gen,
-                               input::morph_into_saw_t const &params) {
-
-  using U = double;
-  auto max_spread = M_PI / 3;
-  auto max_around = M_2_PI;
-
-  Eigen::AlignedBox3d box;
-  if (params.init_box_density > 0) {
-    auto vol = (double)residues.size() / params.init_box_density;
-    auto cell_a = cbrt(vol);
-    box.min() = {-cell_a / 2.0, -cell_a / 2.0, -cell_a / 2.0};
-    box.max() = -box.min();
-    if (params.with_pbc) {
-      Eigen::Vector3d box_dim = box.max() - box.min();
-      model_box.set_cell(box_dim);
-    }
-  } else {
-    if (params.with_pbc)
-      throw std::runtime_error("with_pbc requires sample_from_box");
-
-    box.min() = Eigen::Vector3d::Zero();
-    box.max() = -box.min();
-  }
-
-  double def_bond_distance = params.bond_distance.value_or(0);
-
-  bool found_conformation = false;
-  for (int retry_idx = 0; retry_idx < params.num_of_retries; ++retry_idx) {
-    for (auto const &xmd_chain : chains) {
-      Eigen::Vector3<U> pos{gen.uniform<U>(box.min().x(), box.max().x()),
-                            gen.uniform<U>(box.min().y(), box.max().y()),
-                            gen.uniform<U>(box.min().z(), box.max().z())};
-
-      Eigen::Vector3<U> dir = convert<U>(gen.sphere<U>());
-
-      for (size_t res_idx = 0; res_idx < xmd_chain->residues.size();
-           ++res_idx) {
-        auto next = pos;
-        if (res_idx + 1 < xmd_chain->residues.size()) {
-          U bond_length;
-          if (params.bond_distance.has_value()) {
-            bond_length = def_bond_distance;
-          } else {
-            auto pos1 = xmd_chain->residues[res_idx]->pos;
-            auto pos2 = xmd_chain->residues[res_idx + 1]->pos;
-            if (params.with_pbc)
-              bond_length = norm(model_box.wrap(pos1, pos2));
-            else
-              bond_length = norm(pos2 - pos1);
-          }
-
-          next += dir * bond_length;
-
-          U spread_angle = gen.uniform(-max_spread, max_spread);
-          auto spread = Eigen::AngleAxisd(spread_angle, perp_v(dir));
-
-          U around_angle = gen.uniform(-max_around, max_around);
-          auto around = Eigen::AngleAxisd(around_angle, dir);
-
-          dir = (around * spread * dir).normalized();
-        }
-
-        xmd_chain->residues[res_idx]->pos = pos;
-        pos = next;
-      }
-    }
-
-    if (params.intersection_at != 0) {
-      double ix_dist_inv = 1.0 / params.intersection_at;
-      bool do_intersect = false;
-      for (int idx1 = 0; idx1 < (int)residues.size(); ++idx1) {
-        auto &res1 = residues[idx1];
-        for (int idx2 = idx1 + 1; idx2 < (int)residues.size(); ++idx2) {
-          auto &res2 = residues[idx2];
-          if (norm_inv(res2->pos - res1->pos) > ix_dist_inv) {
-            do_intersect = true;
-            break;
-          }
-        }
-
-        if (do_intersect)
-          break;
-      }
-
-      if (!do_intersect) {
-        found_conformation = true;
-        break;
-      }
-    } else {
-      found_conformation = true;
-      break;
-    }
-  }
-
-  if (!found_conformation)
-    throw std::runtime_error("conformation not found!");
-}
-
 static Eigen::Vector3d sample_from_box(Eigen::AlignedBox3d const &box,
                                        rand_gen &gen) {
   Eigen::Vector3d v;
@@ -211,9 +103,8 @@ static Eigen::Vector3d sample_from_box(Eigen::AlignedBox3d const &box,
   return v;
 }
 
-void model::morph_into_saw_f77(rand_gen &gen,
-                               const input::morph_into_saw_t &params) {
-
+void model::morph_into_saw(rand_gen &gen,
+                           const input::morph_into_saw_t &params) {
   auto min_dist_sq = pow(params.intersection_at, 2.0);
 
   using Vector = Eigen::Vector3d;
@@ -233,16 +124,28 @@ void model::morph_into_saw_f77(rand_gen &gen,
   }
 
   Eigen::AlignedBox3d box;
-  if (params.init_box_density > 0) {
-    auto vol = (double)residues.size() / params.init_box_density;
-    auto cell_a = cbrt(vol);
+  if (std::holds_alternative<input::morph_into_saw_t::start_box_params>(
+          params.start_box)) {
+    auto const &box_params =
+        std::get<input::morph_into_saw_t::start_box_params>(params.start_box);
+
+    double cell_a = 0.0;
+    if (box_params.size.has_value()) {
+      cell_a = box_params.size.value();
+    } else if (box_params.density.has_value()) {
+      auto density = box_params.density.value();
+      auto vol = (double)residues.size() / density;
+      cell_a = cbrt(vol);
+    }
+
     box.min() = {-cell_a / 2.0, -cell_a / 2.0, -cell_a / 2.0};
     box.max() = -box.min();
     if (params.with_pbc) {
       Eigen::Vector3d box_dim = box.max() - box.min();
       model_box.set_cell(box_dim);
     }
-  } else {
+  } else if (std::holds_alternative<input::morph_into_saw_t::start_box_origin>(
+                 params.start_box)) {
     if (params.with_pbc)
       throw std::runtime_error("with_pbc requires non-zero box");
 

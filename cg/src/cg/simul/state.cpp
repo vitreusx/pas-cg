@@ -75,6 +75,14 @@ void state::load_model() {
       file.cryst1 = vec3<double>::Zero();
 
     orig_model = file.to_model(source.load_structure);
+
+    real bond = 0.0;
+    for (auto const &teth : orig_model.tethers)
+      bond += teth.length.value();
+    bond /= orig_model.tethers.size();
+
+    if (params.input.morph_into_saw.has_value())
+      params.input.morph_into_saw->bond_distance = bond;
   } else {
     auto &file = std::get<seq_file>(model_file_v);
     orig_model = std::move(file.model);
@@ -83,6 +91,7 @@ void state::load_model() {
 }
 
 void state::traj_setup() {
+  step_idx = 0;
   morph_model();
   compile_model();
   setup_dyn();
@@ -106,7 +115,7 @@ void state::finish_trajectory() {
   did_traj_setup = false;
   did_post_equil_setup = false;
   ++traj_idx;
-  gen = gen.spawn();
+  //  gen = gen.spawn();
 }
 
 void state::morph_model() {
@@ -127,12 +136,15 @@ void state::morph_model() {
 
   if (params.input.morph_into_saw.has_value()) {
     auto &saw_p = params.input.morph_into_saw.value();
-    if (saw_p.perform)
+    if (saw_p.perform) {
       model.morph_into_saw(gen, saw_p);
+      if (std::holds_alternative<seq_file>(params.input.source))
+        orig_model = model;
+    }
   }
-  if (params.input.morph_into_line.has_value()) {
-    model.morph_into_line(params.input.morph_into_line.value());
-  }
+  //  if (params.input.morph_into_line.has_value()) {
+  //    model.morph_into_line(params.input.morph_into_line.value());
+  //  }
 }
 
 void state::compile_model() {
@@ -390,6 +402,7 @@ void state::setup_angles() {
 }
 
 void state::setup_pauli() {
+  standalone_pauli = params.pauli.enabled && !params.qa.enabled;
   if (params.pauli.enabled) {
     nl_required = true;
   }

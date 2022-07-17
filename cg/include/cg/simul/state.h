@@ -23,6 +23,7 @@ public:
 
   bool did_simul_setup = false;
   bool is_running;
+  int step_idx;
   real total_time, equil_time;
   rand_gen gen;
   void simul_setup();
@@ -88,6 +89,7 @@ public:
   vect::vector<heur_dih::heur_dih> heur_dihedrals;
   void setup_angles();
 
+  bool standalone_pauli;
   vect::vector<pauli::pair> pauli_pairs;
   void setup_pauli();
 

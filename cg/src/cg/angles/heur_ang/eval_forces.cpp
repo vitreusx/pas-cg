@@ -42,7 +42,7 @@ void eval_forces::iter(heur_ang_expr<E> const &angle) const {
 
   *V += angle_V;
 
-  dV_dtheta = clamp(dV_dtheta, (real)-1.0e3, (real)1.0e3);
+  //  dV_dtheta = clamp(dV_dtheta, (real)-1.0e3, (real)1.0e3);
   F[i1] -= dV_dtheta * dtheta_dr1;
   F[i2] -= dV_dtheta * dtheta_dr2;
   F[i3] -= dV_dtheta * dtheta_dr3;

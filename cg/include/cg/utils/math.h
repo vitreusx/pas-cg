@@ -2,6 +2,8 @@
 #include <cg/vect/vect.h>
 #include <cmath>
 
+#define C216 1.122462048309373
+
 namespace cg {
 template <typename T> auto isnan(T const &x) {
   return std::isnan(x);

@@ -3,6 +3,7 @@
 #include <cg/input/records.h>
 #include <cg/utils/angles.h>
 #include <cg/utils/quantity.h>
+#include <cg/utils/units.h>
 #include <map>
 #include <set>
 #include <sstream>
@@ -58,7 +59,7 @@ void pdb_file::load(std::istream &is, pdb_load_options const &load_opts) {
 
       atm.name = atom_r->atom_name;
       atm.serial = atom_r->serial;
-      atm.pos = atom_r->pos * quantity("A");
+      atm.pos = atom_r->pos * angstrom;
       atm.parent_res = &res;
 
       res.atoms.push_back(&atm);
@@ -85,7 +86,7 @@ void pdb_file::load(std::istream &is, pdb_load_options const &load_opts) {
     if (auto ssbond_r = record_r.cast<records::ssbond>(); ssbond_r) {
       disulfide_bond ss;
       ss.serial = ssbond_r->serial;
-      ss.length = ssbond_r->length * quantity("A");
+      ss.length = ssbond_r->length * (ratio)quantity("A");
 
       auto &m = *find_model(cur_model_serial);
 
@@ -100,7 +101,7 @@ void pdb_file::load(std::istream &is, pdb_load_options const &load_opts) {
       disulfide_bonds[ss.serial] = ss;
     } else if (auto link_r = record_r.cast<records::link>(); link_r) {
       link _link;
-      _link.length = link_r->length * quantity("A");
+      _link.length = link_r->length * angstrom;
 
       auto &m = *find_model(cur_model_serial);
 
@@ -115,7 +116,7 @@ void pdb_file::load(std::istream &is, pdb_load_options const &load_opts) {
       links.push_back(_link);
     } else if (auto cryst1_r = record_r.cast<records::cryst1>(); cryst1_r) {
       if (!load_opts.ignore_cryst1)
-        cryst1 = cryst1_r->cell * quantity("A");
+        cryst1 = cryst1_r->cell * angstrom;
     } else if (auto end_r = record_r.cast<records::end>(); end_r) {
       return;
     }
@@ -306,7 +307,7 @@ std::ostream &operator<<(std::ostream &os, pdb_file::chain const &chain) {
       atom_r.res_seq_num = res->seq_num;
       atom_r.residue_name = res->type.name();
       atom_r.atom_name = atm->name;
-      atom_r.pos = atm->pos / quantity("A");
+      atom_r.pos = atm->pos / angstrom;
 
       if (!first)
         os << '\n';
@@ -364,8 +365,7 @@ input::model pdb_file::to_model(bool load_structure) const {
       auto &xmd_tether = xmd_model.tethers.emplace_back();
       xmd_tether.res1 = res1;
       xmd_tether.res2 = res2;
-      if (load_structure)
-        xmd_tether.length = norm(r2 - r1);
+      xmd_tether.length = norm(r2 - r1);
 
       if (idx + 2 < xmd_chain->residues.size()) {
         auto *res3 = xmd_chain->residues[idx + 2];

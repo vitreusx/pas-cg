@@ -1,0 +1,12 @@
+klenstr 5
+file test1
+mstep 10
+lpdb T
+pdbfile 1ubq.pdb
+lconftm T
+lallatom T
+lcpot F
+lnatend T
+lparam F
+cut 4.0
+cntfct 1.5

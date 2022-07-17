@@ -105,7 +105,7 @@ void thread::fix_nl_async() {
 #pragma omp sections
   {
 #pragma omp section
-    if (params.pauli.enabled)
+    if (st.standalone_pauli)
       update_pauli_pairs();
 #pragma omp section
     if (params.nat_cont.enabled)
@@ -136,7 +136,7 @@ void thread::eval_forces() {
     eval_lrep_forces.omp_async();
   if (params.nat_cont.enabled)
     eval_nat_cont_forces.omp_async();
-  if (params.pauli.enabled)
+  if (st.standalone_pauli)
     eval_pauli_forces.omp_async();
 
   if (params.dh.enabled) {
@@ -180,8 +180,13 @@ void thread::post_eval_async() {
     if (params.pbar.enabled)
       render_pbar();
 
-    if (params.out.enabled)
-      make_report();
+    if (st.t > 0) {
+      if (params.out.enabled)
+        make_report();
+    }
+
+    if (params.gen.debug_mode.print_raw_data)
+      print_raw_data();
 
     if (params.ckpt.enabled)
       make_checkpoint();

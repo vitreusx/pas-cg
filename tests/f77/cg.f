@@ -2124,7 +2124,8 @@ c       projection of the velocity on the direction of the force
             call flush(2)
         endif
 
-        if(krst.ne.0.and.mod(kb,krst).eq.0) then
+        if(krst.ne.0) then
+            if(mod(kb,krst).eq.0) then
             if(lcleanrst) then
                 intrsc=0
                 intesc=0
@@ -2149,12 +2150,13 @@ c       projection of the velocity on the direction of the force
             call print_restart(kb,itraj)
             if(ldelrst) then
               time=(kb-2*krst)*delta
-              if(time.gt.0.d0) then  
+              if(time.gt.0.d0) then
                 write(stafile,*) '(a',klenstr,',i2.2,i10.10,a)'
                 write(rstfile,stafile) filname,itraj,nint(time),'.rst'
                 open(38,iostat=irstat,file=rstfile,status='unknown')
                 if (irstat.eq.0) close(38, status='DELETE')
               endif
+            endif
             endif
         endif
 
@@ -3360,6 +3362,7 @@ c        write(*,*) "ss",i,j,m,psi,a(m,3)*(dgdx/(dgdx-1)**2),sslbd(m)
                  endif
                 enddo
             endif
+!           if(fce.ne.0) write(*,*)i,j,fce
             fce=-fce/r
             repx=fce*dx
             repy=fce*dy

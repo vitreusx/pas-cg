@@ -17,7 +17,6 @@ struct parameters {
 
   std::variant<seq_file, pdb_source> source;
   std::optional<morph_into_saw_t> morph_into_saw;
-  std::optional<double> morph_into_line;
   bool normalize_mass;
 
   void load(ioxx::xyaml::node const &node);

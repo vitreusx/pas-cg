@@ -59,6 +59,7 @@ public:
 
   out::make_report make_report;
   ckpt::make_checkpoint make_checkpoint;
+  out::print_raw_data print_raw_data;
   void setup_output();
 
   lang::step lang_step;

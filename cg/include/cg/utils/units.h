@@ -1,8 +1,9 @@
 #pragma once
+#include <cg/utils/ratio.h>
 #include <cmath>
 
 namespace cg {
-#define Unit inline constexpr double
+#define Unit inline constexpr ratio
 
 Unit dimensionless = 1.0;
 

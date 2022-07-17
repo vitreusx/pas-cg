@@ -64,7 +64,7 @@ real make_report::rmsd(vect::const_view<vec3r> const &orig_r,
   auto d = sign((svdV.transpose() * svdU).determinant());
   auto R = svdV * Eigen::Vector3d(1, 1, d).asDiagonal() * svdU.transpose();
 
-  auto rmsd = sqrt((cur_R * R - orig_R).rowwise().squaredNorm().sum());
+  auto rmsd = sqrt((cur_R * R - orig_R).rowwise().squaredNorm().mean());
   return (real)rmsd;
 }
 
@@ -121,13 +121,13 @@ void make_report::add_cur_scalars() const {
   auto K = kinetic_energy(), E = st->dyn.V + K;
   auto L = norm(st->r[st->r.size() - 1] - st->r[0]);
 
-  row["TIME[tau]"] = quantity(st->t).in("tau");
-  row["EPOT[eps]"] = quantity(st->dyn.V).in("eps");
-  row["ETOT[eps]"] = quantity(E).in("eps");
-  row["RG[A]"] = quantity(full_Rg).in("A");
-  row["L[A]"] = quantity(L).in("A");
-  row["RMSD[A]"] = quantity(full_rmsd).in("A");
-  row["W[A**2]"] = quantity(full_W).in("A**2");
+  row["TIME[tau]"] = quantity(st->t).value_in("tau");
+  row["EPOT[eps]"] = quantity(st->dyn.V).value_in("eps");
+  row["ETOT[eps]"] = quantity(E).value_in("eps");
+  row["RG[A]"] = quantity(full_Rg).value_in("A");
+  row["L[A]"] = quantity(L).value_in("A");
+  row["RMSD[A]"] = quantity(full_rmsd).value_in("A");
+  row["W[A**2]"] = quantity(full_W).value_in("A**2");
 
   if (nc) {
     int num_active_contacts = 0, num_active_ss = 0;
@@ -195,11 +195,11 @@ void make_report::emit_pdb() const {
       auto chain_N = chain_indices.size();
 
       auto &row = chain_scalars_tab.append_row();
-      row["T[tau]"] = quantity(snap.t).in("tau");
-      row["Rg[A]"] = quantity(chain_Rg).in("A");
-      row["R_end_to_end[A]"] = quantity(chain_L).in("A");
+      row["T[tau]"] = quantity(snap.t).value_in("tau");
+      row["Rg[A]"] = quantity(chain_Rg).value_in("A");
+      row["R_end_to_end[A]"] = quantity(chain_L).value_in("A");
       row["N"] = chain_N;
-      row["W[A**2]"] = quantity(chain_W).in("A**2");
+      row["W[A**2]"] = quantity(chain_W).value_in("A**2");
     }
 
     auto model_r = records::model();
@@ -210,9 +210,9 @@ void make_report::emit_pdb() const {
     first_line = false;
 
     auto cryst1_r = records::cryst1();
-    cryst1_r.cell.x() = quantity(snap.model_box.cell.x()).in("A");
-    cryst1_r.cell.y() = quantity(snap.model_box.cell.y()).in("A");
-    cryst1_r.cell.z() = quantity(snap.model_box.cell.z()).in("A");
+    cryst1_r.cell.x() = quantity(snap.model_box.cell.x()).value_in("A");
+    cryst1_r.cell.y() = quantity(snap.model_box.cell.y()).value_in("A");
+    cryst1_r.cell.z() = quantity(snap.model_box.cell.z()).value_in("A");
     pdb_of << '\n' << cryst1_r.write();
 
     auto p = ioxx::table::sl4_parser();
@@ -323,7 +323,7 @@ void make_report::add_map_data() const {
         nc_row["type"] = format_nc_type(cont.type());
 
         auto dist = norm(st->box.wrap(st->r[cont.i1()], st->r[cont.i2()]));
-        nc_row["dist[A]"] = quantity(dist).in("A");
+        nc_row["dist[A]"] = quantity(dist).value_in("A");
       }
     }
 
@@ -351,7 +351,7 @@ void make_report::add_map_data() const {
         qa_row["status"] = format_qa_status(cont.status());
 
         auto dist = norm(st->box.wrap(st->r[cont.i1()], st->r[cont.i2()]));
-        qa_row["dist[A]"] = quantity(dist).in("A");
+        qa_row["dist[A]"] = quantity(dist).value_in("A");
       }
     }
 
@@ -373,7 +373,7 @@ void make_report::add_map_data() const {
         pid_row["i2"] = bundle.i2();
 
         auto dist = norm(st->box.wrap(st->r[bundle.i1()], st->r[bundle.i2()]));
-        pid_row["dist[A]"] = quantity(dist).in("A");
+        pid_row["dist[A]"] = quantity(dist).value_in("A");
       }
     }
 

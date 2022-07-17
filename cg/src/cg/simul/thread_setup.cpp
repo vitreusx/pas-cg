@@ -81,6 +81,15 @@ void thread::setup_output() {
     make_checkpoint.st = &st;
     make_checkpoint.last_t = &st.ckpt_last_t;
   }
+
+  if (params.gen.debug_mode.print_raw_data) {
+#pragma omp master
+    {
+      print_raw_data.data_file =
+          std::make_shared<std::ofstream>("raw_data.txt");
+      print_raw_data.st = &st;
+    }
+  }
 }
 
 void thread::setup_langevin() {
@@ -90,6 +99,7 @@ void thread::setup_langevin() {
                      : (lang::step_base &)lang_legacy_step;
 
     step.temperature = st.temperature;
+    step.step_idx = &st.step_idx;
     step.t = &st.t;
     step.dt = params.lang.dt;
     step.gamma_factor = params.lang.gamma;
@@ -124,7 +134,7 @@ void thread::setup_pbar() {
     auto &render = render_pbar;
     render.width = params.pbar.width;
     render.total_time = params.gen.total_time;
-    render.period_s = params.pbar.update_period.in("s");
+    render.period_s = params.pbar.update_period.value_in("s");
     render.t = &st.t;
     render.V = &st.dyn.V;
     render.start_clock = &st.pbar_start_clock;
@@ -278,7 +288,7 @@ void thread::setup_angles() {
 }
 
 void thread::setup_pauli() {
-  if (params.pauli.enabled) {
+  if (st.standalone_pauli) {
     auto &eval = eval_pauli_forces;
     eval.r_excl = params.gen.repulsive_cutoff;
     eval.depth = params.pauli.depth;
@@ -376,7 +386,7 @@ void thread::setup_dh() {
     eval.screen_dist_inv = 1.0 / params.dh.screening_dist;
     eval.r = st.r;
     eval.simul_box = &st.box;
-    eval.es_pairs = &st.dh_pairs;
+    eval.es_pairs = st.dh_pairs;
     eval.V = &dyn.V;
     eval.F = dyn.F;
     eval.fixed_cutoff = params.gen.fixed_cutoff;
@@ -387,7 +397,7 @@ void thread::setup_dh() {
     eval.screen_dist_inv = 1.0 / params.dh.screening_dist;
     eval.r = st.r;
     eval.simul_box = &st.box;
-    eval.es_pairs = &st.dh_pairs;
+    eval.es_pairs = st.dh_pairs;
     eval.V = &dyn.V;
     eval.F = dyn.F;
     eval.fixed_cutoff = params.gen.fixed_cutoff;

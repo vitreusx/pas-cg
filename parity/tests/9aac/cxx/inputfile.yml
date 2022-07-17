@@ -1,0 +1,45 @@
+general:
+  total time: 10 tau
+  equil time: 7500 tau
+  num of trajectories: 5
+  num of threads: 1
+  debug mode:
+    enabled: true
+  seed: 77977
+
+langevin:
+  temperature: 0.38 eps/kB
+
+input:
+  seq file:
+    source:
+      (at path): 9aac.yml
+
+quasi-adiabatic:
+  enabled: false
+
+pseudo-improper dihedral:
+  enabled: true
+  include (i, i+4): false
+  forces:
+    variant: sink lj
+    bb+:
+      sink lj params:
+        depth: 0.1 eps
+    bb-:
+      sink lj params:
+        depth: 0.1 eps
+    ss:
+      sink lj params:
+        per pair:
+          depth:
+            (at path): mj-matrix.csv
+
+AFM:
+  tips:
+    - type: const velocity
+      pulled-apart chain: 0
+      magnitude: 5e-3 A/tau
+
+output:
+  file prefix: 9aac

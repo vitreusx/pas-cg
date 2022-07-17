@@ -1,17 +1,12 @@
 general:
   total time: 15e3 tau
-  num of threads: 1
-  num of trajectories: 10
-  seed: 448
+  repulsive cutoff: 4 A
 
 input:
   pdb file:
     source:
       (at path): 1ubq.pdb
     contact deriv: from all atoms
-  morph into SAW:
-    initial box density: 0 residue/A**3
-    bond distance: average
 
 quasi-adiabatic:
   enabled: false

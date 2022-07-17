@@ -28,18 +28,24 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
   vec3r dpsi2_dr2p, dpsi2_dr2, dpsi2_dr2n, dpsi2_dr1;
 
   auto type = bundle.type();
-  auto i1p = prev[i1], i1n = next[i1], i2p = prev[i2], i2n = next[i2];
-  if (i1p < 0 || i1n < 0 || i2p < 0 || i2n < 0)
-    return;
+  //  auto i1p = prev[i1], i1n = next[i1], i2p = prev[i2], i2n = next[i2];
+  //  if (i1p < 0 || i1n < 0 || i2p < 0 || i2n < 0)
+  //    return;
+  auto i1p = i1 - 1, i1n = i1 + 1, i2p = i2 - 1, i2n = i2 + 1;
+  auto n = r.size();
 
   lambda const *bb_lam_1, *bb_lam_2;
   sink_lj const *bb_lj;
 
   {
     auto i1_ = i1, i2_ = i1n, i3_ = i1p, i4_ = i2;
-    auto r1_ = r[i1_], r2_ = r[i2_], r3_ = r[i3_], r4_ = r[i4_];
-    auto rij = r1_ - r2_, rkj = r3_ - r2_, rkl = r3_ - r4_;
-    auto rm = cross(rij, rkj), rn = cross(rkj, rkl);
+    //    auto r1_ = r[i1_], r2_ = r[i2_], r3_ = r[i3_], r4_ = r[i4_];
+    //    auto rij = r1_ - r2_, rkj = r3_ - r2_, rkl = r3_ - r4_;
+    auto rij = r[i1_] - (i2_ < n ? r[i2_] : vec3r());
+    auto rkj = i3_ >= 0 ? r[i3_] - (i2_ < n ? r[i2_] : vec3r()) : vec3r();
+    auto rkl = (i3_ >= 0 ? r[i3_] : vec3r()) - r[i4_];
+    auto rm = cross(rij, rkj);
+    auto rn = cross(rkj, rkl);
     auto rm_ninv = norm_inv(rm), rn_ninv = norm_inv(rn),
          rkj_ninv = norm_inv(rkj);
     if (rm_ninv > (real)10.0 || rn_ninv > (real)10.0)
@@ -77,9 +83,13 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
 
   {
     auto i1_ = i2, i2_ = i2n, i3_ = i2p, i4_ = i1;
-    auto r1_ = r[i1_], r2_ = r[i2_], r3_ = r[i3_], r4_ = r[i4_];
-    auto rij = r1_ - r2_, rkj = r3_ - r2_, rkl = r3_ - r4_;
-    auto rm = cross(rij, rkj), rn = cross(rkj, rkl);
+    //    auto r1_ = r[i1_], r2_ = r[i2_], r3_ = r[i3_], r4_ = r[i4_];
+    //    auto rij = r1_ - r2_, rkj = r3_ - r2_, rkl = r3_ - r4_;
+    auto rij = r[i1_] - (i2_ < n ? r[i2_] : vec3r());
+    auto rkj = i3_ >= 0 ? r[i3_] - (i2_ < n ? r[i2_] : vec3r()) : vec3r();
+    auto rkl = (i3_ >= 0 ? r[i3_] : vec3r()) - r[i4_];
+    auto rm = cross(rij, rkj);
+    auto rn = cross(rkj, rkl);
     auto rm_ninv = norm_inv(rm), rn_ninv = norm_inv(rn),
          rkj_ninv = norm_inv(rkj);
     if (rm_ninv > (real)10.0 || rn_ninv > (real)10.0)
@@ -147,14 +157,20 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
   }
 
   *V += V_;
+  //  if (dV_dr != 0.0)
+  //    std::cout << i1 + 1 << " " << i2 + 1 << " " << dV_dr << '\n';
 
   auto r12_u = r12 * r12_rn;
-  F[i1p] -= dV_dpsi1 * dpsi1_dr1p;
+  if (i1p >= 0)
+    F[i1p] -= dV_dpsi1 * dpsi1_dr1p;
   F[i1] -= dV_dpsi1 * dpsi1_dr1 + dV_dpsi2 * dpsi2_dr1 - dV_dr * r12_u;
-  F[i1n] -= dV_dpsi1 * dpsi1_dr1n;
-  F[i2p] -= dV_dpsi2 * dpsi2_dr2p;
+  if (i1n < n)
+    F[i1n] -= dV_dpsi1 * dpsi1_dr1n;
+  if (i2p >= 0)
+    F[i2p] -= dV_dpsi2 * dpsi2_dr2p;
   F[i2] -= dV_dpsi1 * dpsi1_dr2 + dV_dpsi2 * dpsi2_dr2 + dV_dr * r12_u;
-  F[i2n] -= dV_dpsi2 * dpsi2_dr2n;
+  if (i2n < n)
+    F[i2n] -= dV_dpsi2 * dpsi2_dr2n;
 }
 
 void eval_forces::omp_async() const {

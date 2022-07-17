@@ -8,6 +8,7 @@ class step_base {
 public:
   real gamma_factor, temperature;
   solver_real dt;
+  int *step_idx;
 
   vect::view<vec3r> r, v;
   vect::const_view<vec3r> F;

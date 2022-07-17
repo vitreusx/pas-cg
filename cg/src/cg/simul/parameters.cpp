@@ -30,8 +30,10 @@ void parameters::load(ioxx::xyaml::node const &n) {
     pbar.enabled = false;
   }
 
-  if (qa.enabled)
-    pauli.enabled = false;
+  if (gen.debug_mode.print_raw_data) {
+    out.enabled = false;
+    pbar.enabled = false;
+  }
 }
 
 ioxx::xyaml::node defaults_yml() {

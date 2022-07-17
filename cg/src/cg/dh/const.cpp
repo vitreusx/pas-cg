@@ -7,8 +7,8 @@ void eval_forces::set_V_factor(real factor) {
 }
 
 void eval_forces::operator()() const {
-  for (int idx = 0; idx < es_pairs->size(); ++idx) {
-    iter(es_pairs->at(idx));
+  for (int idx = 0; idx < es_pairs.size(); ++idx) {
+    iter(es_pairs[idx]);
   }
 }
 
@@ -37,8 +37,8 @@ template <typename E> void eval_forces::iter(dh::pair_expr<E> const &es) const {
 
 void eval_forces::omp_async() const {
 #pragma omp for schedule(static) nowait
-  for (int idx = 0; idx < es_pairs->size(); ++idx) {
-    iter(es_pairs->at(idx));
+  for (int idx = 0; idx < es_pairs.size(); ++idx) {
+    iter(es_pairs[idx]);
   }
 }
 } // namespace cg::const_dh

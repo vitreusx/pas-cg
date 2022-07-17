@@ -1,12 +1,12 @@
 general:
+  seed: 4359
   periodic boundary conditions: all
+  num of threads: 1
 
 input:
   seq file:
     source:
       (at path): glut.yml
-  morph into SAW:
-    sample initial positions from the box: true
 
 output:
   file prefix: glut

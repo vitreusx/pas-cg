@@ -10,6 +10,10 @@ target_sources(Boost
     PUBLIC ${PublicSources}
     PRIVATE ${PrivateSources})
 
+target_compile_options(Boost
+    PUBLIC
+    -Wno-deprecated-declarations)
+
 target_compile_features(Boost
     PUBLIC cxx_std_17)
 

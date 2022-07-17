@@ -2,19 +2,17 @@ general:
   total time: 50e4 tau
   num of threads: 1
   num of trajectories: 1
-  seed: 8
+  seed: 1
   periodic boundary conditions: all
-  repulsive cutoff: 5 A
-  fixed cutoff: 20 A
 
 input:
   pdb file:
     source:
       (at path): start.pdb
-    ignore CRYST1: false
     load native structure: false
   morph into SAW:
     perform: false
+    PBC also during SAW: true
 
 quasi-adiabatic:
   enabled: false
@@ -23,39 +21,16 @@ native contacts:
   enabled: false
   
 pseudo-improper dihedral:
-  enabled: true
   forces:
     variant: sink lj
     sink lj params:
-      bb+:
-        depth: 0.1 eps
-      bb-:
-        depth: 0.1 eps
       ss:
         per pair:
           depth:
             (at path): mj-matrix.csv
 
 langevin:
-  enabled: true
-  gamma factor: 0.5 1/tau
   temperature: 0.38 eps/kB
-  dt: 5e-3 tau
-  type: legacy
-
-neighbor list:
-  algorithm: legacy
-  pad: 10.0 A
-
-local repulsive:
-  enabled: true
-  depth: 1.0 eps
-
-Debye-Hueckel:
-  variant: constant
-  screening distance: 15.0 A
-  constant variant params:
-    permittivity: 80.0 eps_0
         
 output:
   enabled: true

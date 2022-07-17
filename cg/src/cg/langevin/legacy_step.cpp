@@ -105,6 +105,7 @@ void legacy_step::omp_async() const {
   {
     *true_t += dt;
     *t = (real)*true_t;
+    ++*step_idx;
   }
   *gen = local_gen;
 }

@@ -1,0 +1,20 @@
+general:
+  total time: 10 tau
+  repulsive cutoff: 4.0 A
+  debug mode:
+    enabled: true
+
+input:
+  pdb file:
+    source:
+      (at path): 1ubq.pdb
+    contact deriv: from all atoms
+
+quasi-adiabatic:
+  enabled: false
+
+Debye-Hueckel:
+  enabled: false
+
+output:
+  file prefix: 1ubq

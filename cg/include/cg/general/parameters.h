@@ -10,7 +10,7 @@ struct parameters {
   };
 
   struct debug_mode_t {
-    bool enabled, fp_exceptions, disable_all;
+    bool enabled, fp_exceptions, disable_all, print_raw_data;
   };
 
   prog_mode mode;

@@ -15,7 +15,7 @@ public:
   vect::const_view<vec3r> r;
   vect::view<vec3r> F;
   box<real> const *simul_box;
-  vect::vector<dh::pair> const *es_pairs;
+  vect::const_view<dh::pair> es_pairs;
   real *V;
 
 public:

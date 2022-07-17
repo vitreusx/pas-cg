@@ -20,9 +20,11 @@ void parameters::load(ioxx::xyaml::node const &p) {
   auto dp = p["debug mode"];
   dp["enabled"] >> debug_mode.enabled;
   dp["floating point exceptions"] >> debug_mode.fp_exceptions;
-  dp["disable all forces"] >> debug_mode.disable_all;
   debug_mode.fp_exceptions &= debug_mode.enabled;
+  dp["disable all forces"] >> debug_mode.disable_all;
   debug_mode.disable_all &= debug_mode.enabled;
+  dp["print raw data"] >> debug_mode.print_raw_data;
+  debug_mode.print_raw_data &= debug_mode.enabled;
 
   if (auto pbc = p["periodic boundary conditions"]; pbc) {
     if (pbc.IsScalar()) {
