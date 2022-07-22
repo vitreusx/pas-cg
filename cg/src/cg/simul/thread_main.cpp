@@ -23,8 +23,17 @@ void thread::step() {
   case phase::EQUIL:
     equil_step();
     break;
-  case phase::PROPER:
-    proper_step();
+  case phase::SQUEEZING:
+    squeezing_step();
+    break;
+  case phase::REST_AFTER_SQUEEZING:
+    rest_after_squeezing_step();
+    break;
+  case phase::FREEFORM:
+    freeform_step();
+    break;
+  case phase::TRAJ_END:
+    traj_end_step();
     break;
   case phase::SIMUL_END:
     simul_end_step();
@@ -90,23 +99,70 @@ void thread::equil_step() {
       }
 
       st->until = params->gen.total_time;
-      st->cur_phase = phase::PROPER;
+      st->since = st->t;
+      st->cur_phase = phase::SQUEEZING;
     }
 
     init_kernels();
   }
 }
 
-void thread::proper_step() {
+void thread::squeezing_step() {
+#pragma omp single
+  {
+    if (st->t >= params->gen.total_time) {
+      st->cur_phase = phase::TRAJ_END;
+    } else if (!params->sbox.squeezing.perform) {
+      st->until = params->gen.total_time;
+      st->cur_phase = phase::FREEFORM;
+    } else {
+      auto const &sp = params->sbox.squeezing;
+      auto ext = st->box.extent();
+      auto cur_vol = ext.x() * ext.y() * ext.z();
+      auto target_vol = st->num_res / (real)sp.target_density;
+
+      if (cur_vol <= target_vol) {
+        st->until =
+            min(st->t + params->sbox.rest_period, (real)params->gen.total_time);
+        st->cur_phase = phase::REST_AFTER_SQUEEZING;
+      } else {
+        real vel = (cur_vol > (real)2.0 * target_vol) ? sp.vel_above_2V
+                                                      : sp.vel_below_2V;
+        auto frac = min((st->t - st->since) / (real)sp.accel_time, (real)1.0);
+        vel *= frac;
+        st->move_walls(-vel * params->lang.dt);
+      }
+    }
+  }
+
+  if (st->cur_phase == phase::SQUEEZING)
+    advance_by_step();
+}
+
+void thread::rest_after_squeezing_step() {
   if (st->t < st->until) {
     advance_by_step();
   } else {
 #pragma omp single
     {
-      ++st->traj_idx;
-      st->cur_phase = phase::TRAJ_INIT;
+      st->until = params->gen.total_time;
+      st->cur_phase = phase::FREEFORM;
     }
   }
+}
+
+void thread::freeform_step() {
+  if (st->t < st->until) {
+    advance_by_step();
+  } else {
+#pragma omp single
+    st->cur_phase = phase::TRAJ_END;
+  }
+}
+
+void thread::traj_end_step() {
+  ++st->traj_idx;
+  st->cur_phase = phase::TRAJ_INIT;
 }
 
 void thread::simul_end_step() {}

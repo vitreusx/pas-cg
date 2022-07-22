@@ -92,9 +92,9 @@ void state::traj_init() {
   setup_dh();
   setup_qa();
   setup_pid();
+  setup_solid_walls();
 
-  solid_walls_enabled = lj_walls_enabled = harmonic_walls_enabled =
-      afm_enabled = false;
+  lj_walls_enabled = harmonic_walls_enabled = afm_enabled = false;
 }
 
 void state::morph_model() {
@@ -210,14 +210,10 @@ void state::compile_model() {
     box.max = model.saw_box->max;
   }
 
-  vec3r pbc_cell;
-  auto pbc_x = params.sbox.walls.x_axis == "periodic";
-  pbc_cell.x() = pbc_x ? box.extent().x() : 0;
-  auto pbc_y = params.sbox.walls.y_axis == "periodic";
-  pbc_cell.y() = pbc_y ? box.extent().y() : 0;
-  auto pbc_z = params.sbox.walls.z_axis == "periodic";
-  pbc_cell.z() = pbc_z ? box.extent().z() : 0;
-  pbc.set_cell(pbc_cell);
+  pbc_x = params.sbox.walls.x_axis == "periodic";
+  pbc_y = params.sbox.walls.y_axis == "periodic";
+  pbc_z = params.sbox.walls.z_axis == "periodic";
+  reset_pbc();
 
   prev = next = chain_idx = seq_idx = vect::vector<int>(num_res, -1);
   for (auto const &res : model.residues) {
@@ -241,6 +237,14 @@ void state::compile_model() {
     chain_first[chain->chain_idx] = res_map.at(chain->residues.front());
     chain_last[chain->chain_idx] = res_map.at(chain->residues.back());
   }
+}
+
+void state::reset_pbc() {
+  vec3r pbc_cell;
+  pbc_cell.x() = pbc_x ? box.extent().x() : 0;
+  pbc_cell.y() = pbc_y ? box.extent().y() : 0;
+  pbc_cell.z() = pbc_z ? box.extent().z() : 0;
+  pbc.set_cell(pbc_cell);
 }
 
 void state::setup_dyn() {
@@ -558,6 +562,69 @@ void state::setup_afm() {
       force_afm_tips.emplace_back(i1, pull_force * pull_dir);
     }
   }
+}
+
+void state::setup_solid_walls() {
+  auto wall_x = params.sbox.walls.x_axis == "solid";
+  if (wall_x) {
+    auto neg_plane = plane<real>(box.min, vec3r::UnitX());
+    neg_x = &solid_walls.emplace_back(neg_plane).origin();
+    dyn.solid_wall_F.emplace_back();
+
+    auto pos_plane = plane<real>(box.max, -vec3r::UnitX());
+    pos_x = &solid_walls.emplace_back(pos_plane).origin();
+    dyn.solid_wall_F.emplace_back();
+  }
+
+  auto wall_y = params.sbox.walls.y_axis == "solid";
+  if (wall_y) {
+    auto neg_plane = plane<real>(box.min, vec3r::UnitY());
+    neg_y = &solid_walls.emplace_back(neg_plane).origin();
+    dyn.solid_wall_F.emplace_back();
+
+    auto pos_plane = plane<real>(box.max, -vec3r::UnitY());
+    pos_y = &solid_walls.emplace_back(pos_plane).origin();
+    dyn.solid_wall_F.emplace_back();
+  }
+
+  auto wall_z = params.sbox.walls.z_axis == "solid";
+  if (wall_z) {
+    auto neg_plane = plane<real>(box.min, vec3r::UnitZ());
+    neg_z = &solid_walls.emplace_back(neg_plane).origin();
+    dyn.solid_wall_F.emplace_back();
+
+    auto pos_plane = plane<real>(box.max, -vec3r::UnitZ());
+    pos_z = &solid_walls.emplace_back(pos_plane).origin();
+    dyn.solid_wall_F.emplace_back();
+  }
+
+  solid_walls_enabled = wall_x || wall_y || wall_z;
+}
+
+void state::adjust_walls() {
+  if (neg_x)
+    *neg_x = box.min;
+  if (neg_y)
+    *neg_y = box.min;
+  if (neg_z)
+    *neg_z = box.min;
+  if (pos_x)
+    *pos_x = box.max;
+  if (pos_y)
+    *pos_y = box.max;
+  if (pos_z)
+    *pos_z = box.max;
+}
+
+void state::move_walls(real shift) {
+  box.min.x() -= shift;
+  box.min.y() -= shift;
+  box.min.z() -= shift;
+  box.max.x() += shift;
+  box.max.y() += shift;
+  box.max.z() += shift;
+  reset_pbc();
+  adjust_walls();
 }
 
 } // namespace cg::simul

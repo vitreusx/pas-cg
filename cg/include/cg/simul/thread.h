@@ -44,7 +44,10 @@ public:
   void traj_init_step();
   void pull_release_step();
   void equil_step();
-  void proper_step();
+  void squeezing_step();
+  void rest_after_squeezing_step();
+  void freeform_step();
+  void traj_end_step();
   void simul_end_step();
 
   void init_kernels();

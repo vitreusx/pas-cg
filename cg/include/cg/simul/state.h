@@ -14,7 +14,10 @@ enum class phase {
   TRAJ_INIT,
   PULL_RELEASE,
   EQUIL,
-  PROPER,
+  SQUEEZING,
+  REST_AFTER_SQUEEZING,
+  FREEFORM,
+  TRAJ_END,
   SIMUL_END
 };
 
@@ -27,7 +30,7 @@ public:
 
   phase cur_phase = phase::SIMUL_INIT;
   int traj_idx, step_idx;
-  real until;
+  real until, since;
 
   rand_gen gen;
   void simul_setup();
@@ -50,6 +53,9 @@ public:
   vect::vector<int> prev, next, chain_idx, seq_idx, chain_first, chain_last;
   input::model::res_map_t res_map;
   void compile_model();
+
+  bool pbc_x = false, pbc_y = false, pbc_z = false;
+  void reset_pbc();
 
   real t;
   dynamics dyn;
@@ -144,6 +150,7 @@ public:
 
   bool solid_walls_enabled;
   vect::vector<plane<real>> solid_walls;
+  void setup_solid_walls();
 
   bool lj_walls_enabled;
   vect::vector<bool> ljw_is_connected;
@@ -151,6 +158,11 @@ public:
   vect::set<wall::lj::connection> ljw_conns;
   vect::vector<wall::lj::candidate> ljw_candidates;
   vect::vector<wall::lj::wall> lj_walls;
+
+  vec3r *neg_x = nullptr, *pos_x = nullptr, *neg_y = nullptr, *pos_y = nullptr,
+        *neg_z = nullptr, *pos_z = nullptr;
+  void adjust_walls();
+  void move_walls(real shift);
 
   bool afm_enabled;
   vect::vector<afm::vel::tip> vel_afm_tips;

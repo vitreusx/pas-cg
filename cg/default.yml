@@ -44,7 +44,6 @@ simulation box:
     velocity above 2V: 2e-2 A/tau
     velocity below 2V: 5e-3 A/tau
     acceleration time: 1.2e3 tau
-    wall type: periodic
     rest period: 10e3 tau
   finding force minimum:
     perform: false

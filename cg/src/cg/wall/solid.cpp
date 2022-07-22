@@ -10,8 +10,8 @@ void eval_forces::iter(int res_idx) const {
       continue;
 
     auto dV_dr = depth * pow(dist, -10.0) * sign(sdist);
-    F[res_idx] -= dV_dr * wall.normal();
-    wall_F[wall_idx] += dV_dr * wall.normal();
+    F[res_idx] += dV_dr * wall.normal();
+    wall_F[wall_idx] -= dV_dr * wall.normal();
   }
 }
 

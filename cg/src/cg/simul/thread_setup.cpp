@@ -58,7 +58,7 @@ void thread::setup_gen() {
 }
 
 void thread::setup_dyn() {
-  dyn = dynamics(st->num_res);
+  dyn = st->dyn;
 #pragma omp critical
   team->forces.push_back(dyn.F);
 }

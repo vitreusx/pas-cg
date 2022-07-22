@@ -8,7 +8,7 @@ public:
   real min_dist;
 
 public:
-  vect::vector<plane<real>> walls;
+  vect::const_view<plane<real>> walls;
   real depth;
 
   vect::const_view<vec3r> r;

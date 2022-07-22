@@ -8,7 +8,6 @@ void parameters::squeezing_t::load(const ioxx::xyaml::node &n) {
   n["velocity above 2V"] >> vel_above_2V;
   n["velocity below 2V"] >> vel_below_2V;
   n["acceleration time"] >> accel_time;
-  n["wall type"] >> wall_type;
 }
 
 void parameters::force_min_t::load(const ioxx::xyaml::node &n) {

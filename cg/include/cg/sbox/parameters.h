@@ -9,7 +9,6 @@ struct parameters {
   struct squeezing_t {
     bool perform;
     quantity target_density, vel_above_2V, vel_below_2V, accel_time;
-    std::string wall_type;
     void load(ioxx::xyaml::node const &n);
   };
   squeezing_t squeezing;
