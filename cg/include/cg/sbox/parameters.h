@@ -8,13 +8,20 @@ namespace cg::sbox {
 struct parameters {
   struct squeezing_t {
     bool perform;
-    quantity target_density;
+    quantity target_density, vel_above_2V, vel_below_2V, accel_time;
     std::string wall_type;
     void load(ioxx::xyaml::node const &n);
   };
   squeezing_t squeezing;
 
-  struct movement_t {
+  struct force_min_t {
+    bool perform;
+    quantity max_velocity, force_for_max_vel;
+    void load(ioxx::xyaml::node const &n);
+  };
+  force_min_t force_min;
+
+  struct oscilations_t {
     bool perform;
     std::string type;
     int num_of_cycles;
@@ -31,14 +38,14 @@ struct parameters {
 
     void load(ioxx::xyaml::node const &n);
   };
-  movement_t movement;
+  oscilations_t oscilations;
 
   struct walls_t {
     std::string x_axis, y_axis, z_axis;
     quantity threshold;
 
     struct solid_wall_t {
-      quantity depth, cutoff;
+      quantity depth;
       void load(ioxx::xyaml::node const &n);
     };
     solid_wall_t solid_wall;
@@ -50,7 +57,7 @@ struct parameters {
     lj_wall_t lj_wall;
 
     struct harmonic_wall_t {
-      quantity HH1, breaking_dist_factor;
+      quantity HH1;
       void load(ioxx::xyaml::node const &n);
     };
     harmonic_wall_t harmonic_wall;
@@ -73,6 +80,15 @@ struct parameters {
     void load(ioxx::xyaml::node const &n);
   };
   init_size_t init_size;
+
+  struct pulling_at_the_end_t {
+    bool perform;
+    quantity velocity;
+    void load(ioxx::xyaml::node const &n);
+  };
+  pulling_at_the_end_t pulling_at_the_end;
+
+  quantity rest_period;
 
   void load(ioxx::xyaml::node const &n);
 };

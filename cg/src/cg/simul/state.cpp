@@ -72,7 +72,7 @@ void state::load_model() {
     orig_model.remove_native_structure();
 }
 
-void state::traj_equil_setup() {
+void state::traj_init() {
   morph_model();
   compile_model();
   setup_dyn();
@@ -92,7 +92,7 @@ void state::traj_equil_setup() {
   setup_dh();
   setup_qa();
   setup_pid();
-  
+
   solid_walls_enabled = lj_walls_enabled = harmonic_walls_enabled =
       afm_enabled = false;
 }
@@ -176,7 +176,7 @@ void state::compile_model() {
       box.min = -box.max;
     };
 
-    if (suf_p.cubic || params.afm.perform) {
+    if (suf_p.cubic || params.sbox.squeezing.perform) {
       for (int idx = 0; idx < num_res; ++idx) {
         auto p = r[idx];
         side = max(side, abs(p.x()) + pad);
@@ -539,6 +539,24 @@ void state::setup_pid() {
 
   if (pid_enabled) {
     nl_required = true;
+  }
+}
+
+void state::setup_afm() {
+  if (afm_enabled) {
+    auto i0 = chain_first[0], i1 = chain_last[0];
+
+    vel_afm_tips.emplace_back(i0, r[i0], t, vec3r::Zero());
+
+    auto pull_dir = unit(r[i1] - r[i0]);
+    auto type = params.afm.tip_params.type;
+    if (type == "const velocity" || cur_phase == phase::PULL_RELEASE) {
+      auto pull_vel = params.afm.tip_params.vel_afm.vel;
+      vel_afm_tips.emplace_back(i1, r[i1], t, pull_vel * pull_dir);
+    } else if (type == "const force") {
+      auto pull_force = params.afm.tip_params.force_afm.force;
+      force_afm_tips.emplace_back(i1, pull_force * pull_dir);
+    }
   }
 }
 

@@ -52,8 +52,8 @@ void finish_processing::operator()() const {
         continue;
     }
 
-    contacts->emplace(i1, i2, candidate.orig_dist(), type, FORMING_OR_FORMED,
-                      *t, diff1, diff2);
+    contacts->emplace(i1, i2, candidate.orig_dist(), type, (real)0.0, diff1,
+                      diff2);
     ++*num_contacts;
 
     sync[i1] = new_sync1;

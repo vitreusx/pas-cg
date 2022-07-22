@@ -40,9 +40,16 @@ public:
 
 public:
   void step();
-  void traj_equil_setup();
-  void advance_by_step();
+  void simul_init_step();
+  void traj_init_step();
+  void pull_release_step();
+  void equil_step();
+  void proper_step();
+  void simul_end_step();
 
+  void init_kernels();
+
+  void advance_by_step();
   void pre_eval_async();
   void fix_nl_async();
   void eval_forces();
@@ -122,14 +129,18 @@ public:
 
   afm::vel::eval_forces eval_vel_afm_forces;
   afm::force::eval_forces eval_force_afm_forces;
+  void setup_afm();
 
   wall::solid::eval_forces eval_solid_wall_forces;
+  void setup_solid_walls();
 
   wall::harmonic::eval_free hw_eval_free;
   wall::harmonic::eval_connected hw_eval_conn;
+  void setup_harmonic_walls();
 
   wall::lj::sift_free ljw_sift_free;
   wall::lj::eval_connected ljw_eval_conn;
   wall::lj::process_candidates ljw_proc_cand;
+  void setup_lj_walls();
 };
 } // namespace cg::simul

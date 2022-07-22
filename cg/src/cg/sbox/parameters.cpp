@@ -5,28 +5,38 @@ namespace cg::sbox {
 void parameters::squeezing_t::load(const ioxx::xyaml::node &n) {
   n["perform"] >> perform;
   n["target density"] >> target_density;
+  n["velocity above 2V"] >> vel_above_2V;
+  n["velocity below 2V"] >> vel_below_2V;
+  n["acceleration time"] >> accel_time;
   n["wall type"] >> wall_type;
 }
 
-void parameters::movement_t::amplitude_t::load(const ioxx::xyaml::node &n) {
+void parameters::force_min_t::load(const ioxx::xyaml::node &n) {
+  n["perform"] >> perform;
+  n["max velocity"] >> max_velocity;
+  n["force for max velocity"] >> force_for_max_vel;
+}
+
+void parameters::oscilations_t::amplitude_t::load(const ioxx::xyaml::node &n) {
   n["variant"] >> variant;
   n["absolute value"] >> abs_value;
   n["relative value"] >> rel_value;
 }
 
-void parameters::movement_t::load(const ioxx::xyaml::node &n) {
+void parameters::oscilations_t::load(const ioxx::xyaml::node &n) {
   n["perform"] >> perform;
   n["type"] >> type;
   n["num of cycles"] >> num_of_cycles;
   n["amplitude"] >> amplitude;
   n["angular frequency"] >> angular_freq;
-  n["when to make walls attractive"] >> when_attr;
-  n["attractive wall type"] >> attr_wall_type;
+
+  auto an = n["attractive walls"];
+  an["when"] >> when_attr;
+  an["type"] >> attr_wall_type;
 }
 
 void parameters::walls_t::solid_wall_t::load(const ioxx::xyaml::node &n) {
   n["depth"] >> depth;
-  n["cutoff"] >> cutoff;
 }
 
 void parameters::walls_t::lj_wall_t::load(const ioxx::xyaml::node &n) {
@@ -37,7 +47,6 @@ void parameters::walls_t::lj_wall_t::load(const ioxx::xyaml::node &n) {
 
 void parameters::walls_t::harmonic_wall_t::load(const ioxx::xyaml::node &n) {
   n["HH1"] >> HH1;
-  n["breaking dist factor"] >> breaking_dist_factor;
 }
 
 void parameters::walls_t::load(const ioxx::xyaml::node &n) {
@@ -70,10 +79,18 @@ void parameters::init_size_t::load(const ioxx::xyaml::node &n) {
   n["sufficient box params"] >> sufficient;
 }
 
+void parameters::pulling_at_the_end_t::load(const ioxx::xyaml::node &n) {
+  n["perform"] >> perform;
+  n["velocity"] >> velocity;
+}
+
 void parameters::load(const ioxx::xyaml::node &n) {
   n["initial size"] >> init_size;
   n["squeezing"] >> squeezing;
-  n["movement"] >> movement;
+  n["finding force minimum"] >> force_min;
+  n["oscilations"] >> oscilations;
   n["walls"] >> walls;
+  n["rest period"] >> rest_period;
+  n["pulling at the end"] >> pulling_at_the_end;
 }
 } // namespace cg::sbox

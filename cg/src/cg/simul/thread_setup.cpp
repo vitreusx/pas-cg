@@ -24,7 +24,7 @@ thread::thread(thread_team &team) {
   tid = omp_get_thread_num();
 }
 
-void thread::traj_equil_setup() {
+void thread::init_kernels() {
   setup_gen();
   setup_dyn();
   setup_output();
@@ -40,7 +40,10 @@ void thread::traj_equil_setup() {
   setup_dh();
   setup_qa();
   setup_pid();
-  loop_idx = 0;
+  setup_afm();
+  setup_solid_walls();
+  setup_harmonic_walls();
+  setup_lj_walls();
 }
 
 void thread::setup_gen() {
@@ -456,8 +459,8 @@ void thread::setup_qa() {
     fin_proc.disulfide_special_criteria = st->ss_spec_crit;
 
     auto &proc_cont = process_qa_contacts;
-    proc_cont.cycle_time = params->qa.phase_dur;
-    proc_cont.cycle_time_inv = 1.0 / proc_cont.cycle_time;
+    proc_cont.saturation_speed = (real)1.0 / params->qa.phase_dur;
+    proc_cont.dt = params->lang.dt;
     proc_cont.set_factor(params->qa.breaking_factor);
     proc_cont.t = &st->t;
     proc_cont.sync = st->sync_values;
@@ -716,6 +719,101 @@ void thread::setup_pid() {
 
     if (params->out.enabled)
       make_report.pid = &eval;
+  }
+}
+
+void thread::setup_afm() {
+  if (st->afm_enabled) {
+    auto &eval_vafm = eval_vel_afm_forces;
+    eval_vafm.r = st->r;
+    eval_vafm.F = dyn.F;
+    eval_vafm.V = &dyn.V;
+    eval_vafm.t = &st->t;
+    eval_vafm.afm_force.H1 = params->afm.tip_params.vel_afm.H1;
+    eval_vafm.afm_force.H2 = params->afm.tip_params.vel_afm.H2;
+    eval_vafm.afm_force.nat_r = 0;
+    eval_vafm.afm_tips = st->vel_afm_tips;
+
+    auto &eval_afm = eval_force_afm_forces;
+    eval_afm.F = dyn.F;
+    eval_afm.afm_tips = st->force_afm_tips;
+  }
+}
+
+void thread::setup_solid_walls() {
+  if (st->solid_walls_enabled) {
+    auto &eval = eval_solid_wall_forces;
+    eval.min_dist = params->sbox.walls.threshold;
+    eval.walls = st->solid_walls;
+    eval.wall_F = dyn.solid_wall_F;
+    eval.depth = params->sbox.walls.solid_wall.depth;
+    eval.r = st->r;
+    eval.F = dyn.F;
+  }
+}
+
+void thread::setup_harmonic_walls() {
+  if (st->harmonic_walls_enabled) {
+    auto &free = hw_eval_free;
+    free.depth = params->sbox.walls.solid_wall.depth;
+    free.walls = st->harmonic_walls;
+    free.min_dist = params->sbox.walls.threshold;
+    free.is_connected = st->is_connected_harmonic;
+    free.wall_F = dyn.harmonic_wall_F;
+    free.r = st->r;
+    free.F = dyn.F;
+    free.V = &dyn.V;
+
+    auto &conn = hw_eval_conn;
+    conn.walls = st->harmonic_walls;
+    conn.wall_F = dyn.harmonic_wall_F;
+    conn.conns = st->harmonic_conns;
+    conn.r = st->r;
+    conn.HH1 = params->sbox.walls.harmonic_wall.HH1;
+    conn.F = dyn.F;
+    conn.V = &dyn.V;
+  }
+}
+
+void thread::setup_lj_walls() {
+  if (st->lj_walls_enabled) {
+    auto &sift = ljw_sift_free;
+    sift.r = st->r;
+    sift.walls = st->lj_walls;
+    sift.is_connected = st->ljw_is_connected;
+    sift.min_dist = params->sbox.walls.threshold;
+    sift.removed = &st->ljw_removed;
+    sift.candidates = &st->ljw_candidates;
+    sift.wall_F = dyn.lj_wall_F;
+    sift.force.depth = params->sbox.walls.lj_wall.depth;
+    sift.force.r_min = sift.min_dist;
+    sift.F = dyn.F;
+    sift.V = &dyn.V;
+
+    auto &eval = ljw_eval_conn;
+    eval.min_dist = sift.min_dist;
+    eval.force.depth() = sift.force.depth;
+    eval.force.r_min() = sift.force.r_min;
+    eval.walls = st->lj_walls;
+    eval.removed = sift.removed;
+    eval.conns = &st->ljw_conns;
+    eval.r = sift.r;
+    eval.is_connected = st->ljw_is_connected;
+    eval.breaking_dist = params->sbox.walls.lj_wall.breaking_dist_factor *
+                         pow(0.5, 1.0 / 6.0) * eval.min_dist;
+    eval.saturation_diff =
+        params->lang.dt / params->sbox.walls.lj_wall.cycle_dur;
+    eval.wall_F = sift.wall_F;
+    eval.F = sift.F;
+    eval.V = sift.V;
+
+    auto &proc = ljw_proc_cand;
+    proc.walls = eval.walls;
+    proc.is_connected = eval.is_connected;
+    proc.conns = eval.conns;
+    proc.removed = eval.removed;
+    proc.candidates = sift.candidates;
+    proc.r = eval.r;
   }
 }
 } // namespace cg::simul

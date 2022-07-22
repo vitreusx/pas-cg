@@ -11,58 +11,105 @@ void thread::main() {
 
 void thread::step() {
   switch (st->cur_phase) {
-  case phase::SIMUL_INIT: {
-#pragma omp single
-    {
-      st->simul_setup();
-      st->traj_idx = 0;
-      st->cur_phase = phase::TRAJ_INIT;
-    }
+  case phase::SIMUL_INIT:
+    simul_init_step();
     break;
-  }
-  case phase::TRAJ_INIT: {
-    if (st->traj_idx < params->gen.num_of_traj) {
-#pragma omp single
-      {
-        st->traj_equil_setup();
-        st->until = min(params->gen.total_time, params->gen.equil_time);
-        st->cur_phase = phase::EQUIL;
-      }
-      traj_equil_setup();
-    } else {
-#pragma omp single
-      st->cur_phase = phase::SIMUL_END;
-    }
+  case phase::TRAJ_INIT:
+    traj_init_step();
     break;
-  }
-  case phase::EQUIL: {
-    if (st->t < st->until) {
-      advance_by_step();
-    } else {
-#pragma omp single
-      {
-        st->until = params->gen.total_time;
-        st->cur_phase = phase::PROPER;
-      }
-    }
+  case phase::PULL_RELEASE:
+    pull_release_step();
     break;
-  }
-  case phase::PROPER: {
-    if (st->t < st->until) {
-      advance_by_step();
-    } else {
-#pragma omp single
-      {
-        ++st->traj_idx;
-        st->cur_phase = phase::TRAJ_INIT;
-      }
-    }
+  case phase::EQUIL:
+    equil_step();
     break;
-  }
+  case phase::PROPER:
+    proper_step();
+    break;
   case phase::SIMUL_END:
+    simul_end_step();
     break;
   }
 }
+
+void thread::simul_init_step() {
+#pragma omp single
+  {
+    st->simul_setup();
+    st->traj_idx = 0;
+    st->cur_phase = phase::TRAJ_INIT;
+  }
+}
+
+void thread::traj_init_step() {
+  if (st->traj_idx < params->gen.num_of_traj) {
+#pragma omp single
+    {
+      st->traj_init();
+      if (params->afm.type == "pull, then release") {
+        st->until = min(params->gen.total_time, params->afm.pull_rel.time);
+        st->cur_phase = phase::PULL_RELEASE;
+        st->afm_enabled = true;
+        st->setup_afm();
+      } else {
+        st->until = min(params->gen.total_time, params->gen.equil_time);
+        st->cur_phase = phase::EQUIL;
+      }
+    }
+
+    init_kernels();
+  } else {
+#pragma omp single
+    st->cur_phase = phase::SIMUL_END;
+  }
+}
+
+void thread::pull_release_step() {
+  if (st->t < st->until) {
+    advance_by_step();
+  } else {
+#pragma omp single
+    {
+      st->afm_enabled = false;
+      st->until =
+          min((double)params->gen.total_time, st->t + params->gen.equil_time);
+      st->cur_phase = phase::EQUIL;
+    }
+  }
+}
+
+void thread::equil_step() {
+  if (st->t < st->until) {
+    advance_by_step();
+  } else {
+#pragma omp single
+    {
+      if (params->afm.perform) {
+        st->afm_enabled = true;
+        st->setup_afm();
+      }
+
+      st->until = params->gen.total_time;
+      st->cur_phase = phase::PROPER;
+    }
+
+    init_kernels();
+  }
+}
+
+void thread::proper_step() {
+  if (st->t < st->until) {
+    advance_by_step();
+  } else {
+#pragma omp single
+    {
+      ++st->traj_idx;
+      st->cur_phase = phase::TRAJ_INIT;
+    }
+  }
+}
+
+void thread::simul_end_step() {}
 
 void thread::advance_by_step() {
   pre_eval_async();

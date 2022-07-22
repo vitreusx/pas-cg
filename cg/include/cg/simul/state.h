@@ -12,6 +12,7 @@ namespace cg::simul {
 enum class phase {
   SIMUL_INIT,
   TRAJ_INIT,
+  PULL_RELEASE,
   EQUIL,
   PROPER,
   SIMUL_END
@@ -36,7 +37,7 @@ public:
   real bond;
   void load_model();
 
-  void traj_equil_setup();
+  void traj_init();
 
   input::model model;
   void morph_model();
@@ -136,9 +137,6 @@ public:
   vect::vector<pid::bundle> pid_bundles;
   void setup_pid();
 
-  bool wall_enabled;
-  vect::vector<wall::lj::wall> lj_walls;
-
   bool harmonic_walls_enabled;
   vect::vector<bool> is_connected_harmonic;
   vect::vector<wall::harmonic::connection> harmonic_conns;
@@ -152,10 +150,12 @@ public:
   vect::vector<int> ljw_removed;
   vect::set<wall::lj::connection> ljw_conns;
   vect::vector<wall::lj::candidate> ljw_candidates;
+  vect::vector<wall::lj::wall> lj_walls;
 
   bool afm_enabled;
   vect::vector<afm::vel::tip> vel_afm_tips;
   vect::vector<afm::force::tip> force_afm_tips;
+  void setup_afm();
 
 public:
   friend std::istream &operator>>(std::istream &is, state &st);

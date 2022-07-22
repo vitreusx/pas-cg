@@ -276,17 +276,6 @@ static std::string format_qa_type(qa::contact_type const &t) {
     return "ss";
 }
 
-static std::string format_qa_status(qa::contact_status const &s) {
-  switch (s) {
-  case qa::contact_status::FORMING_OR_FORMED:
-    return "formed/forming";
-  case qa::contact_status::BREAKING:
-    return "breaking";
-  default:
-    return "";
-  }
-}
-
 static auto angle_value(cg::vec3r r1, cg::vec3r r2, cg::vec3r r3) {
   auto r12_u = unit(r2 - r1), r23_u = unit(r3 - r2);
   return acos(dot(r12_u, r23_u));
@@ -343,18 +332,15 @@ void make_report::add_map_data() const {
         continue;
 
       auto const &cont = entry.item();
-      if (cont.status() == qa::FORMING_OR_FORMED) {
-        ++num_active_contacts;
+      ++num_active_contacts;
 
-        auto &qa_row = tab->append_row();
-        qa_row["i1"] = cont.i1();
-        qa_row["i2"] = cont.i2();
-        qa_row["type"] = format_qa_type(cont.type());
-        qa_row["status"] = format_qa_status(cont.status());
+      auto &qa_row = tab->append_row();
+      qa_row["i1"] = cont.i1();
+      qa_row["i2"] = cont.i2();
+      qa_row["type"] = format_qa_type(cont.type());
 
-        auto dist = norm(st->pbc.wrap(st->r[cont.i1()], st->r[cont.i2()]));
-        qa_row["dist[A]"] = quantity(dist).value_in("A");
-      }
+      auto dist = norm(st->pbc.wrap(st->r[cont.i1()], st->r[cont.i2()]));
+      qa_row["dist[A]"] = quantity(dist).value_in("A");
     }
 
     num_comment = ioxx::sl4::comment("n = ", num_active_contacts);

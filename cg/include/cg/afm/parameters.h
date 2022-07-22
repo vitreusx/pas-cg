@@ -8,7 +8,13 @@
 namespace cg::afm {
 struct parameters {
   bool perform;
-  std::string movement;
+  std::string type;
+
+  struct pull_rel_t {
+    quantity time;
+    void load(ioxx::xyaml::node const& n);
+  };
+  pull_rel_t pull_rel;
 
   struct fafm_t {
     quantity force;

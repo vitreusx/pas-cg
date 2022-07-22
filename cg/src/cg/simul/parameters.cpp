@@ -18,7 +18,7 @@ void parameters::load(ioxx::xyaml::node const &n) {
   n["native contacts"] >> nat_cont;
   n["Pauli exclusion"] >> pauli;
   n["tether forces"] >> tether;
-  n["stretching/pulling with AFM"] >> afm;
+  n["AFM simulations"] >> afm;
   n["progress bar"] >> pbar;
   n["output"] >> out;
   n["checkpoints"] >> ckpt;

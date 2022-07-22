@@ -3,8 +3,6 @@ general:
   equil time: 7500 tau
   num of trajectories: 5
   num of threads: 1
-  debug mode:
-    enabled: true
   seed: 77977
 
 langevin:
@@ -35,11 +33,12 @@ pseudo-improper dihedral:
           depth:
             (at path): mj-matrix.csv
 
-AFM:
-  tips:
-    - type: const velocity
-      pulled-apart chain: 0
-      magnitude: 5e-3 A/tau
+AFM simulations:
+  perform: true
+  tip params:
+    type: const velocity
+    velocity params:
+      H1: 6e-2 eps/A**2
 
 output:
   file prefix: 9aac

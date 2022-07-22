@@ -11,8 +11,7 @@ namespace cg::qa {
 class process_contacts {
 public:
   vect::vector<sink_lj> ljs;
-  real cycle_time, cycle_time_inv;
-  real factor;
+  real saturation_speed, dt, factor;
   std::optional<real> fixed_cutoff;
 
   bool disulfide_special_criteria;
@@ -21,7 +20,6 @@ public:
   int max_neigh_count;
 
   void set_factor(double breaking_factor);
-  real saturation_value(contact const &cont) const;
 
 public:
   vect::const_view<vec3r> r;

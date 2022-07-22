@@ -39,12 +39,16 @@ public:
   double value_in(std::string const &unit) const;
 
   operator ratio() const;
-  operator double() const;
   ratio value() const;
   std::string repr() const;
 
+  inline operator double() const {
+    return redux;
+  }
+
 private:
   ratio value_ = 1.0;
+  double redux;
   std::string unit_str = "";
   std::optional<std::string> def_unit_;
 };

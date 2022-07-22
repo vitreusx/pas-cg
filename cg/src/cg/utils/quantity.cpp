@@ -21,51 +21,55 @@ public:
     using namespace cparse;
     cparse_startup();
 
-    unit_map = {{"f77unit", f77unit},
-                {"A", angstrom},
-                {"nm", nanometer},
-                {"m", meter},
-                {"ns", nanosecond},
-                {"tau", tau},
-                {"micros", microsecond},
-                {"ms", millisecond},
-                {"s", second},
-                {"atom", atom},
-                {"residue", atom},
-                {"mol", mol},
-                {"eps", eps},
-                {"kcal", kcal},
-                {"J", Joule},
-                {"kB", kB},
-                {"K", Kelvin},
-                {"kg", kg},
-                {"amu", amu},
-                {"f77mass", f77mass},
-                {"e", echarge},
-                {"C", Coulomb},
-                {"Amp", Ampere},
-                {"c", cspeed},
-                {"H", Henry},
-                {"mu_0", mu_0},
-                {"eps_0", eps_0},
-                {"rad", rad},
-                {"deg", deg}};
+    std::vector<std::pair<std::string, ratio>> unit_map = {
+        {"f77unit", f77unit},
+        {"A", angstrom},
+        {"nm", nanometer},
+        {"m", meter},
+        {"ns", nanosecond},
+        {"tau", tau},
+        {"micros", microsecond},
+        {"ms", millisecond},
+        {"s", second},
+        {"atom", atom},
+        {"residue", atom},
+        {"mol", mol},
+        {"eps", eps},
+        {"kcal", kcal},
+        {"J", Joule},
+        {"kB", kB},
+        {"K", Kelvin},
+        {"kg", kg},
+        {"amu", amu},
+        {"f77mass", f77mass},
+        {"e", echarge},
+        {"C", Coulomb},
+        {"Amp", Ampere},
+        {"c", cspeed},
+        {"H", Henry},
+        {"mu_0", mu_0},
+        {"eps_0", eps_0},
+        {"rad", rad},
+        {"deg", deg}};
 
     auto &token_map = TokenMap::default_global();
     token_map["float"] = CppFunction(&float_, {"x"}, "float");
+
+    p_map = token_map.map();
+    q_map = token_map.map();
+    for (auto const &[name, val] : unit_map) {
+      p_map[name] = val.p;
+      q_map[name] = val.q;
+    }
   }
 
   double compute_p(std::string const &x) const {
-    auto &token_map = TokenMap::default_global();
-    for (auto const &[name, val] : unit_map)
-      token_map[name] = val.p;
+    TokenMap::default_global().map() = p_map;
     return calculator::calculate(x.c_str()).asDouble();
   }
 
   double compute_q(std::string const &x) const {
-    auto &token_map = TokenMap::default_global();
-    for (auto const &[name, val] : unit_map)
-      token_map[name] = val.q;
+    TokenMap::default_global().map() = q_map;
     return calculator::calculate(x.c_str()).asDouble();
   }
 
@@ -79,7 +83,7 @@ public:
   }
 
 private:
-  std::unordered_map<std::string, ratio> unit_map;
+  TokenMap_t p_map, q_map;
 };
 
 static ratio parse_unit(std::string const &s) {
@@ -99,11 +103,13 @@ static ratio parse_num(std::string const &s) {
 quantity::quantity(ratio value) {
   value_ = value;
   unit_str = "";
+  redux = this->operator ratio();
 }
 
 quantity::quantity(ratio value, std::string const &unit) {
   value_ = value;
   unit_str = unit;
+  redux = this->operator ratio();
 }
 
 quantity::quantity(char const *repr) : quantity(std::string(repr)) {}
@@ -128,6 +134,7 @@ quantity::quantity(const std::string &repr) {
     value_ = parse_num(num_val_str);
     unit_str = std::string(space + 1, repr.end());
   }
+  redux = this->operator ratio();
 }
 
 quantity::operator ratio() const {
@@ -155,6 +162,7 @@ quantity::quantity(const quantity &other) {
   } else {
     unit_str = other.unit_str;
   }
+  redux = other.redux;
 }
 
 quantity::quantity(quantity &&other)
@@ -167,6 +175,7 @@ quantity &quantity::operator=(const quantity &other) {
   } else {
     unit_str = other.unit_str;
   }
+  redux = other.redux;
   return *this;
 }
 
@@ -189,6 +198,7 @@ std::ostream &operator<<(std::ostream &os, quantity const &value) {
 
 quantity &quantity::assumed(const std::string &def_unit) {
   def_unit_ = def_unit;
+  redux = (ratio) * this;
   return *this;
 }
 
@@ -202,9 +212,5 @@ double quantity::value_in(const std::string &unit) const {
 
 ratio quantity::value() const {
   return value_;
-}
-
-quantity::operator double() const {
-  return this->operator ratio();
 }
 } // namespace cg

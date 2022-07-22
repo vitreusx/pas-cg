@@ -37,39 +37,52 @@ simulation box:
       pad (x bond): 2.0
       maximum density: 1e-4 residue/A**3
       cubic: false
+  rest period: 10e3 tau
   squeezing:
     perform: false
     target density: 1e-3 residue/A**3
+    velocity above 2V: 2e-2 A/tau
+    velocity below 2V: 5e-3 A/tau
+    acceleration time: 1.2e3 tau
     wall type: periodic
-  movement:
+    rest period: 10e3 tau
+  finding force minimum:
     perform: false
-    type: oscillate # "shear"
+    max velocity: 5e-3 A/tau
+    force for max velocity: 0.4 eps/A
+  oscilations:
+    perform: false
+    type: squeeze # "shear"
     num of cycles: 6
     amplitude:
       variant: absolute
       absolute value: 10.0 A
       relative value: 0.1
     angular frequency: 1e-4 rad/tau
-    when to make walls attractive: never
-    attractive wall type: lj
+    attractive walls:
+      when: never
+      type: lj
+  pulling at the end:
+    perform: false
+    velocity: 5e-3 A/tau
   walls:
     all axes: void
     # [x, y, z] axis: [void, periodic, solid]
     threshold: 5.0 A
     solid wall params:
       depth: 4.0 eps
-      cutoff: 5.0 A
     lj wall params:
       depth: 4.0 eps
       cycle duration: 0.0 tau
       breaking dist factor: 1.5
     harmonic wall params:
       HH1: 30.0 eps/A**2
-      breaking dist factor: 1.5
 
-stretching/pulling with AFM:
+AFM simulations:
   perform: false
-  movement: stretch
+  type: stretch # "pull, then release"
+  pull-release params:
+    time: 100 tau
   tip params:
     type: const velocity
     velocity params:
@@ -260,10 +273,6 @@ tether forces:
   H1: 100 eps/A**2
   H2: 0 eps/A**4
   default bond length: 3.8 A
-
-AFM:
-  H1: 0.06 eps/A**2
-  H2: 0 eps/A**4
 
 progress bar:
   enabled: true

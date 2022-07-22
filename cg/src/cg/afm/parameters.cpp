@@ -12,6 +12,10 @@ void parameters::vafm_t::load(const ioxx::xyaml::node &n) {
   n["H2"] >> H2;
 }
 
+void parameters::pull_rel_t::load(const ioxx::xyaml::node &n) {
+  n["time"] >> time;
+}
+
 void parameters::tip_params_t::load(const ioxx::xyaml::node &n) {
   n["type"] >> type;
   n["force params"] >> force_afm;
@@ -20,7 +24,8 @@ void parameters::tip_params_t::load(const ioxx::xyaml::node &n) {
 
 void parameters::load(ioxx::xyaml::node const &n) {
   n["perform"] >> perform;
-  n["movement"] >> movement;
+  n["type"] >> type;
+  n["pull-release params"] >> pull_rel;
   n["tip params"] >> tip_params;
 }
 } // namespace cg::afm
