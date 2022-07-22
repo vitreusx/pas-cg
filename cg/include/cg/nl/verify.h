@@ -5,7 +5,7 @@ namespace cg::nl {
 class verify {
 public:
   vect::const_view<vec3r> r;
-  box<real> const *simul_box;
+  sbox::pbc<real> const *simul_box;
   bool *invalid, *first_time;
   int num_particles;
   data const *nl_data;

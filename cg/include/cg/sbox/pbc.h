@@ -2,12 +2,12 @@
 #include <cg/types/vec3.h>
 #include <cg/utils/math.h>
 
-namespace cg {
-template <typename U> class box {
+namespace cg::sbox {
+template <typename U> class pbc {
 public:
   vec3<U> cell, cell_inv;
 
-  inline box() : cell{vec3<U>::Zero()}, cell_inv{vec3<U>::Zero()} {};
+  inline pbc() : cell{vec3<U>::Zero()}, cell_inv{vec3<U>::Zero()} {};
 
   inline void set_cell(vec3<U> const &new_cell) {
     this->cell = new_cell;
@@ -47,4 +47,4 @@ public:
     return wrap(diff);
   }
 };
-} // namespace cg
+} // namespace cg::sbox

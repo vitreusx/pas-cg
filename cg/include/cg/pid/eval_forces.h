@@ -3,7 +3,7 @@
 #include "lambda.h"
 #include <cg/base_forces/lj.h>
 #include <cg/base_forces/sink_lj.h>
-#include <cg/types/box.h>
+#include <cg/sbox/pbc.h>
 
 namespace cg::pid {
 class eval_forces {
@@ -16,7 +16,7 @@ public:
 public:
   vect::const_view<vec3r> r;
   vect::view<vec3r> F;
-  box<real> const *simul_box;
+  sbox::pbc<real> const *simul_box;
   vect::vector<bundle> const *bundles;
   real *V, *total_disp;
   vect::const_view<int> prev, next;

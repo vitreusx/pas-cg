@@ -12,10 +12,9 @@ struct morph_into_saw_t {
   struct start_box_origin {};
   std::variant<std::monostate, start_box_params, start_box_origin> start_box;
 
-  bool perform;
+  bool perform, pbc;
   std::optional<quantity> bond_distance;
   quantity intersection_at;
-  bool with_pbc;
   int num_of_retries;
   void link(ioxx::xyaml::proxy &proxy);
 };

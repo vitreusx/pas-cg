@@ -1,36 +1,83 @@
 general:
+  mode: perform simulation
   total time: 3e6 tau
   equil time: 0 tau
   seed: 448
   num of threads: 1
-  mode: perform simulation
-  debug mode:
-    enabled: false
-    floating point exceptions: false
-    disable all forces: false
-    print raw data: true
   num of trajectories: 1
-  periodic boundary conditions: none
-  fixed cutoff: 18 A
   repulsive cutoff: 5 A
+  debug:
+    floating point exceptions: false
+    dump data for every step: false
 
 input:
   pdb file:
     ignore CRYST1: false
     skip unknown: true
     aliases: { HSD: HIS }
-    load native structure: true
   morph into SAW:
     perform: true
     bond distance: 3.8 A
     start box: origin
-    PBC also during SAW: false
+    #    start box:
+    #      density: 1e-4 residue/A**3
     intersection at: 4.56 A
     num of retries: 9001
+    periodic boundary conditions: false
   morph into line:
     perform: false
     bond distance: 3.8 A
   normalize mass: true
+  load native structure: true
+
+simulation box:
+  initial size:
+    type: sufficient # "from CRYST1 record", "keep from SAW", "infinite"
+    sufficient box params:
+      pad (x bond): 2.0
+      maximum density: 1e-4 residue/A**3
+      cubic: false
+  squeezing:
+    perform: false
+    target density: 1e-3 residue/A**3
+    wall type: periodic
+  movement:
+    perform: false
+    type: oscillate # "shear"
+    num of cycles: 6
+    amplitude:
+      variant: absolute
+      absolute value: 10.0 A
+      relative value: 0.1
+    angular frequency: 1e-4 rad/tau
+    when to make walls attractive: never
+    attractive wall type: lj
+  walls:
+    all axes: void
+    # [x, y, z] axis: [void, periodic, solid]
+    threshold: 5.0 A
+    solid wall params:
+      depth: 4.0 eps
+      cutoff: 5.0 A
+    lj wall params:
+      depth: 4.0 eps
+      cycle duration: 0.0 tau
+      breaking dist factor: 1.5
+    harmonic wall params:
+      HH1: 30.0 eps/A**2
+      breaking dist factor: 1.5
+
+stretching/pulling with AFM:
+  perform: false
+  movement: stretch
+  tip params:
+    type: const velocity
+    velocity params:
+      velocity: 5e-3 A/tau
+      H1: 30.0 eps/A**2
+      H2: 0.0 eps/A**2
+    force params:
+      force: 1e-2 eps/(A*tau)
 
 langevin:
   enabled: true
@@ -42,6 +89,7 @@ langevin:
 neighbor list:
   algorithm: legacy
   pad: 10.0 A
+  cutoff: 18.0 A
 
 angle potentials:
   all enabled: true
@@ -175,11 +223,14 @@ quasi-adiabatic:
         H1: 100 eps/A**2
         H2: 0 eps/A**4
         nat_r: 6.0 A
+      lj params:
+        depth: 4.0 eps
+        r_min: 6.0 A
     special criteria:
       enabled: false
       max neigh count: 9
       neigh radius: 7.5 A
-      def bond dist: 6 A
+      def bond dist: 6.0 A
       max bond dist deviation: 0.1 A
 
 chirality:
@@ -196,6 +247,9 @@ native contacts:
       H1: 100 eps/A**2
       H2: 0 eps/A**4
       nat_r: 6.0 A
+    lj params:
+      depth: 4.0 eps
+      r_min: 6.0 A
 
 Pauli exclusion:
   enabled: true

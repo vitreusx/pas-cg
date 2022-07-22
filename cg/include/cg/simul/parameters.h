@@ -16,6 +16,7 @@
 #include <cg/pbar/parameters.h>
 #include <cg/pid/parameters.h>
 #include <cg/qa/parameters.h>
+#include <cg/sbox/parameters.h>
 #include <cg/tether/parameters.h>
 
 namespace cg::simul {
@@ -40,6 +41,7 @@ struct parameters {
   afm::parameters afm;
   ckpt::parameters ckpt;
   local_rep::parameters lrep;
+  sbox::parameters sbox;
 
   void load(ioxx::xyaml::node const &p);
 };

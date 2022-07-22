@@ -7,7 +7,7 @@ class thread_team;
 
 class dynamics {
 public:
-  vect::vector<vec3r> F;
+  vect::vector<vec3r> F, solid_wall_F, harmonic_wall_F, lj_wall_F;
   real V = 0.0;
 
 public:

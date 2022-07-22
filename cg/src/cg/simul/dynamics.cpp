@@ -37,14 +37,14 @@ void dynamics::omp_reduce(dynamics &target) {
 }
 
 void dynamics::omp_reduce_v2(dynamics &target, thread const &thr) {
-  auto num_thr = thr.team.num_threads;
+  auto num_thr = thr.team->num_threads;
   auto N = F.size();
 
-  for (int cur_tid = 0; cur_tid < num_thr; ++cur_tid) {
-    if (thr.tid == cur_tid)
+  for (int tid = 0; tid < num_thr; ++tid) {
+    if (thr.tid == tid)
       target.V += V;
 
-    auto sector = (cur_tid + thr.tid) % num_thr;
+    auto sector = (tid + thr.tid) % num_thr;
     auto start = (N * sector) / num_thr, end = (N * (sector + 1)) / num_thr;
     for (int idx = start; idx < end; ++idx)
       target.F[idx] += F[idx];

@@ -9,6 +9,10 @@ void parameters::load(ioxx::xyaml::node const &node) {
     algorithm = CELL;
   else
     algorithm = LEGACY;
+
   node["pad"] >> pad;
+
+  if (node["cutoff"].Scalar() != "derived")
+    node["cutoff"] >> cutoff;
 }
 } // namespace cg::nl

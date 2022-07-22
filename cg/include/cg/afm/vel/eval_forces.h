@@ -3,7 +3,7 @@
 #include <cg/base_forces/harmonic.h>
 
 namespace cg::afm::vel {
-class simple {
+class eval_forces {
 public:
   harmonic afm_force;
 

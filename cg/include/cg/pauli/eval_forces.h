@@ -10,7 +10,7 @@ public:
 public:
   vect::const_view<vec3r> r;
   vect::view<vec3r> F;
-  box<real> const *simul_box;
+  sbox::pbc<real> const *simul_box;
   vect::vector<pair> const *pairs;
   real *V;
 

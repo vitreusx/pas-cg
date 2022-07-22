@@ -7,7 +7,7 @@
 namespace ioxx::xyaml {
 template <typename T> struct user_repr<std::optional<T>> {
   void load(node const &from, std::optional<T> &to) const {
-    if (from && (!from.IsScalar() || from.Scalar() != "null"))
+    if (from && !from.IsNull() && (!from.IsScalar() || from.Scalar() != "null"))
       to = from.as<T>();
     else
       to = std::nullopt;

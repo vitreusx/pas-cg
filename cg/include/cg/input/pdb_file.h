@@ -30,7 +30,7 @@ public:
     FROM_ATOMS,
     FROM_RESIDUES
   };
-  input::model to_model(bool load_structure) const;
+  input::model to_model() const;
 
   struct atom;
   struct residue;
@@ -97,7 +97,7 @@ public:
   };
   std::vector<link> links;
 
-  vec3<double> cryst1;
+  std::optional<vec3<double>> cryst1;
 
   void load(ioxx::xyaml::node const &node);
   void load(std::istream &source, pdb_load_options const &load_opts);

@@ -2,7 +2,8 @@
 #include "morph_into_saw.h"
 #include <cg/amino/amino_acid.h>
 #include <cg/nat_cont/type.h>
-#include <cg/types/box.h>
+#include <cg/sbox/box.h>
+#include <cg/sbox/pbc.h>
 #include <cg/types/vec3.h>
 #include <cg/utils/random.h>
 #include <list>
@@ -22,6 +23,7 @@ public:
 
   void morph_into_saw(rand_gen &gen, input::morph_into_saw_t const &params);
   void morph_into_line(double bond_dist);
+  void remove_native_structure();
 
 public:
   struct residue;
@@ -66,12 +68,9 @@ public:
   };
   std::vector<dihedral> dihedrals;
 
-  box<double> model_box;
+  std::optional<vec3<double>> cryst1;
+  std::optional<sbox::box<double>> saw_box;
 
   using res_map_t = std::unordered_map<residue *, int>;
-
-private:
-  void morph_into_saw_def(rand_gen &gen, input::morph_into_saw_t const &params);
-  void morph_into_saw_f77(rand_gen &gen, input::morph_into_saw_t const &params);
 };
 } // namespace cg::input

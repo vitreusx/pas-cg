@@ -18,22 +18,12 @@ void parameters::load(ioxx::xyaml::node const &n) {
   n["native contacts"] >> nat_cont;
   n["Pauli exclusion"] >> pauli;
   n["tether forces"] >> tether;
-  n["AFM"] >> afm;
+  n["stretching/pulling with AFM"] >> afm;
   n["progress bar"] >> pbar;
   n["output"] >> out;
   n["checkpoints"] >> ckpt;
   n["local repulsive"] >> lrep;
-
-  using prog_mode = gen::parameters::prog_mode;
-  if (gen.mode == prog_mode::check_determinism) {
-    out.enabled = false;
-    pbar.enabled = false;
-  }
-
-  if (gen.debug_mode.print_raw_data) {
-    out.enabled = false;
-    pbar.enabled = false;
-  }
+  n["simulation box"] >> sbox;
 }
 
 ioxx::xyaml::node defaults_yml() {

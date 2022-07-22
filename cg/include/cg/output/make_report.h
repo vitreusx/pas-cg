@@ -12,7 +12,7 @@ namespace cg::out {
 class make_report {
 public:
   std::filesystem::path prefix;
-  real stats_every, struct_every;
+  std::optional<real> stats_every, struct_every;
 
 public:
   report *rep;

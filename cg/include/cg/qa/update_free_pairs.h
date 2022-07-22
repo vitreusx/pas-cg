@@ -1,7 +1,7 @@
 #pragma once
 #include "free_pair.h"
 #include <cg/nl/data.h>
-#include <cg/types/box.h>
+#include <cg/sbox/pbc.h>
 
 namespace cg::qa {
 class update_free_pairs {
@@ -12,7 +12,7 @@ public:
 
 public:
   vect::const_view<vec3r> r;
-  box<real> const *simul_box;
+  sbox::pbc<real> const *simul_box;
   nl::data *nl;
   vect::set<free_pair> *pairs;
   vect::const_view<int> chain_idx, seq_idx;

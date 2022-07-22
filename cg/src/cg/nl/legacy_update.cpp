@@ -51,7 +51,7 @@ void legacy_update::operator()() const {
   nl_data->orig_pad = pad;
   for (int idx = 0; idx < r.size(); ++idx)
     nl_data->orig_r[idx] = r[idx];
-  nl_data->orig_box = *simul_box;
+  nl_data->orig_pbc = *simul_box;
   *invalid = false;
 }
 
@@ -120,7 +120,7 @@ void legacy_update::omp_async() const {
     nl_data->orig_pad = pad;
     for (int idx = 0; idx < r.size(); ++idx)
       nl_data->orig_r[idx] = r[idx];
-    nl_data->orig_box = *simul_box;
+    nl_data->orig_pbc = *simul_box;
     *invalid = false;
   }
 }

@@ -7,26 +7,27 @@
 
 namespace cg::afm {
 struct parameters {
-  bool enabled;
-  quantity H1, H2;
+  bool perform;
+  std::string movement;
 
-  enum class tip_type { CONST_VEL, CONST_FORCE };
-
-  struct single_res_t {
-    int res_idx;
-    tip_type type;
-    vec3<quantity> dir;
+  struct fafm_t {
+    quantity force;
+    void load(ioxx::xyaml::node const &n);
   };
 
-  struct pulled_apart_t {
-    int chain_idx;
-    tip_type type;
-    quantity mag;
+  struct vafm_t {
+    quantity vel, H1, H2;
+    void load(ioxx::xyaml::node const &n);
   };
 
-  using tip_t = std::variant<single_res_t, pulled_apart_t>;
-  std::vector<tip_t> tips;
+  struct tip_params_t {
+    std::string type;
+    fafm_t force_afm;
+    vafm_t vel_afm;
+    void load(ioxx::xyaml::node const &n);
+  };
+  tip_params_t tip_params;
 
-  void load(ioxx::xyaml::node const &node);
+  void load(ioxx::xyaml::node const &n);
 };
 } // namespace cg::afm

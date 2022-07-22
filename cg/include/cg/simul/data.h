@@ -1,6 +1,6 @@
 #pragma once
-
-#include <cg/afm/compiled.h>
+#include <cg/afm/force/tip.h>
+#include <cg/afm/vel/tip.h>
 #include <cg/amino/compiled.h>
 #include <cg/angles/aa_heur_pair.h>
 #include <cg/angles/heur_ang/heur_angle.h>
@@ -23,5 +23,9 @@
 #include <cg/qa/contact.h>
 #include <cg/qa/cys_neigh.h>
 #include <cg/qa/free_pair.h>
+#include <cg/sbox/box.h>
+#include <cg/sbox/pbc.h>
 #include <cg/tether/pair.h>
 #include <cg/utils/random.h>
+#include <cg/wall/harmonic/data.h>
+#include <cg/wall/lj/data.h>

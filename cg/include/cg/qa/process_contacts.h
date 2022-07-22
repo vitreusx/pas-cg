@@ -5,7 +5,7 @@
 #include <cg/amino/sync_data.h>
 #include <cg/base_forces/disulfide.h>
 #include <cg/base_forces/sink_lj.h>
-#include <cg/types/box.h>
+#include <cg/sbox/pbc.h>
 
 namespace cg::qa {
 class process_contacts {
@@ -26,7 +26,7 @@ public:
 public:
   vect::const_view<vec3r> r;
   vect::view<vec3r> F;
-  box<real> const *simul_box;
+  sbox::pbc<real> const *simul_box;
   vect::set<contact> *contacts;
   real *V, *t;
   vect::view<sync_data> sync;

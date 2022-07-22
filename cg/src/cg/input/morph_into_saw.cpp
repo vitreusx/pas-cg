@@ -12,12 +12,12 @@ void morph_into_saw_t::link(ioxx::xyaml::proxy &p) {
     start_box_params params;
     box_p["density"] >> params.density;
     box_p["size"] >> params.size;
-    start_box = params;
+    start_box.emplace<start_box_params>(params);
   }
 
   p["intersection at"] >> intersection_at;
   p["num of retries"] >> num_of_retries;
-  p["PBC also during SAW"] >> with_pbc;
   p["bond distance"] >> bond_distance;
+  p["periodic boundary conditions"] >> pbc;
 }
 } // namespace cg::input

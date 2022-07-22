@@ -26,7 +26,8 @@ static std::ofstream open_file(std::filesystem::path const &path) {
 }
 
 void make_report::operator()() const {
-  if (st->t >= rep->stats_last + stats_every) {
+  if (stats_every.has_value() &&
+      st->t >= rep->stats_last + stats_every.value()) {
     add_cur_scalars();
     emit_out();
     add_map_data();
@@ -34,7 +35,8 @@ void make_report::operator()() const {
     rep->stats_last = st->t;
   }
 
-  if (st->t >= rep->struct_last + struct_every) {
+  if (struct_every.has_value() &&
+      st->t >= rep->struct_last + struct_every.value()) {
     add_cur_snapshot();
     emit_pdb();
     rep->struct_last = st->t;
@@ -154,7 +156,7 @@ void make_report::add_cur_snapshot() const {
   auto &snap = rep->snapshots.emplace_back();
   snap.t = st->t;
   snap.r = st->r;
-  snap.model_box = st->box;
+  snap.model_box = st->pbc;
 }
 
 void make_report::emit_pdb() const {
@@ -322,7 +324,7 @@ void make_report::add_map_data() const {
         nc_row["i2"] = cont.i2();
         nc_row["type"] = format_nc_type(cont.type());
 
-        auto dist = norm(st->box.wrap(st->r[cont.i1()], st->r[cont.i2()]));
+        auto dist = norm(st->pbc.wrap(st->r[cont.i1()], st->r[cont.i2()]));
         nc_row["dist[A]"] = quantity(dist).value_in("A");
       }
     }
@@ -350,7 +352,7 @@ void make_report::add_map_data() const {
         qa_row["type"] = format_qa_type(cont.type());
         qa_row["status"] = format_qa_status(cont.status());
 
-        auto dist = norm(st->box.wrap(st->r[cont.i1()], st->r[cont.i2()]));
+        auto dist = norm(st->pbc.wrap(st->r[cont.i1()], st->r[cont.i2()]));
         qa_row["dist[A]"] = quantity(dist).value_in("A");
       }
     }
@@ -372,7 +374,7 @@ void make_report::add_map_data() const {
         pid_row["i1"] = bundle.i1();
         pid_row["i2"] = bundle.i2();
 
-        auto dist = norm(st->box.wrap(st->r[bundle.i1()], st->r[bundle.i2()]));
+        auto dist = norm(st->pbc.wrap(st->r[bundle.i1()], st->r[bundle.i2()]));
         pid_row["dist[A]"] = quantity(dist).value_in("A");
       }
     }

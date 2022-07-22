@@ -1,7 +1,7 @@
 #pragma once
 #include "nat_cont.h"
 #include <cg/base_forces/disulfide.h>
-#include <cg/types/box.h>
+#include <cg/sbox/pbc.h>
 
 namespace cg::nat_cont {
 class eval_forces {
@@ -13,7 +13,7 @@ public:
 public:
   vect::const_view<vec3r> r;
   vect::view<vec3r> F;
-  box<real> const *simul_box;
+  sbox::pbc<real> const *simul_box;
   vect::vector<nat_cont> *contacts;
   vect::view<nat_cont> all_contacts;
   real *V, *t;

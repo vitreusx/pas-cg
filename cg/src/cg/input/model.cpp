@@ -1,5 +1,7 @@
 #include <Eigen/Geometry>
 #include <cg/input/model.h>
+#include <cg/sbox/box.h>
+#include <cg/sbox/pbc.h>
 #include <cg/types/mat3x3.h>
 #include <unordered_map>
 
@@ -56,7 +58,7 @@ model &model::operator=(const model &other) {
     _dihedral.res4 = res_map[_dihedral.res4];
   }
 
-  model_box = other.model_box;
+  cryst1 = other.cryst1;
 
   return *this;
 }
@@ -123,7 +125,9 @@ void model::morph_into_saw(rand_gen &gen,
     bond = bond / num_native;
   }
 
-  Eigen::AlignedBox3d box;
+  sbox::pbc<double> saw_pbc;
+
+  Eigen::AlignedBox3d start_box;
   if (std::holds_alternative<input::morph_into_saw_t::start_box_params>(
           params.start_box)) {
     auto const &box_params =
@@ -138,18 +142,23 @@ void model::morph_into_saw(rand_gen &gen,
       cell_a = cbrt(vol);
     }
 
-    box.min() = {-cell_a / 2.0, -cell_a / 2.0, -cell_a / 2.0};
-    box.max() = -box.min();
-    if (params.with_pbc) {
-      Eigen::Vector3d box_dim = box.max() - box.min();
-      model_box.set_cell(box_dim);
+    start_box.min() = {-cell_a / 2.0, -cell_a / 2.0, -cell_a / 2.0};
+    start_box.max() = -start_box.min();
+
+    if (params.pbc) {
+      Eigen::Vector3d box_dim = start_box.max() - start_box.min();
+      saw_pbc.set_cell(box_dim);
+
+      saw_box = sbox::box<double>();
+      saw_box->min = start_box.min();
+      saw_box->max = start_box.max();
     }
   } else if (std::holds_alternative<input::morph_into_saw_t::start_box_origin>(
                  params.start_box)) {
-    if (params.with_pbc)
-      throw std::runtime_error("with_pbc requires non-zero box");
-
-    box.max() = box.min() = Eigen::Vector3d::Zero();
+    start_box.min() = start_box.max() = Eigen::Vector3d::Zero();
+    if (params.pbc)
+      throw std::runtime_error("SAW conformation generation with periodic "
+                               "boundary conditions requires non-zero box");
   }
 
   for (auto &chain : chains) {
@@ -194,7 +203,7 @@ void model::morph_into_saw(rand_gen &gen,
         }
       }
 
-      Vector ran = sample_from_box(box, gen);
+      Vector ran = sample_from_box(start_box, gen);
       for (int i = 0; i < n; ++i) {
         Vector r = ran;
         for (int j = 0; j < i; ++j) {
@@ -208,7 +217,7 @@ void model::morph_into_saw(rand_gen &gen,
         auto r1 = chain->residues[i]->pos;
         for (int j = i + 3; j < n && success; ++j) {
           auto r2 = chain->residues[j]->pos;
-          auto dx = !params.with_pbc ? (r2 - r1) : model_box.wrap(r1, r2);
+          auto dx = saw_pbc.wrap(r1, r2);
           if (norm_squared(dx) < min_dist_sq) {
             success = false;
             break;
@@ -222,15 +231,6 @@ void model::morph_into_saw(rand_gen &gen,
         break;
     }
   }
-
-  if (!params.with_pbc) {
-    box = Eigen::AlignedBox3d();
-    for (auto const &res : residues)
-      box.extend(convert<double>(res->pos));
-
-    Vector ext = box.max() - box.min();
-    model_box.set_cell(vec3d(ext));
-  }
 }
 
 void model::morph_into_line(double bond_dist) {
@@ -241,5 +241,13 @@ void model::morph_into_line(double bond_dist) {
       cur.z() += bond_dist;
     }
   }
+}
+
+void model::remove_native_structure() {
+  for (auto &ang : angles)
+    ang.theta.reset();
+  for (auto &dih : dihedrals)
+    dih.phi.reset();
+  contacts = {};
 }
 } // namespace cg::input

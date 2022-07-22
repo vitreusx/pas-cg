@@ -11,7 +11,7 @@ public:
 
 public:
   vect::const_view<vec3r> r;
-  box<real> const *simul_box;
+  sbox::pbc<real> const *simul_box;
   data *nl_data;
   int num_particles;
   real *t;

@@ -9,10 +9,13 @@
 #include <thread>
 
 namespace cg::simul {
-class state;
-
-std::istream &operator>>(std::istream &is, state &st);
-std::ostream &operator<<(std::ostream &os, state const &st);
+enum class phase {
+  SIMUL_INIT,
+  TRAJ_INIT,
+  EQUIL,
+  PROPER,
+  SIMUL_END
+};
 
 class state {
 public:
@@ -21,21 +24,19 @@ public:
 
   parameters params;
 
-  bool did_simul_setup = false;
-  bool is_running;
-  int step_idx;
-  real total_time, equil_time;
+  phase cur_phase = phase::SIMUL_INIT;
+  int traj_idx, step_idx;
+  real until;
+
   rand_gen gen;
   void simul_setup();
 
   input::model orig_model;
   int num_res;
+  real bond;
   void load_model();
 
-  bool did_traj_setup = false;
-  int traj_idx;
-  void traj_setup();
-  void finish_trajectory();
+  void traj_equil_setup();
 
   input::model model;
   void morph_model();
@@ -43,7 +44,8 @@ public:
   vect::vector<vec3r> orig_r, r;
   vect::vector<amino_acid> atype;
   compiled_aa_data comp_aa_data;
-  cg::box<real> box;
+  sbox::pbc<real> pbc;
+  sbox::box<real> box;
   vect::vector<int> prev, next, chain_idx, seq_idx, chain_first, chain_last;
   input::model::res_map_t res_map;
   void compile_model();
@@ -52,10 +54,12 @@ public:
   dynamics dyn;
   void setup_dyn();
 
+  bool out_enabled, ckpt_enabled, dump_enabled;
   out::report rep;
   real ckpt_last_t;
   void setup_output();
 
+  bool lang_enabled;
   vect::vector<real> mass_inv, mass_rsqrt;
   vect::vector<vec3r> v, noise;
   vect::vector<vec3sr> y0, y1, y2, y3, y4, y5;
@@ -63,7 +67,7 @@ public:
   real temperature;
   void setup_langevin();
 
-  bool pbar_first_time;
+  bool pbar_enabled, pbar_first_time;
   pbar::render::time_point_t pbar_start_clock, pbar_last_clock;
   void setup_pbar();
 
@@ -74,32 +78,48 @@ public:
   vect::vector<nl::pair> all_pairs;
   void setup_nl();
 
+  bool lrep_enabled;
   vect::vector<local_rep::pair> local_rep_pairs;
   void setup_local_rep();
 
+  bool chir_enabled;
   vect::vector<chir::chiral_quad> chir_quads;
   void setup_chir();
 
+  bool tether_enabled;
   vect::vector<tether::pair> tether_pairs;
   void setup_tether();
 
+  bool nat_ang_enabled;
   vect::vector<nat_ang::nat_ang> native_angles;
-  vect::vector<heur_ang::heur_ang> heur_angles;
-  vect::vector<nat_dih> native_dihedrals;
-  vect::vector<heur_dih::heur_dih> heur_dihedrals;
-  void setup_angles();
+  void setup_nat_ang();
 
-  bool standalone_pauli;
+  bool heur_ang_enabled;
+  vect::vector<heur_ang::heur_ang> heur_angles;
+  void setup_heur_ang();
+
+  bool nat_dih_enabled;
+  vect::vector<nat_dih> native_dihedrals;
+  void setup_nat_dih();
+
+  bool heur_dih_enabled;
+  vect::vector<heur_dih::heur_dih> heur_dihedrals;
+  void setup_heur_dih();
+
+  bool pauli_enabled;
   vect::vector<pauli::pair> pauli_pairs;
   void setup_pauli();
 
+  bool nat_cont_enabled;
   vect::vector<nat_cont::nat_cont> all_native_contacts, cur_native_contacts;
   vect::vector<nl::exclusion> nat_cont_excl;
   void setup_nat_cont();
 
+  bool dh_enabled;
   vect::vector<dh::pair> dh_pairs;
   void setup_dh();
 
+  bool qa_enabled;
   vect::set<qa::free_pair> qa_free_pairs;
   vect::vector<qa::candidate> qa_candidates;
   vect::set<qa::contact> qa_contacts;
@@ -112,16 +132,30 @@ public:
   int num_qa_contacts;
   void setup_qa();
 
+  bool pid_enabled;
   vect::vector<pid::bundle> pid_bundles;
   void setup_pid();
 
-public:
-  bool post_equil = false;
-  bool did_post_equil_setup = false;
-  void post_equil_setup();
+  bool wall_enabled;
+  vect::vector<wall::lj::wall> lj_walls;
 
-  afm::compiled_tips afm_tips;
-  void setup_afm();
+  bool harmonic_walls_enabled;
+  vect::vector<bool> is_connected_harmonic;
+  vect::vector<wall::harmonic::connection> harmonic_conns;
+  vect::vector<wall::harmonic::wall> harmonic_walls;
+
+  bool solid_walls_enabled;
+  vect::vector<plane<real>> solid_walls;
+
+  bool lj_walls_enabled;
+  vect::vector<bool> ljw_is_connected;
+  vect::vector<int> ljw_removed;
+  vect::set<wall::lj::connection> ljw_conns;
+  vect::vector<wall::lj::candidate> ljw_candidates;
+
+  bool afm_enabled;
+  vect::vector<afm::vel::tip> vel_afm_tips;
+  vect::vector<afm::force::tip> force_afm_tips;
 
 public:
   friend std::istream &operator>>(std::istream &is, state &st);

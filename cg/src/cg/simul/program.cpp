@@ -159,15 +159,16 @@ void program::check_determinism() {
     auto &thr1 = team1.fork(), &thr2 = team2.fork();
 
     do {
-      thr1.loop();
-      thr2.loop();
+      thr1.step();
+      thr2.step();
 #pragma omp barrier
 
 #pragma omp master
       st1.verify_equal(st2);
 
 #pragma omp barrier
-    } while (st1.is_running && st2.is_running);
+    } while (st1.cur_phase != phase::SIMUL_END &&
+             st2.cur_phase != phase::SIMUL_END);
   }
 }
 

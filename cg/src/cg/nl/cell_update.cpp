@@ -126,7 +126,7 @@ void cell_update::operator()() const {
   }
 
   std::sort(
-      all_pairs->begin(), all_pairs->end(), [](auto p, auto q) -> auto {
+      all_pairs->begin(), all_pairs->end(), [](auto p, auto q) -> auto{
         return std::make_pair(p.i1(), p.i2()) < std::make_pair(q.i1(), q.i2());
       });
 
@@ -161,7 +161,7 @@ void cell_update::operator()() const {
   nl_data->orig_pad = pad;
   for (int idx = 0; idx < r.size(); ++idx)
     nl_data->orig_r[idx] = r[idx];
-  nl_data->orig_box = *simul_box;
+  nl_data->orig_pbc = *simul_box;
   *invalid = false;
 }
 

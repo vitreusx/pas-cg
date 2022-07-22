@@ -34,31 +34,10 @@ void state::verify_equal(const state &other) const {
 }
 
 void state::simul_setup() {
-  is_running = true;
-  total_time = params.gen.total_time;
-  equil_time = params.gen.equil_time;
-  traj_idx = 0;
-
-  if (params.gen.debug_mode.disable_all) {
-    params.lrep.enabled = false;
-    params.chir.enabled = false;
-    params.tether.enabled = false;
-    params.angles.nat_ang.enabled = false;
-    params.angles.heur_ang.enabled = false;
-    params.angles.nat_dih.enabled = false;
-    params.angles.heur_dih.enabled = false;
-    params.pauli.enabled = false;
-    params.nat_cont.enabled = false;
-    params.dh.enabled = false;
-    params.qa.enabled = false;
-    params.pid.enabled = false;
-  }
-
   gen = rand_gen(params.gen.seed);
-
   load_model();
-
   rep = out::report();
+  traj_idx = 0;
 }
 
 void state::load_model() {
@@ -74,9 +53,9 @@ void state::load_model() {
     if (source.ignore_cryst1)
       file.cryst1 = vec3<double>::Zero();
 
-    orig_model = file.to_model(source.load_structure);
+    orig_model = file.to_model();
 
-    real bond = 0.0;
+    bond = 0.0;
     for (auto const &teth : orig_model.tethers)
       bond += teth.length.value();
     bond /= orig_model.tethers.size();
@@ -88,10 +67,12 @@ void state::load_model() {
     orig_model = std::move(file.model);
   }
   num_res = (int)orig_model.residues.size();
+
+  if (!params.input.load_structure)
+    orig_model.remove_native_structure();
 }
 
-void state::traj_setup() {
-  step_idx = 0;
+void state::traj_equil_setup() {
   morph_model();
   compile_model();
   setup_dyn();
@@ -102,20 +83,18 @@ void state::traj_setup() {
   setup_local_rep();
   setup_chir();
   setup_tether();
-  setup_angles();
+  setup_nat_ang();
+  setup_heur_ang();
+  setup_nat_dih();
+  setup_heur_dih();
   setup_pauli();
   setup_nat_cont();
   setup_dh();
   setup_qa();
   setup_pid();
-  setup_afm();
-}
-
-void state::finish_trajectory() {
-  did_traj_setup = false;
-  did_post_equil_setup = false;
-  ++traj_idx;
-  //  gen = gen.spawn();
+  
+  solid_walls_enabled = lj_walls_enabled = harmonic_walls_enabled =
+      afm_enabled = false;
 }
 
 void state::morph_model() {
@@ -142,6 +121,7 @@ void state::morph_model() {
         orig_model = model;
     }
   }
+
   //  if (params.input.morph_into_line.has_value()) {
   //    model.morph_into_line(params.input.morph_into_line.value());
   //  }
@@ -176,14 +156,68 @@ void state::compile_model() {
       x = 1.0;
   }
 
-  box.cell = model.model_box.cell;
-  box.cell_inv = model.model_box.cell_inv;
-  if (!params.gen.pbc_x)
-    box.cell.x() = box.cell_inv.x() = 0;
-  if (!params.gen.pbc_y)
-    box.cell.y() = box.cell_inv.y() = 0;
-  if (!params.gen.pbc_z)
-    box.cell.z() = box.cell_inv.z() = 0;
+  auto init_p = params.sbox.init_size;
+  if (init_p.type == "from CRYST1 record") {
+    if (!model.cryst1.has_value())
+      throw std::runtime_error("CRYST1 record has not been found");
+
+    box.min = vec3r::Zero();
+    box.max = model.cryst1.value();
+  } else if (init_p.type == "sufficient") {
+    box = sbox::box<real>();
+    auto suf_p = init_p.sufficient;
+    auto pad = suf_p.pad * bond;
+    real side = 0;
+
+    if (suf_p.max_density.has_value()) {
+      auto vol = num_res / suf_p.max_density.value();
+      side = cbrt(vol) / 2.0;
+      box.max = {side, side, side};
+      box.min = -box.max;
+    };
+
+    if (suf_p.cubic || params.afm.perform) {
+      for (int idx = 0; idx < num_res; ++idx) {
+        auto p = r[idx];
+        side = max(side, abs(p.x()) + pad);
+        side = max(side, abs(p.y()) + pad);
+        side = max(side, abs(p.z()) + pad);
+      }
+      box.max = {side, side, side};
+      box.min = -box.max;
+    } else {
+      for (int idx = 0; idx < num_res; ++idx) {
+        auto p = r[idx];
+        box.min.x() = min(box.min.x(), p.x() - pad);
+        box.min.y() = min(box.min.y(), p.y() - pad);
+        box.min.z() = min(box.min.z(), p.z() - pad);
+        box.max.x() = max(box.max.x(), p.x() - pad);
+        box.max.y() = max(box.max.y(), p.y() - pad);
+        box.max.z() = max(box.max.z(), p.z() - pad);
+      }
+    }
+  } else if (init_p.type == "infinite") {
+    auto void_x = params.sbox.walls.x_axis == "void";
+    auto void_y = params.sbox.walls.y_axis == "void";
+    auto void_z = params.sbox.walls.z_axis == "void";
+    if (!void_x || !void_y || !void_z)
+      throw std::runtime_error("for an infinite box, walls must be void");
+  } else if (init_p.type == "keep from SAW") {
+    if (!model.saw_box.has_value())
+      throw std::runtime_error("getting initial box size from SAW requires SAW "
+                               "with periodic boundary conditions to be run");
+    box.min = model.saw_box->min;
+    box.max = model.saw_box->max;
+  }
+
+  vec3r pbc_cell;
+  auto pbc_x = params.sbox.walls.x_axis == "periodic";
+  pbc_cell.x() = pbc_x ? box.extent().x() : 0;
+  auto pbc_y = params.sbox.walls.y_axis == "periodic";
+  pbc_cell.y() = pbc_y ? box.extent().y() : 0;
+  auto pbc_z = params.sbox.walls.z_axis == "periodic";
+  pbc_cell.z() = pbc_z ? box.extent().z() : 0;
+  pbc.set_cell(pbc_cell);
 
   prev = next = chain_idx = seq_idx = vect::vector<int>(num_res, -1);
   for (auto const &res : model.residues) {
@@ -215,75 +249,88 @@ void state::setup_dyn() {
 }
 
 void state::setup_output() {
-  rep.traj_init(traj_idx);
-  ckpt_last_t = std::numeric_limits<real>::lowest();
+  out_enabled = params.out.enabled;
+  if (out_enabled)
+    rep.traj_init(traj_idx);
+
+  ckpt_enabled = params.ckpt.enabled;
+  if (ckpt_enabled)
+    ckpt_last_t = std::numeric_limits<real>::lowest();
+
+  dump_enabled = params.gen.dump_data;
 }
 
 void state::setup_langevin() {
-  auto &mass = comp_aa_data.mass;
+  lang_enabled = params.lang.enabled;
 
-  mass_inv = vect::vector<real>(mass.size());
-  for (int aa_idx = 0; aa_idx < mass_inv.size(); ++aa_idx)
-    mass_inv[aa_idx] = 1.0 / mass[aa_idx];
+  if (lang_enabled) {
+    auto &mass = comp_aa_data.mass;
 
-  mass_rsqrt = vect::vector<real>(mass.size());
-  for (int aa_idx = 0; aa_idx < mass_rsqrt.size(); ++aa_idx)
-    mass_rsqrt[aa_idx] = sqrt(mass_inv[aa_idx]);
+    mass_inv = vect::vector<real>(mass.size());
+    for (int aa_idx = 0; aa_idx < mass_inv.size(); ++aa_idx)
+      mass_inv[aa_idx] = 1.0 / mass[aa_idx];
 
-  v = vect::vector<vec3r>(num_res, vec3r::Zero());
+    mass_rsqrt = vect::vector<real>(mass.size());
+    for (int aa_idx = 0; aa_idx < mass_rsqrt.size(); ++aa_idx)
+      mass_rsqrt[aa_idx] = sqrt(mass_inv[aa_idx]);
 
-  y0 = y1 = y2 = y3 = y4 = y5 = vect::vector<vec3sr>(num_res);
-  for (int idx = 0; idx < num_res; ++idx)
-    y0[idx] = r[idx];
+    v = vect::vector<vec3r>(num_res, vec3r::Zero());
 
-  true_t = t;
+    y0 = y1 = y2 = y3 = y4 = y5 = vect::vector<vec3sr>(num_res);
+    for (int idx = 0; idx < num_res; ++idx)
+      y0[idx] = r[idx];
 
-  if (std::holds_alternative<quantity>(params.lang.temperature)) {
-    auto temp = std::get<quantity>(params.lang.temperature);
-    temperature = temp;
-  } else {
-    auto [temp_start_q, temp_end_q] =
-        std::get<lang::parameters::quantity_range>(params.lang.temperature);
-    real temp_start = temp_start_q, temp_end = temp_end_q;
+    true_t = t;
 
-    auto w = (real)traj_idx / (real)(params.gen.num_of_traj - 1);
-    temperature = temp_start * w + temp_end * ((real)1.0 - w);
+    if (std::holds_alternative<quantity>(params.lang.temperature)) {
+      auto temp = std::get<quantity>(params.lang.temperature);
+      temperature = temp;
+    } else {
+      auto [temp_start_q, temp_end_q] =
+          std::get<lang::parameters::quantity_range>(params.lang.temperature);
+      real temp_start = temp_start_q, temp_end = temp_end_q;
+
+      auto w = (real)traj_idx / (real)(params.gen.num_of_traj - 1);
+      temperature = temp_start * w + temp_end * ((real)1.0 - w);
+    }
+
+    {
+      vec3sr sum_vel;
+      for (int idx = 0; idx < num_res; ++idx) {
+        auto xx = 2.0 * (gen.uniform<real>() - 0.5);
+        auto yy = 2.0 * (gen.uniform<real>() - 0.5);
+        auto zz = 2.0 * (gen.uniform<real>() - 0.5);
+        auto xyz = 1.0 / sqrt(xx * xx + yy * yy + zz * zz);
+
+        y1[idx] = vec3sr(xx, yy, zz) * xyz;
+        sum_vel += y1[idx];
+      }
+
+      auto x = 0.0;
+      for (int idx = 0; idx < num_res; ++idx) {
+        y1[idx] -= sum_vel / num_res;
+        //      x += norm_squared(y1[idx]);
+        auto &v = y1[idx];
+        x = x + v.x() * v.x() + v.y() * v.y() + v.z() * v.z();
+      }
+
+      auto dt = params.lang.dt;
+      auto delsq = dt * dt;
+      auto aheat = delsq * 3.0 * num_res * temperature;
+      auto heat = sqrt(aheat / x);
+      for (int idx = 0; idx < num_res; ++idx) {
+        y1[idx] *= heat;
+      }
+    }
+
+    noise = vect::vector<vec3r>(num_res);
   }
-
-  {
-    vec3sr sum_vel;
-    for (int idx = 0; idx < num_res; ++idx) {
-      auto xx = 2.0 * (gen.uniform<real>() - 0.5);
-      auto yy = 2.0 * (gen.uniform<real>() - 0.5);
-      auto zz = 2.0 * (gen.uniform<real>() - 0.5);
-      auto xyz = 1.0 / sqrt(xx * xx + yy * yy + zz * zz);
-
-      y1[idx] = vec3sr(xx, yy, zz) * xyz;
-      sum_vel += y1[idx];
-    }
-
-    auto x = 0.0;
-    for (int idx = 0; idx < num_res; ++idx) {
-      y1[idx] -= sum_vel / num_res;
-      //      x += norm_squared(y1[idx]);
-      auto &v = y1[idx];
-      x = x + v.x() * v.x() + v.y() * v.y() + v.z() * v.z();
-    }
-
-    auto dt = params.lang.dt;
-    auto delsq = dt * dt;
-    auto aheat = delsq * 3.0 * num_res * temperature;
-    auto heat = sqrt(aheat / x);
-    for (int idx = 0; idx < num_res; ++idx) {
-      y1[idx] *= heat;
-    }
-  }
-
-  noise = vect::vector<vec3r>(num_res);
 }
 
 void state::setup_pbar() {
-  if (params.pbar.enabled) {
+  pbar_enabled = params.pbar.enabled;
+
+  if (pbar_enabled) {
     pbar_first_time = true;
   }
 }
@@ -306,7 +353,9 @@ void state::setup_nl() {
 }
 
 void state::setup_local_rep() {
-  if (params.lrep.enabled) {
+  lrep_enabled = params.lrep.enabled;
+
+  if (lrep_enabled) {
     local_rep_pairs = {};
     for (auto const &triple : model.angles) {
       auto i1 = res_map[triple.res1], i3 = res_map[triple.res3];
@@ -316,7 +365,9 @@ void state::setup_local_rep() {
 }
 
 void state::setup_chir() {
-  if (params.chir.enabled) {
+  chir_enabled = params.chir.enabled;
+
+  if (chir_enabled) {
     chir_quads = {};
     for (auto const &dihedral : model.dihedrals) {
       auto i1 = res_map[dihedral.res1], i2 = res_map[dihedral.res2],
@@ -337,7 +388,9 @@ void state::setup_chir() {
 }
 
 void state::setup_tether() {
-  if (params.tether.enabled) {
+  tether_enabled = params.tether.enabled;
+
+  if (tether_enabled) {
     tether_pairs = {};
     for (auto const &tether : model.tethers) {
       auto i1 = res_map[tether.res1], i2 = res_map[tether.res2];
@@ -347,8 +400,10 @@ void state::setup_tether() {
   }
 }
 
-void state::setup_angles() {
-  if (params.angles.nat_ang.enabled) {
+void state::setup_nat_ang() {
+  nat_ang_enabled = params.angles.nat_ang.enabled;
+
+  if (nat_ang_enabled) {
     native_angles = {};
     for (auto const &angle : model.angles) {
       if (angle.theta.has_value()) {
@@ -360,8 +415,12 @@ void state::setup_angles() {
       }
     }
   }
+}
 
-  if (params.angles.heur_ang.enabled) {
+void state::setup_heur_ang() {
+  heur_ang_enabled = params.angles.heur_ang.enabled;
+
+  if (heur_ang_enabled) {
     heur_angles = {};
     for (auto const &angle : model.angles) {
       if (!angle.theta.has_value()) {
@@ -373,8 +432,12 @@ void state::setup_angles() {
       }
     }
   }
+}
 
-  if (params.angles.nat_dih.enabled) {
+void state::setup_nat_dih() {
+  nat_dih_enabled = params.angles.nat_dih.enabled;
+
+  if (nat_dih_enabled) {
     native_dihedrals = {};
     for (auto const &dihedral : model.dihedrals) {
       if (dihedral.phi.has_value()) {
@@ -386,8 +449,12 @@ void state::setup_angles() {
       }
     }
   }
+}
 
-  if (params.angles.heur_dih.enabled) {
+void state::setup_heur_dih() {
+  heur_dih_enabled = params.angles.heur_dih.enabled;
+
+  if (heur_dih_enabled) {
     heur_dihedrals = {};
     for (auto const &dihedral : model.dihedrals) {
       if (!dihedral.phi.has_value()) {
@@ -402,17 +469,17 @@ void state::setup_angles() {
 }
 
 void state::setup_pauli() {
-  standalone_pauli = params.pauli.enabled && !params.qa.enabled;
-  if (params.pauli.enabled) {
+  pauli_enabled = params.pauli.enabled && !params.qa.enabled;
+
+  if (pauli_enabled) {
     nl_required = true;
   }
 }
 
 void state::setup_nat_cont() {
-  if (model.contacts.empty())
-    params.nat_cont.enabled = false;
+  nat_cont_enabled = !model.contacts.empty() && params.nat_cont.enabled;
 
-  if (params.nat_cont.enabled) {
+  if (nat_cont_enabled) {
     all_native_contacts = {};
     nat_cont_excl = {};
     for (int idx = 0; idx < (int)model.contacts.size(); ++idx) {
@@ -432,13 +499,16 @@ void state::setup_nat_cont() {
 }
 
 void state::setup_dh() {
-  if (params.dh.enabled) {
+  dh_enabled = params.dh.enabled;
+
+  if (dh_enabled) {
     nl_required = true;
   }
 }
 
 void state::setup_qa() {
-  if (params.qa.enabled) {
+  qa_enabled = params.qa.enabled;
+  if (qa_enabled) {
     sync_values = vect::vector<sync_data>(num_res);
     for (int res_idx = 0; res_idx < num_res; ++res_idx) {
       auto lim = comp_aa_data.base_sync[(uint8_t)atype[res_idx]];
@@ -465,49 +535,11 @@ void state::setup_qa() {
 }
 
 void state::setup_pid() {
-  if (params.pid.enabled) {
+  pid_enabled = params.pid.enabled;
+
+  if (pid_enabled) {
     nl_required = true;
   }
-}
-
-void state::setup_afm() {
-  if (!params.afm.tips.empty()) {
-    afm_tips = afm::compiled_tips();
-
-    for (auto const &tip : params.afm.tips) {
-      if (std::holds_alternative<afm::parameters::single_res_t>(tip)) {
-        auto const &tip_v = std::get<afm::parameters::single_res_t>(tip);
-
-        if (tip_v.type == afm::parameters::tip_type::CONST_VEL) {
-          auto orig = r[tip_v.res_idx];
-          afm_tips.vel.emplace_back(tip_v.res_idx, orig, (vec3r)tip_v.dir);
-        } else {
-          afm_tips.force.emplace_back(tip_v.res_idx, (vec3r)tip_v.dir);
-        }
-
-      } else {
-        auto const &tip_v = std::get<afm::parameters::pulled_apart_t>(tip);
-        afm_tips.pulled_chains.push_back(tip_v.chain_idx);
-        auto first = chain_first[tip_v.chain_idx],
-             last = chain_last[tip_v.chain_idx];
-        auto r_first = r[first], r_last = r[last];
-        auto dir = unit(r_last - r_first);
-
-        if (tip_v.type == afm::parameters::tip_type::CONST_VEL) {
-          afm_tips.vel.emplace_back(first, r_first, -dir * tip_v.mag);
-          afm_tips.vel.emplace_back(last, r_last, dir * tip_v.mag);
-        } else {
-          afm_tips.force.emplace_back(first, -dir * tip_v.mag);
-          afm_tips.force.emplace_back(last, dir * tip_v.mag);
-        }
-      }
-    }
-  }
-}
-
-void state::post_equil_setup() {
-  setup_afm();
-  post_equil = true;
 }
 
 } // namespace cg::simul

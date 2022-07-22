@@ -1,6 +1,6 @@
 #pragma once
-#include <cg/afm/force/const.h>
-#include <cg/afm/vel/simple.h>
+#include <cg/afm/force/eval_forces.h>
+#include <cg/afm/vel/eval_forces.h>
 #include <cg/angles/heur_ang/eval_forces.h>
 #include <cg/angles/heur_dih/eval_forces.h>
 #include <cg/angles/nat_ang/eval_forces.h>
@@ -34,3 +34,9 @@
 #include <cg/qa/update_free_pairs.h>
 #include <cg/tether/eval_forces.h>
 #include <cg/utils/random.h>
+#include <cg/wall/harmonic/eval_connected.h>
+#include <cg/wall/harmonic/eval_free.h>
+#include <cg/wall/lj/eval_connected.h>
+#include <cg/wall/lj/process_candidates.h>
+#include <cg/wall/lj/sift_free.h>
+#include <cg/wall/solid.h>

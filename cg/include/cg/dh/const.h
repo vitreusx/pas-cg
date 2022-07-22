@@ -1,6 +1,6 @@
 #pragma once
 #include "pair.h"
-#include <cg/types/box.h>
+#include <cg/sbox/pbc.h>
 #include <optional>
 
 namespace cg::const_dh {
@@ -14,7 +14,7 @@ public:
 public:
   vect::const_view<vec3r> r;
   vect::view<vec3r> F;
-  box<real> const *simul_box;
+  sbox::pbc<real> const *simul_box;
   vect::const_view<dh::pair> es_pairs;
   real *V;
 

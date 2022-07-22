@@ -16,7 +16,7 @@ void pdb_file::load(std::istream &is, pdb_load_options const &load_opts) {
 
   primary_model_serial = -1;
 
-  cryst1 = decltype(cryst1)::Zero();
+  cryst1 = std::nullopt;
 
   char cur_chain_id = 'A';
 
@@ -183,7 +183,7 @@ pdb_file::pdb_file(const input::model &xmd_model) {
     }
   }
 
-  cryst1 = xmd_model.model_box.cell;
+  cryst1 = xmd_model.cryst1;
 }
 
 pdb_file::atom *pdb_file::residue::find_by_name(const std::string &name) const {
@@ -329,7 +329,7 @@ std::ostream &operator<<(std::ostream &os, pdb_file::chain const &chain) {
   return os;
 }
 
-input::model pdb_file::to_model(bool load_structure) const {
+input::model pdb_file::to_model() const {
   input::model xmd_model;
 
   std::unordered_map<residue const *, input::model::residue *> res_map;
@@ -376,8 +376,7 @@ input::model pdb_file::to_model(bool load_structure) const {
         xmd_angle.res1 = res1;
         xmd_angle.res2 = res2;
         xmd_angle.res3 = res3;
-        if (load_structure)
-          xmd_angle.theta = theta;
+        xmd_angle.theta = theta;
 
         if (idx + 3 < xmd_chain->residues.size()) {
           auto *res4 = xmd_chain->residues[idx + 3];
@@ -389,66 +388,63 @@ input::model pdb_file::to_model(bool load_structure) const {
           xmd_dihedral.res2 = res2;
           xmd_dihedral.res3 = res3;
           xmd_dihedral.res4 = res4;
-          if (load_structure)
-            xmd_dihedral.phi = phi;
+          xmd_dihedral.phi = phi;
         }
       }
     }
   }
 
-  if (load_structure) {
-    std::set<std::pair<residue *, residue *>> cont_res_pairs;
+  std::set<std::pair<residue *, residue *>> cont_res_pairs;
 
-    for (auto const &[ss_serial, pdb_ss] : disulfide_bonds) {
-      auto *res1 = pdb_ss.a1->parent_res;
-      auto *res2 = pdb_ss.a2->parent_res;
-      if (res1 >= res2)
-        std::swap(res1, res2);
-      if (cont_res_pairs.count(std::make_pair(res1, res2)) > 0)
-        continue;
+  for (auto const &[ss_serial, pdb_ss] : disulfide_bonds) {
+    auto *res1 = pdb_ss.a1->parent_res;
+    auto *res2 = pdb_ss.a2->parent_res;
+    if (res1 >= res2)
+      std::swap(res1, res2);
+    if (cont_res_pairs.count(std::make_pair(res1, res2)) > 0)
+      continue;
 
-      auto &xmd_ss = xmd_model.contacts.emplace_back();
-      xmd_ss.res1 = res_map[res1];
-      xmd_ss.res2 = res_map[res2];
-      xmd_ss.length = norm(xmd_ss.res1->pos - xmd_ss.res2->pos);
-      xmd_ss.type = nat_cont::type::SSBOND;
+    auto &xmd_ss = xmd_model.contacts.emplace_back();
+    xmd_ss.res1 = res_map[res1];
+    xmd_ss.res2 = res_map[res2];
+    xmd_ss.length = norm(xmd_ss.res1->pos - xmd_ss.res2->pos);
+    xmd_ss.type = nat_cont::type::SSBOND;
 
-      cont_res_pairs.insert(std::make_pair(res1, res2));
-    }
-
-    for (auto const &pdb_link : links) {
-      auto *res1 = pdb_link.a1->parent_res;
-      auto *res2 = pdb_link.a2->parent_res;
-      if (res1 >= res2)
-        std::swap(res1, res2);
-      if (cont_res_pairs.count(std::make_pair(res1, res2)) > 0)
-        continue;
-
-      auto &xmd_cont = xmd_model.contacts.emplace_back();
-      xmd_cont.res1 = res_map[res1];
-      xmd_cont.res2 = res_map[res2];
-      xmd_cont.length = norm(xmd_cont.res1->pos - xmd_cont.res2->pos);
-
-      auto back1 = pdb_link.a1->in_backbone();
-      auto back2 = pdb_link.a2->in_backbone();
-
-      nat_cont::type type;
-      if (back1 && back2)
-        type = nat_cont::type::BACK_BACK;
-      else if (back1 && !back2)
-        type = nat_cont::type::BACK_SIDE;
-      else if (!back1 && back2)
-        type = nat_cont::type::SIDE_BACK;
-      else
-        type = nat_cont::type::SIDE_SIDE;
-
-      xmd_cont.type = type;
-
-      cont_res_pairs.insert(std::make_pair(res1, res2));
-    }
+    cont_res_pairs.insert(std::make_pair(res1, res2));
   }
 
-  xmd_model.model_box.set_cell(cryst1);
+  for (auto const &pdb_link : links) {
+    auto *res1 = pdb_link.a1->parent_res;
+    auto *res2 = pdb_link.a2->parent_res;
+    if (res1 >= res2)
+      std::swap(res1, res2);
+    if (cont_res_pairs.count(std::make_pair(res1, res2)) > 0)
+      continue;
+
+    auto &xmd_cont = xmd_model.contacts.emplace_back();
+    xmd_cont.res1 = res_map[res1];
+    xmd_cont.res2 = res_map[res2];
+    xmd_cont.length = norm(xmd_cont.res1->pos - xmd_cont.res2->pos);
+
+    auto back1 = pdb_link.a1->in_backbone();
+    auto back2 = pdb_link.a2->in_backbone();
+
+    nat_cont::type type;
+    if (back1 && back2)
+      type = nat_cont::type::BACK_BACK;
+    else if (back1 && !back2)
+      type = nat_cont::type::BACK_SIDE;
+    else if (!back1 && back2)
+      type = nat_cont::type::SIDE_BACK;
+    else
+      type = nat_cont::type::SIDE_SIDE;
+
+    xmd_cont.type = type;
+
+    cont_res_pairs.insert(std::make_pair(res1, res2));
+  }
+
+  xmd_model.cryst1 = cryst1;
 
   return xmd_model;
 }

@@ -3,7 +3,7 @@
 #include "free_pair.h"
 #include <cg/amino/amino_acid.h>
 #include <cg/amino/sync_data.h>
-#include <cg/types/box.h>
+#include <cg/sbox/pbc.h>
 
 namespace cg::qa {
 class loop_over_candidates {
@@ -20,7 +20,7 @@ public:
 public:
   vect::const_view<vec3r> r, n, h;
   vect::view<vec3r> F;
-  box<real> const *simul_box;
+  sbox::pbc<real> const *simul_box;
   vect::const_view<amino_acid> atype;
   vect::const_view<sync_data> sync;
   real *V, *total_disp;

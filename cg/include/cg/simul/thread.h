@@ -16,7 +16,7 @@ public:
   thread &fork();
 
 public:
-  state &st;
+  state *st;
   int num_threads;
   std::vector<std::unique_ptr<thread>> threads;
   std::vector<vect::const_view<vec3r>> forces;
@@ -24,7 +24,7 @@ public:
 
 class thread {
 public:
-  explicit thread(thread_team &team, state &st);
+  explicit thread(thread_team &team);
 
   thread(thread const &) = delete;
   thread &operator=(thread const &) = delete;
@@ -33,24 +33,27 @@ public:
   thread &operator=(thread &&) = delete;
 
   void main();
-  void loop();
-  void adjust_scenario();
+
+public:
+  int tid;
+  thread_team *team;
+
+public:
+  void step();
+  void traj_equil_setup();
+  void advance_by_step();
+
   void pre_eval_async();
   void fix_nl_async();
   void eval_forces();
   void post_eval_async();
 
 public:
-  int tid, loop_idx;
-  thread_team &team;
-  state &st;
-  parameters const &params;
+  int loop_idx;
+  state *st;
+  parameters const *params;
 
 public:
-  bool did_traj_setup = false;
-  void traj_setup();
-  void finish_trajectory();
-
   rand_gen gen;
   void setup_gen();
 
@@ -117,13 +120,16 @@ public:
   pid::update_bundles update_pid_bundles;
   void setup_pid();
 
-public:
-  bool did_post_equil_setup = false;
-  void post_equil_setup();
-
+  afm::vel::eval_forces eval_vel_afm_forces;
   afm::force::eval_forces eval_force_afm_forces;
-  afm::vel::simple eval_vel_afm_forces;
-  //  afm::report_stats report_afm_stats;
-  void setup_afm();
+
+  wall::solid::eval_forces eval_solid_wall_forces;
+
+  wall::harmonic::eval_free hw_eval_free;
+  wall::harmonic::eval_connected hw_eval_conn;
+
+  wall::lj::sift_free ljw_sift_free;
+  wall::lj::eval_connected ljw_eval_conn;
+  wall::lj::process_candidates ljw_proc_cand;
 };
 } // namespace cg::simul

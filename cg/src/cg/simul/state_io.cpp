@@ -32,7 +32,7 @@ void serialize(Archive &ar, cg::vec3<U> &v, unsigned int) {
 }
 
 template <class Archive, typename U>
-void serialize(Archive &ar, cg::box<U> &box, unsigned int) {
+void serialize(Archive &ar, cg::sbox::pbc<U> &box, unsigned int) {
   ar &box.cell;
   ar &box.cell_inv;
 }
@@ -117,12 +117,10 @@ private:
 template <class Archive>
 void serialize(Archive &ar, cg::simul::state &st, unsigned int) {
   ar &st.params;
-
-  ar &st.did_simul_setup;
-  ar &st.is_running;
+  ar &st.cur_phase;
 
   NV(ar, cg::vec3r, st.r);
-  ar &st.box;
+  ar &st.pbc;
 
   ar &st.t;
 
@@ -139,9 +137,6 @@ void serialize(Archive &ar, cg::simul::state &st, unsigned int) {
   NV(ar, cg::sync_data, st.sync_values);
   NV(ar, bool, st.part_of_ssbond);
   ar &st.num_qa_contacts;
-
-  ar &st.post_equil;
-  ar &st.did_post_equil_setup;
 }
 } // namespace boost::serialization
 

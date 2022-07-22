@@ -2,31 +2,25 @@
 
 namespace cg::afm {
 
-void parameters::load(ioxx::xyaml::node const &node) {
-  node["H1"] >> H1;
-  node["H2"] >> H2;
-  if (node["tips"]) {
-    for (auto entry : node["tips"]) {
-      auto xentry = node.child(entry);
-      auto type_str = xentry["type"].as<std::string>();
-      tip_type type = type_str == "const velocity" ? tip_type::CONST_VEL
-                                                   : tip_type::CONST_FORCE;
+void parameters::fafm_t::load(const ioxx::xyaml::node &n) {
+  n["force"] >> force;
+}
 
-      if (auto sin_res_node = xentry["single residue"]; sin_res_node) {
-        single_res_t tip;
-        tip.type = type;
-        xentry["direction"] >> tip.dir;
-        tip.res_idx = sin_res_node.as<int>();
-        tips.emplace_back(tip);
-      } else if (auto pulled_node = xentry["pulled-apart chain"]; pulled_node) {
-        pulled_apart_t tip;
-        tip.type = type;
-        xentry["magnitude"] >> tip.mag;
-        tip.chain_idx = pulled_node.as<int>();
-        tips.emplace_back(tip);
-      }
-    }
-  }
-  enabled = !tips.empty();
+void parameters::vafm_t::load(const ioxx::xyaml::node &n) {
+  n["velocity"] >> vel;
+  n["H1"] >> H1;
+  n["H2"] >> H2;
+}
+
+void parameters::tip_params_t::load(const ioxx::xyaml::node &n) {
+  n["type"] >> type;
+  n["force params"] >> force_afm;
+  n["velocity params"] >> vel_afm;
+}
+
+void parameters::load(ioxx::xyaml::node const &n) {
+  n["perform"] >> perform;
+  n["movement"] >> movement;
+  n["tip params"] >> tip_params;
 }
 } // namespace cg::afm

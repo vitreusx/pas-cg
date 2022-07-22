@@ -3,16 +3,27 @@ general:
   num of threads: 1
   num of trajectories: 1
   seed: 1
-  periodic boundary conditions: all
 
 input:
   pdb file:
     source:
       (at path): start.pdb
-    load native structure: false
   morph into SAW:
     perform: false
-    PBC also during SAW: true
+    start box:
+      density: 3e-6 residue/A**3
+  load native structure: false
+
+simulation box:
+  initial size:
+    type: sufficient
+    sufficient box params:
+      maximum density: 3e-6 residue/A**3
+  squeezing:
+    perform: true
+    target density: 3e-6 residue/A**3
+  walls:
+    all axes: periodic
 
 quasi-adiabatic:
   enabled: false
