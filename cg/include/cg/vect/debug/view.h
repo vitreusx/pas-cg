@@ -48,6 +48,14 @@ public:
     return data->cend();
   }
 
+  decltype(auto) front() const {
+    return data->front();
+  }
+
+  decltype(auto) back() const {
+    return data->back();
+  }
+
 private:
   std::deque<T> *data = nullptr;
   int n = 0;

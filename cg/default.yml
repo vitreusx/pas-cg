@@ -37,19 +37,20 @@ simulation box:
       pad (x bond): 2.0
       maximum density: 1e-4 residue/A**3
       cubic: false
-  rest period: 10e3 tau
+  common:
+    rest period: 10e3 tau
+    target velocity: 5e-3 A/tau
+    acceleration time: 1.2e3 tau
+    average forces over: 100 tau
   squeezing:
     perform: false
     target density: 1e-3 residue/A**3
     velocity above 2V: 2e-2 A/tau
-    velocity below 2V: 5e-3 A/tau
     acceleration time: 1.2e3 tau
-    rest period: 10e3 tau
   finding force minimum:
     perform: false
-    max velocity: 5e-3 A/tau
     force for max velocity: 0.4 eps/A
-  oscilations:
+  oscillations:
     perform: false
     type: squeeze # "shear"
     num of cycles: 6
@@ -58,12 +59,11 @@ simulation box:
       absolute value: 10.0 A
       relative value: 0.1
     angular frequency: 1e-4 rad/tau
-    attractive walls:
-      when: never
-      type: lj
   pulling at the end:
     perform: false
-    velocity: 5e-3 A/tau
+  attractive walls:
+    when: never
+    type: lj
   walls:
     all axes: void
     # [x, y, z] axis: [void, periodic, solid]
@@ -74,8 +74,10 @@ simulation box:
       depth: 4.0 eps
       cycle duration: 0.0 tau
       breaking dist factor: 1.5
+      connection limit: auto
     harmonic wall params:
       HH1: 30.0 eps/A**2
+      connection limit: auto
 
 AFM simulations:
   perform: false

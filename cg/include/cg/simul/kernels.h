@@ -39,4 +39,5 @@
 #include <cg/wall/lj/eval_connected.h>
 #include <cg/wall/lj/process_candidates.h>
 #include <cg/wall/lj/sift_free.h>
+#include <cg/wall/log_forces.h>
 #include <cg/wall/solid.h>

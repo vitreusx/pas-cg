@@ -22,6 +22,10 @@ public:
     return max - min;
   }
 
+  auto center() const {
+    return (max + min) / (U)2.0;
+  }
+
 public:
   vec3<U> min = vec3<U>(1.0, 1.0, 1.0);
   vec3<U> max = vec3<U>(-1.0, -1.0, -1.0);

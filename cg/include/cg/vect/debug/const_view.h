@@ -35,6 +35,14 @@ public:
     return data->end();
   }
 
+  decltype(auto) front() const {
+    return data->front();
+  }
+
+  decltype(auto) back() const {
+    return data->back();
+  }
+
 protected:
   std::deque<T> const *data = nullptr;
   int n = 0;

@@ -6,21 +6,29 @@
 
 namespace cg::sbox {
 struct parameters {
+  quantity target_vel, accel_time, rest_period, avg_forces_over;
+
+  struct attr_walls_t {
+    std::string when, type;
+    void load(ioxx::xyaml::node const &n);
+  };
+  attr_walls_t attr_walls;
+
   struct squeezing_t {
     bool perform;
-    quantity target_density, vel_above_2V, vel_below_2V, accel_time;
+    quantity target_density, vel_above_2V, accel_time;
     void load(ioxx::xyaml::node const &n);
   };
   squeezing_t squeezing;
 
   struct force_min_t {
     bool perform;
-    quantity max_velocity, force_for_max_vel;
+    quantity force_for_max_vel;
     void load(ioxx::xyaml::node const &n);
   };
   force_min_t force_min;
 
-  struct oscilations_t {
+  struct oscillations_t {
     bool perform;
     std::string type;
     int num_of_cycles;
@@ -33,11 +41,10 @@ struct parameters {
     amplitude_t amplitude;
 
     quantity angular_freq;
-    std::string when_attr, attr_wall_type;
 
     void load(ioxx::xyaml::node const &n);
   };
-  oscilations_t oscilations;
+  oscillations_t oscillations;
 
   struct walls_t {
     std::string x_axis, y_axis, z_axis;
@@ -51,12 +58,14 @@ struct parameters {
 
     struct lj_wall_t {
       quantity depth, cycle_dur, breaking_dist_factor;
+      std::optional<int> limit;
       void load(ioxx::xyaml::node const &n);
     };
     lj_wall_t lj_wall;
 
     struct harmonic_wall_t {
       quantity HH1;
+      std::optional<int> limit;
       void load(ioxx::xyaml::node const &n);
     };
     harmonic_wall_t harmonic_wall;
@@ -82,12 +91,9 @@ struct parameters {
 
   struct pulling_at_the_end_t {
     bool perform;
-    quantity velocity;
     void load(ioxx::xyaml::node const &n);
   };
   pulling_at_the_end_t pulling_at_the_end;
-
-  quantity rest_period;
 
   void load(ioxx::xyaml::node const &n);
 };

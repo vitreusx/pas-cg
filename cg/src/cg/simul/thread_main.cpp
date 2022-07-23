@@ -10,6 +10,11 @@ void thread::main() {
 }
 
 void thread::step() {
+  if (st->trajectory_should_end()) {
+#pragma omp single
+    st->cur_phase = phase::TRAJ_END;
+  }
+
   switch (st->cur_phase) {
   case phase::SIMUL_INIT:
     simul_init_step();
@@ -28,6 +33,24 @@ void thread::step() {
     break;
   case phase::REST_AFTER_SQUEEZING:
     rest_after_squeezing_step();
+    break;
+  case phase::FIND_FORCE_MIN:
+    find_force_min_step();
+    break;
+  case phase::REST_AFTER_FORCE_MIN:
+    rest_after_force_min_step();
+    break;
+  case phase::MAX_AMPLITUDE:
+    max_amplitude_step();
+    break;
+  case phase::REST_AFTER_MAX_AMP:
+    rest_after_max_amp_step();
+    break;
+  case phase::OSCILLATIONS:
+    oscillations_step();
+    break;
+  case phase::REST_AFTER_OSCILLATIONS:
+    rest_after_oscillations_step();
     break;
   case phase::FREEFORM:
     freeform_step();
@@ -80,8 +103,7 @@ void thread::pull_release_step() {
 #pragma omp single
     {
       st->afm_enabled = false;
-      st->until =
-          min((double)params->gen.total_time, st->t + params->gen.equil_time);
+      st->until = st->t + params->gen.equil_time;
       st->cur_phase = phase::EQUIL;
     }
   }
@@ -96,13 +118,12 @@ void thread::equil_step() {
       if (params->afm.perform) {
         st->afm_enabled = true;
         st->setup_afm();
+      } else {
+        st->until = params->gen.total_time;
+        st->since = st->t;
+        st->cur_phase = phase::SQUEEZING;
       }
-
-      st->until = params->gen.total_time;
-      st->since = st->t;
-      st->cur_phase = phase::SQUEEZING;
     }
-
     init_kernels();
   }
 }
@@ -110,11 +131,9 @@ void thread::equil_step() {
 void thread::squeezing_step() {
 #pragma omp single
   {
-    if (st->t >= params->gen.total_time) {
-      st->cur_phase = phase::TRAJ_END;
-    } else if (!params->sbox.squeezing.perform) {
-      st->until = params->gen.total_time;
-      st->cur_phase = phase::FREEFORM;
+    if (!params->sbox.squeezing.perform) {
+      st->since = st->t;
+      st->cur_phase = phase::FIND_FORCE_MIN;
     } else {
       auto const &sp = params->sbox.squeezing;
       auto ext = st->box.extent();
@@ -126,11 +145,19 @@ void thread::squeezing_step() {
             min(st->t + params->sbox.rest_period, (real)params->gen.total_time);
         st->cur_phase = phase::REST_AFTER_SQUEEZING;
       } else {
-        real vel = (cur_vol > (real)2.0 * target_vol) ? sp.vel_above_2V
-                                                      : sp.vel_below_2V;
-        auto frac = min((st->t - st->since) / (real)sp.accel_time, (real)1.0);
-        vel *= frac;
-        st->move_walls(-vel * params->lang.dt);
+        real vel;
+        if (cur_vol > (real)2.0 * target_vol) {
+          auto time_frac =
+              min((st->t - st->since) / (real)sp.accel_time, (real)1.0);
+          vel = time_frac * sp.vel_above_2V;
+        } else {
+          auto time_frac = min(
+              (st->t - st->since) / (real)params->sbox.accel_time, (real)1.0);
+          vel = time_frac * params->sbox.target_vel;
+        }
+
+        auto shift = (real)0.5 * vel * params->lang.dt;
+        st->adjust_wall_pos(vec3r(-shift, -shift, -shift), vec3r::Zero());
       }
     }
   }
@@ -144,20 +171,145 @@ void thread::rest_after_squeezing_step() {
     advance_by_step();
   } else {
 #pragma omp single
-    {
-      st->until = params->gen.total_time;
-      st->cur_phase = phase::FREEFORM;
-    }
+    st->cur_phase = phase::FIND_FORCE_MIN;
   }
 }
 
-void thread::freeform_step() {
+void thread::find_force_min_step() {
+#pragma omp single
+  {
+    if (!params->sbox.force_min.perform) {
+      st->cur_phase = phase::FREEFORM;
+    } else {
+      if (st->avg_z_force->has_value() &&
+          abs(st->avg_z_force->value()) < 5e-2 + 5e-5 * st->num_res) {
+        st->until = st->t + params->sbox.rest_period;
+        st->cur_phase = phase::REST_AFTER_FORCE_MIN;
+      } else {
+        auto const &fmp = params->sbox.force_min;
+        auto time_vel_frac =
+            min((st->t - st->since) / (real)params->sbox.accel_time, (real)1.0);
+        auto force_vel_frac =
+            st->avg_z_force->value_or(0) / fmp.force_for_max_vel;
+        force_vel_frac =
+            copysign(min(abs(force_vel_frac), (real)1.0), force_vel_frac);
+        auto vel = params->sbox.target_vel * time_vel_frac * force_vel_frac;
+
+        auto shift = -(real)0.5 * vel * params->lang.dt;
+        st->adjust_wall_pos(vec3r(shift, shift, shift), vec3r::Zero());
+      }
+    }
+  }
+
+  if (st->cur_phase == phase::FIND_FORCE_MIN)
+    advance_by_step();
+}
+
+void thread::rest_after_force_min_step() {
   if (st->t < st->until) {
     advance_by_step();
   } else {
 #pragma omp single
-    st->cur_phase = phase::TRAJ_END;
+    {
+      auto const &op = params->sbox.oscillations;
+      if (op.amplitude.variant == "absolute") {
+        st->amplitude = op.amplitude.abs_value;
+      } else {
+        st->shear = op.type == "shear";
+        real base_val = st->shear ? st->box.extent().x() : st->box.extent().z();
+        st->amplitude = op.amplitude.rel_value * base_val;
+      }
+      st->since = st->t;
+      st->cur_phase = phase::MAX_AMPLITUDE;
+    }
   }
+}
+
+void thread::max_amplitude_step() {
+#pragma omp single
+  {
+    if (!params->sbox.oscillations.perform) {
+      st->cur_phase = phase::FREEFORM;
+    } else {
+      auto time_frac =
+          min((st->t - st->since) / (real)params->sbox.accel_time, (real)1.0);
+      auto vel = time_frac * params->sbox.target_vel;
+      auto shift = vel * params->lang.dt;
+
+      if (st->displacement > (real)0.5 * st->amplitude) {
+        st->until = st->t + params->sbox.rest_period;
+        st->cur_phase = phase::REST_AFTER_MAX_AMP;
+      } else {
+        st->displacement += shift;
+        if (st->shear) {
+          if (st->neg_plane[Z])
+            st->neg_plane[Z]->normal().x() += shift;
+          if (st->pos_plane[Z])
+            st->pos_plane[Z]->normal().x() += shift;
+        } else {
+          st->adjust_wall_pos(vec3r(-shift, -shift, -shift), vec3r::Zero());
+        }
+      }
+    }
+  }
+
+  if (st->cur_phase == phase::MAX_AMPLITUDE)
+    advance_by_step();
+}
+
+void thread::rest_after_max_amp_step() {
+  if (st->t < st->until) {
+    advance_by_step();
+  } else {
+#pragma omp single
+    {
+      st->since = st->t;
+      auto const &op = params->sbox.oscillations;
+      st->omega = op.angular_freq;
+      st->until =
+          st->t + ((real)M_PI * 2 * op.num_of_cycles + M_PI_2) / st->omega;
+      st->cur_phase = phase::OSCILLATIONS;
+    }
+  }
+}
+
+void thread::oscillations_step() {
+#pragma omp single
+  {
+    if (st->t >= st->until) {
+      st->until = st->t + params->sbox.rest_period;
+      st->cur_phase = phase::REST_AFTER_OSCILLATIONS;
+    } else {
+      auto vel = (real)0.5 * st->amplitude * st->omega *
+                 sin(st->omega * (st->t - st->since));
+      auto shift = vel * params->lang.dt;
+
+      if (st->shear) {
+        if (st->neg_plane[Z])
+          st->neg_plane[Z]->normal().x() += shift;
+        if (st->pos_plane[Z])
+          st->pos_plane[Z]->normal().x() += shift;
+      } else {
+        st->adjust_wall_pos(vec3r(shift, shift, shift), vec3r::Zero());
+      }
+    }
+  }
+
+  if (st->cur_phase == phase::OSCILLATIONS)
+    advance_by_step();
+}
+
+void thread::rest_after_oscillations_step() {
+  if (st->t < st->until) {
+    advance_by_step();
+  } else {
+#pragma omp single
+    st->cur_phase = phase::FREEFORM;
+  }
+}
+
+void thread::freeform_step() {
+  advance_by_step();
 }
 
 void thread::traj_end_step() {
@@ -316,6 +468,9 @@ void thread::post_eval_async() {
 
     if (st->lj_walls_enabled)
       ljw_proc_cand();
+
+    if (log_wall_forces_enabled)
+      log_wall_forces();
   }
 
 #pragma omp barrier

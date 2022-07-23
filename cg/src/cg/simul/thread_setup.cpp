@@ -41,9 +41,7 @@ void thread::init_kernels() {
   setup_qa();
   setup_pid();
   setup_afm();
-  setup_solid_walls();
-  setup_harmonic_walls();
-  setup_lj_walls();
+  setup_walls();
 }
 
 void thread::setup_gen() {
@@ -758,7 +756,7 @@ void thread::setup_harmonic_walls() {
     free.depth = params->sbox.walls.solid_wall.depth;
     free.walls = st->harmonic_walls;
     free.min_dist = params->sbox.walls.threshold;
-    free.is_connected = st->is_connected_harmonic;
+    free.is_connected = st->is_connected_to_wall;
     free.wall_F = dyn.harmonic_wall_F;
     free.r = st->r;
     free.F = dyn.F;
@@ -780,7 +778,7 @@ void thread::setup_lj_walls() {
     auto &sift = ljw_sift_free;
     sift.r = st->r;
     sift.walls = st->lj_walls;
-    sift.is_connected = st->ljw_is_connected;
+    sift.is_connected = st->is_connected_to_wall;
     sift.min_dist = params->sbox.walls.threshold;
     sift.removed = &st->ljw_removed;
     sift.candidates = &st->ljw_candidates;
@@ -798,7 +796,7 @@ void thread::setup_lj_walls() {
     eval.removed = sift.removed;
     eval.conns = &st->ljw_conns;
     eval.r = sift.r;
-    eval.is_connected = st->ljw_is_connected;
+    eval.is_connected = st->is_connected_to_wall;
     eval.breaking_dist = params->sbox.walls.lj_wall.breaking_dist_factor *
                          pow(0.5, 1.0 / 6.0) * eval.min_dist;
     eval.saturation_diff =
@@ -814,6 +812,24 @@ void thread::setup_lj_walls() {
     proc.removed = eval.removed;
     proc.candidates = sift.candidates;
     proc.r = eval.r;
+  }
+}
+
+void thread::setup_walls() {
+  setup_solid_walls();
+  setup_harmonic_walls();
+  setup_lj_walls();
+  dyn = st->dyn;
+
+  log_wall_forces_enabled = st->neg_plane[Z] && st->pos_plane[Z];
+  if (log_wall_forces_enabled) {
+    auto &log = log_wall_forces;
+    log.avg_z_force = &st->avg_z_force;
+    log.neg_z_plane = st->neg_plane[Z];
+    log.neg_z_force = st->neg_force[Z];
+    log.pos_z_plane = st->pos_plane[Z];
+    log.pos_z_force = st->pos_force[Z];
+    log.t = &st->t;
   }
 }
 } // namespace cg::simul

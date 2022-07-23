@@ -2,6 +2,7 @@
 #include "data.h"
 #include "dynamics.h"
 #include "parameters.h"
+#include <cg/types/avg.h>
 #include <fstream>
 #include <iostream>
 #include <mutex>
@@ -16,9 +17,21 @@ enum class phase {
   EQUIL,
   SQUEEZING,
   REST_AFTER_SQUEEZING,
+  FIND_FORCE_MIN,
+  REST_AFTER_FORCE_MIN,
+  MAX_AMPLITUDE,
+  REST_AFTER_MAX_AMP,
+  OSCILLATIONS,
+  REST_AFTER_OSCILLATIONS,
   FREEFORM,
   TRAJ_END,
   SIMUL_END
+};
+
+enum axis {
+  X = 0,
+  Y = 1,
+  Z = 2
 };
 
 class state {
@@ -30,7 +43,8 @@ public:
 
   phase cur_phase = phase::SIMUL_INIT;
   int traj_idx, step_idx;
-  real until, since;
+  real until, since, amplitude, displacement, omega;
+  bool shear;
 
   rand_gen gen;
   void simul_setup();
@@ -53,9 +67,6 @@ public:
   vect::vector<int> prev, next, chain_idx, seq_idx, chain_first, chain_last;
   input::model::res_map_t res_map;
   void compile_model();
-
-  bool pbc_x = false, pbc_y = false, pbc_z = false;
-  void reset_pbc();
 
   real t;
   dynamics dyn;
@@ -144,25 +155,30 @@ public:
   void setup_pid();
 
   bool harmonic_walls_enabled;
-  vect::vector<bool> is_connected_harmonic;
   vect::vector<wall::harmonic::connection> harmonic_conns;
   vect::vector<wall::harmonic::wall> harmonic_walls;
 
   bool solid_walls_enabled;
   vect::vector<plane<real>> solid_walls;
-  void setup_solid_walls();
 
   bool lj_walls_enabled;
-  vect::vector<bool> ljw_is_connected;
   vect::vector<int> ljw_removed;
   vect::set<wall::lj::connection> ljw_conns;
   vect::vector<wall::lj::candidate> ljw_candidates;
   vect::vector<wall::lj::wall> lj_walls;
 
-  vec3r *neg_x = nullptr, *pos_x = nullptr, *neg_y = nullptr, *pos_y = nullptr,
-        *neg_z = nullptr, *pos_z = nullptr;
-  void adjust_walls();
-  void move_walls(real shift);
+  vect::vector<bool> is_connected_to_wall;
+  std::string wall_type[3];
+  plane<real> *neg_plane[3], *pos_plane[3];
+  vec3r *neg_force[3], *pos_force[3];
+  moving_avg<real, real> avg_z_force;
+  bool pbc_on[3];
+
+  void setup_walls();
+  void adjust_wall_pos(vec3r size_change, vec3r translation);
+  void reinit_wall_values();
+
+  bool trajectory_should_end() const;
 
   bool afm_enabled;
   vect::vector<afm::vel::tip> vel_afm_tips;

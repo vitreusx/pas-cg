@@ -75,6 +75,22 @@ public:
     return base.end();
   }
 
+  decltype(auto) front() {
+    return base.front();
+  }
+
+  decltype(auto) front() const {
+    return base.front();
+  }
+
+  decltype(auto) back() {
+    return base.back();
+  }
+
+  decltype(auto) back() const {
+    return base.back();
+  }
+
   operator view<T>() {
     return view<T>(&base);
   }

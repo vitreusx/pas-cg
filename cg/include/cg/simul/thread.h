@@ -46,6 +46,12 @@ public:
   void equil_step();
   void squeezing_step();
   void rest_after_squeezing_step();
+  void find_force_min_step();
+  void rest_after_force_min_step();
+  void max_amplitude_step();
+  void rest_after_max_amp_step();
+  void oscillations_step();
+  void rest_after_oscillations_step();
   void freeform_step();
   void traj_end_step();
   void simul_end_step();
@@ -145,5 +151,9 @@ public:
   wall::lj::eval_connected ljw_eval_conn;
   wall::lj::process_candidates ljw_proc_cand;
   void setup_lj_walls();
+
+  bool log_wall_forces_enabled;
+  wall::log_forces log_wall_forces;
+  void setup_walls();
 };
 } // namespace cg::simul

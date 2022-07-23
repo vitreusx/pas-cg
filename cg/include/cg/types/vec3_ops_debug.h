@@ -91,6 +91,11 @@ template <typename E> auto unit(vec3_expr<E> const &e) {
   return norm_inv(e) * e;
 }
 
+template <typename E1, typename E2>
+auto cast(vec3_expr<E1> const &v, vec3_expr<E2> const &onto) {
+  return onto * dot(v, onto);
+}
+
 template <typename S, typename E>
 Eigen::Vector3<S> convert(vec3_expr<E> const &e) {
   return {e.x(), e.y(), e.z()};

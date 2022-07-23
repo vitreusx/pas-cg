@@ -8,17 +8,21 @@ dynamics::dynamics(int num_residues) {
 
 void dynamics::reset() {
   V = 0.0;
-  for (int idx = 0; idx < F.size(); ++idx)
-    F[idx] = vec3r::Zero();
+  for (auto *Fs : {&F, &solid_wall_F, &lj_wall_F, &harmonic_wall_F}) {
+    for (auto &F_ : *Fs)
+      F_ = vec3r::Zero();
+  }
 }
 
 void dynamics::omp_reset() {
 #pragma omp master
   V = 0.0;
 
+  for (auto *Fs : {&F, &solid_wall_F, &lj_wall_F, &harmonic_wall_F}) {
 #pragma omp for schedule(static) nowait
-  for (int idx = 0; idx < F.size(); ++idx)
-    F[idx] = vec3r::Zero();
+    for (int idx = 0; idx < Fs->size(); ++idx)
+      (*Fs)[idx] = vec3r::Zero();
+  }
 }
 
 void dynamics::reduce(dynamics &target) {
@@ -41,8 +45,15 @@ void dynamics::omp_reduce_v2(dynamics &target, thread const &thr) {
   auto N = F.size();
 
   for (int tid = 0; tid < num_thr; ++tid) {
-    if (thr.tid == tid)
+    if (thr.tid == tid) {
       target.V += V;
+      for (int idx = 0; idx < solid_wall_F.size(); ++idx)
+        target.solid_wall_F[idx] += solid_wall_F[idx];
+      for (int idx = 0; idx < lj_wall_F.size(); ++idx)
+        target.lj_wall_F[idx] += lj_wall_F[idx];
+      for (int idx = 0; idx < harmonic_wall_F.size(); ++idx)
+        target.harmonic_wall_F[idx] += harmonic_wall_F[idx];
+    }
 
     auto sector = (tid + thr.tid) % num_thr;
     auto start = (N * sector) / num_thr, end = (N * (sector + 1)) / num_thr;

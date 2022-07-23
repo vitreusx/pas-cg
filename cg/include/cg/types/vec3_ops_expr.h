@@ -37,11 +37,17 @@ class sum_expr : public vec3_expr<sum_expr<E1, E2>> {
 public:
   sum_expr(E1 const &e1, E2 const &e2) : e1{e1}, e2{e2} {};
 
-  auto x() const { return e1.x() + e2.x(); }
+  auto x() const {
+    return e1.x() + e2.x();
+  }
 
-  auto y() const { return e1.y() + e2.y(); }
+  auto y() const {
+    return e1.y() + e2.y();
+  }
 
-  auto z() const { return e1.z() + e2.z(); }
+  auto z() const {
+    return e1.z() + e2.z();
+  }
 
 private:
   E1 e1;
@@ -59,11 +65,17 @@ class diff_expr : public vec3_expr<diff_expr<E1, E2>> {
 public:
   diff_expr(E1 const &e1, E2 const &e2) : e1{e1}, e2{e2} {};
 
-  auto x() const { return e1.x() - e2.x(); }
+  auto x() const {
+    return e1.x() - e2.x();
+  }
 
-  auto y() const { return e1.y() - e2.y(); }
+  auto y() const {
+    return e1.y() - e2.y();
+  }
 
-  auto z() const { return e1.z() - e2.z(); }
+  auto z() const {
+    return e1.z() - e2.z();
+  }
 
 private:
   E1 e1;
@@ -80,11 +92,17 @@ template <typename E> class neg_expr : public vec3_expr<neg_expr<E>> {
 public:
   explicit neg_expr(E const &e) : e{e} {};
 
-  auto x() const { return -e.x(); }
+  auto x() const {
+    return -e.x();
+  }
 
-  auto y() const { return -e.y(); }
+  auto y() const {
+    return -e.y();
+  }
 
-  auto z() const { return -e.z(); }
+  auto z() const {
+    return -e.z();
+  }
 
 private:
   E e;
@@ -99,11 +117,17 @@ class scalar_lmul_expr : public vec3_expr<scalar_lmul_expr<S, E>> {
 public:
   explicit scalar_lmul_expr(S const &s, E const &e) : s{s}, e{e} {};
 
-  auto x() const { return s * e.x(); }
+  auto x() const {
+    return s * e.x();
+  }
 
-  auto y() const { return s * e.y(); }
+  auto y() const {
+    return s * e.y();
+  }
 
-  auto z() const { return s * e.z(); }
+  auto z() const {
+    return s * e.z();
+  }
 
 private:
   S s;
@@ -120,11 +144,17 @@ class scalar_rmul_expr : public vec3_expr<scalar_rmul_expr<E, S>> {
 public:
   explicit scalar_rmul_expr(E const &e, S const &s) : e{e}, s{s} {};
 
-  auto x() const { return e.x() * s; }
+  auto x() const {
+    return e.x() * s;
+  }
 
-  auto y() const { return e.y() * s; }
+  auto y() const {
+    return e.y() * s;
+  }
 
-  auto z() const { return e.z() * s; }
+  auto z() const {
+    return e.z() * s;
+  }
 
 private:
   E e;
@@ -141,11 +171,17 @@ class scalar_div_expr : public vec3_expr<scalar_div_expr<E, S>> {
 public:
   explicit scalar_div_expr(E const &e, S const &s) : e{e}, s{s} {};
 
-  auto x() const { return e.x() / s; }
+  auto x() const {
+    return e.x() / s;
+  }
 
-  auto y() const { return e.y() / s; }
+  auto y() const {
+    return e.y() / s;
+  }
 
-  auto z() const { return e.z() / s; }
+  auto z() const {
+    return e.z() / s;
+  }
 
 private:
   E e;
@@ -162,11 +198,17 @@ class cross_expr : public vec3_expr<cross_expr<E1, E2>> {
 public:
   explicit cross_expr(E1 const &e1, E2 const &e2) : e1{e1}, e2{e2} {};
 
-  auto x() const { return e1.y() * e2.z() - e1.z() * e2.y(); }
+  auto x() const {
+    return e1.y() * e2.z() - e1.z() * e2.y();
+  }
 
-  auto y() const { return e1.z() * e2.x() - e1.x() * e2.z(); }
+  auto y() const {
+    return e1.z() * e2.x() - e1.x() * e2.z();
+  }
 
-  auto z() const { return e1.x() * e2.y() - e1.y() * e2.x(); }
+  auto z() const {
+    return e1.x() * e2.y() - e1.y() * e2.x();
+  }
 
 private:
   E1 e1;
@@ -181,6 +223,11 @@ auto cross(vec3_expr<E1> const &e1, vec3_expr<E2> const &e2) {
 
 template <typename E> auto unit(vec3_expr<E> const &e) {
   return norm_inv(e) * e;
+}
+
+template <typename E1, typename E2>
+auto cast(vec3_expr<E1> const &v, vec3_expr<E2> const &onto) {
+  return onto * dot(v, onto);
 }
 
 template <typename S, typename E>

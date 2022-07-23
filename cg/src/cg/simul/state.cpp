@@ -92,7 +92,11 @@ void state::traj_init() {
   setup_dh();
   setup_qa();
   setup_pid();
-  setup_solid_walls();
+
+  wall_type[X] = params.sbox.walls.x_axis;
+  wall_type[Y] = params.sbox.walls.y_axis;
+  wall_type[Z] = params.sbox.walls.z_axis;
+  setup_walls();
 
   lj_walls_enabled = harmonic_walls_enabled = afm_enabled = false;
 }
@@ -210,11 +214,6 @@ void state::compile_model() {
     box.max = model.saw_box->max;
   }
 
-  pbc_x = params.sbox.walls.x_axis == "periodic";
-  pbc_y = params.sbox.walls.y_axis == "periodic";
-  pbc_z = params.sbox.walls.z_axis == "periodic";
-  reset_pbc();
-
   prev = next = chain_idx = seq_idx = vect::vector<int>(num_res, -1);
   for (auto const &res : model.residues) {
     if (res->seq_idx > 0) {
@@ -237,14 +236,6 @@ void state::compile_model() {
     chain_first[chain->chain_idx] = res_map.at(chain->residues.front());
     chain_last[chain->chain_idx] = res_map.at(chain->residues.back());
   }
-}
-
-void state::reset_pbc() {
-  vec3r pbc_cell;
-  pbc_cell.x() = pbc_x ? box.extent().x() : 0;
-  pbc_cell.y() = pbc_y ? box.extent().y() : 0;
-  pbc_cell.z() = pbc_z ? box.extent().z() : 0;
-  pbc.set_cell(pbc_cell);
 }
 
 void state::setup_dyn() {
@@ -564,67 +555,120 @@ void state::setup_afm() {
   }
 }
 
-void state::setup_solid_walls() {
-  auto wall_x = params.sbox.walls.x_axis == "solid";
-  if (wall_x) {
-    auto neg_plane = plane<real>(box.min, vec3r::UnitX());
-    neg_x = &solid_walls.emplace_back(neg_plane).origin();
-    dyn.solid_wall_F.emplace_back();
+void state::setup_walls() {
+  harmonic_walls.clear();
+  harmonic_conns.clear();
+  solid_walls.clear();
+  ljw_removed.clear();
+  ljw_conns.clear();
+  ljw_candidates.clear();
+  lj_walls.clear();
+  is_connected_to_wall = vect::vector<bool>(num_res, false);
+  harmonic_walls_enabled = solid_walls_enabled = lj_walls_enabled = false;
 
-    auto pos_plane = plane<real>(box.max, -vec3r::UnitX());
-    pos_x = &solid_walls.emplace_back(pos_plane).origin();
-    dyn.solid_wall_F.emplace_back();
+  for (auto const &axis : {X, Y, Z}) {
+    vec3r normal;
+    if (axis == X)
+      normal = vec3r::UnitX();
+    else if (axis == Y)
+      normal = vec3r::UnitY();
+    else if (axis == Z)
+      normal = vec3r::UnitZ();
+    auto neg_axis_plane = plane<real>(vec3r::Zero(), normal);
+    auto pos_axis_plane = plane<real>(vec3r::Zero(), -normal);
+
+    int auto_limit =
+        (num_res -
+         nearbyint(
+             pow(cbrt(num_res) - params.sbox.walls.threshold *
+                                     cbrt(params.sbox.squeezing.target_density),
+                 3.0))) /
+        3;
+    auto_limit /= 2;
+
+    if (wall_type[axis] == "solid") {
+      neg_plane[axis] = &solid_walls.emplace_back(neg_axis_plane);
+      neg_force[axis] = &dyn.solid_wall_F.emplace_back();
+      pos_plane[axis] = &solid_walls.emplace_back(pos_axis_plane);
+      pos_force[axis] = &dyn.solid_wall_F.emplace_back();
+      solid_walls_enabled = true;
+    } else if (wall_type[axis] == "harmonic") {
+      auto limit = params.sbox.walls.harmonic_wall.limit.value_or(auto_limit);
+      neg_plane[axis] =
+          &harmonic_walls.emplace_back(neg_axis_plane, limit).plane;
+      neg_force[axis] = &dyn.solid_wall_F.emplace_back();
+      pos_plane[axis] = &lj_walls.emplace_back(pos_axis_plane, limit).plane;
+      pos_force[axis] = &dyn.solid_wall_F.emplace_back();
+      harmonic_walls_enabled = true;
+
+      vect::vector<std::pair<real, int>> dist(num_res);
+      for (int wall_idx = 0; wall_idx < harmonic_walls.size(); ++wall_idx) {
+        auto const &wall = harmonic_walls[wall_idx];
+        for (int res_idx = 0; res_idx < num_res; ++res_idx) {
+          dist[res_idx] = std::make_pair(wall.plane.dist(r[res_idx]), res_idx);
+        }
+        std::sort(dist.begin(), dist.end());
+
+        for (int idx = 0, conn = 0; conn < limit && idx < num_res; ++idx) {
+          auto res_idx = dist[idx].second;
+          if (!is_connected_to_wall[res_idx]) {
+            auto proj = wall.plane.projection(r[res_idx]);
+            auto offset = proj - wall.plane.origin();
+            real saturation = 0.0;
+            harmonic_conns.emplace_back(wall_idx, res_idx, offset, saturation);
+            is_connected_to_wall[res_idx] = true;
+            ++conn;
+          }
+        }
+      }
+    } else if (wall_type[axis] == "lj") {
+      auto limit = params.sbox.walls.lj_wall.limit.value_or(auto_limit);
+      neg_plane[axis] = &lj_walls.emplace_back(neg_axis_plane, limit).plane;
+      neg_force[axis] = &dyn.solid_wall_F.emplace_back();
+      pos_plane[axis] = &lj_walls.emplace_back(pos_axis_plane, limit).plane;
+      pos_force[axis] = &dyn.solid_wall_F.emplace_back();
+      lj_walls_enabled = true;
+    } else if (wall_type[axis] == "void") {
+      neg_force[axis] = pos_force[axis] = nullptr;
+      neg_plane[axis] = pos_plane[axis] = nullptr;
+    }
+    pbc_on[axis] = (wall_type[axis] == "periodic");
   }
 
-  auto wall_y = params.sbox.walls.y_axis == "solid";
-  if (wall_y) {
-    auto neg_plane = plane<real>(box.min, vec3r::UnitY());
-    neg_y = &solid_walls.emplace_back(neg_plane).origin();
-    dyn.solid_wall_F.emplace_back();
-
-    auto pos_plane = plane<real>(box.max, -vec3r::UnitY());
-    pos_y = &solid_walls.emplace_back(pos_plane).origin();
-    dyn.solid_wall_F.emplace_back();
+  if (neg_force[Z] && pos_force[Z]) {
+    avg_z_force = moving_avg<real, real>(params.sbox.avg_forces_over);
   }
 
-  auto wall_z = params.sbox.walls.z_axis == "solid";
-  if (wall_z) {
-    auto neg_plane = plane<real>(box.min, vec3r::UnitZ());
-    neg_z = &solid_walls.emplace_back(neg_plane).origin();
-    dyn.solid_wall_F.emplace_back();
-
-    auto pos_plane = plane<real>(box.max, -vec3r::UnitZ());
-    pos_z = &solid_walls.emplace_back(pos_plane).origin();
-    dyn.solid_wall_F.emplace_back();
-  }
-
-  solid_walls_enabled = wall_x || wall_y || wall_z;
+  reinit_wall_values();
 }
 
-void state::adjust_walls() {
-  if (neg_x)
-    *neg_x = box.min;
-  if (neg_y)
-    *neg_y = box.min;
-  if (neg_z)
-    *neg_z = box.min;
-  if (pos_x)
-    *pos_x = box.max;
-  if (pos_y)
-    *pos_y = box.max;
-  if (pos_z)
-    *pos_z = box.max;
+void state::adjust_wall_pos(vec3r size_change, vec3r translation) {
+  box.min += -size_change + translation;
+  box.max += size_change + translation;
+  reinit_wall_values();
 }
 
-void state::move_walls(real shift) {
-  box.min.x() -= shift;
-  box.min.y() -= shift;
-  box.min.z() -= shift;
-  box.max.x() += shift;
-  box.max.y() += shift;
-  box.max.z() += shift;
-  reset_pbc();
-  adjust_walls();
+void state::reinit_wall_values() {
+  vec3r center = box.center(), ext = box.extent();
+
+  for (auto axis : {X, Y, Z}) {
+    if (neg_plane[axis])
+      neg_plane[axis]->origin() =
+          center + cg::cast(box.min - center, neg_plane[axis]->normal());
+    if (pos_plane[axis])
+      pos_plane[axis]->origin() =
+          center + cg::cast(box.max - center, pos_plane[axis]->normal());
+  }
+
+  vec3r pbc_cell;
+  pbc_cell.x() = pbc_on[X] ? ext.x() : 0;
+  pbc_cell.y() = pbc_on[Y] ? ext.y() : 0;
+  pbc_cell.z() = pbc_on[Z] ? ext.z() : 0;
+  pbc.set_cell(pbc_cell);
+}
+
+bool state::trajectory_should_end() const {
+  return t >= params.gen.total_time;
 }
 
 } // namespace cg::simul

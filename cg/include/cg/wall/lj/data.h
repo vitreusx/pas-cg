@@ -22,6 +22,9 @@ public:
 };
 
 struct wall {
+  inline wall(plane<real> const &plane, int limit)
+      : plane{plane}, num_conns{0}, limit{limit} {}
+  
   plane<real> plane;
   int num_conns, limit;
 };
