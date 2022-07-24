@@ -36,7 +36,7 @@ void state::verify_equal(const state &other) const {
 void state::simul_setup() {
   gen = rand_gen(params.gen.seed);
   load_model();
-  rep = out::legacy_report();
+  rep = out::report();
   traj_idx = 0;
 }
 

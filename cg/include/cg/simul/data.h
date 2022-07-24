@@ -15,7 +15,7 @@
 #include <cg/nl/data.h>
 #include <cg/nl/exclusion.h>
 #include <cg/nl/pair.h>
-#include <cg/output/legacy_report.h>
+#include <cg/output/report.h>
 #include <cg/pauli/pair.h>
 #include <cg/pbar/render.h>
 #include <cg/pid/bundle.h>

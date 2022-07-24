@@ -76,7 +76,7 @@ public:
   dynamics dyn;
   void setup_dyn();
 
-  out::make_legacy_report make_report;
+  out::make_report make_report;
   ckpt::make_checkpoint make_checkpoint;
   out::print_raw_data print_raw_data;
   void setup_output();

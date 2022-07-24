@@ -73,7 +73,7 @@ public:
   void setup_dyn();
 
   bool out_enabled, ckpt_enabled, dump_enabled;
-  out::legacy_report rep;
+  out::report rep;
   real ckpt_last_t;
   void setup_output();
 
