@@ -1,7 +1,7 @@
 #include <Eigen/Dense>
 #include <Eigen/SVD>
 #include <cg/input/records.h>
-#include <cg/output/make_report.h>
+#include <cg/output/legacy.h>
 #include <fstream>
 #include <iostream>
 
@@ -25,7 +25,7 @@ static std::ofstream open_file(std::filesystem::path const &path) {
   return std::ofstream(path);
 }
 
-void make_report::operator()() const {
+void make_legacy_report::operator()() const {
   if (stats_every.has_value() &&
       st->t >= rep->stats_last + stats_every.value()) {
     add_cur_scalars();
@@ -43,9 +43,9 @@ void make_report::operator()() const {
   }
 }
 
-real make_report::rmsd(vect::const_view<vec3r> const &orig_r,
-                       vect::const_view<vec3r> const &cur_r,
-                       const vect::const_view<int> &indices) {
+real make_legacy_report::rmsd(vect::const_view<vec3r> const &orig_r,
+                              vect::const_view<vec3r> const &cur_r,
+                              const vect::const_view<int> &indices) {
   auto n = indices.size();
   Eigen::MatrixX3d orig_R(n, 3), cur_R(n, 3);
   for (int idx = 0; idx < n; ++idx) {
@@ -70,7 +70,7 @@ real make_report::rmsd(vect::const_view<vec3r> const &orig_r,
   return (real)rmsd;
 }
 
-real make_report::kinetic_energy() const {
+real make_legacy_report::kinetic_energy() const {
   real K = 0.0;
   for (int idx = 0; idx < st->r.size(); ++idx)
     K += (real)0.5 * st->comp_aa_data.mass[(uint8_t)st->atype[idx]] *
@@ -78,8 +78,8 @@ real make_report::kinetic_energy() const {
   return K;
 }
 
-real make_report::gyration_radius(const vect::const_view<vec3r> &r,
-                                  const vect::const_view<int> &indices) {
+real make_legacy_report::gyration_radius(const vect::const_view<vec3r> &r,
+                                         const vect::const_view<int> &indices) {
   auto mean_r = vec3r::Zero();
   for (auto const &idx : indices)
     mean_r += r[idx];
@@ -91,8 +91,8 @@ real make_report::gyration_radius(const vect::const_view<vec3r> &r,
   return sqrt(dr / (float)indices.size());
 }
 
-real make_report::asphericity(const vect::const_view<vec3r> &r,
-                              const vect::const_view<int> &indices) {
+real make_legacy_report::asphericity(const vect::const_view<vec3r> &r,
+                                     const vect::const_view<int> &indices) {
   Eigen::MatrixX3d positions(indices.size(), 3);
   for (int idx = 0; idx < indices.size(); ++idx)
     positions.row(idx) = convert<double>(r[indices[idx]]).transpose();
@@ -108,7 +108,7 @@ real make_report::asphericity(const vect::const_view<vec3r> &r,
   return (real)1.5 * pow(lambda.x(), 2.0) - (real)0.5 * norm_squared(lambda);
 }
 
-void make_report::add_cur_scalars() const {
+void make_legacy_report::add_cur_scalars() const {
   auto &traj_div = rep->out_root.find<ioxx::sl4::div>(st->traj_idx);
   auto &scalars = traj_div.find<ioxx::sl4::table>("scalars");
   auto &row = scalars->append_row();
@@ -146,20 +146,20 @@ void make_report::add_cur_scalars() const {
   }
 }
 
-void make_report::emit_out() const {
+void make_legacy_report::emit_out() const {
   auto out_path = with_ext(prefix, ".out");
   auto out_of = open_file(out_path);
   out_of << rep->out_root;
 }
 
-void make_report::add_cur_snapshot() const {
+void make_legacy_report::add_cur_snapshot() const {
   auto &snap = rep->snapshots.emplace_back();
   snap.t = st->t;
   snap.r = st->r;
   snap.model_box = st->pbc;
 }
 
-void make_report::emit_pdb() const {
+void make_legacy_report::emit_pdb() const {
   auto pdb_path = with_ext(prefix, ".pdb");
   auto pdb_of = open_file(pdb_path);
 
@@ -406,7 +406,7 @@ void make_report::add_map_data() const {
   }
 }
 
-void make_report::emit_map() const {
+void make_legacy_report::emit_map() const {
   auto map_path = with_ext(prefix, ".map");
   auto map_of = open_file(map_path);
   map_of << rep->map_root;

@@ -154,8 +154,7 @@ void thread::setup_nl() {
     legacy.num_particles = st->num_res;
     legacy.nl_data = &st->nl;
     legacy.invalid = &st->nl_invalid;
-    legacy.cutoff = params->nl.cutoff.value_or(0);
-    cutoff = &legacy.cutoff;
+    legacy.cutoff = params->nl.cutoff;
   } else {
     auto &cell = nl_cell;
     cell.pad = params->nl.pad;
@@ -171,8 +170,7 @@ void thread::setup_nl() {
     cell.num_res_in_cell = &st->num_res_in_cell;
     cell.cell_offset = &st->cell_offset;
     cell.all_pairs = &st->all_pairs;
-    cell.cutoff = params->nl.cutoff.value_or(0);
-    cutoff = &cell.cutoff;
+    cell.cutoff = params->nl.cutoff;
   }
 
   auto &verify = nl_verify;
@@ -302,9 +300,6 @@ void thread::setup_pauli() {
     update.nl = &st->nl;
     update.pairs = &st->pauli_pairs;
     update.r_excl = params->gen.repulsive_cutoff;
-
-    if (!params->nl.cutoff.has_value())
-      *cutoff = max(*cutoff, eval.r_excl);
   }
 }
 
@@ -318,12 +313,12 @@ void thread::setup_nat_cont() {
     eval.simul_box = &st->pbc;
     eval.contacts = &st->cur_native_contacts;
     eval.r = st->r;
-    eval.active_thr = params->nat_cont.active_thr;
+    eval.breaking_threshold = params->nat_cont.active_thr;
     eval.t = &st->t;
     eval.all_contacts = st->all_native_contacts;
     eval.V = &dyn.V;
     eval.F = dyn.F;
-    eval.fixed_cutoff = params->nl.cutoff;
+    eval.cutoff = params->nl.cutoff;
 
     auto get_disul_force = [&](force_spec spec) -> disulfide_force {
       disulfide_force res;
@@ -347,17 +342,7 @@ void thread::setup_nat_cont() {
     update.nl = &st->nl;
     update.all_contacts = st->all_native_contacts;
     update.contacts = &st->cur_native_contacts;
-    update.fixed_cutoff = params->nl.cutoff;
-
-    if (!params->nl.cutoff.has_value()) {
-      real max_cutoff = 0.0;
-      for (auto const &cont : st->all_native_contacts) {
-        auto cutoff_ = lj::compute_cutoff(cont.nat_dist());
-        max_cutoff = max(max_cutoff, cutoff_);
-      }
-
-      *cutoff = max(*cutoff, max_cutoff);
-    }
+    update.cutoff = params->nl.cutoff;
 
     if (params->out.enabled)
       make_report.nc = &eval;
@@ -375,8 +360,6 @@ void thread::setup_dh() {
     update.q[(uint8_t)aa] = st->comp_aa_data.charge[(uint8_t)aa];
   }
 
-  real cutoff_ = 0;
-
   auto dh_var = params->dh.variant;
   if (dh_var == "constant") {
     auto &eval = eval_const_dh_forces;
@@ -387,8 +370,7 @@ void thread::setup_dh() {
     eval.es_pairs = st->dh_pairs;
     eval.V = &dyn.V;
     eval.F = dyn.F;
-    eval.fixed_cutoff = params->nl.cutoff;
-    cutoff_ = 2.0 * params->dh.screening_dist;
+    eval.cutoff = params->nl.cutoff;
   } else if (dh_var == "relative") {
     auto &eval = eval_rel_dh_forces;
     eval.set_V_factor(params->dh.rel_dh.perm_factor);
@@ -398,15 +380,7 @@ void thread::setup_dh() {
     eval.es_pairs = st->dh_pairs;
     eval.V = &dyn.V;
     eval.F = dyn.F;
-    eval.fixed_cutoff = params->nl.cutoff;
-    cutoff_ = 2.0 * params->dh.screening_dist;
-  }
-
-  if (params->nl.cutoff.has_value()) {
-    update.cutoff = params->nl.cutoff.value();
-  } else {
-    update.cutoff = cutoff_;
-    *cutoff = max(*cutoff, cutoff_);
+    eval.cutoff = params->nl.cutoff;
   }
 }
 
@@ -585,9 +559,6 @@ void thread::setup_qa() {
         count_cys.neigh_count = st->neigh_count;
         count_cys.cys_indices = st->cys_indices;
         count_cys.r = st->r;
-
-        if (!params->nl.cutoff.has_value())
-          *cutoff = max(*cutoff, (real)spec_crit_params.neigh_radius);
       }
     }
 
@@ -597,9 +568,7 @@ void thread::setup_qa() {
 
     update.max_formation_min_dist = loop.max_req_dist = max_req_dist;
 
-    update.fixed_cutoff = params->nl.cutoff;
-    if (!params->nl.cutoff.has_value())
-      *cutoff = max(*cutoff, max_req_dist);
+    update.cutoff = params->nl.cutoff;
 
     if (params->out.enabled)
       make_report.qa = &proc_cont;
@@ -702,18 +671,7 @@ void thread::setup_pid() {
     update.seq_idx = st->seq_idx;
     update.include4 = params->pid.include4;
 
-    if (!params->nl.cutoff.has_value()) {
-      real cutoff_ = 0.0;
-      cutoff_ = max(cutoff_, eval.bb_plus_lj.cutoff());
-      cutoff_ = max(cutoff_, eval.bb_minus_lj.cutoff());
-      for (auto const &ss_lj : eval.ss_ljs)
-        cutoff_ = max(cutoff_, ss_lj.cutoff());
-
-      eval.cutoff = update.cutoff = cutoff_;
-      *cutoff = max(*cutoff, cutoff_);
-    } else {
-      eval.cutoff = update.cutoff = params->nl.cutoff.value();
-    }
+    eval.cutoff = update.cutoff = params->nl.cutoff.value();
 
     if (params->out.enabled)
       make_report.pid = &eval;

@@ -10,8 +10,7 @@ struct parameters {
   };
   algorithm_t algorithm;
 
-  quantity pad;
-  std::optional<quantity> cutoff;
+  quantity pad, cutoff;
 
   void load(ioxx::xyaml::node const &node);
 };

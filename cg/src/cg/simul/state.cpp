@@ -36,7 +36,7 @@ void state::verify_equal(const state &other) const {
 void state::simul_setup() {
   gen = rand_gen(params.gen.seed);
   load_model();
-  rep = out::report();
+  rep = out::legacy_report();
   traj_idx = 0;
 }
 
@@ -484,10 +484,10 @@ void state::setup_nat_cont() {
         std::swap(i1, i2);
 
       auto nat_dist = (real)cont.length;
-      bool formed = false;
-      real formation_t = 0.0;
-      all_native_contacts.emplace_back(i1, i2, nat_dist, cont.type, formed,
-                                       formation_t, idx);
+      bool active = norm(r[i2] - r[i1]) < params.nat_cont.active_thr * nat_dist;
+      real change_t = -1.0;
+      all_native_contacts.emplace_back(i1, i2, nat_dist, cont.type, active,
+                                       change_t, idx);
       nat_cont_excl.emplace_back(i1, i2);
     }
   }

@@ -6,9 +6,7 @@
 namespace cg::rel_dh {
 class eval_forces {
 public:
-  real screen_dist_inv;
-  real V_factor;
-  std::optional<real> fixed_cutoff;
+  real screen_dist_inv, V_factor, cutoff;
   void set_V_factor(real factor);
 
 public:

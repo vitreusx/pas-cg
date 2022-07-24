@@ -19,7 +19,7 @@
 #include <cg/nl/cell_update.h>
 #include <cg/nl/legacy_update.h>
 #include <cg/nl/verify.h>
-#include <cg/output/make_report.h>
+#include <cg/output/legacy.h>
 #include <cg/output/print_raw_data.h>
 #include <cg/pauli/eval_forces.h>
 #include <cg/pauli/update_pairs.h>

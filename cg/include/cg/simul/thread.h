@@ -76,7 +76,7 @@ public:
   dynamics dyn;
   void setup_dyn();
 
-  out::make_report make_report;
+  out::make_legacy_report make_report;
   ckpt::make_checkpoint make_checkpoint;
   out::print_raw_data print_raw_data;
   void setup_output();
@@ -91,7 +91,6 @@ public:
   nl::legacy_update nl_legacy;
   nl::cell_update nl_cell;
   nl::verify nl_verify;
-  real *cutoff;
   void setup_nl();
 
   local_rep::eval_forces eval_lrep_forces;

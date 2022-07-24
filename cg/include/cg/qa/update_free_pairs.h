@@ -6,8 +6,7 @@
 namespace cg::qa {
 class update_free_pairs {
 public:
-  real max_formation_min_dist;
-  std::optional<real> fixed_cutoff;
+  real max_formation_min_dist, cutoff;
   bool include4;
 
 public:
