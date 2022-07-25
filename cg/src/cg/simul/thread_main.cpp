@@ -147,12 +147,12 @@ void thread::squeezing_step() {
       } else {
         real vel;
         if (cur_vol > (real)2.0 * target_vol) {
-          auto time_frac =
-              min((st->t - st->since) / (real)sp.accel_time, (real)1.0);
+          real accel_time = params->sbox.accel_dist / sp.vel_above_2V;
+          auto time_frac = min((st->t - st->since) / accel_time, (real)1.0);
           vel = time_frac * sp.vel_above_2V;
         } else {
-          auto time_frac = min(
-              (st->t - st->since) / (real)params->sbox.accel_time, (real)1.0);
+          real accel_time = params->sbox.accel_dist / params->sbox.target_vel;
+          auto time_frac = min((st->t - st->since) / accel_time, (real)1.0);
           vel = time_frac * params->sbox.target_vel;
         }
 
@@ -187,8 +187,8 @@ void thread::find_force_min_step() {
         st->cur_phase = phase::REST_AFTER_FORCE_MIN;
       } else {
         auto const &fmp = params->sbox.force_min;
-        auto time_vel_frac =
-            min((st->t - st->since) / (real)params->sbox.accel_time, (real)1.0);
+        real accel_time = params->sbox.accel_dist / params->sbox.target_vel;
+        auto time_vel_frac = min((st->t - st->since) / accel_time, (real)1.0);
         auto force_vel_frac =
             st->avg_z_force->value_or(0) / fmp.force_for_max_vel;
         force_vel_frac =
@@ -231,8 +231,8 @@ void thread::max_amplitude_step() {
     if (!params->sbox.oscillations.perform) {
       st->cur_phase = phase::FREEFORM;
     } else {
-      auto time_frac =
-          min((st->t - st->since) / (real)params->sbox.accel_time, (real)1.0);
+      real accel_time = params->sbox.accel_dist / params->sbox.target_vel;
+      auto time_frac = min((st->t - st->since) / accel_time, (real)1.0);
       auto vel = time_frac * params->sbox.target_vel;
       auto shift = vel * params->lang.dt;
 

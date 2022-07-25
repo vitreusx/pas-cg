@@ -40,13 +40,12 @@ simulation box:
   common:
     rest period: 10e3 tau
     target velocity: 5e-3 A/tau
-    acceleration time: 1.2e3 tau
+    distance before acquiring full velocity: 12.0 A
     average forces over: 100 tau
   squeezing:
     perform: false
     target density: 1e-3 residue/A**3
     velocity above 2V: 2e-2 A/tau
-    acceleration time: 1.2e3 tau
   finding force minimum:
     perform: false
     force for max velocity: 0.4 eps/A

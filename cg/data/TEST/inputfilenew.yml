@@ -1,5 +1,5 @@
 general:
-  total time: 50e4 tau
+  total time: 200e3 tau
   num of threads: 1
   num of trajectories: 1
   seed: 1
@@ -12,6 +12,7 @@ input:
     perform: false
     start box:
       density: 3e-6 residue/A**3
+    periodic boundary conditions: true
   load native structure: false
 
 simulation box:
@@ -22,6 +23,7 @@ simulation box:
   squeezing:
     perform: true
     target density: 3e-6 residue/A**3
+    velocity above 2V: 5e-1 A/tau
   walls:
     all axes: periodic
 

@@ -11,7 +11,6 @@ void parameters::squeezing_t::load(const ioxx::xyaml::node &n) {
   n["perform"] >> perform;
   n["target density"] >> target_density;
   n["velocity above 2V"] >> vel_above_2V;
-  n["acceleration time"] >> accel_time;
 }
 
 void parameters::force_min_t::load(const ioxx::xyaml::node &n) {
@@ -97,7 +96,7 @@ void parameters::load(const ioxx::xyaml::node &n) {
   auto const &cn = n["common"];
   cn["target velocity"] >> target_vel;
   cn["rest period"] >> rest_period;
-  cn["acceleration time"] >> accel_time;
+  cn["distance before acquiring full velocity"] >> accel_dist;
   cn["average forces over"] >> avg_forces_over;
 }
 } // namespace cg::sbox

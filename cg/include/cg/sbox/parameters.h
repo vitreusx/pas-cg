@@ -6,7 +6,7 @@
 
 namespace cg::sbox {
 struct parameters {
-  quantity target_vel, accel_time, rest_period, avg_forces_over;
+  quantity target_vel, accel_dist, rest_period, avg_forces_over;
 
   struct attr_walls_t {
     std::string when, type;
@@ -16,7 +16,7 @@ struct parameters {
 
   struct squeezing_t {
     bool perform;
-    quantity target_density, vel_above_2V, accel_time;
+    quantity target_density, vel_above_2V;
     void load(ioxx::xyaml::node const &n);
   };
   squeezing_t squeezing;
