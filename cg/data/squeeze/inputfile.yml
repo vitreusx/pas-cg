@@ -1,0 +1,40 @@
+general:
+  total time: 80e3 tau
+  equil time: 1e3 tau
+  repulsive cutoff: 4 A
+
+input:
+  pdb file:
+    source:
+      (at path): 1ubq.pdb
+    contact deriv: from all atoms
+
+simulation box:
+  common:
+    rest period: 250 tau
+    acceleration time: 100 tau
+  squeezing:
+    perform: true
+    target density: 1e-2 residue/A**3
+    velocity above 2V: 1e-1 A/tau
+    acceleration time: 100 tau
+  finding force minimum:
+    perform: true
+  oscillations:
+    perform: true
+    angular frequency: 4e-4 rad/tau
+    amplitude:
+      variant: relative
+      relative value: 0.5
+  walls:
+    all axes: solid
+
+quasi-adiabatic:
+  enabled: false
+
+Debye-Hueckel:
+  enabled: false
+
+output:
+  file prefix: squeeze
+  emit structure every: 500 tau
