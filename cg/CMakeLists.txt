@@ -94,14 +94,14 @@ set_target_properties(cg
 
 file(GLOB_RECURSE DataFiles CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/data/**")
 
-add_custom_target(remove-data-dir
-    COMMAND ${CMAKE_COMMAND} -E rm -rf
-    "${CMAKE_CURRENT_BINARY_DIR}/data")
+#add_custom_target(remove-data-dir
+#    COMMAND ${CMAKE_COMMAND} -E rm -rf
+#    "${CMAKE_CURRENT_BINARY_DIR}/data")
 
 add_custom_target(copy-data-dir
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${CMAKE_CURRENT_SOURCE_DIR}/data"
     "${CMAKE_CURRENT_BINARY_DIR}/data"
-    DEPENDS remove-data-dir ${DataFiles})
+    DEPENDS ${DataFiles})
 
 add_dependencies(cg copy-data-dir)

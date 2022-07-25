@@ -159,7 +159,7 @@ public:
   vect::vector<wall::harmonic::wall> harmonic_walls;
 
   bool solid_walls_enabled;
-  vect::vector<plane<real>> solid_walls;
+  vect::vector<cg::plane<real>> solid_walls;
 
   bool lj_walls_enabled;
   vect::vector<int> ljw_removed;
@@ -169,7 +169,7 @@ public:
 
   vect::vector<bool> is_connected_to_wall;
   std::string wall_type[3];
-  plane<real> *neg_plane[3], *pos_plane[3];
+  cg::plane<real> *neg_plane[3], *pos_plane[3];
   vec3r *neg_force[3], *pos_force[3];
   moving_avg<real, real> avg_z_force;
   bool pbc_on[3];

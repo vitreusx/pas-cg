@@ -14,10 +14,10 @@ public:
 };
 
 struct wall {
-  inline wall(plane<real> const &plane, int limit)
+  inline wall(cg::plane<real> const &plane, int limit)
       : plane{plane}, limit{limit} {}
 
-  plane<real> plane;
+  cg::plane<real> plane;
   int limit;
 };
 } // namespace cg::wall::harmonic

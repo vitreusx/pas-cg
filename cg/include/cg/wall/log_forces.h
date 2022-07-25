@@ -7,7 +7,7 @@ namespace cg::wall {
 class log_forces {
 public:
   vec3r const *neg_z_force, *pos_z_force;
-  plane<real> const *neg_z_plane, *pos_z_plane;
+  cg::plane<real> const *neg_z_plane, *pos_z_plane;
   real const *t;
   moving_avg<real, real> *avg_z_force;
 

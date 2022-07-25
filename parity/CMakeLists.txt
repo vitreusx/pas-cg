@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.17)
 enable_language(Fortran)
 
 add_custom_command(
@@ -25,15 +26,15 @@ endforeach ()
 
 file(GLOB_RECURSE TestFiles CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/tests/**)
 
-add_custom_target(remove-tests-dir
-    COMMAND ${CMAKE_COMMAND} -E rm -rf
-    "${CMAKE_CURRENT_BINARY_DIR}/tests")
+#add_custom_target(remove-tests-dir
+#    COMMAND ${CMAKE_COMMAND} -E rm -rf
+#    "${CMAKE_CURRENT_BINARY_DIR}/tests")
 
 add_custom_target(copy-tests-dir
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${CMAKE_CURRENT_SOURCE_DIR}/tests"
     "${CMAKE_CURRENT_BINARY_DIR}/tests"
-    DEPENDS remove-tests-dir ${TestFiles})
+    DEPENDS ${TestFiles})
 
 add_custom_target(parity)
 add_dependencies(parity cg-fort copy-cg-cxx copy-tests-dir)

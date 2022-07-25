@@ -22,10 +22,10 @@ public:
 };
 
 struct wall {
-  inline wall(plane<real> const &plane, int limit)
+  inline wall(cg::plane<real> const &plane, int limit)
       : plane{plane}, num_conns{0}, limit{limit} {}
-  
-  plane<real> plane;
+
+  cg::plane<real> plane;
   int num_conns, limit;
 };
 } // namespace cg::wall::lj

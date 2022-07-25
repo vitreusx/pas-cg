@@ -574,8 +574,8 @@ void state::setup_walls() {
       normal = vec3r::UnitY();
     else if (axis == Z)
       normal = vec3r::UnitZ();
-    auto neg_axis_plane = plane<real>(vec3r::Zero(), normal);
-    auto pos_axis_plane = plane<real>(vec3r::Zero(), -normal);
+    auto neg_axis_plane = cg::plane<real>(vec3r::Zero(), normal);
+    auto pos_axis_plane = cg::plane<real>(vec3r::Zero(), -normal);
 
     int auto_limit =
         (num_res -
