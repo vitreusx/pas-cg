@@ -37,10 +37,14 @@ template <typename E> void eval_forces::iter(nat_cont_expr<E> &nat_cont) const {
   bool active_now = r12_n <= nat_dist * breaking_threshold;
   if (active_now ^ nat_cont.active()) {
     auto ref_idx = nat_cont.all_cont_idx();
-    auto ref_contact = all_contacts[ref_idx];
+    auto &ref_contact = all_contacts[ref_idx];
     nat_cont.active() = ref_contact.active() = active_now;
-    if (nat_cont.change_t() < 0)
+    
+    if (nat_cont.change_t() < 0) {
       nat_cont.change_t() = ref_contact.change_t() = *t;
+#pragma omp critical
+      ++*num_changed;
+    }
   }
 }
 

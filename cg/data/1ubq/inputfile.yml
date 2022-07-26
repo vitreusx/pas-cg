@@ -1,6 +1,7 @@
 general:
-  total time: 15e3 tau
+  total time: 2.5e3 tau
   repulsive cutoff: 4 A
+  num of trajectories: 5
 
 input:
   pdb file:
@@ -13,6 +14,11 @@ quasi-adiabatic:
 
 Debye-Hueckel:
   enabled: false
+
+native contacts:
+  (un)folding study:
+    stop when all are formed/broken: true
+    measure median times: true
 
 output:
   file prefix: 1ubq

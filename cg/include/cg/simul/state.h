@@ -25,7 +25,8 @@ enum class phase {
   REST_AFTER_OSCILLATIONS,
   FREEFORM,
   TRAJ_END,
-  SIMUL_END
+  SIMUL_END,
+  PROG_END
 };
 
 enum axis {
@@ -131,6 +132,9 @@ public:
   bool nat_cont_enabled;
   vect::vector<nat_cont::nat_cont> all_native_contacts, cur_native_contacts;
   vect::vector<nl::exclusion> nat_cont_excl;
+  int num_changed;
+  vect::vector<vect::vector<real>> nc_times;
+  vect::vector<real> nc_unfold_times;
   void setup_nat_cont();
 
   bool dh_enabled;

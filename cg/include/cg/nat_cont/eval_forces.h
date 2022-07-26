@@ -16,6 +16,7 @@ public:
   vect::vector<nat_cont> *contacts;
   vect::view<nat_cont> all_contacts;
   real *V, *t;
+  int *num_changed;
 
 public:
   template <typename E> void iter(nat_cont_expr<E> &nat_cont) const;

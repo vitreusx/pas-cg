@@ -477,6 +477,7 @@ void state::setup_nat_cont() {
   if (nat_cont_enabled) {
     all_native_contacts = {};
     nat_cont_excl = {};
+    num_changed = 0;
     for (int idx = 0; idx < (int)model.contacts.size(); ++idx) {
       auto const &cont = model.contacts[idx];
       auto i1 = res_map[cont.res1], i2 = res_map[cont.res2];
@@ -668,7 +669,16 @@ void state::reinit_wall_values() {
 }
 
 bool state::trajectory_should_end() const {
-  return t >= params.gen.total_time;
+  if (cur_phase == phase::TRAJ_INIT || cur_phase == phase::SIMUL_INIT ||
+      cur_phase == phase::SIMUL_END)
+    return false;
+  if (t >= params.gen.total_time)
+    return true;
+  if (params.nat_cont.unfolding_study.early_stopping) {
+    if (num_changed == all_native_contacts.size())
+      return true;
+  }
+  return false;
 }
 
 } // namespace cg::simul

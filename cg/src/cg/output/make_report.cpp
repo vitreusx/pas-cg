@@ -43,6 +43,90 @@ void make_report::operator()() const {
   }
 }
 
+void make_report::emit_all() const {
+  add_cur_scalars();
+  emit_out();
+  add_map_data();
+  emit_map();
+  add_cur_snapshot();
+  emit_pdb();
+}
+
+static std::string format_nc_type(nat_cont::type const &t) {
+  switch (t) {
+  case nat_cont::type::SSBOND:
+    return "ssbond";
+  case nat_cont::type::BACK_BACK:
+    return "bb";
+  case nat_cont::type::BACK_SIDE:
+    return "bs";
+  case nat_cont::type::SIDE_BACK:
+    return "sb";
+  case nat_cont::type::SIDE_SIDE:
+    return "ss";
+  case nat_cont::type::ANY:
+    return "any";
+  default:
+    return "";
+  }
+}
+
+void make_report::at_simul_end() const {
+  auto &final_div = rep->out_root.add<ioxx::sl4::div>();
+  final_div.add<ioxx::sl4::comment>("results");
+
+  if (st->params.nat_cont.unfolding_study.measure_times) {
+    auto &avg_times_div = final_div.add<ioxx::sl4::div>();
+    avg_times_div.add<ioxx::sl4::comment>("average breaking/forming times");
+    auto &avg_tab = avg_times_div.add<ioxx::sl4::table>();
+
+    vect::vector<std::pair<real, int>> sorted;
+    for (int idx = 0; idx < st->all_native_contacts.size(); ++idx) {
+      real avg_time = 0.0;
+      int num_samples = 0;
+      for (int traj_idx = 0; traj_idx < st->nc_times.size(); ++traj_idx) {
+        if (st->nc_times[traj_idx][idx] >= 0.0) {
+          avg_time += st->nc_times[traj_idx][idx];
+          ++num_samples;
+        }
+      }
+
+      if (num_samples > 0)
+        avg_time = quantity(avg_time / num_samples).value_in("tau");
+      else
+        avg_time = -1.0;
+
+      sorted.emplace_back(avg_time, idx);
+    }
+
+    std::sort(sorted.begin(), sorted.end());
+
+    for (int idx = 0; idx < st->all_native_contacts.size(); ++idx) {
+      auto &nc_row = avg_tab->append_row();
+      auto [avg_time, cont_idx] = sorted[idx];
+      auto const &cont = st->all_native_contacts[cont_idx];
+
+      nc_row["i1"] = cont.i1();
+      nc_row["i2"] = cont.i2();
+      nc_row["type"] = format_nc_type(cont.type());
+      nc_row["nat_dist[A]"] = quantity(cont.nat_dist()).value_in("A");
+      nc_row["avg_time[tau]"] = avg_time;
+    }
+
+    auto unfold_times = st->nc_unfold_times;
+    std::sort(unfold_times.begin(), unfold_times.end());
+    auto median_idx = st->params.gen.num_of_traj / 2;
+
+    if (median_idx >= unfold_times.size())
+      final_div.add<ioxx::sl4::comment>("median (un)folding time: N/A");
+    else
+      final_div.add<ioxx::sl4::comment>("median (un)folding time: ",
+                                        unfold_times[median_idx]);
+  }
+
+  emit_out();
+}
+
 real make_report::rmsd(vect::const_view<vec3r> const &orig_r,
                        vect::const_view<vec3r> const &cur_r,
                        const vect::const_view<int> &indices) {
@@ -246,25 +330,6 @@ void make_report::emit_pdb() const {
   }
 }
 
-static std::string format_nc_type(nat_cont::type const &t) {
-  switch (t) {
-  case nat_cont::type::SSBOND:
-    return "ssbond";
-  case nat_cont::type::BACK_BACK:
-    return "bb";
-  case nat_cont::type::BACK_SIDE:
-    return "bs";
-  case nat_cont::type::SIDE_BACK:
-    return "sb";
-  case nat_cont::type::SIDE_SIDE:
-    return "ss";
-  case nat_cont::type::ANY:
-    return "any";
-  default:
-    return "";
-  }
-}
-
 static std::string format_qa_type(qa::contact_type const &t) {
   if (t == qa::contact_type::BACK_BACK())
     return "bb";
@@ -304,18 +369,20 @@ void make_report::add_map_data() const {
     auto &tab = cur_div.add<ioxx::sl4::table>();
 
     int num_active_contacts = 0;
-    for (auto const &cont : *nc->contacts) {
-      if (cont.active()) {
+    for (auto const &cont : nc->all_contacts) {
+      if (cont.active())
         ++num_active_contacts;
 
-        auto &nc_row = tab->append_row();
-        nc_row["i1"] = cont.i1();
-        nc_row["i2"] = cont.i2();
-        nc_row["type"] = format_nc_type(cont.type());
+      auto &nc_row = tab->append_row();
+      nc_row["i1"] = cont.i1();
+      nc_row["i2"] = cont.i2();
+      nc_row["type"] = format_nc_type(cont.type());
 
-        auto dist = norm(st->pbc.wrap(st->r[cont.i1()], st->r[cont.i2()]));
-        nc_row["dist[A]"] = quantity(dist).value_in("A");
-      }
+      auto dist = norm(st->pbc.wrap(st->r[cont.i1()], st->r[cont.i2()]));
+      nc_row["dist[A]"] = quantity(dist).value_in("A");
+
+      nc_row["active"] = cont.active();
+      nc_row["time[tau]"] = quantity(cont.change_t()).value_in("tau");
     }
 
     num_comment = ioxx::sl4::comment("n = ", num_active_contacts);

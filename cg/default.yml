@@ -263,6 +263,9 @@ native contacts:
     lj params:
       depth: 4.0 eps
       r_min: 6.0 A
+  (un)folding study:
+    stop when all are formed/broken: false
+    measure median times: false
 
 Pauli exclusion:
   enabled: true

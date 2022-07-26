@@ -24,6 +24,8 @@ public:
 
 public:
   void operator()() const;
+  void emit_all() const;
+  void at_simul_end() const;
 
 private:
   real kinetic_energy() const;

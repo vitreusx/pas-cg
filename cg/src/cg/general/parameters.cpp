@@ -1,7 +1,6 @@
 #include <cg/general/parameters.h>
 
 namespace cg::gen {
-
 void parameters::load(ioxx::xyaml::node const &p) {
   p["total time"] >> total_time;
   p["equil time"] >> equil_time;

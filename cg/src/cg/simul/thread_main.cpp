@@ -4,7 +4,7 @@ namespace cg::simul {
 void thread::main() {
   while (true) {
     step();
-    if (st->cur_phase == phase::SIMUL_END)
+    if (st->cur_phase == phase::PROG_END)
       break;
   }
 }
@@ -60,6 +60,8 @@ void thread::step() {
     break;
   case phase::SIMUL_END:
     simul_end_step();
+    break;
+  case phase::PROG_END:
     break;
   }
 }
@@ -313,11 +315,39 @@ void thread::freeform_step() {
 }
 
 void thread::traj_end_step() {
-  ++st->traj_idx;
-  st->cur_phase = phase::TRAJ_INIT;
+#pragma omp single
+  {
+    if (params->nat_cont.unfolding_study.measure_times) {
+      auto num_nc = st->all_native_contacts.size();
+      auto &traj_nc_times = st->nc_times.emplace_back(num_nc);
+      for (int idx = 0; idx < num_nc; ++idx)
+        traj_nc_times[idx] = st->all_native_contacts[idx].change_t();
+
+      if (st->num_changed == num_nc) {
+        real unfold_t = 0.0;
+        for (auto const &cont : st->all_native_contacts)
+          unfold_t = max(unfold_t, cont.change_t());
+        st->nc_unfold_times.push_back(unfold_t);
+      }
+    }
+
+    if (st->out_enabled)
+      make_report.emit_all();
+
+    ++st->traj_idx;
+    st->cur_phase = phase::TRAJ_INIT;
+  }
 }
 
-void thread::simul_end_step() {}
+void thread::simul_end_step() {
+#pragma omp single
+  {
+    if (st->out_enabled)
+      make_report.at_simul_end();
+
+    st->cur_phase = phase::PROG_END;
+  }
+}
 
 void thread::advance_by_step() {
   pre_eval_async();

@@ -319,6 +319,7 @@ void thread::setup_nat_cont() {
     eval.V = &dyn.V;
     eval.F = dyn.F;
     eval.cutoff = params->nl.cutoff;
+    eval.num_changed = &st->num_changed;
 
     auto get_disul_force = [&](force_spec spec) -> disulfide_force {
       disulfide_force res;
