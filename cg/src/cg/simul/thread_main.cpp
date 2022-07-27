@@ -198,7 +198,7 @@ void thread::find_force_min_step() {
         auto vel = params->sbox.target_vel * time_vel_frac * force_vel_frac;
 
         auto shift = -(real)0.5 * vel * params->lang.dt;
-        st->adjust_wall_pos(vec3r(shift, shift, shift), vec3r::Zero());
+        st->adjust_wall_pos(vec3r(0, 0, shift), vec3r::Zero());
       }
     }
   }
@@ -249,7 +249,7 @@ void thread::max_amplitude_step() {
           if (st->pos_plane[Z])
             st->pos_plane[Z]->normal().x() += shift;
         } else {
-          st->adjust_wall_pos(vec3r(-shift, -shift, -shift), vec3r::Zero());
+          st->adjust_wall_pos(vec3r(0, 0, -shift), vec3r::Zero());
         }
       }
     }
@@ -292,7 +292,7 @@ void thread::oscillations_step() {
         if (st->pos_plane[Z])
           st->pos_plane[Z]->normal().x() += shift;
       } else {
-        st->adjust_wall_pos(vec3r(shift, shift, shift), vec3r::Zero());
+        st->adjust_wall_pos(vec3r(0, 0, shift), vec3r::Zero());
       }
     }
   }
