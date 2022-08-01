@@ -40,7 +40,7 @@ pseudo-improper dihedral:
       ss:
         per pair:
           depth:
-            (at path): mj-matrix.csv
+            (at path): ../_mj/md05.csv
 
 langevin:
   temperature: 0.38 eps/kB

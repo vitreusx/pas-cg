@@ -20,7 +20,7 @@ amino_acid::amino_acid(char letter) {
       {'I', aa_code::ILE}, {'L', aa_code::LEU}, {'K', aa_code::LYS},
       {'M', aa_code::MET}, {'F', aa_code::PHE}, {'P', aa_code::PRO},
       {'S', aa_code::SER}, {'T', aa_code::THR}, {'W', aa_code::TRP},
-      {'Y', aa_code::TYR}, {'V', aa_code::VAL}};
+      {'Y', aa_code::TYR}, {'V', aa_code::VAL}, {'O', aa_code::PHO}};
 
   if (auto iter = letter_to_code.find(letter); iter != letter_to_code.end()) {
     code = iter->second;
@@ -40,7 +40,7 @@ amino_acid::amino_acid(const std::string &name) {
       {"ILE", aa_code::ILE}, {"LEU", aa_code::LEU}, {"LYS", aa_code::LYS},
       {"MET", aa_code::MET}, {"PHE", aa_code::PHE}, {"PRO", aa_code::PRO},
       {"SER", aa_code::SER}, {"THR", aa_code::THR}, {"TRP", aa_code::TRP},
-      {"TYR", aa_code::TYR}, {"VAL", aa_code::VAL}};
+      {"TYR", aa_code::TYR}, {"VAL", aa_code::VAL}, {"PHO", aa_code::PHO}};
 
   if (auto iter = name_to_code.find(name); iter != name_to_code.end()) {
     code = iter->second;
@@ -52,14 +52,15 @@ amino_acid::amino_acid(const std::string &name) {
 }
 
 char amino_acid::letter() const {
-  static std::string letters = "ARNDCEQGHILKMFPSTWYV";
+  static std::string letters = "ARNDCEQGHILKMFPSTWYVO";
   return letters[static_cast<char>(code)];
 }
 
 std::string const &amino_acid::name() const {
   static std::vector<std::string> names = {
-      "ALA", "ARG", "ASN", "ASP", "CYS", "GLU", "GLN", "GLY", "HIS", "ILE",
-      "LEU", "LYS", "MET", "PHE", "PRO", "SER", "THR", "TRP", "TYR", "VAL"};
+      "ALA", "ARG", "ASN", "ASP", "CYS", "GLU", "GLN",
+      "GLY", "HIS", "ILE", "LEU", "LYS", "MET", "PHE",
+      "PRO", "SER", "THR", "TRP", "TYR", "VAL", "PHO"};
 
   return names[static_cast<char>(code)];
 }

@@ -22,7 +22,7 @@ quasi-adiabatic:
         sink lj params:
           per pair:
             depth:
-              (at path): mj-matrix.csv
+              (at path): ../_mj/md05.csv
 
 output:
   file prefix: 9aac-qa

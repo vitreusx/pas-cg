@@ -6,7 +6,7 @@ ntraj 5
 iseed 77977
 kteql 7500
 mstep 100000
-paramfile parametersMD05.txt
+paramfile parametersMD05_pho.txt
 lii4 F
 lsink T
 lmj T

@@ -34,10 +34,15 @@ enum aa_code : char {
   THR,
   TRP,
   TYR,
-  VAL
+  VAL,
+  PHO
 };
 
-enum polarization_type : char { NONE, POLAR, HYDROPHOBIC };
+enum polarization_type : char {
+  NONE,
+  POLAR,
+  HYDROPHOBIC
+};
 
 class amino_acid {
 public:
@@ -46,12 +51,16 @@ public:
   explicit amino_acid(char letter);
   explicit amino_acid(std::string const &name);
 
-  inline operator aa_code() const { return code; };
-  inline operator uint8_t() const { return static_cast<uint8_t>(code); }
+  inline operator aa_code() const {
+    return code;
+  };
+  inline operator uint8_t() const {
+    return static_cast<uint8_t>(code);
+  }
   char letter() const;
   std::string const &name() const;
 
-  static constexpr int NUM_TYPES = 20;
+  static constexpr int NUM_TYPES = 21;
   static std::vector<amino_acid> const &all();
 
   friend std::ostream & ::operator<<(std::ostream &os, amino_acid const &aa);
