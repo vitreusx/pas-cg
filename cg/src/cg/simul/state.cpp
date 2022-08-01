@@ -389,7 +389,9 @@ void state::setup_tether() {
     tether_pairs = {};
     for (auto const &tether : model.tethers) {
       auto i1 = res_map[tether.res1], i2 = res_map[tether.res2];
-      auto nat_dist = (real)tether.length.value_or(params.tether.def_length);
+      //      auto nat_dist =
+      //      (real)tether.length.value_or(params.tether.def_length);
+      auto nat_dist = norm(pbc.wrap(orig_r[i1], orig_r[i2]));
       tether_pairs.emplace_back(i1, i2, nat_dist);
     }
   }
@@ -542,16 +544,20 @@ void state::setup_afm() {
   if (afm_enabled) {
     auto i0 = chain_first[0], i1 = chain_last[0];
 
-    vel_afm_tips.emplace_back(i0, r[i0], t, vec3r::Zero());
+    auto avg = moving_avg<vec3r, real>(params.afm.avg_stats_over);
+    auto perp_avg = moving_avg<real, real>(params.afm.avg_stats_over);
+
+    vel_afm_tips.emplace_back(i0, r[i0], t, vec3r::Zero(), avg, perp_avg);
 
     auto pull_dir = unit(r[i1] - r[i0]);
     auto type = params.afm.tip_params.type;
     if (type == "const velocity" || cur_phase == phase::PULL_RELEASE) {
       auto pull_vel = params.afm.tip_params.vel_afm.vel;
-      vel_afm_tips.emplace_back(i1, r[i1], t, pull_vel * pull_dir);
+      vel_afm_tips.emplace_back(i1, r[i1], t, pull_vel * pull_dir, avg,
+                                perp_avg);
     } else if (type == "const force") {
       auto pull_force = params.afm.tip_params.force_afm.force;
-      force_afm_tips.emplace_back(i1, pull_force * pull_dir);
+      force_afm_tips.emplace_back(i1, pull_force * pull_dir, avg);
     }
   }
 }
@@ -559,22 +565,43 @@ void state::setup_afm() {
 void state::setup_walls() {
   harmonic_walls.clear();
   harmonic_conns.clear();
+  dyn.harmonic_wall_F.clear();
+
   solid_walls.clear();
+  dyn.solid_wall_F.clear();
+
   ljw_removed.clear();
   ljw_conns.clear();
   ljw_candidates.clear();
   lj_walls.clear();
+  dyn.lj_wall_F.clear();
+
   is_connected_to_wall = vect::vector<bool>(num_res, false);
   harmonic_walls_enabled = solid_walls_enabled = lj_walls_enabled = false;
+  walls = vect::vector<wall::gen_wall *>(6, nullptr);
 
   for (auto const &axis : {X, Y, Z}) {
     vec3r normal;
-    if (axis == X)
+    side neg_side, pos_side;
+
+    switch (axis) {
+    case X:
       normal = vec3r::UnitX();
-    else if (axis == Y)
+      neg_side = NEG_X;
+      pos_side = POS_X;
+      break;
+    case Y:
       normal = vec3r::UnitY();
-    else if (axis == Z)
+      neg_side = NEG_Y;
+      pos_side = POS_Y;
+      break;
+    case Z:
       normal = vec3r::UnitZ();
+      neg_side = NEG_Z;
+      pos_side = POS_Z;
+      break;
+    }
+
     auto neg_axis_plane = cg::plane<real>(vec3r::Zero(), normal);
     auto pos_axis_plane = cg::plane<real>(vec3r::Zero(), -normal);
 
@@ -588,18 +615,30 @@ void state::setup_walls() {
     auto_limit /= 2;
 
     if (wall_type[axis] == "solid") {
-      neg_plane[axis] = &solid_walls.emplace_back(neg_axis_plane);
-      neg_force[axis] = &dyn.solid_wall_F.emplace_back();
-      pos_plane[axis] = &solid_walls.emplace_back(pos_axis_plane);
-      pos_force[axis] = &dyn.solid_wall_F.emplace_back();
+      auto &neg_force = dyn.solid_wall_F.emplace_back();
+      auto &neg_wall = solid_walls.emplace_back(neg_axis_plane, &neg_force,
+                                                params.sbox.avg_forces_over);
+      walls[neg_side] = &neg_wall;
+
+      auto &pos_force = dyn.solid_wall_F.emplace_back();
+      auto &pos_wall = solid_walls.emplace_back(pos_axis_plane, &pos_force,
+                                                params.sbox.avg_forces_over);
+      walls[pos_side] = &pos_wall;
+
       solid_walls_enabled = true;
     } else if (wall_type[axis] == "harmonic") {
       auto limit = params.sbox.walls.harmonic_wall.limit.value_or(auto_limit);
-      neg_plane[axis] =
-          &harmonic_walls.emplace_back(neg_axis_plane, limit).plane;
-      neg_force[axis] = &dyn.solid_wall_F.emplace_back();
-      pos_plane[axis] = &lj_walls.emplace_back(pos_axis_plane, limit).plane;
-      pos_force[axis] = &dyn.solid_wall_F.emplace_back();
+
+      auto &neg_force = dyn.harmonic_wall_F.emplace_back();
+      auto &neg_wall = harmonic_walls.emplace_back(
+          neg_axis_plane, &neg_force, params.sbox.avg_forces_over, limit);
+      walls[neg_side] = &neg_wall;
+
+      auto &pos_force = dyn.harmonic_wall_F.emplace_back();
+      auto &pos_wall = harmonic_walls.emplace_back(
+          pos_axis_plane, &pos_force, params.sbox.avg_forces_over, limit);
+      walls[pos_side] = &pos_wall;
+
       harmonic_walls_enabled = true;
 
       vect::vector<std::pair<real, int>> dist(num_res);
@@ -624,19 +663,25 @@ void state::setup_walls() {
       }
     } else if (wall_type[axis] == "lj") {
       auto limit = params.sbox.walls.lj_wall.limit.value_or(auto_limit);
-      neg_plane[axis] = &lj_walls.emplace_back(neg_axis_plane, limit).plane;
-      neg_force[axis] = &dyn.solid_wall_F.emplace_back();
-      pos_plane[axis] = &lj_walls.emplace_back(pos_axis_plane, limit).plane;
-      pos_force[axis] = &dyn.solid_wall_F.emplace_back();
+
+      auto &neg_force = dyn.lj_wall_F.emplace_back();
+      auto &neg_wall = lj_walls.emplace_back(
+          neg_axis_plane, &neg_force, params.sbox.avg_forces_over, limit);
+      walls.push_back(&neg_wall);
+      walls[neg_side] = &neg_wall;
+
+      auto &pos_force = dyn.lj_wall_F.emplace_back();
+      auto &pos_wall = lj_walls.emplace_back(
+          pos_axis_plane, &pos_force, params.sbox.avg_forces_over, limit);
+      walls[pos_side] = &pos_wall;
+
       lj_walls_enabled = true;
-    } else if (wall_type[axis] == "void") {
-      neg_force[axis] = pos_force[axis] = nullptr;
-      neg_plane[axis] = pos_plane[axis] = nullptr;
     }
+
     pbc_on[axis] = (wall_type[axis] == "periodic");
   }
 
-  if (neg_force[Z] && pos_force[Z]) {
+  if (walls[NEG_Z] && walls[POS_Z]) {
     avg_z_force = moving_avg<real, real>(params.sbox.avg_forces_over);
   }
 
@@ -652,13 +697,17 @@ void state::adjust_wall_pos(vec3r size_change, vec3r translation) {
 void state::reinit_wall_values() {
   vec3r center = box.center(), ext = box.extent();
 
-  for (auto axis : {X, Y, Z}) {
-    if (neg_plane[axis])
-      neg_plane[axis]->origin() =
-          center + cg::cast(box.min - center, neg_plane[axis]->normal());
-    if (pos_plane[axis])
-      pos_plane[axis]->origin() =
-          center + cg::cast(box.max - center, pos_plane[axis]->normal());
+  for (auto side : {NEG_X, POS_X, NEG_Y, POS_Y, NEG_Z, POS_Z}) {
+    if (!walls[side])
+      continue;
+
+    auto prev_val = walls[side]->plane.origin();
+    auto is_pos = side % 2 == 1;
+    auto next_val =
+        center + cg::cast(is_pos ? box.max - center : box.min - center,
+                          walls[side]->plane.normal());
+    walls[side]->plane.origin() = next_val;
+    walls[side]->shift = next_val - prev_val;
   }
 
   vec3r pbc_cell;

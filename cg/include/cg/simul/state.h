@@ -29,6 +29,15 @@ enum class phase {
   PROG_END
 };
 
+enum side {
+  POS_X = 0,
+  NEG_X = 1,
+  POS_Y = 2,
+  NEG_Y = 3,
+  POS_Z = 4,
+  NEG_Z = 5
+};
+
 enum axis {
   X = 0,
   Y = 1,
@@ -163,7 +172,7 @@ public:
   vect::vector<wall::harmonic::wall> harmonic_walls;
 
   bool solid_walls_enabled;
-  vect::vector<cg::plane<real>> solid_walls;
+  vect::vector<wall::solid::wall> solid_walls;
 
   bool lj_walls_enabled;
   vect::vector<int> ljw_removed;
@@ -173,10 +182,9 @@ public:
 
   vect::vector<bool> is_connected_to_wall;
   std::string wall_type[3];
-  cg::plane<real> *neg_plane[3], *pos_plane[3];
-  vec3r *neg_force[3], *pos_force[3];
-  moving_avg<real, real> avg_z_force;
   bool pbc_on[3];
+  vect::vector<wall::gen_wall *> walls;
+  moving_avg<real, real> avg_z_force;
 
   void setup_walls();
   void adjust_wall_pos(vec3r size_change, vec3r translation);

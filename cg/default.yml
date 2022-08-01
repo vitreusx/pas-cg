@@ -17,7 +17,7 @@ input:
     aliases: { HSD: HIS }
   morph into SAW:
     perform: true
-    bond distance: 3.8 A
+    bond distance: 3.8f A
     start box: origin
     #    start box:
     #      density: 1e-4 residue/A**3
@@ -83,6 +83,7 @@ AFM simulations:
   type: stretch # "pull, then release"
   pull-release params:
     time: 100 tau
+  average stats over: 100 tau
   tip params:
     type: const velocity
     velocity params:
@@ -102,7 +103,7 @@ langevin:
 neighbor list:
   algorithm: legacy
   pad: 10.0 A
-  cutoff: 18.0 A
+  cutoff: 20.0 A
 
 angle potentials:
   all enabled: true
@@ -145,6 +146,7 @@ Debye-Hueckel:
   enabled: true
   variant: constant
   screening distance: 10.0 A
+  cutoff distance: 20.0 A
   constant variant params:
     permittivity: 80.0 eps_0
   relative variant params:

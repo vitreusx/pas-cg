@@ -40,4 +40,4 @@
 #include <cg/wall/lj/process_candidates.h>
 #include <cg/wall/lj/sift_free.h>
 #include <cg/wall/log_forces.h>
-#include <cg/wall/solid.h>
+#include <cg/wall/solid/eval_forces.h>

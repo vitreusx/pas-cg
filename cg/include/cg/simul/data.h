@@ -29,3 +29,4 @@
 #include <cg/utils/random.h>
 #include <cg/wall/harmonic/data.h>
 #include <cg/wall/lj/data.h>
+#include <cg/wall/solid/data.h>

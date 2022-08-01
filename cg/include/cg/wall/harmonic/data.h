@@ -1,6 +1,5 @@
 #pragma once
-#include <cg/types/amp.h>
-#include <cg/types/plane.h>
+#include "../data.h"
 
 namespace cg::wall::harmonic {
 template <typename E> struct connection_expr {
@@ -13,11 +12,10 @@ public:
        FIELD(vec3r, bead_offset), FIELD(real, nat_dist))
 };
 
-struct wall {
-  inline wall(cg::plane<real> const &plane, int limit)
-      : plane{plane}, limit{limit} {}
+struct wall : public gen_wall {
+  inline wall(cg::plane<real> const &plane, vec3r *F, real avg_t, int limit)
+      : gen_wall{plane, F, avg_t}, limit{limit} {}
 
-  cg::plane<real> plane;
   int limit;
 };
 } // namespace cg::wall::harmonic

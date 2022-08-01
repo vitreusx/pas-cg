@@ -120,6 +120,7 @@ void thread::equil_step() {
       if (params->afm.perform) {
         st->afm_enabled = true;
         st->setup_afm();
+        st->cur_phase = phase::FREEFORM;
       } else {
         st->until = params->gen.total_time;
         st->since = st->t;
@@ -244,10 +245,10 @@ void thread::max_amplitude_step() {
       } else {
         st->displacement += shift;
         if (st->shear) {
-          if (st->neg_plane[Z])
-            st->neg_plane[Z]->normal().x() += shift;
-          if (st->pos_plane[Z])
-            st->pos_plane[Z]->normal().x() += shift;
+          if (st->walls[NEG_Z])
+            st->walls[NEG_Z]->plane.normal().x() += shift;
+          if (st->walls[POS_Z])
+            st->walls[POS_Z]->plane.normal().x() += shift;
         } else {
           st->adjust_wall_pos(vec3r(0, 0, -shift), vec3r::Zero());
         }
@@ -287,10 +288,10 @@ void thread::oscillations_step() {
       auto shift = vel * params->lang.dt;
 
       if (st->shear) {
-        if (st->neg_plane[Z])
-          st->neg_plane[Z]->normal().x() += shift;
-        if (st->pos_plane[Z])
-          st->pos_plane[Z]->normal().x() += shift;
+        if (st->walls[NEG_Z])
+          st->walls[NEG_Z]->plane.normal().x() += shift;
+        if (st->walls[POS_Z])
+          st->walls[POS_Z]->plane.normal().x() += shift;
       } else {
         st->adjust_wall_pos(vec3r(0, 0, shift), vec3r::Zero());
       }

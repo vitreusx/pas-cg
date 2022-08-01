@@ -13,6 +13,7 @@ void parameters::load(const ioxx::xyaml::node &node) {
   node["enabled"] >> enabled;
   node["variant"] >> variant;
   node["screening distance"] >> screening_dist;
+  node["cutoff distance"] >> cutoff;
   node["constant variant params"] >> const_dh;
   node["relative variant params"] >> rel_dh;
 }

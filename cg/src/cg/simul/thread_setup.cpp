@@ -71,6 +71,8 @@ void thread::setup_output() {
     make_report.pid = nullptr;
     make_report.qa = nullptr;
     make_report.nc = nullptr;
+    make_report.vel_afm = nullptr;
+    make_report.force_afm = nullptr;
   }
 
   if (params->ckpt.enabled) {
@@ -155,6 +157,7 @@ void thread::setup_nl() {
     legacy.nl_data = &st->nl;
     legacy.invalid = &st->nl_invalid;
     legacy.cutoff = params->nl.cutoff;
+    cutoff = &legacy.cutoff;
   } else {
     auto &cell = nl_cell;
     cell.pad = params->nl.pad;
@@ -171,6 +174,7 @@ void thread::setup_nl() {
     cell.cell_offset = &st->cell_offset;
     cell.all_pairs = &st->all_pairs;
     cell.cutoff = params->nl.cutoff;
+    cutoff = &cell.cutoff;
   }
 
   auto &verify = nl_verify;
@@ -357,9 +361,12 @@ void thread::setup_dh() {
   update.nl = &st->nl;
   update.pairs = &st->dh_pairs;
   update.atype = st->atype;
+  update.cutoff = params->dh.cutoff;
   for (auto const &aa : amino_acid::all()) {
     update.q[(uint8_t)aa] = st->comp_aa_data.charge[(uint8_t)aa];
   }
+
+  *cutoff = max(*cutoff, update.cutoff);
 
   auto dh_var = params->dh.variant;
   if (dh_var == "constant") {
@@ -371,7 +378,7 @@ void thread::setup_dh() {
     eval.es_pairs = st->dh_pairs;
     eval.V = &dyn.V;
     eval.F = dyn.F;
-    eval.cutoff = params->nl.cutoff;
+    eval.cutoff = params->dh.cutoff;
   } else if (dh_var == "relative") {
     auto &eval = eval_rel_dh_forces;
     eval.set_V_factor(params->dh.rel_dh.perm_factor);
@@ -381,7 +388,7 @@ void thread::setup_dh() {
     eval.es_pairs = st->dh_pairs;
     eval.V = &dyn.V;
     eval.F = dyn.F;
-    eval.cutoff = params->nl.cutoff;
+    eval.cutoff = params->dh.cutoff;
   }
 }
 
@@ -672,7 +679,7 @@ void thread::setup_pid() {
     update.seq_idx = st->seq_idx;
     update.include4 = params->pid.include4;
 
-    eval.cutoff = update.cutoff = params->nl.cutoff.value();
+    eval.cutoff = update.cutoff = params->nl.cutoff;
 
     if (params->out.enabled)
       make_report.pid = &eval;
@@ -694,6 +701,11 @@ void thread::setup_afm() {
     auto &eval_afm = eval_force_afm_forces;
     eval_afm.F = dyn.F;
     eval_afm.afm_tips = st->force_afm_tips;
+
+    if (params->out.enabled) {
+      make_report.vel_afm = &eval_vafm;
+      make_report.force_afm = &eval_afm;
+    }
   }
 }
 
@@ -780,14 +792,12 @@ void thread::setup_walls() {
   setup_lj_walls();
   dyn = st->dyn;
 
-  log_wall_forces_enabled = st->neg_plane[Z] && st->pos_plane[Z];
+  log_wall_forces_enabled = st->walls[POS_Z] && st->walls[NEG_Z];
   if (log_wall_forces_enabled) {
     auto &log = log_wall_forces;
-    log.avg_z_force = &st->avg_z_force;
-    log.neg_z_plane = st->neg_plane[Z];
-    log.neg_z_force = st->neg_force[Z];
-    log.pos_z_plane = st->pos_plane[Z];
-    log.pos_z_force = st->pos_force[Z];
+    log.walls = st->walls;
+    log.neg_z = st->walls[NEG_Z];
+    log.pos_z = st->walls[POS_Z];
     log.t = &st->t;
   }
 }

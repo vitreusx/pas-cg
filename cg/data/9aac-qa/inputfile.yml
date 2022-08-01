@@ -1,0 +1,28 @@
+general:
+  total time: 100e3 tau
+  equil time: 100 tau
+  num of trajectories: 5
+  num of threads: 1
+  seed: 77977
+
+langevin:
+  temperature: 0.38 eps/kB
+
+input:
+  seq file:
+    source:
+      (at path): 9aac.yml
+
+quasi-adiabatic:
+  enabled: true
+  forces:
+    forces:
+      variant: sink lj
+      ss:
+        sink lj params:
+          per pair:
+            depth:
+              (at path): mj-matrix.csv
+
+output:
+  file prefix: 9aac-qa

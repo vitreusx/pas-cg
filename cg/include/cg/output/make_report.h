@@ -1,5 +1,7 @@
 #pragma once
 #include "parameters.h"
+#include <cg/afm/force/eval_forces.h>
+#include <cg/afm/vel/eval_forces.h>
 #include <cg/input/pdb_file.h>
 #include <cg/nat_cont/eval_forces.h>
 #include <cg/pid/eval_forces.h>
@@ -21,6 +23,8 @@ public:
   nat_cont::eval_forces const *nc;
   qa::process_contacts const *qa;
   pid::eval_forces const *pid;
+  afm::force::eval_forces const *force_afm;
+  afm::vel::eval_forces const *vel_afm;
 
 public:
   void operator()() const;
@@ -41,6 +45,8 @@ private:
                           vect::const_view<int> const &indices);
 
   void add_cur_scalars() const;
+  void add_afm_stuff() const;
+  void add_wall_stuff() const;
   void emit_out() const;
 
   void add_cur_snapshot() const;

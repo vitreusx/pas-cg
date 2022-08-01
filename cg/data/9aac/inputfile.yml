@@ -1,6 +1,6 @@
 general:
   total time: 100e3 tau
-  equil time: 7500 tau
+  equil time: 100 tau
   num of trajectories: 5
   num of threads: 1
   seed: 77977
@@ -39,6 +39,7 @@ AFM simulations:
     type: const velocity
     velocity params:
       H1: 6e-2 eps/A**2
+      velocity: 2e-1 A/tau
 
 output:
   file prefix: 9aac

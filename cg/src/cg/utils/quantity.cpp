@@ -93,11 +93,11 @@ static ratio parse_unit(std::string const &s) {
   return parser.parse_unit(s);
 }
 
-static ratio parse_num(std::string const &s) {
-  static std::mutex mut;
-  std::lock_guard<std::mutex> guard(mut);
-  static quantity_parser parser;
-  return parser.parse_num(s);
+static double parse_num(std::string const &s) {
+  if (s.back() == 'f')
+    return std::stof(s);
+  else
+    return std::stod(s);
 }
 
 quantity::quantity(ratio value) {
@@ -115,7 +115,7 @@ quantity::quantity(ratio value, std::string const &unit) {
 quantity::quantity(char const *repr) : quantity(std::string(repr)) {}
 
 static bool is_number(std::string const &str) {
-  static std::regex number_re("-?[0-9]+([\\.][0-9]+)?");
+  static std::regex number_re("-?[0-9]+([\\.][0-9]+)?f?");
   return std::regex_match(str, number_re);
 }
 

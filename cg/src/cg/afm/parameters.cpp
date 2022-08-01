@@ -25,6 +25,7 @@ void parameters::tip_params_t::load(const ioxx::xyaml::node &n) {
 void parameters::load(ioxx::xyaml::node const &n) {
   n["perform"] >> perform;
   n["type"] >> type;
+  n["average stats over"] >> avg_stats_over;
   n["pull-release params"] >> pull_rel;
   n["tip params"] >> tip_params;
 }

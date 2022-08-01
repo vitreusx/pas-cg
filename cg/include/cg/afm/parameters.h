@@ -9,10 +9,11 @@ namespace cg::afm {
 struct parameters {
   bool perform;
   std::string type;
+  quantity avg_stats_over;
 
   struct pull_rel_t {
     quantity time;
-    void load(ioxx::xyaml::node const& n);
+    void load(ioxx::xyaml::node const &n);
   };
   pull_rel_t pull_rel;
 

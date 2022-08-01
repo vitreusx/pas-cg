@@ -7,8 +7,9 @@ void eval_forces::operator()() const {
   }
 }
 
-template <typename E> void eval_forces::iter(tip_expr<E> const &tip) const {
+template <typename E> void eval_forces::iter(tip_expr<E> &tip) const {
   F[tip.res_idx()] += tip.pull_force();
+  tip.avg_vel().add(*t, v[tip.res_idx()]);
 }
 
 void eval_forces::omp_async() const {

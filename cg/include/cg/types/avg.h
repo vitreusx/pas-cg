@@ -22,14 +22,14 @@ public:
     }
 
     if (init_time + window <= time) {
-      avg = sum / (ValueT)num_samples;
+      avg = sum / num_samples;
       num_samples = 0;
     }
   }
 
 private:
   std::optional<ValueT> avg;
-  ValueT sum = 0;
+  ValueT sum;
   TimeT init_time = 0, window = 0;
   int num_samples = 0;
 };

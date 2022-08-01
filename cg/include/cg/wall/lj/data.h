@@ -1,7 +1,6 @@
 #pragma once
+#include "../data.h"
 #include <cg/base_forces/lj.h>
-#include <cg/types/amp.h>
-#include <cg/types/plane.h>
 
 namespace cg::wall::lj {
 template <typename E> struct connection_expr {
@@ -21,11 +20,10 @@ public:
   INST(candidate, FIELD(int, res_idx), FIELD(int, wall_idx), FIELD(real, dist));
 };
 
-struct wall {
-  inline wall(cg::plane<real> const &plane, int limit)
-      : plane{plane}, num_conns{0}, limit{limit} {}
-
-  cg::plane<real> plane;
+struct wall : public gen_wall {
+  inline wall(cg::plane<real> const &plane, vec3r *F, real avg_t, int limit)
+      : gen_wall{plane, F, avg_t}, num_conns{0}, limit{limit} {};
+  
   int num_conns, limit;
 };
 } // namespace cg::wall::lj

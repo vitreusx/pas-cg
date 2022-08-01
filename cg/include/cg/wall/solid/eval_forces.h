@@ -1,6 +1,5 @@
 #pragma once
-#include <cg/types/amp.h>
-#include <cg/types/plane.h>
+#include "data.h"
 
 namespace cg::wall::solid {
 class eval_forces {
@@ -8,7 +7,7 @@ public:
   real min_dist;
 
 public:
-  vect::const_view<cg::plane<real>> walls;
+  vect::const_view<wall> walls;
   real depth;
 
   vect::const_view<vec3r> r;

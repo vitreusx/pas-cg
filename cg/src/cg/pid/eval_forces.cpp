@@ -157,8 +157,12 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
   }
 
   *V += V_;
-  //  if (dV_dr != 0.0)
-  //    std::cout << i1 + 1 << " " << i2 + 1 << " " << dV_dr << '\n';
+  //  if (dV_dr != 0.0) {
+  //    auto fmt = std::cout.flags();
+  //    std::cout << std::scientific << i1 + 1 << " " << i2 + 1 << " " << dV_dr
+  //              << '\n';
+  //    std::cout.flags(fmt);
+  //  }
 
   auto r12_u = r12 * r12_rn;
   if (i1p >= 0)

@@ -46,6 +46,15 @@ public:
       throw std::runtime_error("element with name \"" + id + "\" not found");
   }
 
+  template <typename T, typename... Args>
+  std::pair<bool, T *> find_or_add(std::string const &id, Args &&...args) {
+    if (auto iter = named_children.find(id); iter != named_children.end())
+      return std::make_pair(true, (T *)iter->second);
+    else
+      return std::make_pair(
+          false, &named_add<T, Args...>(id, std::forward<Args>(args)...));
+  }
+
 public:
   std::unordered_map<std::string, element *> named_children;
   std::vector<std::unique_ptr<element>> children;

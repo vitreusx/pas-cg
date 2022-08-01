@@ -88,6 +88,7 @@ public:
   pbar::render render_pbar;
   void setup_pbar();
 
+  real *cutoff;
   nl::legacy_update nl_legacy;
   nl::cell_update nl_cell;
   nl::verify nl_verify;

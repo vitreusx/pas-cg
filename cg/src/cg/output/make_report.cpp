@@ -29,6 +29,7 @@ void make_report::operator()() const {
   if (stats_every.has_value() &&
       st->t >= rep->stats_last + stats_every.value()) {
     add_cur_scalars();
+    add_afm_stuff();
     emit_out();
     add_map_data();
     emit_map();
@@ -45,6 +46,7 @@ void make_report::operator()() const {
 
 void make_report::emit_all() const {
   add_cur_scalars();
+  add_afm_stuff();
   emit_out();
   add_map_data();
   emit_map();
@@ -227,6 +229,112 @@ void make_report::add_cur_scalars() const {
 
     row["ICN"] = num_active_contacts;
     row["ICNss"] = num_active_ss;
+  }
+}
+
+void make_report::add_afm_stuff() const {
+  auto &traj_div = rep->out_root.find<ioxx::sl4::div>(st->traj_idx);
+
+  if (force_afm) {
+    auto [prev, force_afm_div] =
+        traj_div.find_or_add<ioxx::sl4::div>("force AFM");
+    if (!prev) {
+      force_afm_div->add<ioxx::sl4::comment>("force AFM tips");
+      force_afm_div->named_add<ioxx::sl4::table>("force AFM tips");
+    }
+    auto &force_afm_tab =
+        force_afm_div->find<ioxx::sl4::table>("force AFM tips");
+
+    for (auto const &tip : force_afm->afm_tips) {
+      auto &row = force_afm_tab->append_row();
+      row["res_idx"] = tip.res_idx();
+      if (tip.avg_vel()->has_value())
+        row["avg_vel [A/tau]"] =
+            quantity(norm(tip.avg_vel()->value())).value_in("A/tau");
+      else
+        row["avg_vel [A/tau]"] = (real)-1.0;
+    }
+  }
+
+  if (vel_afm) {
+    auto [prev, vel_afm_div] =
+        traj_div.find_or_add<ioxx::sl4::div>("velocity AFM");
+    if (!prev) {
+      vel_afm_div->add<ioxx::sl4::comment>("velocity AFM tips");
+      vel_afm_div->named_add<ioxx::sl4::table>("velocity AFM tips");
+    }
+    auto &vel_afm_tab =
+        vel_afm_div->find<ioxx::sl4::table>("velocity AFM tips");
+
+    for (auto const &tip : vel_afm->afm_tips) {
+      auto &row = vel_afm_tab->append_row();
+      row["res_idx"] = tip.res_idx();
+
+      if (tip.avg_force()->has_value())
+        row["avg_force [eps/A]"] =
+            quantity(norm(tip.avg_force()->value())).value_in("eps/A");
+      else
+        row["avg_force [eps/A]"] = (real)-1.0;
+
+      if (tip.avg_perp_force()->has_value())
+        row["avg_perp_force [eps/A]"] =
+            quantity(tip.avg_perp_force()->value()).value_in("eps/A");
+      else
+        row["avg_perp_force [eps/A]"] = (real)-1.0;
+    }
+  }
+}
+
+static std::string side_to_str(simul::side const &side_) {
+  switch (side_) {
+  case simul::NEG_X:
+    return "NEG_X";
+  case simul::POS_X:
+    return "POS_X";
+  case simul::NEG_Y:
+    return "NEG_Y";
+  case simul::POS_Y:
+    return "POS_Y";
+  case simul::NEG_Z:
+    return "NEG_Z";
+  case simul::POS_Z:
+    return "POS_Z";
+  }
+}
+
+void make_report::add_wall_stuff() const {
+  auto &traj_div = rep->out_root.find<ioxx::sl4::div>(st->traj_idx);
+  auto [prev, wall_div] = traj_div.find_or_add<ioxx::sl4::div>("walls");
+  if (!prev) {
+    wall_div->add<ioxx::sl4::comment>("walls");
+    wall_div->named_add<ioxx::sl4::table>("walls");
+  }
+  auto &tab = wall_div->find<ioxx::sl4::table>("walls");
+
+  for (auto side : {simul::NEG_X, simul::POS_X, simul::NEG_Y, simul::POS_Y,
+                    simul::NEG_Z, simul::POS_Z}) {
+    auto *wall = st->walls[side];
+    if (!wall)
+      continue;
+
+    auto &row = tab->append_row();
+    row["name"] = side_to_str(side);
+    row["orig_x[A]"] = quantity(wall->plane.origin().x()).value_in("A");
+    row["orig_y[A]"] = quantity(wall->plane.origin().y()).value_in("A");
+    row["orig_z[A]"] = quantity(wall->plane.origin().z()).value_in("A");
+
+    if (wall->avg_F->has_value()) {
+      auto f = wall->avg_F->value();
+      row["Fx[eps/A]"] = quantity(f.x()).value_in("eps/A");
+      row["Fy[eps/A]"] = quantity(f.x()).value_in("eps/A");
+      row["Fz[eps/A]"] = quantity(f.x()).value_in("eps/A");
+    } else {
+      row["Fx[eps/A]"] = (real)NAN;
+      row["Fy[eps/A]"] = (real)NAN;
+      row["Fz[eps/A]"] = (real)NAN;
+    }
+
+    row["work[eps]"] = quantity(wall->work).value_in("eps");
   }
 }
 

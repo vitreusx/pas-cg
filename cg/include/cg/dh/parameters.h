@@ -18,7 +18,7 @@ struct rel_dh_parameters {
 struct parameters {
   bool enabled;
   std::string variant;
-  quantity screening_dist;
+  quantity screening_dist, cutoff;
   const_dh_parameters const_dh;
   rel_dh_parameters rel_dh;
   void load(ioxx::xyaml::node const &node);
