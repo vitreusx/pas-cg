@@ -6,7 +6,7 @@ general:
   num of threads: 1
   num of trajectories: 1
   repulsive cutoff: 5 A
-  debug:
+  debug mode:
     floating point exceptions: false
     dump data for every step: false
 

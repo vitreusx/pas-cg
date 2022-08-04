@@ -10,11 +10,13 @@ add_custom_command(
 add_custom_target(copy-cg-cxx DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/cg-cxx")
 
 add_executable(cg-fort)
-target_sources(cg-fort PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/cg.f)
+target_sources(cg-fort PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/cg_pho5.f)
 
 target_compile_options(cg-fort
     PRIVATE
-    -std=legacy;-O3)
+    -std=legacy;-mcmodel=large
+    $<$<CONFIG:Debug>:-g>
+    $<$<CONFIG:Release>:-Ofast;-march=native>)
 
 file(GLOB Tests CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/tests/*)
 
@@ -26,15 +28,15 @@ endforeach ()
 
 file(GLOB_RECURSE TestFiles CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/tests/**)
 
-#add_custom_target(remove-tests-dir
-#    COMMAND ${CMAKE_COMMAND} -E rm -rf
-#    "${CMAKE_CURRENT_BINARY_DIR}/tests")
+add_custom_target(remove-tests-dir
+    COMMAND ${CMAKE_COMMAND} -E rm -rf
+    "${CMAKE_CURRENT_BINARY_DIR}/tests")
 
 add_custom_target(copy-tests-dir
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${CMAKE_CURRENT_SOURCE_DIR}/tests"
     "${CMAKE_CURRENT_BINARY_DIR}/tests"
-    DEPENDS ${TestFiles})
+    DEPENDS ${TestFiles} remove-tests-dir)
 
 add_custom_target(parity)
 add_dependencies(parity cg-fort copy-cg-cxx copy-tests-dir)
@@ -46,6 +48,7 @@ foreach (TestName IN LISTS TestNames)
         --cxx "${CMAKE_CURRENT_BINARY_DIR}/cg-cxx"
         --fort "${CMAKE_CURRENT_BINARY_DIR}/cg-fort"
         --test "${CMAKE_CURRENT_BINARY_DIR}/tests/${TestName}"
+        --source "${CMAKE_CURRENT_SOURCE_DIR}/tests/${TestName}"
     )
     set_tests_properties("${TestName}" PROPERTIES DEPENDS parity)
 endforeach ()

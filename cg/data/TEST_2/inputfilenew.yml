@@ -7,7 +7,7 @@ general:
 input:
   pdb file:
     source:
-      (at path): start.pdb
+      (at path): start_170.pdb
   morph into SAW:
     perform: false
     start box:
@@ -29,10 +29,10 @@ simulation box:
 
 quasi-adiabatic:
   enabled: false
-  
+
 native contacts:
   enabled: false
-  
+
 pseudo-improper dihedral:
   forces:
     variant: sink lj
@@ -44,9 +44,9 @@ pseudo-improper dihedral:
 
 langevin:
   temperature: 0.38 eps/kB
-        
+
 output:
   enabled: true
-  emit stats every: 1e2 tau
-  emit structure every: 1e2 tau
+  emit stats every: 1e1 tau
+  emit structure every: 1e1 tau
   file prefix: Alpha_seq_50

@@ -4,7 +4,7 @@ general:
   num of trajectories: 5
   num of threads: 1
   debug mode:
-    enabled: true
+    dump data for every step: true
   seed: 77977
 
 langevin:
@@ -33,7 +33,7 @@ pseudo-improper dihedral:
       sink lj params:
         per pair:
           depth:
-            (at path): mj-matrix.csv
+            (at path): md05.csv
 
 AFM:
   tips:

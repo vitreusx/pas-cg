@@ -73,6 +73,8 @@ void state::load_model() {
 }
 
 void state::traj_init() {
+  step_idx = 0;
+  
   morph_model();
   compile_model();
   setup_dyn();

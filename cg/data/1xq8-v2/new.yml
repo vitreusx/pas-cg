@@ -22,7 +22,7 @@ lj force variants:
     use sinking variant: true
     per pair:
       depth:
-        (at path): mj-matrix.csv
+        (at path): ../_mj/md05.csv
 
 output:
   file prefix: 1xq8-mix

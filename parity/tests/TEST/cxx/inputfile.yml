@@ -1,19 +1,33 @@
 general:
   total time: 100 tau
+  num of threads: 1
   num of trajectories: 1
   seed: 1
-  periodic boundary conditions: all
   debug mode:
-    enabled: true
+    dump data for every step: true
 
 input:
   pdb file:
     source:
       (at path): start.pdb
-    load native structure: false
   morph into SAW:
     perform: false
-    PBC also during SAW: true
+    start box:
+      density: 3e-6 residue/A**3
+    periodic boundary conditions: true
+  load native structure: false
+
+simulation box:
+  initial size:
+    type: sufficient
+    sufficient box params:
+      maximum density: 3e-6 residue/A**3
+  squeezing:
+    perform: true
+    target density: 3e-6 residue/A**3
+    velocity above 2V: 5e-1 A/tau
+  walls:
+    all axes: periodic
 
 quasi-adiabatic:
   enabled: false
@@ -28,7 +42,7 @@ pseudo-improper dihedral:
       ss:
         per pair:
           depth:
-            (at path): mj-matrix.csv
+            (at path): ../_mj/md05.csv
 
 langevin:
   temperature: 0.38 eps/kB

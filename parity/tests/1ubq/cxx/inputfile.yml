@@ -2,7 +2,7 @@ general:
   total time: 10 tau
   repulsive cutoff: 4.0 A
   debug mode:
-    enabled: true
+    dump data for every step: true
 
 input:
   pdb file:

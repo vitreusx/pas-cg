@@ -38,7 +38,7 @@ pseudo-improper dihedral:
       sink lj params:
         per pair:
           depth:
-            (at path): mj-matrix-v2.csv
+            (at path): ../_mj/md5.csv
 
 langevin:
   enabled: true

@@ -3,10 +3,10 @@ c       The i,i+2 contacts purely repulsive
         program cg
         implicit double precision(a-h,o-z)
 
-        parameter(len=10000) !maximum number of all residues together
-        character aseq*3,pdbfile*32,outfile*32,savfile*32,state*2,buf1*4
-        character rstfile*64,seqfile*32,arg*32,stafile*32,filname*32
-        character buffer*128,buf2*4,paramfile*32,mapfile*32,cmapf*32
+        parameter(len=35000) !maximum number of all residues together
+        character aseq*3,pdbfile*40,outfile*40,savfile*40,state*2,buf1*4
+        character rstfile*64,seqfile*40,arg*40,stafile*32,filname*32
+        character buffer*128,buf2*4,paramfile*40,mapfile*40,cmapf*40
         
         logical lconftm,lmedian,lthermo,lforce,lunfold,lvelo,lmass,ldisp
         logical lchiral,lpullrel,lallatom,langle,lj1012,lconstvol,lradii
@@ -15,13 +15,13 @@ c       The i,i+2 contacts purely repulsive
         logical lgln,lmrs,lparam,lchargend,ldet,lpbcx,lpbcy,lpbcz,lcintr
         logical lcoilang,lcoildih,lsawconftm,lpid,lsqpbc,ldynss,lpullfin
         logical lteql,lposcrd,lsslj,lnatend,ldisimp,lkmt,lsselj,lminfbox
-        logical lunwrap,lampstrict,ljwal,lenetab,lfcc,lcleanrst,lrepcoul
+        logical lunwrap,lampstrict,ljwal,lenetab,lfcc,lcleanrst,lcstcoul
         logical lnowal,lmj,lbar,lcmap,lwals,lsink,lwrtang,lwal,lcpb,lii4
         logical lobo,lwritego,lcdnat,lcospid,lepid,lrmsmax,lecperm,lsldh
         logical lrst,lcontin,lconect(len),lpdb,ldens,lmaxforce,lwritexyz
         logical lcpot
         
-        common/sequence/iseq(len),inameseq(len),aseq(len)
+        common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/vel/x1(len),y1(len),z1(len)
         common/der/x2(len),y2(len),z2(len),x3(len),y3(len),z3(len)
@@ -54,7 +54,7 @@ c       The i,i+2 contacts purely repulsive
         common/restr/bckbmin,bckb2min,sdchnmax,sfact,kmaxbckb,lecperm
         common/restart/delta,work,sep0,rstfile,stafile,filname,klenstr
         common/ssb/knct3rd(len),l3rdcn,disul,dmrs,amrs,rmrs,lmrs,ldynss
-        common/ssb2/dislj,icnss,icdss,sigss,lsselj,lrepcoul,lepid
+        common/ssb2/dislj,icnss,icdss,sigss,elecut,lsselj,lcstcoul,lepid
         common/respul/z0temp(len),ksorted(len),ip1,ip2,ipwn,ipw(2,len)
         common/plates/zdown,zup,zuforce,zdforce,fwal,xup,xdown,yup,ydown
         common/xyforces/xuforce,xdforce,yuforce,ydforce
@@ -71,12 +71,12 @@ c       The i,i+2 contacts purely repulsive
         dimension adfres(100000),adfres2(100000)
         dimension caac(len*50),kaak(len*50)
 
-        pdbfile='1ubq.pdb'         ! PDB INPUT FILEAME
-        seqfile='glut.txt'         ! SEQUENCE INPUT FILE
+        pdbfile='fortran_pdb.pdb'         ! PDB INPUT FILEAME
+        seqfile='seq_20.txt'         ! SEQUENCE INPUT FILE
         outfile='saw.out'          ! OUTPUT FILENAME
         savfile='saw.pdb'          ! FILENAME FOR SAVING CONFORMATIONS
         rstfile='saw.rst'          ! RESTART FILE
-        paramfile='parameters.txt' ! PARAMETER FILE
+        paramfile='parametersMD05_pho.txt' ! PARAMETER FILE
         stafile='(a,0,a)'          ! FORMAT STRING FOR OTHER FILES
         ! SIMULATION MODE ----------------------------------------------
         lpdb=.false.      ! USING A PDB FILE FOR GO-MODEL SIMULATIONS
@@ -138,7 +138,7 @@ c       The i,i+2 contacts purely repulsive
         lsimpang=.false.  ! FOR MODEL WITH SIMPLIFIED ANGLE POT.
         lcoilang=.false.  ! RAND. COIL ANGLE POTENTIAL FOR GOMODEL
         lcoildih=.false.  ! RAND. COIL ANG. POT. FOR DIHEDRAL POTENTIAL
-        lrepcoul=.false.  ! ONLY REPULSIVE PART OF COULOMB POT, NO ADIAB
+        lcstcoul=.true.   ! CONSTANT COULOMB POT, NO ADIABATIC SWITCHING
         lecperm=.true.    ! USE CONSTANT REL. PERMITTIVITY FOR COULOMB
         lcpot=.true.   ! CUSTOM POTENTIAL NOT BASED ON NATIVE STRUCTURE
         lcintr=.true.  ! CUSTOM POTENTIAL ALSO FOR INTRACHAIN CONTACTS
@@ -261,11 +261,12 @@ c        factor=2.0    ! HOW MANY TIMES BACKB-BACKB. TOLERANCE IS BIGGER
         sigma1(6)=6.6  ! L-J MINIMUM FOR BCKB-SDCH CONTACTS [Angstrems]
         sigma1(7)=6.6  ! L-J MINIMUM FOR SDCH-BCKB CONTACTS [Angstrems]
         sigma1(8)=6.1  ! L-J MINIMUM FOR i,i+4 CONTACTS [Angstrems]
-        screend=10.0   ! ELECTROSTATIC SCREENING LENGTH [Angstrems]
+        screend=15.0   ! ELECTROSTATIC SCREENING LENGTH [Angstrems]
         coul=85.0      ! CONSTANT FOR COULOMBIC INTERACTION [eps*A*A]
         if(lecperm) coul=2.63 ! 210 IF REL. PERMITTIVITY=1 [eps*A]
-        cut=5.0        ! CUT-OFF DISTANCE FOR REPULSIVE TERM [Angstrem]
-        rcut=18.d0     ! CUT-OFF DISTANCE FOR THE REST [Angstrem]
+        cut=5.0        ! CUT-OFF FOR REPULSIVE TERM [Angstrem]
+        elecut=20.d0   ! CUT-OFF FOR ELECTROSTATIC TERM [Angstrem]
+        rcut=20.d0     ! CUT-OFF FOR THE REST [Angstrem]
         kmaxbckb=2     ! MAXIMAL NUMBER OF BACKBONE CONTACTS
         bckbmin=0.75   ! MINIMUM VALUE OF BACKBONE ANGLE
         bckb2min=0.92  ! MINIMUM VALUE OF BACKBONE ANGLE
@@ -377,8 +378,8 @@ c        factor=2.0    ! HOW MANY TIMES BACKB-BACKB. TOLERANCE IS BIGGER
             ldisp=.true.
         elseif(buffer(1:8).eq.'lpullfin') then
             read(buffer(9:),*) lpullfin
-        elseif(buffer(1:8).eq.'lrepcoul') then
-            read(buffer(9:),*) lrepcoul
+        elseif(buffer(1:8).eq.'lcstcoul') then
+            read(buffer(9:),*) lcstcoul
         elseif(buffer(1:8).eq.'kmaxbckb') then
             read(buffer(9:),*) kmaxbckb
         elseif(buffer(1:7).eq.'screend') then
@@ -554,6 +555,8 @@ c        factor=2.0    ! HOW MANY TIMES BACKB-BACKB. TOLERANCE IS BIGGER
             read(buffer(5:),*) dnat
         elseif(buffer(1:4).eq.'rcut') then
             read(buffer(5:),*) rcut
+        elseif(buffer(1:6).eq.'elecut') then
+            read(buffer(7:),*) elecut
         elseif(buffer(1:4).eq.'cofp') then
             read(buffer(5:),*) cofp
         elseif(buffer(1:4).eq.'rnei') then
@@ -650,8 +653,10 @@ c        factor=2.0    ! HOW MANY TIMES BACKB-BACKB. TOLERANCE IS BIGGER
         sigma0=cut/c216 !*0.5d0**(1.d/6.d)! REPULSIVE INTERACTIONS SIGMA
 c       dfold=dfold/unit
         rcut = rcut/unit ! OTHER POTENTIALS CUT-OFF
+        elecut = elecut/unit
         rnei=rnei/unit
         rcutsq=rcut*rcut
+        elecutsq=elecut*elecut
         cutsq=cut*cut
         rneisq=rnei*rnei
 c        bckbmin=bckbmin*bckbmin
@@ -701,7 +706,19 @@ c        bckb2max=bckb2max-bckb2min
 c        sdchnmin=sdchnmax-sdchnmin
         
         ! LOAD PROTEIN CONFORMATION
-        if(lpdb.or.lstartpdb) then
+        if((lpdb.or.lstartpdb).and..not.lfrmscrtch) then
+            write(1,'(/,a,2x,a,/)')'#PDB FILE =',pdbfile
+            write(1,'(a)')'#TUTUTUTU'
+            call load_protein(pdbfile,lunwrap)
+            do i=1,men
+            x0(i)=xn(i)
+            y0(i)=yn(i)
+            z0(i)=zn(i)
+            enddo
+        elseif(lfrmscrtch) then
+            write(1,'(a)')'#NIENIENIE'
+            write(1,'(/,a,2x,a,/)')'#SEQ FILE =',seqfile
+            call load_sequence(seqfile)
             write(1,'(/,a,2x,a,/)')'#PDB FILE =',pdbfile
             call load_protein(pdbfile,lunwrap)
             do i=1,men
@@ -985,13 +1002,13 @@ c        sigma1(2)=dalQQ*0.5d0**(1.d0/6.d0)
             stop
         endif
         
-        call prepare(edsg)
-        call evalgo(edsg,chi)
+        call prepare(edsg,elj,ec)
+        call evalgo(edsg,chi,elj,ec)
         if(lwal.and..not.lnowal) call evalwall(edsg)
         if(lpid) then
-            call evalimproper(edsg,lcospid,epsbb)
+            call evalimproper(edsg,lcospid,epsbb,elj,ec)
         else
-            call evalcpot(edsg)
+            call evalcpot(edsg,elj,ec)
         endif
         if(langle.or.lwritemap) call evalangles(edsg,lsldh,1.d0)
         if(lchiral) then
@@ -1456,13 +1473,13 @@ c                enddo
         !if(lj1012) then
         !call evalgo_1012(epot)
         !else
-        call prepare(epot)
-        call evalgo(epot,chi)
+        call prepare(epot,elj,ec)
+        call evalgo(epot,chi,elj,ec)
         if(lwal.and..not.lnowal) call evalwall(epot)
         if(lpid) then
-            call evalimproper(epot,lcospid,epsbb)
+            call evalimproper(epot,lcospid,epsbb,elj,ec)
         else
-            call evalcpot(epot)
+            call evalcpot(epot,elj,ec)
         endif
         !endif
         if(lchiral) then
@@ -1483,14 +1500,15 @@ c                enddo
         if(kwrite.ne.0) then
         write(1,'(//,a,i4)')'#TRAJECTORY',iterate
         if(lforce) then
-        write(1,'(a,a)')'#    TIME   AFORCE      EPOT      ETOT',
-     +  '   ICN     RG    RMSD  D(1,N)   VEL'
+        write(1,'(a,a)')'#    TIME   AFORCE      EPOT     EneLJ',
+     +  '   EneCoul      ETOT   ICN     RG    RMSD  D(1,N)   VEL'
         else if(lvelo) then
-        write(1,'(a,a)')'#    TIME      EPOT      ETOT',
-     +  '   ICN     RG    RMSD   D(1,N)   FORCE'
+        write(1,'(a,a)')'#    TIME      EPOT     EneLJ',
+     +  '   EneCoul      ETOT   ICN     RG    RMSD   D(1,N)   FORCE'
         else if(lwal) then
         if(lwals) then
-        write(1,'(a,a,a,a)') '#S     TIME        EPOT        ETOT',
+        write(1,'(a,a,a,a)') '#S     TIME        EPOT       EneLJ',
+     +  '     EneCoul      ETOT',
      +  ' INTRHC INTEHC INTRSC INTESC    ICN     RMSD     FZ_UP',
      +  '    FZDOWN       |F|       SEP    FPULLZ    FPULLX',
      +  '         W NCORD     FX_UP    FXDOWN     FY_UP    FYDOWN'
@@ -1499,17 +1517,19 @@ c       write(1,'(a,a,a)')'#S    TIME      EPOT      ETOT   ICN     RG',
 c     +  '    RMSD   FZ_UP  FZDOWN     |F|      SEP',
 c     +  '   FX_UP  FXDOWN   FY_UP  FYDOWN   FPULL'
         else
-        write(1,'(a,a,a,a)') '#S     TIME      EPOT        ETOT',
+        write(1,'(a,a,a,a)') '#S     TIME      EPOT     EneLJ',
+     +  '   EneCoul      ETOT',
      +  ' INTRHC INTEHC INTRSC INTESC    ICN     RMSD     FZ_UP',
      +  '    FZDOWN       |F|       SEP    FPULLZ    FPULLX',
      +  '         W NCORD     XCM     YCM     ZCM   ICW'
         endif
         else if(ldynss) then
-        write(1,'(a,a,a)')'#    TIME          EPOT          ETOT',
-     +  '   ICN ICNss ICDss',
+        write(1,'(a,a,a)')'#    TIME          EPOT         EneLJ',
+     +  '       EneCoul      ETOT   ICN ICNss ICDss',
      +  '      RG       L    RMSD NCORD     W CORDR KNOTS KNOTE'
         else
-        write(1,'(a,a,a)')'#    TIME          EPOT          ETOT',
+        write(1,'(a,a,a)')'#    TIME          EPOT         EneLJ',
+     +  '       EneCoul      ETOT',
      +  '   ICN B1-B2 S1-S2 B1-S2 B1-B1 S1-S1 B1-S1',
      +  '      RG       L    RMSD NCORD     W CORDR KNOTS KNOTE'
         endif
@@ -1522,13 +1542,13 @@ c     +  '   FX_UP  FXDOWN   FY_UP  FYDOWN   FPULL'
         call lang(twopi,gamma2,const2,nen1)
         call corr(deltsq,nen1)
         call predct(nen1)
-        call prepare(epot)
-        call evalgo(epot,chi)
+        call prepare(epot,elj,ec)
+        call evalgo(epot,chi,elj,ec)
         if(lwal.and..not.lnowal) call evalwall(epot)
         if(lpid) then
-            call evalimproper(epot,lcospid,epsbb)
+            call evalimproper(epot,lcospid,epsbb,elj,ec)
         else
-            call evalcpot(epot)
+            call evalcpot(epot,elj,ec)
         endif
         if(lchiral) then
         call eval_chirality(enechi)
@@ -1566,13 +1586,13 @@ c -----------------------------------------
         !if(lj1012) then
         !    call evalgo_1012(epot)
         !else
-        call prepare(epot)
-        call evalgo(epot,chi)
+        call prepare(epot,elj,ec)
+        call evalgo(epot,chi,elj,ec)
         if(lwal.and..not.lnowal) call evalwall(epot)
         if(lpid) then
-            call evalimproper(epot,lcospid,epsbb)
+            call evalimproper(epot,lcospid,epsbb,elj,ec)
         else
-            call evalcpot(epot)
+            call evalcpot(epot,elj,ec)
         endif
         !endif
         if(lchiral) then
@@ -2028,11 +2048,11 @@ c       initialize things for one trajectory after skipping
         lcontin=ree.lt.reemax
 c       projection of the restoring force on the direction of the force
         if(naver.eq.0) then
-        write(1,'(i9,2f11.2,i6,f7.2,f8.3,f8.2,f9.2)')
-     +  ktime,epot,etot,icn,rg*unit,rms*unit,ree*unit,fresist/unit
+        write(1,'(i9,4f11.2,i6,f7.2,f8.3,f8.2,f9.2)') ktime,
+     +  epot,elj,ec,etot,icn,rg*unit,rms*unit,ree*unit,fresist/unit
         else
-        write(1,'(i9,2f11.2,i6,f7.2,f8.3,f8.2,f9.2)')
-     +  ktime,epot,etot,icn,rg*unit,rms*unit,ree*unit,bfresist/unit
+        write(1,'(i9,4f11.2,i6,f7.2,f8.3,f8.2,f9.2)') ktime,
+     +  epot,elj,ec,etot,icn,rg*unit,rms*unit,ree*unit,bfresist/unit
         if(lmaxforce) then
             if(ktime.le.nint(tresh1).and.bfresist.gt.fmax1) then
                 fmax1=bfresist
@@ -2064,18 +2084,18 @@ c       projection of the restoring force on the direction of the force
             yubr=byufresist/unit
             ydbr=bydfresist/unit
             abr=sqrt((xubr-xdbr)**2+(yubr-ydbr)**2+(ubr-dbr)**2)
-c'#S     TIME       EPOT       ETOT INTRHC INTEHC INTRSC INTESC       RG
+c'#S     TIME       EPOT ELJEC ETOT INTRHC INTEHC INTRSC INTESC       RG
 c     RMSD     FZ_UP    FZDOWN       |F|       SEP    FPULLZ    FPULLX
 c         W NCORD     FX_UP    FXDOWN     FY_UP    FYDOWN'
-        write(1,'(a2,i9,2f11.2,5i7,f9.2,3f10.3,4f10.2,f6.2,4f10.2)')
-     +      state,ktime,epot,etot,intrhc,intehc,intrsc,intesc,icn,
-     +      rms*unit,ubr,dbr,abr,zse,fbr,fbrp,work,ancord,
+        write(1,'(a2,i9,4f11.2,5i7,f9.2,3f10.3,4f10.2,f6.2,4f10.2)')
+     +      state,ktime,epot,elj,ec,etot,intrhc,intehc,intrsc,intesc,
+     +      icn,rms*unit,ubr,dbr,abr,zse,fbr,fbrp,work,ancord,
      +      xubr,xdbr,yubr,ydbr
         else
             abr=(ubr+dbr)/2
-        write(1,'(a2,i9,2f11.2,5i7,f9.2,3f10.3,4f10.2,f6.2,3f8.2,i6)')
-     +      state,ktime,epot,etot,intrhc,intehc,intrsc,intesc,icn,
-     +      rms*unit,ubr,dbr,abr,zse,fbr,fbrp,work,ancord,
+        write(1,'(a2,i9,4f11.2,5i7,f9.2,3f10.3,4f10.2,f6.2,3f8.2,i6)')
+     +      state,ktime,epot,elj,ec,etot,intrhc,intehc,intrsc,intesc,
+     +      icn,rms*unit,ubr,dbr,abr,zse,fbr,fbrp,work,ancord,
      +      xmcm*unit,ymcm*unit,zmcm*unit,icw(1)+icw(2)
         endif
         go to 9997
@@ -2089,20 +2109,20 @@ c         W NCORD     FX_UP    FXDOWN     FY_UP    FYDOWN'
 c       projection of the velocity on the direction of the force
         vl=x1(men)*afx + y1(men)*afy + z1(men)*afz
         vl=vl*unit/delta
-        write(1,'(i9,f9.3,2f10.3,i6,f7.2,f8.3,f8.2,f8.2)')
-     +  ktime,aforce,epot,etot,icn,rg*unit,rms*unit,ree*unit,vl
+        write(1,'(i9,f9.3,4f10.3,i6,f7.2,f8.3,f8.2,f8.2)')
+     +  ktime,aforce,epot,elj,ec,etot,icn,rg*unit,rms*unit,ree*unit,vl
         go to 9997
         endif
         
         if(ldynss) then
-        write(1,'(i9,2f14.3,3i6,2f8.2,f8.3,3f6.2,2i6)') ktime,epot,etot,
-     +  icn,icnss,icdss,
+        write(1,'(i9,4f14.3,3i6,2f8.2,f8.3,3f6.2,2i6)') ktime,epot,
+     +  elj,ec,etot,icn,icnss,icdss,
      +  rg*unit,ree*unit,rms*unit,ancord,w(1),corder,knts(1,1),knts(2,1)
         go to 9997
         endif
         
-        write(1,'(i9,2f14.3,7i6,2f8.2,f8.3,3f6.2,2i6)') ktime,epot,etot,
-     +  icn,icnt(1),icnt(2),icnt(3),icnt(4),icnt(5),icnt(6),
+        write(1,'(i9,4f14.3,7i6,2f8.2,f8.3,3f6.2,2i6)') ktime,epot,elj,
+     +  ec,etot,icn,icnt(1),icnt(2),icnt(3),icnt(4),icnt(5),icnt(6),
      +  rg*unit,ree*unit,rms*unit,ancord,w(1),corder,knts(1,1),knts(2,1)
 
 9997    continue
@@ -2127,7 +2147,8 @@ c       projection of the velocity on the direction of the force
             call flush(2)
         endif
 
-        if(krst.ne.0.and.mod(kb,krst).eq.0) then
+        if(krst.ne.0) then
+        if(mod(kb,krst).eq.0) then
             if(lcleanrst) then
                 intrsc=0
                 intesc=0
@@ -2159,6 +2180,7 @@ c       projection of the velocity on the direction of the force
                 if (irstat.eq.0) close(38, status='DELETE')
               endif
             endif
+        endif
         endif
 
         if(lthermo.and.kb.gt.kteql) then
@@ -2223,11 +2245,11 @@ c -----------------------------------------
 c       projection of the velocity on the direction of the force
         vl=x1(men)*afx + y1(men)*afy + z1(men)*afz
         vl=vl*unit/delta
-        write(1,'(f9.1,f9.3,2f10.3,i6,f7.2,f8.3,f8.2,f8.2)')
-     +  time,aforce,epot,etot,icn,rg*unit,rms*unit,ree*unit,vl
+        write(1,'(f9.1,f9.3,4f10.3,i6,f7.2,f8.3,f8.2,f8.2)')
+     +  time,aforce,epot,elj,ec,etot,icn,rg*unit,rms*unit,ree*unit,vl
         else
-        write(1,'(f9.1,2f10.3,i6,f7.2,f8.3)')
-     +  time,epot,etot,icn,rg*unit,rms*unit
+        write(1,'(f9.1,4f10.3,i6,f7.2,f8.3)')
+     +  time,epot,elj,ec,etot,icn,rg*unit,rms*unit
         endif
         call flush(1)
         endif
@@ -2393,7 +2415,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         ! USE FIFTH-ORDER TAYLOR SERIES TO PREDICT POSITIONS & THEIR
         ! DERIVATIVES AT NEXT TIME-STEP
 
-        parameter(len=10000)
+        parameter(len=35000)
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/vel/x1(len),y1(len),z1(len)
         common/der/x2(len),y2(len),z2(len),x3(len),y3(len),z3(len)
@@ -2433,7 +2455,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
         ! CORRECT PREDICTED POSITIONS AND THEIR DERIVATIVES
 
-        parameter(len=10000)
+        parameter(len=35000)
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/vel/x1(len),y1(len),z1(len)
         common/der/x2(len),y2(len),z2(len),x3(len),y3(len),z3(len)
@@ -2475,9 +2497,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C   THIS SUBROUTINE PREPARES VARIABLES FOR COMPUTING ENERGY AND FORCE
 
-        subroutine prepare(epot)
+        subroutine prepare(epot,elj,ec)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
         common/cmapi/cntfct,imap(len*50),icn,intrhc,intrsc,intehc,intesc
         common/sdch/icnt(6),ksdchn(21,4),ksdchns(len),khbful(4,len)
@@ -2491,6 +2513,8 @@ C   THIS SUBROUTINE PREPARES VARIABLES FOR COMPUTING ENERGY AND FORCE
         common/neigh/nei(2,len),rnei,rneisq,lposcrd,neimin,neimaxdisul
         
         epot=0.d0
+        elj=0.d0
+        ec=0.d0
         ncord=0
         icn=0
         !ncnt=0
@@ -2555,7 +2579,7 @@ C  THIS SUBROUTINE COMPUTE THE ENERGY AND FORCE OF THE WALL INTERACTIONS
 
         subroutine evalwall(epot)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         logical lconftm,lwal,lwals,ldens,lcpot,ljwal
         logical lpbcx,lpbcy,lpbcz,lwalup,lwaldown,lsqpbc,lfcc
         common/sig/sigma1(500),sigma0,sont(len*99),cut,rcut,rcutsq,cutsq
@@ -2668,15 +2692,15 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C   THIS SUBROUTINE COMPUTE THE ENERGY AND FORCE OF THE CUSTOM POTENTIAL
 
-        subroutine evalcpot(epot)
+        subroutine evalcpot(epot,elj,ec)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         character aseq*3
         logical lconftm,lwal,lwals,ldens,lcpot,lelectr,ljwal,lecperm
         logical lsimpang,lfrompdb(len),lconect(len),l3rdcn(len),lsim
         logical lwritemap,lsink,lel,lmrs,ldet,lki,lkj,lpid,lsqpbc,ltr
-        logical ldynss,lss,lpbcx,lpbcy,lpbcz,lssn,lsselj,lrepcoul
-        common/sequence/iseq(len),inameseq(len),aseq(len)
+        logical ldynss,lss,lpbcx,lpbcy,lpbcz,lssn,lsselj,lcstcoul
+        common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         common/sig/sigma1(500),sigma0,sont(len*99),cut,rcut,rcutsq,cutsq
         common/cmp2/kcont,kcist(3,len*500),kqont,kqist(4,len*1500,2),jq
         common/cmapi/cntfct,imap(len*50),icn,intrhc,intrsc,intehc,intesc
@@ -2693,7 +2717,7 @@ C   THIS SUBROUTINE COMPUTE THE ENERGY AND FORCE OF THE CUSTOM POTENTIAL
         common/wal/walmindst,kbwal(9),icw(2),lobo,ljwal,lwal,lwals,ldens
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
         common/ssb/knct3rd(len),l3rdcn,disul,dmrs,amrs,rmrs,lmrs,ldynss
-        common/ssb2/dislj,icnss,icdss,sigss,lsselj,lrepcoul,lepid
+        common/ssb2/dislj,icnss,icdss,sigss,elecut,lsselj,lcstcoul,lepid
         common/pid/alphacos(3),rbb(2),psi0ss,psi0bb(2),Pi,c216,vmp,lbar
         common/nmapi/rangli(8),emj(500),ncnt,nli(5,len*50),ldet,lpid,lmj
         common/neigh/nei(2,len),rnei,rneisq,lposcrd,neimin,neimaxdisul
@@ -2704,7 +2728,8 @@ C   THIS SUBROUTINE COMPUTE THE ENERGY AND FORCE OF THE CUSTOM POTENTIAL
 !$omp& lel,adiab,sdjr,r6,enec,expc,coulpotcoeff,totcoeff,phi,rb,rb2,rsi,
 !$omp& ksdchnsi,ksdchnsj,kmaxbckbi,kmaxbckbj,iconttype2,kremainder,it2,
 !$omp& jt2,itype,jtype,lki,lkj,icheck,lssn,kss,lss,kqadabs)
-!$omp do reduction(+:epot,intehc,intrhc,intesc,intrsc,ncord,icnss,icdss)
+!$omp do reduction(+:epot,intehc,intrhc,intesc,intrsc,ncord,icnss,icdss,
+!$omp&elj,ec)
         do 466 k=1,kqont ! non-native attractive contacts
             lss=.false.
             kqistabs=abs(kqist(4,k,jq))
@@ -2722,6 +2747,7 @@ c            if(abs(j-i).eq.4) rsig=sigma1(8)
             j=kqist(2,k,jq) ! jq = number of verlet list (1 or 2)
             itype=ksdchns(i)
             jtype=ksdchns(j)
+            lelectr=(lcpot.and.itype*jtype.gt.12)
             dx = x0(i)-x0(j)
             dy = y0(i)-y0(j)
             dz = z0(i)-z0(j)
@@ -2734,14 +2760,24 @@ c            if(abs(j-i).eq.4) rsig=sigma1(8)
                 nei(1,j)=nei(1,j)+1
             endif
             if(rsq.gt.rcutsq) then
-            if(kqadabs.ne.0) kqist(3,k,jq)=sign(kqadabs-1,kqist(3,k,jq))
-                goto 465
+                if(lelectr) then
+                    if(rsq.gt.elecutsq) then
+                        if(kqadabs.ne.0) then
+                            kqist(3,k,jq)=sign(kqadabs-1,kqist(3,k,jq))
+                        endif
+                        goto 465
+                    endif
+                else
+                    if(kqadabs.ne.0) then
+                        kqist(3,k,jq)=sign(kqadabs-1,kqist(3,k,jq))
+                    endif
+                    goto 465
+                endif
             endif
             r = sqrt(rsq)
-            lelectr=(lcpot.and.itype+jtype.gt.7)
             if(iconttype.lt.2) then
             ! ---------- contact not formed ----------------------------
-            if(r.lt.sfact*(max(sigma1(inameseq(i)*21+inameseq(j)),
+            if(r.lt.sfact*(max(sigma1(inameseq(i)*22+inameseq(j)),
      +      sigma1(6)))) then ! this if is only for speed optimization
             bbir=0.0 ! bb = backbone, ir = criterion for r and residue i
             bbjr=0.0
@@ -2824,7 +2860,7 @@ c            if(abs(j-i).eq.4) rsig=sigma1(8)
             if(lsim.or.iconttype2.ne.5) then
                 kqistabs=iconttype2
             else
-                kqistabs=inameseq(i)*21+inameseq(j)
+                kqistabs=inameseq(i)*22+inameseq(j)
             endif
             endif ! end of the speed optimization if
             if(r.le.sigma1(kqistabs)*sfact.and.iconttype2.gt.1) then 
@@ -2995,7 +3031,7 @@ c                      knct3rd(j)=0
                     fce= 24.d0*r6*(1.d0-2.d0*r6)/r
                 endif
             endif
-            
+            elj=elj+ene
             ! ----------computing electrostatic forces------------------
             if(lcpot.and.lelectr) then
                 if(itype.ne.jtype.and.iconttype.eq.5)then
@@ -3018,15 +3054,27 @@ c                      knct3rd(j)=0
 !                    if(ldet) call compute_details(i,j)
 !                endif
                 adiab=max(adia(i),adia(j))
-                if(lrepcoul) adiab=0.d0
+                if(lcstcoul) adiab=0.d0
                 if(adiab.lt.ad) then
                     screenr=-1.d0*r/screend
                     expc=exp(screenr)
                     if(itype.eq.jtype) then
-                        coulpotcoeff=expc*coul*(ad-adiab)/ad
+                        if(itype.eq.6) then
+                                coulpotcoeff=4*expc*coul*(ad-adiab)/ad
+                        else
+                                coulpotcoeff=expc*coul*(ad-adiab)/ad
+                        endif
                     else ! opposite signs
-                        coulpotcoeff=expc*coul*(adiab-ad)/ad
-                        if(lrepcoul) coulpotcoeff=0.d0
+                        if((itype.eq.6).or.jtype.eq.6) then
+                        	if((itype.eq.4).or.jtype.eq.4) then
+                        		coulpotcoeff=2*expc*coul*(ad-adiab)/ad
+                        	else
+                        		coulpotcoeff=2*expc*coul*(adiab-ad)/ad
+                        	endif
+                        else
+                                coulpotcoeff=expc*coul*(adiab-ad)/ad
+                        endif
+                        !if(lcstcoul) coulpotcoeff=0.d0
                     endif
                     if(lecperm) then
                         enec=coulpotcoeff/r
@@ -3037,6 +3085,7 @@ c                      knct3rd(j)=0
                     endif
                     ene=ene+enec ! ene and fce are initialised earlier
                     !fce=fce-2.d0*enec/r
+                    ec=ec+enec
                 endif
             endif
             
@@ -3090,15 +3139,15 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C   THIS SUBROUTINE COMPUTES THE ENERGY AND FORCE OF THE PID MODEL
 
-        subroutine evalimproper(epot,lcospid,epsbb)
+        subroutine evalimproper(epot,lcospid,epsbb,elj,ec)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         character aseq*3
         logical lconftm,lwal,lwals,ldens,lcpot,lelectr,ljwal,lmj,lecperm
         logical lsimpang,lfrompdb(len),lconect(len),l3rdcn(len),lsim,lss
         logical lwritemap,lsink,lel,lmrs,ldet,lki,lkj,lpid,lsqpbc,ltr
         logical ldynss,lpbcx,lpbcy,lpbcz,lssn,lsselj,lbar,lcospid,lepid
-        common/sequence/iseq(len),inameseq(len),aseq(len)
+        common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         common/sig/sigma1(500),sigma0,sont(len*99),cut,rcut,rcutsq,cutsq
         common/cmp2/kcont,kcist(3,len*500),kqont,kqist(4,len*1500,2),jq
         common/cmapi/cntfct,imap(len*50),icn,intrhc,intrsc,intehc,intesc
@@ -3115,7 +3164,7 @@ C   THIS SUBROUTINE COMPUTES THE ENERGY AND FORCE OF THE PID MODEL
         common/wal/walmindst,kbwal(9),icw(2),lobo,ljwal,lwal,lwals,ldens
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
         common/ssb/knct3rd(len),l3rdcn,disul,dmrs,amrs,rmrs,lmrs,ldynss
-        common/ssb2/dislj,icnss,icdss,sigss,lsselj,lrepcoul,lepid
+        common/ssb2/dislj,icnss,icdss,sigss,elecut,lsselj,lcstcoul,lepid
         common/nmapi/rangli(8),emj(500),ncnt,nli(5,len*50),ldet,lpid,lmj
         common/pid/alphacos(3),rbb(2),psi0ss,psi0bb(2),Pi,c216,vmp,lbar
         common/neigh/nei(2,len),rnei,rneisq,lposcrd,neimin,neimaxdisul
@@ -3137,11 +3186,16 @@ C   THIS SUBROUTINE COMPUTES THE ENERGY AND FORCE OF THE PID MODEL
             if(lpbcy) dy = dy-ysep*nint(dy*yinv)
             if(lpbcz) dz = dz-zsep*nint(dz*zinv)
             rsq=dx*dx+dy*dy+dz*dz
+            if(lepid.and.ksdchns(i).gt.2 .and.ksdchns(j).gt.2) then
+                epsmj=1.0
+                if(rsq.gt.elecutsq) goto 465
+            else
+                if(rsq.gt.rcutsq) goto 465
+            endif
             if(rsq.lt.rneisq) then
                 nei(1,i)=nei(1,i)+1
                 nei(1,j)=nei(1,j)+1
             endif
-            if(rsq.gt.rcutsq) goto 465
             if(inameseq(i).eq.2) goto 465
             if(inameseq(j).eq.2) goto 465
             do m=1,2 ! i is first, j is second
@@ -3288,6 +3342,7 @@ c               rm(m,3)=rij(m,1)*rkj(m,2)-rij(m,2)*rkj(m,1)
                     endif
                 endif
                 epot=epot+enelj*bblmbd
+                elj=elj+enelj*bblmbd
                 do m=1,2
                  if(lcospid) then
                  dvdp(m)=dvdp(m)-0.5*a(m,4)*sin(a(m,2))*bblbd(3-m)*enelj
@@ -3321,9 +3376,21 @@ c        write(*,*) "bb",i,j,m,psi,a(m,4)*(dgdx/(dgdx-1)**2),bblbd(m)
                     screenr=-1.d0*r/screend
                     expc=exp(screenr)
                     if(ksdchns(i).eq.ksdchns(j)) then
-                        coulpotcoeff=expc*coul
+                        if(ksdchns(i).eq.6) then
+                                coulpotcoeff=4*expc*coul
+                        else
+                                coulpotcoeff=expc*coul
+                        endif
                     else ! opposite signs
-                        coulpotcoeff=-expc*coul
+                        if(ksdchns(i).eq.6.or.ksdchns(j).eq.6) then
+                        	if(ksdchns(i).eq.4.or.ksdchns(j).eq.4) then
+                                	coulpotcoeff=2*expc*coul
+                        	else
+                                	coulpotcoeff=-2*expc*coul
+                        	endif
+                        else
+                                coulpotcoeff=-expc*coul
+                        endif
                     endif
                     if(lecperm) then
                         enelj=coulpotcoeff/r
@@ -3332,21 +3399,24 @@ c        write(*,*) "bb",i,j,m,psi,a(m,4)*(dgdx/(dgdx-1)**2),bblbd(m)
                         enelj=coulpotcoeff/rsq
                         fce=fce+enelj*(screenr-2.d0)/r
                     endif
+                    ec=ec+enelj*sslmbd
                 elseif(lsink.and.r.lt.rsig*c216) then
                     enelj=-1.d0*epsmj
+                    elj=elj+enelj*sslmbd
                 elseif(lbar) then
                     rsi=rsig*c216/r
                     r6=rsi**6
                     enelj=r6*(4.d0*r6-18.d0*rsi+13.d0)*epsmj
+                    elj=elj+enelj*sslmbd
                 fce=fce+6.d0*r6*(21.d0*rsi-8.d0*r6-13.d0)/r*sslmbd*epsmj
                 else
                     rsi=rsig/r
                     r6=rsi**6
                     enelj=4.d0*r6*(r6-1.d0)*epsmj
+                    elj=elj+enelj*sslmbd
                     fce=fce+24.d0*r6*(1.d0-2.d0*r6)/r*sslmbd*epsmj
                 endif
                 epot=epot+enelj*sslmbd
-                
                 do m=1,2
                  if(lcospid) then
                  dvdp(m)=dvdp(m)-0.5*a(m,3)*sin(a(m,1))*sslbd(3-m)*enelj
@@ -3399,15 +3469,15 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C   THIS SUBROUTINE COMPUTES THE ENERGY AND FORCE OF THE GO MODEL
 
-        subroutine evalgo(epot,chi)
+        subroutine evalgo(epot,chi,elj,ec)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         character aseq*3
         logical lconftm,lwal,lwals,ldens,lcpot,lelectr,ljwal,lecperm,ltr
-        logical lsimpang,lfrompdb(len),lconect(len),l3rdcn(len),lrepcoul
+        logical lsimpang,lfrompdb(len),lconect(len),l3rdcn(len),lcstcoul
         logical lwritemap,lsink,lel,lmrs,ldet,lki,lkj,lpid,lsqpbc,lsim
         logical ldynss,lss,lpbcx,lpbcy,lpbcz,lssn,lsselj,lwalup,lwaldown
-        common/sequence/iseq(len),inameseq(len),aseq(len)
+        common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         common/sig/sigma1(500),sigma0,sont(len*99),cut,rcut,rcutsq,cutsq
         common/cmap/kront,krist(3,len*500),klont,klist(3,len*50),lcintr
         common/cmp2/kcont,kcist(3,len*500),kqont,kqist(4,len*1500,2),jq
@@ -3425,7 +3495,7 @@ C   THIS SUBROUTINE COMPUTES THE ENERGY AND FORCE OF THE GO MODEL
         common/wal/walmindst,kbwal(9),icw(2),lobo,ljwal,lwal,lwals,ldens
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
         common/ssb/knct3rd(len),l3rdcn,disul,dmrs,amrs,rmrs,lmrs,ldynss
-        common/ssb2/dislj,icnss,icdss,sigss,lsselj,lrepcoul,lepid
+        common/ssb2/dislj,icnss,icdss,sigss,elecut,lsselj,lcstcoul,lepid
         common/nmapi/rangli(8),emj(500),ncnt,nli(5,len*50),ldet,lpid,lmj
         common/neigh/nei(2,len),rnei,rneisq,lposcrd,neimin,neimaxdisul
 c         chirality count does not include the gap
@@ -3505,7 +3575,7 @@ c         chirality count does not include the gap
 !$omp parallel default(shared),
 !$omp& private(i,j,k,dx,dy,dz,r,rsq,icm,rsi,r6,ene,fce,repx,repy,repz)
 !$omp do
-!$omp& reduction(+:epot)
+!$omp& reduction(+:epot,elj)
         do 446 k=1,kront ! repulsive contacts
             i=krist(1,k)
             j=krist(2,k)
@@ -3527,6 +3597,7 @@ c         chirality count does not include the gap
             ene=4.d0*r6*(r6-1.d0)+1.d0
             fce= 24.d0*r6*(1.d0-2.d0*r6)/r
             epot=epot+ene
+            elj=elj+ene
             if(fce.gt.1.d+3) fce=1.d+3
             if(fce.lt.-1.d+3) fce=-1.d+3
             fce=-fce/r
@@ -3556,10 +3627,10 @@ c         chirality count does not include the gap
                 nei(1,i)=nei(1,i)+1
                 nei(1,j)=nei(1,j)+1
             endif
-            if(rsq.gt.rcutsq) goto 496
             r = sqrt(rsq)
             icm=kcist(3,k)
             if(icm.gt.0) then ! NATIVE CONTACTS
+                if(rsq.gt.rcutsq) goto 496
                 if(abs(klist(3,icm)).lt.631) then ! L-J potential
                     rsig=sont(icm)
                     if(r.le.rsig*cntfct) then
@@ -3601,6 +3672,7 @@ c         chirality count does not include the gap
                     r6=rsi**6
                     ene=4.d0*r6*(r6-1.d0)
                     fce= 24.d0*r6*(1.d0-2.d0*r6)/r
+                    elj=elj+ene
                 else if(abs(klist(3,icm)).eq.631) then ! for SSbonds
 c                   ene=ene*disul
 c                   fce=fce*disul
@@ -3733,7 +3805,7 @@ c                   fce=fce*disul
                         fce= 24.d0*r6*(1.d0-2.d0*r6)/r
                     endif
                 else if(icm.eq.-2) then
-                    if(r.gt.rcut) goto 496      ! rcut=20 A
+                    if(r.gt.elecut) goto 496      ! elecut=30 A
                     if(lcpot) then ! ELECTROSTATIC POTENTIAL
 !                        if(lwritemap) then
 !                            ncnt=ncnt+1
@@ -3745,15 +3817,27 @@ c                   fce=fce*disul
 !                        endif
                         coulpotcoeff=0.d0
                         adiab=max(adia(i),adia(j))
-                        if(lrepcoul) adiab=0.d0
+                        if(lcstcoul) adiab=0.d0
                         if(adiab.lt.ad) then
                             screenr=-1.d0*r/screend
                             expc=exp(screenr)
                             if(ksdchns(i).eq.ksdchns(j)) then
-                                coulpotcoeff=expc*coul*(ad-adiab)/ad
+                                if(ksdchns(i).eq.6) then
+                                 coulpotcoeff=4*expc*coul*(ad-adiab)/ad
+                                else
+                                 coulpotcoeff=expc*coul*(ad-adiab)/ad
+                                endif
                             else ! opposite signs
-                                coulpotcoeff=expc*coul*(adiab-ad)/ad
-                                if(lrepcoul) coulpotcoeff=0.d0
+                    if((ksdchns(i).eq.6).or.ksdchns(j).eq.6) then
+                        if((ksdchns(i).eq.4).or.ksdchns(j).eq.4) then
+                        		coulpotcoeff=2*expc*coul*(ad-adiab)/ad
+                                    else
+                        		coulpotcoeff=2*expc*coul*(adiab-ad)/ad
+                                    endif
+                                else
+                                    coulpotcoeff=expc*coul*(adiab-ad)/ad
+                                endif
+                                !if(lcstcoul) coulpotcoeff=0.d0
                             endif
                         endif
                         if(lecperm) then
@@ -3771,6 +3855,7 @@ c                   fce=fce*disul
                         ene=ene+4.d0*r6*(r6-1.d0)+1.d0
                         fce=fce+24.d0*r6*(1.d0-2.d0*r6)/r
                     endif
+                    ec=ec+ene
                 endif
             endif
             epot=epot+ene
@@ -3797,7 +3882,7 @@ C  ASSIGN INITIAL VELOCITIES TO ATOMS
 
         subroutine intvel3d(aheat,part,nen1)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         common/vel/x1(len),y1(len),z1(len)
         common/der/x2(len),y2(len),z2(len),x3(len),y3(len),z3(len)
         common/der2/x4(len),y4(len),z4(len),x5(len),y5(len),z5(len)
@@ -3855,7 +3940,7 @@ C  THE LANGEVIN NOISE
 
         subroutine lang(twopi,gamma2,const2,nen1)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         common/vel/x1(len),y1(len),z1(len)
         common/for/fx(len),fy(len),fz(len),xsep,ysep,zsep,xinv,yinv,zinv
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
@@ -3865,8 +3950,8 @@ C  THE LANGEVIN NOISE
          r1=ran2(0)
          r2=ran2(0)
          gam=dsqrt(-2.d0*log(r1))*dcos(twopi*r2)
-         x1(i)=x1(i)+const2*gam
          fx(i)=fx(i)-gamma2*x1(i)
+         x1(i)=x1(i)+const2*gam
 10      continue
 
         ! Y-COMPONENT
@@ -3874,8 +3959,8 @@ C  THE LANGEVIN NOISE
          r1=ran2(0)
          r2=ran2(0)
          gam=dsqrt(-2.d0*log(r1))*dcos(twopi*r2)
-         y1(i)=y1(i)+const2*gam
          fy(i)=fy(i)-gamma2*y1(i)
+         y1(i)=y1(i)+const2*gam         
 20      continue
 
         ! Z-COMPONENT
@@ -3883,8 +3968,8 @@ C  THE LANGEVIN NOISE
          r1=ran2(0)
          r2=ran2(0)
          gam=dsqrt(-2.d0*log(r1))*dcos(twopi*r2)
-         z1(i)=z1(i)+const2*gam
          fz(i)=fz(i)-gamma2*z1(i)
+         z1(i)=z1(i)+const2*gam        
 30      continue
 
         return
@@ -3894,7 +3979,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  THE LANGEVIN NOISE WHICH TAKES INTO ACCOUNT THE MASSES OF A.A.
         subroutine lang_mass(twopi,gamma2,const2,nen1)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         common/vel/x1(len),y1(len),z1(len)
         common/for/fx(len),fy(len),fz(len),xsep,ysep,zsep,xinv,yinv,zinv
         common/mass/rmas(len),rsqmas(len)
@@ -3906,18 +3991,18 @@ C  THE LANGEVIN NOISE WHICH TAKES INTO ACCOUNT THE MASSES OF A.A.
          r1=ran2(0)
          r2=ran2(0)
          gam=dsqrt(-2.d0*log(r1))*dcos(twopi*r2)
-         x1(i)=x1(i)+con2*gam
          fx(i)=fx(i)-gam2*x1(i)
+         x1(i)=x1(i)+con2*gam
          r1=ran2(0)
          r2=ran2(0)
          gam=dsqrt(-2.d0*log(r1))*dcos(twopi*r2)
-         y1(i)=y1(i)+con2*gam
          fy(i)=fy(i)-gam2*y1(i)
+         y1(i)=y1(i)+con2*gam
          r1=ran2(0)
          r2=ran2(0)
          gam=dsqrt(-2.d0*log(r1))*dcos(twopi*r2)
-         z1(i)=z1(i)+con2*gam
          fz(i)=fz(i)-gam2*z1(i)
+         z1(i)=z1(i)+con2*gam
 10        continue
 
         return
@@ -3928,7 +4013,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C    THIS SUBROUTINE MAKES FCC BEADS
         subroutine make_fcc()
         implicit double precision (a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
         common/respul/z0temp(len),ksorted(len),ip1,ip2,ipwn,ipw(2,len)
@@ -3965,7 +4050,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C    THIS SUBROUTINE CONNECTS BEADS TO THE WALL INSTANTENOUSLY
         subroutine connect_to_wal()
         implicit double precision (a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
         common/respul/z0temp(len),ksorted(len),ip1,ip2,ipwn,ipw(2,len)
@@ -4009,7 +4094,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C    THIS SUBROUTINE CONNECTS BEADS TO THE WALL ONE BY ONE
         subroutine connect_to_wal_one_by_one()
         implicit double precision (a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
         common/respul/z0temp(len),ksorted(len),ip1,ip2,ipwn,ipw(2,len)
@@ -4051,7 +4136,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
         subroutine displace(iprota,jprotb,away)
         implicit double precision(a-h,o-z)
-        parameter(len=10000) !maximum number of all residues together
+        parameter(len=35000) !maximum number of all residues together
         logical lconect(len)
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/bon/bond,b(len-1),lconect,menchain(len),nchains,lii4,lcpb
@@ -4152,12 +4237,12 @@ C    THIS SUBROUTINE UPDATES VERLET LIST
 
         subroutine update_verlet_list(verlcut,nen1)
         implicit double precision (a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         logical loverlap,lconect(len),lsamechain,lxov,lyov,lzov,lendchn
         logical lconftm,lcpot,lsim,lmrs,l3rdcn(len),lii4,lwal
         logical lpbcx,lpbcy,lpbcz,lpid,lfcc,lcintr,lepid
         character aseq*3
-        common/sequence/iseq(len),inameseq(len),aseq(len)
+        common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         common/verl/oxv(3,len),vrcut2sq,af,kfcc(3,len*500,2),kfccw,menw
         common/sig/sigma1(500),sigma0,sont(len*99),cut,rcut,rcutsq,cutsq
         common/wal/walmindst,kbwal(9),icw(2),lobo,ljwal,lwal,lwals,ldens
@@ -4174,7 +4259,7 @@ C    THIS SUBROUTINE UPDATES VERLET LIST
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
         common/sdch/icnt(6),ksdchn(21,4),ksdchns(len),khbful(4,len)
-        common/ssb2/dislj,icnss,icdss,sigss,lsselj,lrepcoul,lepid
+        common/ssb2/dislj,icnss,icdss,sigss,elecut,lsselj,lcstcoul,lepid
         dimension pxmin(len),pymin(len),pzmin(len)
         dimension pxmax(len),pymax(len),pzmax(len)
         kront = 0
@@ -4192,7 +4277,8 @@ C    THIS SUBROUTINE UPDATES VERLET LIST
         cutoff2=cutoff**2
         smallcutoff=verlcut+cut
         smcut2=smallcutoff**2
-        
+        bigcutoff=verlcut+elecut
+        bigcut2=bigcutoff**2
         do ib=1,men
             oxv(1,ib)=x0(ib)
             oxv(2,ib)=y0(ib)
@@ -4293,7 +4379,12 @@ C    THIS SUBROUTINE UPDATES VERLET LIST
                 if(lpbcy) dy = dy-ysep*nint(dy*yinv)
                 if(lpbcz) dz = dz-zsep*nint(dz*zinv)
                 rsq=dx*dx+dy*dy+dz*dz
-                if(rsq.lt.cutoff2) then
+                if(ksdchns(i).gt.2 .and.ksdchns(j).gt.2) then
+                    cut2=bigcut2
+                else
+                    cut2=cutoff2
+                endif
+                if(rsq.lt.cut2) then
 9797                continue
                     if(kactual.le.klont) then ! find native contacts
                         k1=klist(1,kactual)
@@ -4350,7 +4441,7 @@ C    THIS SUBROUTINE UPDATES VERLET LIST
                         kqist(4,kqont,jq)=-1
                     endif
                     if(lpid) then
-                  kqist(4,kqont,jq)=kqist(4,kqont,jq)*(iname1*21+iname2)
+                  kqist(4,kqont,jq)=kqist(4,kqont,jq)*(iname1*22+iname2)
                         if(lepid) goto 3580
                     else
                         goto 1129 ! TODO check if it works for lpid
@@ -4397,7 +4488,7 @@ C    THIS SUBROUTINE GENERATE THE STARTING CONFIGURATION
 
         subroutine confstart(sdens,confcut)
         implicit double precision (a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         logical lwal,lwals,ldens,lsim,lconect(len),lcpb
         common/for/fx(len),fy(len),fz(len),xsep,ysep,zsep,xinv,yinv,zinv
         common/plates/zdown,zup,zuforce,zdforce,fwal,xup,xdown,yup,ydown
@@ -4545,7 +4636,7 @@ C THIS SUBROUTINE COMPUTES THE RADIUS OF GYRATION
 
         subroutine gyration(rg)
         implicit double precision (a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/plates/zdown,zup,zuforce,zdforce,fwal,xup,xdown,yup,ydown
         common/masscenter/xcm,ycm,zcm,xmcm,ymcm,zmcm
@@ -4587,7 +4678,7 @@ C THIS SUBROUTINE COMPUTES THE RADIUS OF GYRATION
 C THIS SUBROUTINE COMPUTES W AND RADIUS OF GYRATION OF INDIVIDUAL CHAINS        
         subroutine cgyration()
         implicit double precision (a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         
         logical lconect(len),lkmt
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
@@ -4670,7 +4761,7 @@ C   THIS SUBROUTINE COMPUTES DETAILS OF INTER-RESIDUE ANGLES
 
         subroutine compute_details(i,j)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         logical lpbcx,lpbcy,lpbcz
         common/sig/sigma1(500),sigma0,sont(len*99),cut,rcut,rcutsq,cutsq
         common/for/fx(len),fy(len),fz(len),xsep,ysep,zsep,xinv,yinv,zinv
@@ -4678,7 +4769,7 @@ C   THIS SUBROUTINE COMPUTES DETAILS OF INTER-RESIDUE ANGLES
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
         common/nmapi/rangli(8),emj(500),ncnt,nli(5,len*50),ldet,lpid,lmj
         common/kier/afx,afy,afz,shear,lshear,lpbcx,lpbcy,lpbcz,kbperiod
-        common/ssb2/dislj,icnss,icdss,sigss,lsselj,lrepcoul,lepid
+        common/ssb2/dislj,icnss,icdss,sigss,elecut,lsselj,lcstcoul,lepid
         
         xi=x0(i)
         yi=y0(i)
@@ -4741,7 +4832,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C   THIS SUBROUTINE COMPUTES SS-BONDS WITHIN GO-MODEL
         subroutine compute_ssbonds()
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         logical l3rdcn(len)
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/cmap/kront,krist(3,len*500),klont,klist(3,len*50),lcintr
@@ -4806,7 +4897,7 @@ C   THIS SUBROUTINE COMPUTES THE NATIVE COUPLINGS WITHIN GO-MODEL
 c   based on cut-off length dnat
         subroutine compute_cmap(dnat,lcdnat)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         logical lpbcx,lpbcy,lpbcz,lconect(len),lcdnat
         common/kier/afx,afy,afz,shear,lshear,lpbcx,lpbcy,lpbcz,kbperiod
         character aseq*3,ares*3,filn*32,bb*2,buffer*128,ch1*1,ch2*1,ch*1
@@ -4815,7 +4906,7 @@ c   based on cut-off length dnat
         common/bon/bond,b(len-1),lconect,menchain(len),nchains,lii4,lcpb
         common/cmap/kront,krist(3,len*500),klont,klist(3,len*50),lcintr
         common/nat/xn(len),yn(len),zn(len),enative,ksb(2,len/10),nssb
-        common/sequence/iseq(len),inameseq(len),aseq(len)
+        common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
         common/pid/alphacos(3),rbb(2),psi0ss,psi0bb(2),Pi,c216,vmp,lbar
         klont=0
@@ -4838,7 +4929,7 @@ c   based on cut-off length dnat
                         dal=dx*dx+dy*dy+dz*dz
                         dal=dsqrt(dal)
                         dcut=dnat
-             if(lcdnat) dcut=c216*sigma1(inameseq(ib1)*21+inameseq(ib2))
+             if(lcdnat) dcut=c216*sigma1(inameseq(ib1)*22+inameseq(ib2))
                         if(dal.le.dcut) then
                           klont=klont+1
                           klist(1,klont)=ib1
@@ -4860,7 +4951,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C   THIS SUBROUTINE READS THE NATIVE COUPLINGS WITHIN GO-MODEL FROM FILE
         subroutine load_cmap(cmapf)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         character cmapf*32
         logical lfrompdb(len)
         common/cmap/kront,krist(3,len*500),klont,klist(3,len*50),lcintr
@@ -4895,10 +4986,10 @@ C   THIS SUBROUTINE COMPUTES THE NATIVE COUPLINGS WITHIN GO-MODEL
 c   based on all-atom VdW spheres covering
         subroutine compute_contact_map(filename)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         character aseq*3,filename*32,aname*3
         logical lconect(len)
-        common/sequence/iseq(len),inameseq(len),aseq(len)
+        common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         common/rall/rx_a(len,14),ry_a(len,14),rz_a(len,14)
         common/nall/na(len),aname(len,14)
         common/radi/vrad(len,14)
@@ -5026,11 +5117,11 @@ C THIS SUBROUTINE LOADS THE NATIVE BACKBONE CONFORMATION OF A PROTEIN
 C FROM ITS PDB FILE
         subroutine load_protein(filn,lunwrap)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         logical lconect(len),lfrompdb(len),lsimpang,lpdb,lcoilang,ldynss
         logical l3rdcn(len),lunwrap,lpbcx,lpbcy,lpbcz,lcheck
         character aseq*3,ares*3,filn*32,bb*2,buffer*128,ch1*1,ch2*1,ch*1
-        common/sequence/iseq(len),inameseq(len),aseq(len)
+        common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         common/nat/xn(len),yn(len),zn(len),enative,ksb(2,len/10),nssb
         common/for/fx(len),fy(len),fz(len),xsep,ysep,zsep,xinv,yinv,zinv
         common/kier/afx,afy,afz,shear,lshear,lpbcx,lpbcy,lpbcz,kbperiod
@@ -5142,6 +5233,8 @@ C FROM ITS PDB FILE
         inameseq(ib)=19
         else if(aseq(ib).eq.'TRP') then
         inameseq(ib)=20
+        else if(aseq(ib).eq.'PHO') then
+        inameseq(ib)=21
         endif
         endif
         goto 15
@@ -5353,13 +5446,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c LOAD_SEQUENCE loads amino acid sequences to make random configurations
         subroutine load_sequence(filename)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         logical lconect(len),lfrompdb(len),lmap,lsimpang
         common/bon/bond,b(len-1),lconect,menchain(len),nchains,lii4,lcpb
         common/sig/sigma1(500),sigma0,sont(len*99),cut,rcut,rcutsq,cutsq
         common/cmap/kront,krist(3,len*500),klont,klist(3,len*50),lcintr
         character aseq*3,ares*3,filename*32,bb*2,buffer*1024,mapfile*32
-        common/sequence/iseq(len),inameseq(len),aseq(len)
+        common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         common/angnat/the0(len),phi0(len),lfrompdb,lsimpang,lcoilang
         common/nat/xn(len),yn(len),zn(len),enative,ksb(2,len/10),nssb
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
@@ -5448,6 +5541,9 @@ c LOAD_SEQUENCE loads amino acid sequences to make random configurations
         else if(buffer(ib-menchain(ic-1):ib-menchain(ic-1)).eq.'W') then
         aseq(ib) = 'TRP'
         inameseq(ib)=20
+        else if(buffer(ib-menchain(ic-1):ib-menchain(ic-1)).eq.'O') then
+        aseq(ib) = 'PHO'
+        inameseq(ib)=21
         else if(buffer(ib-menchain(ic-1):ib-menchain(ic-1)).eq.'X') then
         inameseq(ib)=0
         endif
@@ -5500,7 +5596,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C THIS SUBROUTINE LOADS PARAMETERS FOR NON-SPECIFIC ANGLE POTENTIALS
         subroutine load_paramfile(paramfile)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         logical lfrompdb(len),lsimpang,ldi,lconftm,lcpot,lsim,lradii
         logical lpid,lenetab,lmj
         common/ang/CBA,CDA,CDB,dar,angpot(16,20,20),dihpot(16,20,20),ldi
@@ -5573,35 +5669,35 @@ c                    enddo
             enddo
 c        endif
         read(88,*)
-        read(88,*)(ksdchn(i,1),i=1,20) ! aatype
-        read(88,*)(ksdchn(i,2),i=1,20) ! aatype s limit
-        read(88,*)(ksdchn(i,3),i=1,20) ! aatype s limit for nonpolar aa
-        read(88,*)(ksdchn(i,4),i=1,20) ! aatype s limit for polar aa
+        read(88,*)(ksdchn(i,1),i=1,21) ! aatype
+        read(88,*)(ksdchn(i,2),i=1,21) ! aatype s limit
+        read(88,*)(ksdchn(i,3),i=1,21) ! aatype s limit for nonpolar aa
+        read(88,*)(ksdchn(i,4),i=1,21) ! aatype s limit for polar aa
 c        if(lcpot.and.(.not.lsim)) then
         if(.not.lsim) then
                 read(88,*)
-                read(88,*)(sig1r(i),i=1,20)
+                read(88,*)(sig1r(i),i=1,21)
             if(lmj.or..not.lradii) then
                 read(88,*)
-                do i=1,20
-                    do j=i,20
+                do i=1,21
+                    do j=i,21
                         if(lmj) then
                             read(88,*) aa1sig,aa2sig,sigmaij,epsilonij
-                            emj(i*21+j)=epsilonij
-                            emj(j*21+i)=epsilonij
+                            emj(i*22+j)=epsilonij
+                            emj(j*22+i)=epsilonij
                         else
                             read(88,*) aa1sig,aa2sig,sigmaij
                         endif
-                        sigma1(j*21+i)=sigmaij/unit*0.5d0**(1.d0/6.d0)
-                        sigma1(i*21+j)=sigmaij/unit*0.5d0**(1.d0/6.d0)
+                        sigma1(j*22+i)=sigmaij/unit*0.5d0**(1.d0/6.d0)
+                        sigma1(i*22+j)=sigmaij/unit*0.5d0**(1.d0/6.d0)
                     enddo
                 enddo
             endif
             if(lradii) then
-                do i=1,20
-                    do j=i,20
-            sigma1(j*21+i)=(sig1r(i)+sig1r(j))/unit*0.5d0**(1.d0/6.d0)
-            sigma1(i*21+j)=(sig1r(i)+sig1r(j))/unit*0.5d0**(1.d0/6.d0)
+                do i=1,21
+                    do j=i,21
+            sigma1(j*22+i)=(sig1r(i)+sig1r(j))/unit*0.5d0**(1.d0/6.d0)
+            sigma1(i*22+j)=(sig1r(i)+sig1r(j))/unit*0.5d0**(1.d0/6.d0)
                     enddo
                 enddo
             endif
@@ -5629,7 +5725,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
        subroutine kmt(klewy,kprawy,kbegin,kend)
        implicit double precision(a-h,o-z)
-       parameter(len=10000)
+       parameter(len=35000)
        common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
        dimension xk(kend-kbegin+1)
        dimension yk(kend-kbegin+1)
@@ -5894,7 +5990,7 @@ C THIS SUBROUTINES COMPUTE THE RMSD OF THE C ALPHA BACKBONE TO THE
 C NATIVE BACKBONE TAKEN FROM PDB
         subroutine compute_rmsd(rms)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
         common/nat/xn(len),yn(len),zn(len),enative,ksb(2,len/10),nssb
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
@@ -5913,7 +6009,7 @@ C NATIVE BACKBONE TAKEN FROM PDB
 
       subroutine kabsch(ns,q,q_trg,d)
       implicit double precision(a-h,o-z)
-      parameter(len=10000)
+      parameter(len=35000)
       parameter(nsx=len)
       dimension q(nsx,3),q_trg(nsx,3),qk(nsx,3),qkk(nsx,3)
       dimension r(3,3),s(3,3),u(3,3),a(3,3),b(3,3),c(3,3)
@@ -6272,14 +6368,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C THIS SUBROUTINE PRINTS THE ORIGINAL CONTACT MAP FILE
         subroutine print_cmap(iun,ktime)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         character aseq*3
         logical lfrompdb(len)
         common/cmap/kront,krist(3,len*500),klont,klist(3,len*50),lcintr
         common/sig/sigma1(500),sigma0,sont(len*99),cut,rcut,rcutsq,cutsq
         common/angtemp/thetemp(len),phitemp(len),chir(len),lcoildih
         common/angnat/the0(len),phi0(len),lfrompdb,lsimpang,lcoilang
-        common/sequence/iseq(len),inameseq(len),aseq(len)
+        common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         common/pid/alphacos(3),rbb(2),psi0ss,psi0bb(2),Pi,c216,vmp,lbar
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
         
@@ -6290,8 +6386,8 @@ c        write(iun,*) "# total chain length",men
             sigrang=sont(i)*c216
             ib1=klist(1,i)
             ib2=klist(2,i)
-            write(iun,'(a,i9,2i5,i9,i3,x,a,x,a,f7.3)')"K",ktime,ib1,ib2,
-     +          ib1*men+ib2,klist(3,i),aseq(ib1),aseq(ib2),sigrang*unit
+            write(iun,'(a,i9,2i6,i10,i3,x,a,x,a,f7.3)')"K",ktime,ib1,
+     +      ib2,ib1*men+ib2,klist(3,i),aseq(ib1),aseq(ib2),sigrang*unit
         enddo
         
         do i=1,men
@@ -6311,7 +6407,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C THIS SUBROUTINE PRINTS THE CONTACT MAP FILE
         subroutine print_map(iun,ktime)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         character aseq*3
         logical lpbcx,lpbcy,lpbcz,l3rdcn(len)
         logical lfrompdb(len),lconect(len),lchiral,langle,ldet,lwrtang
@@ -6324,14 +6420,14 @@ C THIS SUBROUTINE PRINTS THE CONTACT MAP FILE
         common/bon/bond,b(len-1),lconect,menchain(len),nchains,lii4,lcpb
         common/angnat/the0(len),phi0(len),lfrompdb,lsimpang,lcoilang
         common/angtemp/thetemp(len),phitemp(len),chir(len),lcoildih
-        common/sequence/iseq(len),inameseq(len),aseq(len)
+        common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         common/cmp2/kcont,kcist(3,len*500),kqont,kqist(4,len*1500,2),jq
         common/cmapi/cntfct,imap(len*50),icn,intrhc,intrsc,intehc,intesc
         common/chiral/chirn(len),echi,CDH,lchiral,langle,ldisimp,lwrtang
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
         common/nmapi/rangli(8),emj(500),ncnt,nli(5,len*50),ldet,lpid,lmj
         common/neigh/nei(2,len),rnei,rneisq,lposcrd,neimin,neimaxdisul
-        common/ssb2/dislj,icnss,icdss,sigss,lsselj,lrepcoul,lepid
+        common/ssb2/dislj,icnss,icdss,sigss,elecut,lsselj,lcstcoul,lepid
         common/ssb/knct3rd(len),l3rdcn,disul,dmrs,amrs,rmrs,lmrs,ldynss
         common/pid/alphacos(3),rbb(2),psi0ss,psi0bb(2),Pi,c216,vmp,lbar
 c        write(iun,*) "# total chain length",men
@@ -6430,7 +6526,7 @@ c        write(iun,*) "# total chain length",men
             if(ldet) then
                 call compute_details(ib1,ib2)
         !sigrang=sigma1(inameseq(ib1)*21+inameseq(ib2))*c216
-         write(iun,'(a,i9,2i6,i9,i4,x,a,x,a,7f7.3,i4,2f7.3,2i3,i7)')"K",
+        write(iun,'(a,i9,2i6,i10,i4,x,a,x,a,7f7.3,i4,2f7.3,2i3,i7)')"K",
      +  ktime,ib1,ib2,ib1*men+ib2,nli(4,i),aseq(ib1),aseq(ib2),rangli(1)
      +  ,rangli(2),rangli(3),rangli(4),rangli(5),rangli(6),sigrang*unit,
      +  nli(3,i),rangli(7),rangli(8),nei(1,ib1),nei(1,ib2),nli(5,i)
@@ -6442,7 +6538,7 @@ c        write(iun,*) "# total chain length",men
                 if(lpbcy) dy = dy-ysep*nint(dy*yinv)
                 if(lpbcz) dz = dz-zsep*nint(dz*zinv)
                 r=sqrt(dx*dx+dy*dy+dz*dz)
-                write(iun,'(a,i9,2i5,i9,i3,x,a,x,a,f7.3)')"K",ktime,ib1,
+               write(iun,'(a,i9,2i6,i10,i3,x,a,x,a,f7.3)')"K",ktime,ib1,
      +          ib2,ib1*men+ib2,nli(4,i),aseq(ib1),aseq(ib2),r*unit
             endif
         enddo
@@ -6479,14 +6575,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C THIS SUBROUTINE PRINTS THE CHAIN COORDINATES IN PDB FORMAT
         subroutine print_conformation(iun,time,energy,rms)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         character*3 aseq,ares
         character*2 chainid(len)
         logical lwal,lwals,ldens,lsim,lconect(len),l3rdcn(len),lposcrd
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/misc/adia(len),ad,ethi,mcmr,mchi,ncord,lconftm,lcpot,lsim
         common/wal/walmindst,kbwal(9),icw(2),lobo,ljwal,lwal,lwals,ldens
-        common/sequence/iseq(len),inameseq(len),aseq(len)
+        common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
         common/gyr/cgyr(len),cend(len),xyzcm(3,len),w(len),knts(2,len)
         common/bon/bond,b(len-1),lconect,menchain(len),nchains,lii4,lcpb
@@ -6607,10 +6703,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C THIS SUBROUTINE PRINTS THE CHAIN COORDINATES IN XYZ FORMAT
         subroutine print_conf_xyz(iun,time,energy,rms)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         character*3 aseq,ares
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
-        common/sequence/iseq(len),inameseq(len),aseq(len)
+        common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
         write(iun,'(a,f10.1,4x,a,f10.4,4x,a,f8.4)')
      +  'TIME =',time,'ENERGY =',energy,'RMSD =',rms*unit
@@ -6627,7 +6723,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C THIS SUBROUTINE PRINTS THE RESTART FILE
         subroutine print_restart(kb,itraj)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         character rstfile*64,stafile*32,filname*32
         logical l3rdcn(len),lwal
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
@@ -6637,7 +6733,7 @@ C THIS SUBROUTINE PRINTS THE RESTART FILE
         common/restart/delta,work,sep0,rstfile,stafile,filname,klenstr
         common/plates/zdown,zup,zuforce,zdforce,fwal,xup,xdown,yup,ydown
         common/ssb/knct3rd(len),l3rdcn,disul,dmrs,amrs,rmrs,lmrs,ldynss
-        common/ssb2/dislj,icnss,icdss,sigss,lsselj,lrepcoul,lepid
+        common/ssb2/dislj,icnss,icdss,sigss,elecut,lsselj,lcstcoul,lepid
         common/respul/z0temp(len),ksorted(len),ip1,ip2,ipwn,ipw(2,len)
         common/pull/xpul(len),ypul(len),zpul(len),vpulx,vpuly,vpulz,cofp
         common/kier/afx,afy,afz,shear,lshear,lpbcx,lpbcy,lpbcz,kbperiod
@@ -6646,7 +6742,7 @@ C THIS SUBROUTINE PRINTS THE RESTART FILE
         time=kb*delta
         write(stafile,*) '(a',klenstr,',i2.2,i10.10,a)'
         write(rstfile,stafile) filname,itraj,nint(time),'.rst'
-        open(21,file='raw_data.txt',status='unknown')
+        open(21,file=rstfile,status='unknown')
         write(21,'(2f18.3)')time,work
         write(21,'(8f14.6)')zup,zdown,yup,ydown,xup,xdown,sep0,shear
         write(21,'(7i10)')(kbwal(i),i=1,8)
@@ -6669,39 +6765,12 @@ C THIS SUBROUTINE PRINTS THE RESTART FILE
         return
         end
 
-        subroutine print_raw_data(epot,kb,itraj)
-        implicit double precision(a-h,o-z)
-        parameter(len=10000)
-        character rstfile*64,stafile*32,filname*32
-        logical l3rdcn(len),lwal
-        common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
-        common/for/fx(len),fy(len),fz(len),xsep,ysep,zsep,xinv,yinv,zinv
-        common/cmapi/cntfct,imap(len*50),icn,intrhc,intrsc,intehc,intesc
-        common/wal/walmindst,kbwal(9),icw(2),lobo,ljwal,lwal,lwals,ldens
-        common/restart/delta,work,sep0,rstfile,stafile,filname,klenstr
-        common/plates/zdown,zup,zuforce,zdforce,fwal,xup,xdown,yup,ydown
-        common/ssb/knct3rd(len),l3rdcn,disul,dmrs,amrs,rmrs,lmrs,ldynss
-        common/ssb2/dislj,icnss,icdss,sigss,lsselj,lrepcoul,lepid
-        common/respul/z0temp(len),ksorted(len),ip1,ip2,ipwn,ipw(2,len)
-        common/pull/xpul(len),ypul(len),zpul(len),vpulx,vpuly,vpulz,cofp
-        common/kier/afx,afy,afz,shear,lshear,lpbcx,lpbcy,lpbcz,kbperiod
-        common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc,epot
-
-        write(23,*)itraj-1,kb,epot,men
-        do i=1,men
-            write(23,*)x0(i),y0(i),z0(i),fx(i),fy(i),fz(i)
-        enddo
-
-        return
-        end
-
-
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C THIS SUBROUTINE APPLIES THE CONSTANT AFM FORCE TO THE PROTEIN
         subroutine afm(aforce,epot)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/for/fx(len),fy(len),fz(len),xsep,ysep,zsep,xinv,yinv,zinv
         common/nat/xn(len),yn(len),zn(len),enative,ksb(2,len/10),nssb
@@ -6745,7 +6814,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C IMPLEMENTATION OF THE CONSTANT VELOCITY OF ONE END
         subroutine vafm(fresist,fresistperp,epot)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         logical lwal,ldens,lshear,lobo,ljwal,lfcc,lpbcx,lpbcy,lpbcz
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/for/fx(len),fy(len),fz(len),xsep,ysep,zsep,xinv,yinv,zinv
@@ -6970,10 +7039,10 @@ C THIS SUBROUTINE CONNECTS THE DOMAINS FOR THE TITIN
         subroutine build_titin(ndomain)
         implicit double precision(a-h,o-z)
 
-        parameter(len=10000)
+        parameter(len=35000)
         logical lconect(len)
         character aseq*3,pdbfile*32
-        common/sequence/iseq(len),inameseq(len),aseq(len)
+        common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         common/bon/bond,b(len-1),lconect,menchain(len),nchains,lii4,lcpb
         common/nat/xn(len),yn(len),zn(len),enative,ksb(2,len/10),nssb
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
@@ -7031,9 +7100,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C THIS SUBROUTINE DISALLOWS CONTACTS BETWEEN DOMAINS
         subroutine interdomain(ndomain)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         character aseq*3
-        common/sequence/iseq(len),inameseq(len),aseq(len)
+        common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         common/sig/sigma1(500),sigma0,sont(len*99),cut,rcut,rcutsq,cutsq
         common/cmap/kront,krist(3,len*500),klont,klist(3,len*50),lcintr
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
@@ -7068,9 +7137,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C THIS SUBROUTINE READS THE MASSES OF AMINO ACIDS
         subroutine amino_acid_mass
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         character aseq*3,ares*3
-        common/sequence/iseq(len),inameseq(len),aseq(len)
+        common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         common/mass/rmas(len),rsqmas(len)
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
 
@@ -7116,6 +7185,8 @@ C THIS SUBROUTINE READS THE MASSES OF AMINO ACIDS
         rmas(ib)=163.170
         else if(ares.eq.'TRP') then
         rmas(ib)=186.213
+        else if(ares.eq.'PHO') then
+        rmas(ib)=129.116
         endif
 1000        continue
 
@@ -7140,14 +7211,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
         subroutine model_chirality
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         logical lfrompdb(len),lconect(len),lchiral,langle,lsimpang
         character aseq*3
         common/bon/bond,b(len-1),lconect,menchain(len),nchains,lii4,lcpb
         common/nat/xn(len),yn(len),zn(len),enative,ksb(2,len/10),nssb
         common/angnat/the0(len),phi0(len),lfrompdb,lsimpang,lcoilang
         common/sig/sigma1(500),sigma0,sont(len*99),cut,rcut,rcutsq,cutsq
-        common/sequence/iseq(len),inameseq(len),aseq(len)
+        common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
         common/chiral/chirn(len),echi,CDH,lchiral,langle,ldisimp,lwrtang
         dimension xs(len),ys(len),zs(len)
@@ -7185,7 +7256,7 @@ C THIS SUBROUTINE COMPUTES THE ENERGY AND FORCE GIVEN BY THE
 C CHIRALITY POTENTIALS
         subroutine eval_chirality(enechi)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         logical lconect(len),lchiral,langle
         common/bon/bond,b(len-1),lconect,menchain(len),nchains,lii4,lcpb
         common/nat/xn(len),yn(len),zn(len),enative,ksb(2,len/10),nssb
@@ -7274,9 +7345,9 @@ C FROM ITS PDB FILE AND THEN CALCULATES THE TORSION ANGLES OF THE
 C NATIVE STATE
         subroutine load_allatom(filename)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         character aseq*3,ares*3,filename*32,bb*3,buffer*128,bbo*3
-        common/sequence/iseq(len),inameseq(len),aseq(len)
+        common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         character aname*3
         common/rall/rx_a(len,14),ry_a(len,14),rz_a(len,14)
         common/nall/na(len),aname(len,14)
@@ -7328,9 +7399,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
         subroutine assign_VdW_radius
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         character aseq*3,ares*3,ana*3,filename*32,bb*3,buffer*128
-        common/sequence/iseq(len),inameseq(len),aseq(len)
+        common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         character aname*3
         common/rall/rx_a(len,14),ry_a(len,14),rz_a(len,14)
         common/nall/na(len),aname(len,14)
@@ -7472,6 +7543,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           vrad(ib,6)=1.88
           vrad(ib,7)=1.88
           vrad(ib,8)=1.88
+        else if(ares.eq.'PHO') then
+          nb(ib)=10
+          vrad(ib,5)=1.88
+          vrad(ib,6)=1.88
+          vrad(ib,7)=1.61
+          vrad(ib,8)=1.46
+          vrad(ib,9)=1.42
+          vrad(ib,10)=1.42
         endif
 1000        continue
 
@@ -7518,7 +7597,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
         subroutine gopotential(asigma)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         logical lconect(len),lpbcx,lpbcy,lpbcz
         common/sig/sigma1(500),sigma0,sont(len*99),cut,rcut,rcutsq,cutsq
         common/cmap/kront,krist(3,len*500),klont,klist(3,len*50),lcintr
@@ -7598,7 +7677,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
         subroutine compute_native_angles
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         logical lfrompdb(len),lsimpang
         common/nat/xn(len),yn(len),zn(len),enative,ksb(2,len/10),nssb
         common/four/rx(4),ry(4),rz(4)
@@ -7634,11 +7713,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
         subroutine angeval(epot)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         logical lconect(len),lfrompdb(len),lsimpang,langle,ldi,ldisimp
         character*3 aseq,ares
         common/bon/bond,b(len-1),lconect,menchain(len),nchains,lii4,lcpb
-        common/sequence/iseq(len),inameseq(len),aseq(len)
+        common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/for/fx(len),fy(len),fz(len),xsep,ysep,zsep,xinv,yinv,zinv
         common/ang/CBA,CDA,CDB,dar,angpot(16,20,20),dihpot(16,20,20),ldi
@@ -7836,7 +7915,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
         subroutine countpid(i,j,phi)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         logical lconect(len),lene
         common/bon/bond,b(len-1),lconect,menchain(len),nchains,lii4,lcpb
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
@@ -7915,12 +7994,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
         subroutine evalangles(epot,lsldh,cofdih)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         logical lconect(len),lfrompdb(len),lsimpang,langle,ldi,ldisimp
         logical lenetab,lcoildih,lsldh
         character*3 aseq,ares
         common/bon/bond,b(len-1),lconect,menchain(len),nchains,lii4,lcpb
-        common/sequence/iseq(len),inameseq(len),aseq(len)
+        common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/for/fx(len),fy(len),fz(len),xsep,ysep,zsep,xinv,yinv,zinv
         common/ang/CBA,CDA,CDB,dar,angpot(16,20,20),dihpot(16,20,20),ldi
@@ -8157,7 +8236,7 @@ c ux1=x0(ib)-x0(ib-1)
 c ux2=x0(ib)-x0(ib+1)
         subroutine bondangle(theta)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         common/four/rx(4),ry(4),rz(4)
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
 
@@ -8185,7 +8264,7 @@ C THIS SUBROUTINE RETURN THE DIHEDRAL ANGLE AT THE THIRD SITE
 
         subroutine dihedral(phi)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         common/four/rx(4),ry(4),rz(4)
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
 
@@ -8219,6 +8298,32 @@ C THIS SUBROUTINE RETURN THE DIHEDRAL ANGLE AT THE THIRD SITE
 
         di=vx1*ux3+vy1*uy3+vz1*uz3
         if(di.lt.0.d0) phi=-phi
+
+        return
+        end
+
+        subroutine print_raw_data(epot,kb,itraj)
+        implicit double precision(a-h,o-z)
+        parameter(len=10000)
+        character rstfile*64,stafile*32,filname*32
+        logical l3rdcn(len),lwal
+        common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
+        common/for/fx(len),fy(len),fz(len),xsep,ysep,zsep,xinv,yinv,zinv
+        common/cmapi/cntfct,imap(len*50),icn,intrhc,intrsc,intehc,intesc
+        common/wal/walmindst,kbwal(9),icw(2),lobo,ljwal,lwal,lwals,ldens
+        common/restart/delta,work,sep0,rstfile,stafile,filname,klenstr
+        common/plates/zdown,zup,zuforce,zdforce,fwal,xup,xdown,yup,ydown
+        common/ssb/knct3rd(len),l3rdcn,disul,dmrs,amrs,rmrs,lmrs,ldynss
+        common/ssb2/dislj,icnss,icdss,sigss,lsselj,lrepcoul,lepid
+        common/respul/z0temp(len),ksorted(len),ip1,ip2,ipwn,ipw(2,len)
+        common/pull/xpul(len),ypul(len),zpul(len),vpulx,vpuly,vpulz,cofp
+        common/kier/afx,afy,afz,shear,lshear,lpbcx,lpbcy,lpbcz,kbperiod
+        common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc,epot
+
+        write(23,*)itraj-1,kb,epot
+!       do i=1,men
+!           write(23,*)x0(i),y0(i),z0(i),fx(i),fy(i),fz(i)
+!       enddo
 
         return
         end

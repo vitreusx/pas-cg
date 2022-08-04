@@ -2144,7 +2144,8 @@ c       projection of the velocity on the direction of the force
             call flush(2)
         endif
 
-        if(krst.ne.0.and.mod(kb,krst).eq.0) then
+        if(krst.ne.0) then
+        if(mod(kb,krst).eq.0) then
             if(lcleanrst) then
                 intrsc=0
                 intesc=0
@@ -2176,6 +2177,7 @@ c       projection of the velocity on the direction of the force
                 if (irstat.eq.0) close(38, status='DELETE')
               endif
             endif
+        endif
         endif
 
         if(lthermo.and.kb.gt.kteql) then

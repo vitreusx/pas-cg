@@ -9,7 +9,7 @@ void parameters::load(ioxx::xyaml::node const &p) {
   p["num of trajectories"] >> num_of_traj;
   p["repulsive cutoff"] >> repulsive_cutoff;
 
-  auto dp = p["debug"];
+  auto dp = p["debug mode"];
   dp["floating point exceptions"] >> fp_exceptions;
   dp["dump data for every step"] >> dump_data;
 

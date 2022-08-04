@@ -1,47 +1,51 @@
 import argparse
-from dataclasses import dataclass
-from pathlib import Path
+import pandas as pd
 import subprocess
-import tempfile
-import shutil
-import numpy as np
-
-
-@dataclass
-class Step:
-    V: float
-    r: np.ndarray
-    F: np.ndarray
+from pathlib import Path
 
 
 def parse_raw_data(raw_data: str):
     data = raw_data.split()
     idx = 0
-    result = {}
+    records = []
+
     while idx < len(data):
-        traj_idx, step_idx, V, num_res = data[idx : idx + 4]
-        idx += 4
-        step_idx, V, num_res = int(step_idx), float(V), int(num_res)
-        r, F = np.zeros((num_res, 3)), np.zeros((num_res, 3))
-        for res_idx in range(num_res):
-            rx, ry, rz, Fx, Fy, Fz = (float(x) for x in data[idx : idx + 6])
-            idx += 6
-            r[res_idx] = np.array([rx, ry, rz])
-            F[res_idx] = np.array([Fx, Fy, Fz])
-        result[traj_idx, step_idx] = Step(V, r, F)
-    return result
+        traj_idx, step_idx, V = data[idx: idx + 3]
+        traj_idx, step_idx, V = int(traj_idx), int(step_idx), float(V)
+        records.append((traj_idx, step_idx, V))
+        idx += 3
+
+    df = pd.DataFrame.from_records(records,
+                                   columns=["traj_idx", "step_idx", "V"])
+    df.set_index(["traj_idx", "step_idx"])
+    return df
+
+
+def compare(test, fort_data, cxx_data):
+    comp_df = pd.merge(cxx_data, fort_data, how="outer",
+                       on=["traj_idx", "step_idx"])
+    comp_df["V_cxx"] = comp_df["V_x"]
+    comp_df["V_fort"] = comp_df["V_y"]
+    comp_df = comp_df.drop(["V_x", "V_y"], axis="columns")
+    comp_df["rel_diff"] = (comp_df["V_cxx"] - comp_df["V_fort"]).abs() / \
+                          comp_df["V_cxx"].abs()
+    return comp_df
 
 
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("-c", "--cxx", required=True, help="path to cxx program")
-    p.add_argument("-f", "--fort", required=True, help="path to fortran program")
+    p.add_argument("-f", "--fort", required=True,
+                   help="path to fortran program")
     p.add_argument("-t", "--test", required=True, help="path to test directory")
+    p.add_argument("-s", "--source", required=True,
+                   help="path to original test directory, to put comp.csv to")
 
     args = p.parse_args()
     cxx = Path(args.cxx)
     fort = Path(args.fort)
     test = Path(args.test)
+    src = Path(args.source)
 
     # with tempfile.TemporaryDirectory() as tmpdir:
     #     tmpdir = Path(tmpdir)
@@ -63,6 +67,10 @@ def main():
     fort_data_txt = open(test / "fort" / "raw_data.txt").read()
     fort_data = parse_raw_data(fort_data_txt)
 
+    comp_df = compare(test, fort_data, cxx_data)
+    comp_df.to_csv(test / "comp.csv", index=False, header=True)
+    comp_df.to_csv(src / "comp.csv", index=False, header=True)
+    
 
 if __name__ == "__main__":
     main()
