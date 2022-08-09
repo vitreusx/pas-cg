@@ -75,7 +75,7 @@ add_subdirectory(ext/boost EXCLUDE_FROM_ALL)
 add_subdirectory(ext/vcl-2.01.04 EXCLUDE_FROM_ALL)
 add_subdirectory(ext/yaml-cpp-0.7.0 EXCLUDE_FROM_ALL)
 
-find_package(Eigen3 3.4 QUIET)
+find_package(Eigen3 3.4 EXACT QUIET)
 if (NOT "${Eigen3_FOUND}")
     add_subdirectory(ext/eigen-3.4.0 EXCLUDE_FROM_ALL)
 endif ()

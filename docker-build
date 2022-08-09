@@ -1,2 +1,2 @@
 #!/usr/bin/bash
-docker build -t "vitreusx/pas-cg:latest" .
+docker build --no-cache -t "vitreusx/pas-cg:latest" .

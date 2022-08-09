@@ -1,6 +1,7 @@
 FROM ubuntu:20.04
 
-RUN apt-get update && apt-get install -y cmake ninja-build xxd g++
+ENV DEBIAN_FRONTEND=noninteractive 
+RUN apt-get update && apt-get install -y cmake ninja-build xxd g++ libeigen3-dev
 
 RUN mkdir host
 
