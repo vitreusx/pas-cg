@@ -1,5 +1,5 @@
 general:
-  total time: 100 tau
+  total time: 10 tau
   num of threads: 1
   num of trajectories: 1
   seed: 1
@@ -9,7 +9,7 @@ general:
 input:
   pdb file:
     source:
-      (at path): start.pdb
+      (at path): sample.pdb
   morph into SAW:
     perform: false
     start box:

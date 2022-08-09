@@ -2,7 +2,7 @@ klenstr 5
 seqfile 9AAC.txt
 file test2
 temp 0.38
-ntraj 5
+ntraj 1
 lvelo T
 iseed 77977
 kteql 7500

@@ -19,7 +19,7 @@ input:
 
 simulation box:
   initial size:
-    type: sufficient
+    type: from CRYST1 record
     sufficient box params:
       maximum density: 3e-6 residue/A**3
   squeezing:

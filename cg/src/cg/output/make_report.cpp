@@ -299,6 +299,8 @@ static std::string side_to_str(simul::side const &side_) {
     return "NEG_Z";
   case simul::POS_Z:
     return "POS_Z";
+  default:
+    return "";
   }
 }
 

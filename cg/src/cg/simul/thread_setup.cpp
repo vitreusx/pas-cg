@@ -799,6 +799,7 @@ void thread::setup_walls() {
     log.neg_z = st->walls[NEG_Z];
     log.pos_z = st->walls[POS_Z];
     log.t = &st->t;
+    log.avg_z_force = &st->avg_z_force;
   }
 }
 } // namespace cg::simul
