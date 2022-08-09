@@ -1,5 +1,6 @@
 #include <cg/base_forces/shifted_lj.h>
 #include <cg/pauli/eval_forces.h>
+
 namespace cg::pauli {
 
 void eval_forces::operator()() const {

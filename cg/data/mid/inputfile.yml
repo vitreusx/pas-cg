@@ -1,0 +1,27 @@
+general:
+  total time: 100 tau
+  repulsive cutoff: 4 A
+  num of trajectories: 1
+
+input:
+  pdb file:
+    source:
+      (at path): mid.pdb
+    contact deriv: from all atoms
+  morph into SAW:
+    perform: false
+
+quasi-adiabatic:
+  enabled: false
+
+Debye-Hueckel:
+  enabled: false
+
+native contacts:
+  (un)folding study:
+    stop when all are formed/broken: true
+    measure median times: true
+
+output:
+  file prefix: mid
+  emit structure every: 10 tau

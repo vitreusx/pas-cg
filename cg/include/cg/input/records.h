@@ -19,7 +19,7 @@ public:
 
 class atom {
 public:
-  int serial;
+  std::string serial;
   std::string atom_name;
   std::string residue_name;
   char chain_id;
@@ -33,7 +33,7 @@ public:
 
 class ssbond {
 public:
-  int serial;
+  std::string serial;
   struct {
     char chain_id;
     int res_seq_num;
@@ -74,7 +74,7 @@ public:
 
 class ter {
 public:
-  int serial;
+  std::string serial;
   std::string res_name;
   char chain_id;
   int res_seq_num;

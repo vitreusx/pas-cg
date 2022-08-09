@@ -8,6 +8,7 @@
 #include <set>
 #include <sstream>
 #include <string_view>
+#include <unordered_set>
 
 namespace cg {
 void pdb_file::load(std::istream &is, pdb_load_options const &load_opts) {
@@ -18,7 +19,8 @@ void pdb_file::load(std::istream &is, pdb_load_options const &load_opts) {
 
   cryst1 = std::nullopt;
 
-  char cur_chain_id = 'A';
+  std::unordered_map<char, char> chain_ids;
+  char real_chain_id = '\0';
 
   std::vector<records::record> post_fx;
 
@@ -47,9 +49,14 @@ void pdb_file::load(std::istream &is, pdb_load_options const &load_opts) {
 
       auto &model = find_or_add_model(cur_model_serial);
 
-      if (atom_r->chain_id != cur_chain_id)
-        ++cur_chain_id;
-      auto &chain = find_or_add_chain(model, cur_chain_id);
+      if (atom_r->chain_id != real_chain_id) {
+        if (chain_ids.find(atom_r->chain_id) != chain_ids.end())
+          chain_ids[atom_r->chain_id] = ++real_chain_id;
+        else
+          chain_ids[atom_r->chain_id] = atom_r->chain_id;
+      }
+      real_chain_id = atom_r->chain_id;
+      auto &chain = find_or_add_chain(model, chain_ids[atom_r->chain_id]);
 
       auto &res = find_or_add_res(
           chain, atom_r->res_seq_num, atom_r->residue_name,
@@ -64,8 +71,8 @@ void pdb_file::load(std::istream &is, pdb_load_options const &load_opts) {
 
       res.atoms.push_back(&atm);
 
-      if (!ter_found[cur_model_serial][cur_chain_id])
-        chain.ter_serial = atom_r->serial + 1;
+      if (!ter_found[cur_model_serial][chain.chain_id])
+        chain.ter_serial = atom_r->serial;
 
       if (primary_model_serial < 0)
         primary_model_serial = cur_model_serial;
@@ -139,9 +146,9 @@ pdb_file::pdb_file(const input::model &xmd_model) {
     for (auto const &xmd_res_ref : xmd_chain->residues) {
       auto &xmd_res = *xmd_res_ref;
 
-      auto &ca_atom = pdb_chain.atoms[atom_serial];
+      auto &ca_atom = pdb_chain.atoms[std::to_string(atom_serial)];
       ca_atom.name = "CA";
-      ca_atom.serial = atom_serial;
+      ca_atom.serial = std::to_string(atom_serial);
       ca_atom.pos = xmd_res.pos;
 
       auto &pdb_res = pdb_chain.residues[res_seq_num];
@@ -158,7 +165,7 @@ pdb_file::pdb_file(const input::model &xmd_model) {
       ++atom_serial;
     }
 
-    pdb_chain.ter_serial = atom_serial++;
+    pdb_chain.ter_serial = std::to_string(atom_serial++);
 
     ++chain_id;
   }
@@ -169,10 +176,10 @@ pdb_file::pdb_file(const input::model &xmd_model) {
     auto *pdb_res2 = res_map[&*xmd_cont.res2];
 
     if (xmd_cont.type == nat_cont::type::SSBOND) {
-      auto &pdb_ss = disulfide_bonds[ss_serial];
+      auto &pdb_ss = disulfide_bonds[std::to_string(ss_serial)];
       pdb_ss.a1 = pdb_res1->atoms[0];
       pdb_ss.a2 = pdb_res2->atoms[0];
-      pdb_ss.serial = ss_serial;
+      pdb_ss.serial = std::to_string(ss_serial);
       pdb_ss.length = xmd_cont.length;
       ++ss_serial;
     } else {

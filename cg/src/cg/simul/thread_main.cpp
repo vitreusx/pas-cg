@@ -198,7 +198,7 @@ void thread::find_force_min_step() {
             copysign(min(abs(force_vel_frac), (real)1.0), force_vel_frac);
         auto vel = params->sbox.target_vel * time_vel_frac * force_vel_frac;
 
-        auto shift = -(real)0.5 * vel * params->lang.dt;
+        auto shift = (real)0.5 * vel * params->lang.dt;
         st->adjust_wall_pos(vec3r(0, 0, shift), vec3r::Zero());
       }
     }

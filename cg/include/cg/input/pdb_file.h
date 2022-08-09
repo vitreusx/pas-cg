@@ -39,7 +39,7 @@ public:
 
   struct atom {
     std::string name;
-    size_t serial;
+    std::string serial;
     vec3<double> pos;
     residue *parent_res;
     double _radius;
@@ -58,10 +58,10 @@ public:
 
   struct chain {
     char chain_id;
-    std::unordered_map<size_t, atom> atoms;
+    std::unordered_map<std::string, atom> atoms;
     std::unordered_map<size_t, residue> residues;
     std::vector<residue *> order;
-    size_t ter_serial;
+    std::string ter_serial;
 
     friend std::ostream &operator<<(std::ostream &os, chain const &chain);
   };
@@ -85,11 +85,11 @@ public:
   model const &primary_model() const;
 
   struct disulfide_bond {
-    size_t serial;
+    std::string serial;
     atom *a1, *a2;
     double length;
   };
-  std::unordered_map<size_t, disulfide_bond> disulfide_bonds;
+  std::unordered_map<std::string, disulfide_bond> disulfide_bonds;
 
   struct link {
     atom *a1, *a2;
