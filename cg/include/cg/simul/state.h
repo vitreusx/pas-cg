@@ -85,6 +85,7 @@ public:
   bool out_enabled, ckpt_enabled, dump_enabled;
   out::report rep;
   real ckpt_last_t;
+  void simul_setup_output();
   void setup_output();
 
   bool lang_enabled;

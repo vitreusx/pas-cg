@@ -484,8 +484,17 @@ void make_report::add_map_data() const {
         ++num_active_contacts;
 
       auto &nc_row = tab->append_row();
+
       nc_row["i1"] = cont.i1();
+      nc_row["chain1"] = st->model.chains[st->chain_idx[cont.i1()]]->chain_id;
+      nc_row["seq1"] = st->seq_idx[cont.i1()] + 1;
+      nc_row["res1"] = st->atype[cont.i1()].name();
+
       nc_row["i2"] = cont.i2();
+      nc_row["chain2"] = st->model.chains[st->chain_idx[cont.i2()]]->chain_id;
+      nc_row["seq2"] = st->seq_idx[cont.i2()] + 1;
+      nc_row["res2"] = st->atype[cont.i2()].name();
+
       nc_row["type"] = format_nc_type(cont.type());
 
       auto dist = norm(st->pbc.wrap(st->r[cont.i1()], st->r[cont.i2()]));
@@ -512,8 +521,17 @@ void make_report::add_map_data() const {
       ++num_active_contacts;
 
       auto &qa_row = tab->append_row();
+
       qa_row["i1"] = cont.i1();
+      qa_row["chain1"] = st->model.chains[st->chain_idx[cont.i1()]]->chain_id;
+      qa_row["seq1"] = st->seq_idx[cont.i1()] + 1;
+      qa_row["res1"] = st->atype[cont.i1()].name();
+
       qa_row["i2"] = cont.i2();
+      qa_row["chain2"] = st->model.chains[st->chain_idx[cont.i2()]]->chain_id;
+      qa_row["seq2"] = st->seq_idx[cont.i2()] + 1;
+      qa_row["res2"] = st->atype[cont.i2()].name();
+
       qa_row["type"] = format_qa_type(cont.type());
 
       auto dist = norm(st->pbc.wrap(st->r[cont.i1()], st->r[cont.i2()]));
@@ -534,8 +552,18 @@ void make_report::add_map_data() const {
         ++num_active_contacts;
 
         auto &pid_row = tab->append_row();
+
         pid_row["i1"] = bundle.i1();
+        auto chain1 = st->model.chains[st->chain_idx[bundle.i1()]]->chain_id;
+        pid_row["chain1"] = chain1;
+        pid_row["seq1"] = st->seq_idx[bundle.i1()] + 1;
+        pid_row["res1"] = st->atype[bundle.i1()].name();
+
         pid_row["i2"] = bundle.i2();
+        pid_row["chain2"] =
+            st->model.chains[st->chain_idx[bundle.i2()]]->chain_id;
+        pid_row["seq2"] = st->seq_idx[bundle.i2()] + 1;
+        pid_row["res2"] = st->atype[bundle.i2()].name();
 
         auto dist = norm(st->pbc.wrap(st->r[bundle.i1()], st->r[bundle.i2()]));
         pid_row["dist[A]"] = quantity(dist).value_in("A");
@@ -553,6 +581,9 @@ void make_report::add_map_data() const {
     auto i1 = st->res_map.at(angle.res1), i2 = st->res_map.at(angle.res2),
          i3 = st->res_map.at(angle.res3);
     row["i1"] = i1;
+    row["chain1"] = st->model.chains[st->chain_idx[i1]]->chain_id;
+    row["seq1"] = st->seq_idx[i1] + 1;
+    row["res1"] = st->atype[i1].name();
     row["i2"] = i2;
     row["i3"] = i3;
 
@@ -571,6 +602,9 @@ void make_report::add_map_data() const {
     auto i1 = st->res_map.at(dih.res1), i2 = st->res_map.at(dih.res2),
          i3 = st->res_map.at(dih.res3), i4 = st->res_map.at(dih.res4);
     row["i1"] = i1;
+    row["chain1"] = st->model.chains[st->chain_idx[i1]]->chain_id;
+    row["seq1"] = st->seq_idx[i1] + 1;
+    row["res1"] = st->atype[i1].name();
     row["i2"] = i2;
     row["i3"] = i3;
     row["i4"] = i4;

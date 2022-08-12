@@ -14,9 +14,8 @@ struct snapshot {
 class report {
 public:
   real stats_last, struct_last;
-
-  std::vector<snapshot> snapshots;
   ioxx::sl4::div out_root, map_root;
+  std::vector<snapshot> snapshots;
 
   void traj_init(int traj_idx);
 };

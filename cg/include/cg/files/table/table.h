@@ -13,11 +13,20 @@ class columns;
 class dtype {
 public:
   dtype() = default;
-  enum class tag { uint_, int_, float_, bool_, string_ };
+  enum class tag {
+    uint_,
+    int_,
+    float_,
+    bool_,
+    string_
+  };
 
   template <typename T> static dtype from_type() {
     if constexpr (std::is_same_v<T, bool>) {
       return dtype(tag::bool_);
+    } else if constexpr (std::is_same_v<T, char> ||
+                         std::is_same_v<T, unsigned char>) {
+      return dtype(tag::string_);
     } else if constexpr (std::is_integral_v<T>) {
       if constexpr (std::is_unsigned_v<T>)
         return dtype(tag::uint_);
@@ -61,7 +70,9 @@ public:
     return (*this = value);
   }
 
-  template <typename T> T as() const { return convert<T>(field_ref()); }
+  template <typename T> T as() const {
+    return convert<T>(field_ref());
+  }
 
   template <typename T> cell_ref const &operator>>(T &value) const {
     value = as<T>();
@@ -87,7 +98,9 @@ public:
   cell_const_ref &operator=(cell_const_ref const &other) = delete;
   cell_const_ref &operator=(cell_const_ref &&other) = delete;
 
-  template <typename T> T as() const { return convert<T>(field_ref()); }
+  template <typename T> T as() const {
+    return convert<T>(field_ref());
+  }
 
   template <typename T> cell_const_ref const &operator>>(T &value) const {
     value = as<T>();

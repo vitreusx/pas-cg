@@ -131,7 +131,6 @@ void pdb_file::load(std::istream &is, pdb_load_options const &load_opts) {
 }
 
 pdb_file::pdb_file(const input::model &xmd_model) {
-  char chain_id = 'A';
   size_t atom_serial = 1;
 
   std::unordered_map<input::model::residue const *, residue *> res_map;
@@ -139,8 +138,8 @@ pdb_file::pdb_file(const input::model &xmd_model) {
   auto &m = find_or_add_model(primary_model_serial);
 
   for (auto const &xmd_chain : xmd_model.chains) {
-    auto &pdb_chain = m.chains[chain_id];
-    pdb_chain.chain_id = chain_id;
+    auto &pdb_chain = m.chains[xmd_chain->chain_id];
+    pdb_chain.chain_id = xmd_chain->chain_id;
     size_t res_seq_num = 1;
 
     for (auto const &xmd_res_ref : xmd_chain->residues) {
@@ -166,8 +165,6 @@ pdb_file::pdb_file(const input::model &xmd_model) {
     }
 
     pdb_chain.ter_serial = std::to_string(atom_serial++);
-
-    ++chain_id;
   }
 
   size_t ss_serial = 1;
@@ -348,6 +345,7 @@ input::model pdb_file::to_model() const {
     auto &xmd_chain =
         xmd_model.chains.emplace_back(std::make_unique<input::model::chain>());
     xmd_chain->chain_idx = chain_idx++;
+    xmd_chain->chain_id = chain_id;
 
     int res_seq_idx = 0;
     for (auto const *pdb_res : pdb_chain.order) {

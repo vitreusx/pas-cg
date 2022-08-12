@@ -34,10 +34,15 @@ void state::verify_equal(const state &other) const {
 }
 
 void state::simul_setup() {
+  traj_idx = 0;
   gen = rand_gen(params.gen.seed);
   load_model();
+  simul_setup_output();
   rep = out::report();
-  traj_idx = 0;
+}
+
+void state::simul_setup_output() {
+  rep = out::report();
 }
 
 void state::load_model() {
@@ -74,7 +79,7 @@ void state::load_model() {
 
 void state::traj_init() {
   step_idx = 0;
-  
+
   morph_model();
   compile_model();
   setup_dyn();
