@@ -1,7 +1,8 @@
 general:
   total time: 80e3 tau
-  equil time: 1e3 tau
+  equil time: 0e3 tau
   repulsive cutoff: 4 A
+  num of threads: 2
 
 input:
   pdb file:

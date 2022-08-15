@@ -67,6 +67,7 @@ void thread::step() {
 }
 
 void thread::simul_init_step() {
+#pragma omp barrier
 #pragma omp single
   {
     st->simul_setup();
@@ -77,6 +78,7 @@ void thread::simul_init_step() {
 
 void thread::traj_init_step() {
   if (st->traj_idx < params->gen.num_of_traj) {
+#pragma omp barrier
 #pragma omp single
     {
       st->traj_init();
@@ -93,6 +95,7 @@ void thread::traj_init_step() {
 
     init_kernels();
   } else {
+#pragma omp barrier
 #pragma omp single
     st->cur_phase = phase::SIMUL_END;
   }
@@ -102,6 +105,7 @@ void thread::pull_release_step() {
   if (st->t < st->until) {
     advance_by_step();
   } else {
+#pragma omp barrier
 #pragma omp single
     {
       st->afm_enabled = false;
@@ -115,6 +119,7 @@ void thread::equil_step() {
   if (st->t < st->until) {
     advance_by_step();
   } else {
+#pragma omp barrier
 #pragma omp single
     {
       if (params->afm.perform) {
@@ -132,6 +137,7 @@ void thread::equil_step() {
 }
 
 void thread::squeezing_step() {
+#pragma omp barrier
 #pragma omp single
   {
     if (!params->sbox.squeezing.perform) {
@@ -173,12 +179,14 @@ void thread::rest_after_squeezing_step() {
   if (st->t < st->until) {
     advance_by_step();
   } else {
+#pragma omp barrier
 #pragma omp single
     st->cur_phase = phase::FIND_FORCE_MIN;
   }
 }
 
 void thread::find_force_min_step() {
+#pragma omp barrier
 #pragma omp single
   {
     if (!params->sbox.force_min.perform) {
@@ -212,6 +220,7 @@ void thread::rest_after_force_min_step() {
   if (st->t < st->until) {
     advance_by_step();
   } else {
+#pragma omp barrier
 #pragma omp single
     {
       auto const &op = params->sbox.oscillations;
@@ -229,6 +238,7 @@ void thread::rest_after_force_min_step() {
 }
 
 void thread::max_amplitude_step() {
+#pragma omp barrier
 #pragma omp single
   {
     if (!params->sbox.oscillations.perform) {
@@ -264,6 +274,7 @@ void thread::rest_after_max_amp_step() {
   if (st->t < st->until) {
     advance_by_step();
   } else {
+#pragma omp barrier
 #pragma omp single
     {
       st->since = st->t;
@@ -277,6 +288,7 @@ void thread::rest_after_max_amp_step() {
 }
 
 void thread::oscillations_step() {
+#pragma omp barrier
 #pragma omp single
   {
     if (st->t >= st->until) {
@@ -306,6 +318,7 @@ void thread::rest_after_oscillations_step() {
   if (st->t < st->until) {
     advance_by_step();
   } else {
+#pragma omp barrier
 #pragma omp single
     st->cur_phase = phase::FREEFORM;
   }
@@ -316,6 +329,7 @@ void thread::freeform_step() {
 }
 
 void thread::traj_end_step() {
+#pragma omp barrier
 #pragma omp single
   {
     if (params->nat_cont.unfolding_study.measure_times) {
@@ -341,6 +355,7 @@ void thread::traj_end_step() {
 }
 
 void thread::simul_end_step() {
+#pragma omp barrier
 #pragma omp single
   {
     if (st->out_enabled)
