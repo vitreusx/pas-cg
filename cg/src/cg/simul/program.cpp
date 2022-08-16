@@ -9,15 +9,12 @@ struct program_args {
   bool help = false;
   std::optional<std::string> error;
   std::vector<std::filesystem::path> param_paths;
-  std::optional<std::filesystem::path> chkpt_path, output_dir;
 
   enum class state {
     PROG_NAME,
     FIRST_ARG,
     OPTION,
     PARAM_PATH_VALUE,
-    CHKPT_PATH_VALUE,
-    OUTPUT_DIR_VALUE,
     HELP,
     INVALID
   };
@@ -38,10 +35,6 @@ void program_args::print_help() {
   std::cout << "  -h,        --help               Print this help message."
             << '\n';
   std::cout << "  -p [path], --param-file [path]  Load parameter file." << '\n';
-  std::cout << "  -c [path], --chkpt-file [path]  Load state from checkpoint."
-            << '\n';
-  std::cout << "  -o [path], --output     [path]  Set the output directory."
-            << '\n';
 }
 
 program_args::program_args(int argc, char **argv) {
@@ -60,10 +53,6 @@ program_args::program_args(int argc, char **argv) {
         parser_state = state::HELP;
       } else if (arg == "-p" || arg == "--param-file") {
         parser_state = state::PARAM_PATH_VALUE;
-      } else if (arg == "-c" || arg == "--chkpt-file") {
-        parser_state = state::CHKPT_PATH_VALUE;
-      } else if (arg == "-o" || arg == "--output") {
-        parser_state = state::OUTPUT_DIR_VALUE;
       } else {
         std::stringstream err_ss;
         err_ss << "Invalid option \"" << arg << "\"";
@@ -73,22 +62,6 @@ program_args::program_args(int argc, char **argv) {
       break;
     case state::PARAM_PATH_VALUE:
       param_paths.emplace_back(arg);
-      parser_state = state::OPTION;
-      break;
-    case state::CHKPT_PATH_VALUE:
-      if (!chkpt_path.has_value()) {
-        chkpt_path = arg;
-        parser_state = state::OPTION;
-        break;
-      } else {
-        std::stringstream err_ss;
-        err_ss << "Checkpoint path can be provided only once";
-        error = err_ss.str();
-        parser_state = state::INVALID;
-      }
-      break;
-    case state::OUTPUT_DIR_VALUE:
-      output_dir = arg;
       parser_state = state::OPTION;
       break;
     case state::HELP:
@@ -121,9 +94,6 @@ void program::parse_args(int argc, char **argv) {
     args.print_help();
     auto exit_code = args.help ? EXIT_SUCCESS : EXIT_FAILURE;
     exit(exit_code);
-  } else if (args.chkpt_path.has_value()) {
-    throw std::runtime_error("Checkpoint are not (yet) supported.");
-    exit(EXIT_FAILURE);
   } else {
     using namespace ioxx::xyaml;
     auto params_yml = defaults_yml();

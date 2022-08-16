@@ -202,9 +202,9 @@ void state::compile_model() {
         box.min.x() = min(box.min.x(), p.x() - pad);
         box.min.y() = min(box.min.y(), p.y() - pad);
         box.min.z() = min(box.min.z(), p.z() - pad);
-        box.max.x() = max(box.max.x(), p.x() - pad);
-        box.max.y() = max(box.max.y(), p.y() - pad);
-        box.max.z() = max(box.max.z(), p.z() - pad);
+        box.max.x() = max(box.max.x(), p.x() + pad);
+        box.max.y() = max(box.max.y(), p.y() + pad);
+        box.max.z() = max(box.max.z(), p.z() + pad);
       }
     }
   } else if (init_p.type == "infinite") {
