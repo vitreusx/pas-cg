@@ -1,6 +1,12 @@
 option(USE_OMP "Use OpenMP" ON)
 option(SINGLE_FILE "Concatenate all source files" OFF)
 
+function(message)
+    if (NOT MESSAGE_QUIET)
+        _message(${ARGN})
+    endif ()
+endfunction()
+
 add_executable(cg)
 
 add_custom_command(
@@ -78,7 +84,9 @@ add_subdirectory(ext/yaml-cpp-0.7.0 EXCLUDE_FROM_ALL)
 
 find_package(Eigen3 3.4 EXACT QUIET)
 if (NOT "${Eigen3_FOUND}")
+    set(MESSAGE_QUIET ON)
     add_subdirectory(ext/eigen-3.4.0 EXCLUDE_FROM_ALL)
+    unset(MESSAGE_QUIET)
 endif ()
 
 if (${USE_OMP})
