@@ -6,7 +6,7 @@
 namespace cg::nat_cont {
 struct parameters {
   bool enabled;
-  quantity lj_depth, active_thr;
+  quantity lj_depth;
   std::optional<force_spec> ss_force;
 
   struct unfolding_study_t {

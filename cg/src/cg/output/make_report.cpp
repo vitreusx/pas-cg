@@ -249,21 +249,14 @@ void make_report::add_cur_scalars() const {
     row["INTRHC"] = num_intra;
   }
 
-  if (pid) {
-    int num_intra = 0, num_inter = 0;
-    for (auto const &cont : *pid->bundles) {
-      if (!pid->is_active(cont))
-        continue;
-
-      auto chain1 = st->chain_idx[cont.i1()], chain2 = st->chain_idx[cont.i2()];
-      if (chain1 == chain2)
-        ++num_intra;
-      else
-        ++num_inter;
-    }
-
-    row["INTEHC"] = num_inter;
-    row["INTRHC"] = num_intra;
+  if (count_pid) {
+    auto counts = count_pid->operator()();
+    row["PID-INTRHC"] = counts.intra;
+    row["PID-B1-B1"] = counts.intra_bb;
+    row["PID-B1-S1"] = counts.intra_ss;
+    row["PID-INTEHC"] = counts.inter;
+    row["PID-B1-B2"] = counts.inter_bb;
+    row["PID-S1-S2"] = counts.inter_ss;
   }
 }
 
@@ -582,14 +575,14 @@ void make_report::add_map_data() const {
     num_comment = ioxx::sl4::comment("n = ", num_active_contacts);
   }
 
-  if (pid) {
+  if (eval_pid) {
     cur_div.add<ioxx::sl4::comment>("pid");
     auto &num_comment = cur_div.add<ioxx::sl4::comment>("n = ", 0);
     auto &tab = cur_div.add<ioxx::sl4::table>();
 
     int num_active_contacts = 0;
-    for (auto const &bundle : *pid->bundles) {
-      if (pid->is_active(bundle)) {
+    for (auto const &bundle : *eval_pid->bundles) {
+      if (eval_pid->is_active(bundle)) {
         ++num_active_contacts;
 
         auto &pid_row = tab->append_row();

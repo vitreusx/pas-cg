@@ -1,6 +1,5 @@
 #include <cg/qa/parameters.h>
 
-
 namespace cg::qa {
 void parameters::ss_spec_crit_t::load(const ioxx::xyaml::node &node) {
   node["enabled"] >> enabled;
@@ -19,7 +18,6 @@ void parameters::load(ioxx::xyaml::node const &p) {
   p["enabled"] >> enabled;
   p["include (i, i+4)"] >> include4;
   p["phase duration"] >> phase_dur;
-  p["breaking factor"] >> breaking_factor;
   p["min |cos(h, r)|"] >> min_cos_hr;
   p["min |cos(h, h)| for bb"] >> min_cos_hh;
   p["max cos(n, r)"] >> max_cos_nr;

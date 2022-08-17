@@ -9,7 +9,6 @@ void parameters::unfolding_study_t::load(const ioxx::xyaml::node &n) {
 void parameters::load(ioxx::xyaml::node const &p) {
   p["enabled"] >> enabled;
   p["lj depth"] >> lj_depth;
-  p["active threshold"] >> active_thr;
   p["disulfide bond force"] >> ss_force;
   p["(un)folding study"] >> unfolding_study;
 }

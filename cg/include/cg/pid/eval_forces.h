@@ -11,7 +11,7 @@ public:
   lambda bb_plus_lam, bb_minus_lam, ss_lam;
   sink_lj bb_plus_lj, bb_minus_lj;
   vect::vector<sink_lj> ss_ljs;
-  real cutoff;
+  real cutoff, active_thr;
 
 public:
   vect::const_view<vec3r> r;
@@ -20,6 +20,7 @@ public:
   vect::vector<bundle> const *bundles;
   real *V, *total_disp;
   vect::const_view<int> prev, next;
+  vect::const_view<amino_acid> atype;
 
 public:
   template <typename E> void iter(bundle_expr<E> const &bundle) const;

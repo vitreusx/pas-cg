@@ -15,6 +15,9 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
     return;
 
   auto i1 = bundle.i1(), i2 = bundle.i2();
+  if ((aa_code)atype[i1] == aa_code::PRO || (aa_code)atype[i2] == aa_code::PRO)
+    return;
+
   vec3r r1 = r[i1], r2 = r[i2];
   auto r12 = simul_box->wrap(r1, r2);
   auto r12_rn = norm_inv(r12);
@@ -184,10 +187,13 @@ void eval_forces::omp_async() const {
   }
 }
 
-bool eval_forces::is_active(const bundle &b) const {
-  auto i1 = b.i1(), i2 = b.i2();
+bool eval_forces::is_active(const bundle &bundle) const {
+  auto i1 = bundle.i1(), i2 = bundle.i2();
   vec3r r1 = r[i1], r2 = r[i2];
-  auto r12 = simul_box->wrap(r1, r2);
-  return norm(r12) <= cutoff;
+
+  auto r12 = norm(simul_box->wrap(r1, r2));
+  auto r_min = ss_ljs[bundle.type()].r_high();
+  auto sigma = r_min * C216_INV;
+  return r12 <= active_thr * sigma;
 }
 } // namespace cg::pid

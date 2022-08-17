@@ -2,6 +2,7 @@ general:
   total time: 2.5e3 tau
   repulsive cutoff: 4 A
   num of trajectories: 5
+  counting factor: 1.5
 
 input:
   pdb file:

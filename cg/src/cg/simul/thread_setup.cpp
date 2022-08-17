@@ -68,7 +68,8 @@ void thread::setup_output() {
     make_report.prefix = params->out.prefix;
     make_report.rep = &st->rep;
     make_report.st = st;
-    make_report.pid = nullptr;
+    make_report.eval_pid = nullptr;
+    make_report.count_pid = std::nullopt;
     make_report.qa = nullptr;
     make_report.nc = nullptr;
     make_report.vel_afm = nullptr;
@@ -317,7 +318,7 @@ void thread::setup_nat_cont() {
     eval.simul_box = &st->pbc;
     eval.contacts = &st->cur_native_contacts;
     eval.r = st->r;
-    eval.breaking_threshold = params->nat_cont.active_thr;
+    eval.breaking_threshold = params->gen.counting_factor;
     eval.t = &st->t;
     eval.all_contacts = st->all_native_contacts;
     eval.V = &dyn.V;
@@ -441,7 +442,7 @@ void thread::setup_qa() {
     auto &proc_cont = process_qa_contacts;
     proc_cont.saturation_speed = (real)1.0 / params->qa.phase_dur;
     proc_cont.dt = params->lang.dt;
-    proc_cont.set_factor(params->qa.breaking_factor);
+    proc_cont.set_factor(params->gen.counting_factor);
     proc_cont.t = &st->t;
     proc_cont.sync = st->sync_values;
     proc_cont.contacts = &st->qa_contacts;
@@ -589,6 +590,8 @@ void thread::setup_pid() {
     eval.V = &dyn.V;
     eval.F = dyn.F;
     eval.total_disp = &st->total_disp;
+    eval.active_thr = params->gen.counting_factor;
+    eval.atype = st->atype;
 
     eval.bb_plus_lam.version() = params->pid.lambda_variant;
     eval.bb_plus_lam.alpha() = params->pid.bb_plus_lambda.alpha;
@@ -681,8 +684,12 @@ void thread::setup_pid() {
 
     eval.cutoff = update.cutoff = params->nl.cutoff;
 
-    if (params->out.enabled)
-      make_report.pid = &eval;
+    if (params->out.enabled) {
+      make_report.eval_pid = &eval;
+      auto &count = make_report.count_pid.emplace();
+      count.eval = &eval;
+      count.chain_idx = st->chain_idx;
+    }
   }
 }
 

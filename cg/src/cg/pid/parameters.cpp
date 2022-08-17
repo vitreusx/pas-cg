@@ -1,6 +1,5 @@
 #include <cg/pid/parameters.h>
 
-
 namespace cg::pid {
 void parameters::lambda_params::load(const ioxx::xyaml::node &node) {
   node["alpha"] >> alpha;

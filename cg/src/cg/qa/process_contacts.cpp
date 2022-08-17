@@ -1,4 +1,6 @@
 #include <cg/qa/process_contacts.h>
+#include <cg/utils/math.h>
+
 namespace cg::qa {
 
 void process_contacts::operator()() const {
@@ -77,6 +79,6 @@ void process_contacts::omp_async() const {
 }
 
 void process_contacts::set_factor(double breaking_factor) {
-  factor = breaking_factor * pow(2.0, -1.0 / 6.0);
+  factor = breaking_factor * C216_INV;
 }
 } // namespace cg::qa

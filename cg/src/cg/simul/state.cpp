@@ -494,7 +494,8 @@ void state::setup_nat_cont() {
         std::swap(i1, i2);
 
       auto nat_dist = (real)cont.length;
-      bool active = norm(r[i2] - r[i1]) < params.nat_cont.active_thr * nat_dist;
+      bool active = norm(r[i2] - r[i1]) <
+                    params.gen.counting_factor * C216_INV * nat_dist;
       real change_t = -1.0;
       all_native_contacts.emplace_back(i1, i2, nat_dist, cont.type, active,
                                        change_t, idx);

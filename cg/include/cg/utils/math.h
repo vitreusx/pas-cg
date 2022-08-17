@@ -3,6 +3,7 @@
 #include <cmath>
 
 #define C216 1.122462048309373
+#define C216_INV 0.89089871814033927
 
 namespace cg {
 template <typename T> auto isnan(T const &x) {

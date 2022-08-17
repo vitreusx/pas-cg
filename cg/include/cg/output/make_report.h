@@ -4,7 +4,7 @@
 #include <cg/afm/vel/eval_forces.h>
 #include <cg/input/pdb_file.h>
 #include <cg/nat_cont/eval_forces.h>
-#include <cg/pid/eval_forces.h>
+#include <cg/pid/count_active.h>
 #include <cg/qa/process_contacts.h>
 #include <cg/simul/state.h>
 #include <cg/types/amp.h>
@@ -22,7 +22,8 @@ public:
 
   nat_cont::eval_forces const *nc;
   qa::process_contacts const *qa;
-  pid::eval_forces const *pid;
+  pid::eval_forces const *eval_pid;
+  std::optional<pid::count_active> count_pid;
   afm::force::eval_forces const *force_afm;
   afm::vel::eval_forces const *vel_afm;
 

@@ -34,12 +34,12 @@ template <typename E> void eval_forces::iter(nat_cont_expr<E> &nat_cont) const {
   F[i1] += r12_u * dV_dr;
   F[i2] -= r12_u * dV_dr;
 
-  bool active_now = r12_n <= nat_dist * breaking_threshold;
+  bool active_now = r12_n <= nat_dist * C216_INV * breaking_threshold;
   if (active_now ^ nat_cont.active()) {
     auto ref_idx = nat_cont.all_cont_idx();
     auto &ref_contact = all_contacts[ref_idx];
     nat_cont.active() = ref_contact.active() = active_now;
-    
+
     if (nat_cont.change_t() < 0) {
       nat_cont.change_t() = ref_contact.change_t() = *t;
 #pragma omp critical

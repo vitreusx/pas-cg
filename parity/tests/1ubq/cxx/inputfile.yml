@@ -3,6 +3,7 @@ general:
   repulsive cutoff: 4.0 A
   debug mode:
     dump data for every step: true
+  counting factor: 1.5
 
 input:
   pdb file:

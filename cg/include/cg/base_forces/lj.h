@@ -7,9 +7,6 @@
 #include <cg/utils/quantity.h>
 #include <cg/vect/vect.h>
 
-#define C216 1.122462048309373
-#define C216_INV 0.8908987181403393
-
 namespace cg {
 template <typename E> struct lj_expr {
   EXPR(depth, r_min)
