@@ -11,6 +11,7 @@ class count_active {
 public:
   eval_forces const *eval;
   vect::const_view<int> chain_idx;
+  real count_factor;
 
 public:
   active_counts operator()() const;

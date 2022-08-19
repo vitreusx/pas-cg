@@ -689,6 +689,7 @@ void thread::setup_pid() {
       auto &count = make_report.count_pid.emplace();
       count.eval = &eval;
       count.chain_idx = st->chain_idx;
+      count.count_factor = params->gen.counting_factor;
     }
   }
 }

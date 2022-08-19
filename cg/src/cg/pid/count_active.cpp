@@ -6,11 +6,15 @@ active_counts count_active::operator()() const {
 
   for (auto const &bundle : *eval->bundles) {
     auto i1 = bundle.i1(), i2 = bundle.i2();
+    if ((aa_code)eval->atype[i1] == aa_code::PRO ||
+        (aa_code)eval->atype[i2] == aa_code::PRO)
+      continue;
+
     auto chain1 = chain_idx[i1], chain2 = chain_idx[i2];
     vec3r r1 = eval->r[i1], r2 = eval->r[i2];
     auto r12 = eval->simul_box->wrap(r1, r2);
-    auto r12_rn = norm_inv(r12);
-    if ((real)1.0 > r12_rn * eval->cutoff)
+    auto r12_n = norm(r12);
+    if (r12_n > eval->cutoff)
       continue;
 
     real psi1, psi2;
@@ -25,6 +29,7 @@ active_counts count_active::operator()() const {
     auto n = eval->r.size();
 
     lambda const *bb_lam_1, *bb_lam_2;
+    sink_lj const *bb_lj;
 
     {
       auto i1_ = i1, i2_ = i1n, i3_ = i1p, i4_ = i2;
@@ -60,11 +65,14 @@ active_counts count_active::operator()() const {
       int m = 1;
       if (i2 - i1 != 3 || m != 2) {
         bb_lam_1 = &eval->bb_plus_lam;
+        bb_lj = &eval->bb_plus_lj;
       } else {
         bb_lam_1 = &eval->bb_minus_lam;
+        bb_lj = &eval->bb_minus_lj;
       }
       if (!bb_lam_1->supp(psi1) && (i2 - i1 != 3 || m != 1)) {
         bb_lam_1 = &eval->bb_minus_lam;
+        bb_lj = &eval->bb_minus_lj;
       }
     }
 
@@ -102,11 +110,14 @@ active_counts count_active::operator()() const {
       int m = 2;
       if (i2 - i1 != 3 || m != 2) {
         bb_lam_2 = &eval->bb_plus_lam;
+        bb_lj = &eval->bb_plus_lj;
       } else {
         bb_lam_2 = &eval->bb_minus_lam;
+        bb_lj = &eval->bb_minus_lj;
       }
       if (!bb_lam_2->supp(psi2) && (i2 - i1 != 3 || m != 1)) {
         bb_lam_2 = &eval->bb_minus_lam;
+        bb_lj = &eval->bb_minus_lj;
       }
     }
 
@@ -114,12 +125,12 @@ active_counts count_active::operator()() const {
       auto [lam1, deriv1] = (*bb_lam_1)(psi1);
       auto [lam2, deriv2] = (*bb_lam_2)(psi2);
 
-      if (lam1 * lam2 > (real)5e-5) {
+      if (lam1 * lam2 > (real)5e-5 &&
+          r12_n < bb_lj->r_high() * C216_INV * count_factor) {
         if (chain1 == chain2) {
           ++counts.intra;
           ++counts.intra_bb;
-        }
-        else {
+        } else {
           ++counts.inter;
           ++counts.inter_bb;
         }
@@ -131,12 +142,12 @@ active_counts count_active::operator()() const {
       auto [lam1, deriv1] = eval->ss_lam(psi1);
       auto [lam2, deriv2] = eval->ss_lam(psi2);
 
-      if (lam1 * lam2 > (real)5e-5 && ss_sink_lj.depth() > (real)5e-5) {
+      if (lam1 * lam2 > (real)5e-5 && ss_sink_lj.depth() > (real)5e-5 &&
+          r12_n < ss_sink_lj.r_high() * C216_INV * count_factor) {
         if (chain1 == chain2) {
           ++counts.intra;
           ++counts.intra_ss;
-        }
-        else {
+        } else {
           ++counts.inter;
           ++counts.inter_ss;
         }
