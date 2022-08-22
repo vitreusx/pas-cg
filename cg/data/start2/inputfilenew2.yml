@@ -37,7 +37,7 @@ langevin:
   temperature: 0.38 eps/kB
   
 Debye-Hueckel:
-  enabled: true
+  enabled: false
   variant: constant
   screening distance: 15.0 A
   cutoff distance: 20.0 A
