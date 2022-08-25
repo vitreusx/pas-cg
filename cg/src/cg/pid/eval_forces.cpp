@@ -47,13 +47,17 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
     auto rij = r[i1_] - (i2_ < n ? r[i2_] : vec3r());
     auto rkj = i3_ >= 0 ? r[i3_] - (i2_ < n ? r[i2_] : vec3r()) : vec3r();
     auto rkl = (i3_ >= 0 ? r[i3_] : vec3r()) - r[i4_];
+
     auto rm = cross(rij, rkj);
     auto rn = cross(rkj, rkl);
-    auto rm_ninv = norm_inv(rm), rn_ninv = norm_inv(rn),
-         rkj_ninv = norm_inv(rkj);
-    if (rm_ninv > (real)10.0 || rn_ninv > (real)10.0)
+
+    auto rm_n = norm(rm), rn_n = norm(rn);
+    if (rm_n < (real)0.1 || rn_n < (real)0.1)
       return;
-    auto rkj_n = norm(rkj);
+
+    auto rm_ninv = (real)1.0 / rm_n, rn_ninv = (real)1.0 / rn_n,
+         rkj_ninv = norm_inv(rkj), rkj_n = (real)1.0 / rkj_ninv;
+
     auto fi = rm * rkj_n * rm_ninv * rm_ninv;
     auto fl = -rn * rkj_n * rn_ninv * rn_ninv;
     auto df = (fi * dot(rij, rkj) - fl * dot(rkl, rkj)) * rkj_ninv * rkj_ninv;
@@ -91,13 +95,17 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
     auto rij = r[i1_] - (i2_ < n ? r[i2_] : vec3r());
     auto rkj = i3_ >= 0 ? r[i3_] - (i2_ < n ? r[i2_] : vec3r()) : vec3r();
     auto rkl = (i3_ >= 0 ? r[i3_] : vec3r()) - r[i4_];
+
     auto rm = cross(rij, rkj);
     auto rn = cross(rkj, rkl);
-    auto rm_ninv = norm_inv(rm), rn_ninv = norm_inv(rn),
-         rkj_ninv = norm_inv(rkj);
-    if (rm_ninv > (real)10.0 || rn_ninv > (real)10.0)
+
+    auto rm_n = norm(rm), rn_n = norm(rn);
+    if (rm_n < (real)0.1 || rn_n < (real)0.1)
       return;
-    auto rkj_n = norm(rkj);
+
+    auto rm_ninv = (real)1.0 / rm_n, rn_ninv = (real)1.0 / rn_n,
+         rkj_ninv = norm_inv(rkj), rkj_n = (real)1.0 / rkj_ninv;
+    
     auto fi = rm * rkj_n * rm_ninv * rm_ninv;
     auto fl = -rn * rkj_n * rn_ninv * rn_ninv;
     auto df = (fi * dot(rij, rkj) - fl * dot(rkl, rkj)) * rkj_ninv * rkj_ninv;
