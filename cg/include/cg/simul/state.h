@@ -103,7 +103,6 @@ public:
   nl::data nl;
   bool nl_required, nl_invalid, verify_first_time;
   real total_disp;
-  vect::vector<int> res_cell_idx, reordered_idx, num_res_in_cell, cell_offset;
   vect::vector<nl::pair> all_pairs;
   void setup_nl();
 

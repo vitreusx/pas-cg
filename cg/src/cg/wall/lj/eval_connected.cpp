@@ -33,10 +33,10 @@ void eval_connected::iter(int conn_idx) const {
   wall_F[conn.wall_idx()] += F_;
 
   if (r12_n < breaking_dist) {
-    conn.saturation() = min(conn.saturation() + saturation_diff, 1.0);
+    conn.saturation() = min(conn.saturation() + saturation_diff, (real)1.0);
   } else {
-    conn.saturation() = max(conn.saturation() - saturation_diff, 0.0);
-    if (conn.saturation() == 0.0) {
+    conn.saturation() = max(conn.saturation() - saturation_diff, (real)0.0);
+    if (conn.saturation() == (real)0.0) {
 #pragma omp critical
       removed->push_back(conn_idx);
     }

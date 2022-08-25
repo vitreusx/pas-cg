@@ -1,9 +1,10 @@
 #pragma once
+#include <cg/config.h>
 #include <cg/types/vec3.h>
 #include <cstddef>
 
 namespace cg {
-#ifndef COMPAT_MODE
+#if USE_MIXED_PRECISION
 using real = float;
 #else
 using real = double;

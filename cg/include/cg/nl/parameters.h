@@ -4,12 +4,6 @@
 
 namespace cg::nl {
 struct parameters {
-  enum algorithm_t {
-    LEGACY,
-    CELL
-  };
-  algorithm_t algorithm;
-
   quantity pad, cutoff;
 
   void load(ioxx::xyaml::node const &node);

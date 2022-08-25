@@ -11,12 +11,10 @@
 #include <cg/dh/const.h>
 #include <cg/dh/rel.h>
 #include <cg/dh/update_pairs.h>
-#include <cg/langevin/legacy_step.h>
 #include <cg/langevin/step.h>
 #include <cg/local_rep/eval_forces.h>
 #include <cg/nat_cont/eval_forces.h>
 #include <cg/nat_cont/update_contacts.h>
-#include <cg/nl/cell_update.h>
 #include <cg/nl/legacy_update.h>
 #include <cg/nl/verify.h>
 #include <cg/output/make_report.h>

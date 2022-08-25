@@ -82,7 +82,6 @@ public:
   void setup_output();
 
   lang::step lang_step;
-  lang::legacy_step lang_legacy_step;
   void setup_langevin();
 
   pbar::render render_pbar;
@@ -90,7 +89,6 @@ public:
 
   real *cutoff;
   nl::legacy_update nl_legacy;
-  nl::cell_update nl_cell;
   nl::verify nl_verify;
   void setup_nl();
 

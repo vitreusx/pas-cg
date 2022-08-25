@@ -150,22 +150,22 @@ void thread::squeezing_step() {
       auto target_vol = st->num_res / (real)sp.target_density;
 
       if (cur_vol <= target_vol) {
-        st->until =
-            min(st->t + params->sbox.rest_period, (real)params->gen.total_time);
+        st->until = min(st->t + (real)params->sbox.rest_period,
+                        (real)params->gen.total_time);
         st->cur_phase = phase::REST_AFTER_SQUEEZING;
       } else {
         real vel;
         if (cur_vol > (real)2.0 * target_vol) {
           real accel_time = params->sbox.accel_dist / sp.vel_above_2V;
-          auto time_frac = min((st->t - st->since) / accel_time, (real)1.0);
+          real time_frac = min((st->t - st->since) / accel_time, (real)1.0);
           vel = time_frac * sp.vel_above_2V;
         } else {
           real accel_time = params->sbox.accel_dist / params->sbox.target_vel;
-          auto time_frac = min((st->t - st->since) / accel_time, (real)1.0);
+          real time_frac = min((st->t - st->since) / accel_time, (real)1.0);
           vel = time_frac * params->sbox.target_vel;
         }
 
-        auto shift = (real)0.5 * vel * params->lang.dt;
+        real shift = (real)0.5 * vel * params->lang.dt;
         st->adjust_wall_pos(vec3r(-shift, -shift, -shift), vec3r::Zero());
       }
     }
@@ -199,14 +199,14 @@ void thread::find_force_min_step() {
       } else {
         auto const &fmp = params->sbox.force_min;
         real accel_time = params->sbox.accel_dist / params->sbox.target_vel;
-        auto time_vel_frac = min((st->t - st->since) / accel_time, (real)1.0);
-        auto force_vel_frac =
+        real time_vel_frac = min((st->t - st->since) / accel_time, (real)1.0);
+        real force_vel_frac =
             st->avg_z_force->value_or(0) / fmp.force_for_max_vel;
         force_vel_frac =
             copysign(min(abs(force_vel_frac), (real)1.0), force_vel_frac);
-        auto vel = params->sbox.target_vel * time_vel_frac * force_vel_frac;
+        real vel = params->sbox.target_vel * time_vel_frac * force_vel_frac;
 
-        auto shift = (real)0.5 * vel * params->lang.dt;
+        real shift = (real)0.5 * vel * params->lang.dt;
         st->adjust_wall_pos(vec3r(0, 0, shift), vec3r::Zero());
       }
     }
@@ -245,9 +245,9 @@ void thread::max_amplitude_step() {
       st->cur_phase = phase::FREEFORM;
     } else {
       real accel_time = params->sbox.accel_dist / params->sbox.target_vel;
-      auto time_frac = min((st->t - st->since) / accel_time, (real)1.0);
-      auto vel = time_frac * params->sbox.target_vel;
-      auto shift = vel * params->lang.dt;
+      real time_frac = min((st->t - st->since) / accel_time, (real)1.0);
+      real vel = time_frac * params->sbox.target_vel;
+      real shift = vel * params->lang.dt;
 
       if (st->displacement > (real)0.5 * st->amplitude) {
         st->until = st->t + params->sbox.rest_period;
@@ -295,9 +295,9 @@ void thread::oscillations_step() {
       st->until = st->t + params->sbox.rest_period;
       st->cur_phase = phase::REST_AFTER_OSCILLATIONS;
     } else {
-      auto vel = (real)0.5 * st->amplitude * st->omega *
+      real vel = (real)0.5 * st->amplitude * st->omega *
                  sin(st->omega * (st->t - st->since));
-      auto shift = vel * params->lang.dt;
+      real shift = vel * params->lang.dt;
 
       if (st->shear) {
         if (st->walls[NEG_Z])
@@ -396,16 +396,7 @@ void thread::pre_eval_async() {
 
 void thread::fix_nl_async() {
 #pragma omp barrier
-
-  switch (params->nl.algorithm) {
-  case nl::parameters::CELL:
-#pragma omp master
-    nl_cell();
-    break;
-  case nl::parameters::LEGACY:
-    nl_legacy.omp_async();
-    break;
-  }
+  nl_legacy.omp_async();
 
 #pragma omp barrier
 
@@ -522,14 +513,7 @@ void thread::post_eval_async() {
 #pragma omp barrier
 
   if (st->lang_enabled) {
-    switch (params->lang.type) {
-    case lang::lang_type::NORMAL:
-      lang_step.omp_async();
-      break;
-    case lang::lang_type::LEGACY:
-      lang_legacy_step.omp_async();
-      break;
-    }
+    lang_step.omp_async();
   }
 
   ++loop_idx;

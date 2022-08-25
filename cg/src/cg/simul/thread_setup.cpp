@@ -95,24 +95,22 @@ void thread::setup_output() {
 
 void thread::setup_langevin() {
   if (st->lang_enabled) {
-    auto &step = params->lang.type == lang::lang_type::NORMAL
-                     ? (lang::step_base &)lang_step
-                     : (lang::step_base &)lang_legacy_step;
+    auto &step = lang_step;
 
-    step.temperature = st->temperature;
-    step.step_idx = &st->step_idx;
-    step.t = &st->t;
-    step.dt = params->lang.dt;
-    step.gamma_factor = params->lang.gamma;
+    step.set_params(params->lang.gamma, st->temperature, params->lang.dt);
     step.gen = &gen;
-    step.mass = st->comp_aa_data.mass;
     step.num_particles = st->num_res;
     step.atype = st->atype;
-    step.r = st->r;
+
+    step.mass = st->comp_aa_data.mass;
     step.mass_inv = st->mass_inv;
     step.mass_rsqrt = st->mass_rsqrt;
 
+    step.step_idx = &st->step_idx;
+    step.t = &st->t;
+    step.r = st->r;
     step.v = st->v;
+    step.F = st->dyn.F;
 
     step.y0 = st->y0;
     step.y1 = st->y1;
@@ -120,13 +118,9 @@ void thread::setup_langevin() {
     step.y3 = st->y3;
     step.y4 = st->y4;
     step.y5 = st->y5;
-
     step.true_t = &st->true_t;
 
-    step.F = st->dyn.F;
-
-    if (params->lang.type == lang::lang_type::LEGACY)
-      lang_legacy_step.noise = st->noise;
+    step.noise = st->noise;
   }
 }
 
@@ -147,36 +141,17 @@ void thread::setup_pbar() {
 }
 
 void thread::setup_nl() {
-  if (params->nl.algorithm == nl::parameters::LEGACY) {
-    auto &legacy = nl_legacy;
-    legacy.pad = params->nl.pad;
-    legacy.r = st->r;
-    legacy.simul_box = &st->pbc;
-    legacy.chain_idx = st->chain_idx;
-    legacy.seq_idx = st->seq_idx;
-    legacy.num_particles = st->num_res;
-    legacy.nl_data = &st->nl;
-    legacy.invalid = &st->nl_invalid;
-    legacy.cutoff = params->nl.cutoff;
-    cutoff = &legacy.cutoff;
-  } else {
-    auto &cell = nl_cell;
-    cell.pad = params->nl.pad;
-    cell.r = st->r;
-    cell.simul_box = &st->pbc;
-    cell.chain_idx = st->chain_idx;
-    cell.seq_idx = st->seq_idx;
-    cell.num_particles = st->num_res;
-    cell.nl_data = &st->nl;
-    cell.invalid = &st->nl_invalid;
-    cell.res_cell_idx = st->res_cell_idx;
-    cell.reordered_idx = st->reordered_idx;
-    cell.num_res_in_cell = &st->num_res_in_cell;
-    cell.cell_offset = &st->cell_offset;
-    cell.all_pairs = &st->all_pairs;
-    cell.cutoff = params->nl.cutoff;
-    cutoff = &cell.cutoff;
-  }
+  auto &legacy = nl_legacy;
+  legacy.pad = params->nl.pad;
+  legacy.r = st->r;
+  legacy.simul_box = &st->pbc;
+  legacy.chain_idx = st->chain_idx;
+  legacy.seq_idx = st->seq_idx;
+  legacy.num_particles = st->num_res;
+  legacy.nl_data = &st->nl;
+  legacy.invalid = &st->nl_invalid;
+  legacy.cutoff = params->nl.cutoff;
+  cutoff = &legacy.cutoff;
 
   auto &verify = nl_verify;
   verify.r = st->r;
@@ -311,7 +286,6 @@ void thread::setup_pauli() {
 void thread::setup_nat_cont() {
   if (params->nat_cont.enabled) {
     nl_legacy.all_nat_cont = st->nat_cont_excl;
-    nl_cell.all_nat_cont = st->nat_cont_excl;
 
     auto &eval = eval_nat_cont_forces;
     eval.depth = params->nat_cont.lj_depth;

@@ -177,12 +177,12 @@ void state::compile_model() {
   } else if (init_p.type == "sufficient") {
     box = sbox::box<real>();
     auto suf_p = init_p.sufficient;
-    auto pad = suf_p.pad * bond;
+    real pad = suf_p.pad * bond;
     real side = 0;
 
     if (suf_p.max_density.has_value()) {
-      auto vol = num_res / suf_p.max_density.value();
-      side = cbrt(vol) / 2.0;
+      real vol = num_res / suf_p.max_density.value();
+      side = cbrt(vol) / (real)2.0;
       box.max = {side, side, side};
       box.min = -box.max;
     };
@@ -344,14 +344,6 @@ void state::setup_nl() {
   total_disp = 0.0;
   nl = nl::data();
   nl.orig_r = vect::vector<vec3r>(num_res);
-
-  switch (params.nl.algorithm) {
-  case nl::parameters::LEGACY:
-    break;
-  case nl::parameters::CELL:
-    res_cell_idx = reordered_idx = vect::vector<int>(num_res);
-    break;
-  }
 }
 
 void state::setup_local_rep() {

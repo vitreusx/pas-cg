@@ -36,6 +36,12 @@ def make_parser():
         help="compile the program as a single object file, instead of "
              "separately compiling each source file and linking them",
     )
+    parser.add_argument(
+        "--use-mixed-precision",
+        action="store_true",
+        help="use floats for computing the forces and doubles for integration,"
+             "instead of using doubles throughout"
+    )
     parser.add_argument("dir", default="build", help="output directory")
 
     return parser
@@ -76,6 +82,9 @@ def main():
 
     if args.single_file:
         cmd += [f"-DSINGLE_FILE=ON"]
+
+    if args.use_mixed_precision:
+        cmd += [f"-DUSE_MIXED_PRECISION=1"]
 
     execute(cmd)
 

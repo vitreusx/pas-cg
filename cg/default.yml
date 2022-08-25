@@ -350,28 +350,16 @@ langevin:
 
   # Gamma factor in the equation mr'' = -dV/dr - gamma r' + noise, where the
   # noise has variance sigma^2 = 2 gamma k_B T
-  gamma factor: 2.0 1/tau
+  gamma factor: 2.0f 1/tau
 
   # Temperature; see the variance of the noise term above.
-  temperature: 0.35 eps/kB
+  temperature: 0.35f eps/kB
 
   # Integrator time step.
-  dt: 5e-3 tau
-
-  # Implementation type. Options:
-  # - "legacy", for consistency with the Fortran version;
-  # - "normal", for a (supposedly) more optimized version.
-  type: legacy
+  dt: 5e-3f tau
 
 # Parameters for the neighbor (Verlet) list.
 neighbor list:
-  # Algorithm to use. Options:
-  # - "legacy": An O(n^2) algorithm which checks each pair.
-  # - "cell": An algorithm which first subdivides the space into cells and
-  #   only checks the residue pairs in the same/neighboring cells. Not tested
-  #   in some time, do not use for now.
-  algorithm: legacy
-
   # Extra padding used to not have to recompute the list on each step.
   pad: 10.0 A
 
