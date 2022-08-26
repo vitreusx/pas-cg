@@ -6,14 +6,11 @@
 namespace cg::simul {
 class program {
 public:
-  void main(int argc, char **argv);
+  static void main(int argc, char **argv);
 
 private:
-  parameters params;
-
-  void parse_args(int argc, char **argv);
-  void perform_simulation();
-  void check_determinism();
-  void setup_omp();
+  static void perform_simulation(parameters &params);
+  static void check_determinism(parameters &params);
+  static void run_from_checkpoint(std::filesystem::path const &ckpt_path);
 };
 } // namespace cg::simul

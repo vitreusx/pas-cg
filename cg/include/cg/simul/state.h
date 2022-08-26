@@ -46,6 +46,7 @@ enum axis {
 
 class state {
 public:
+  state() = default;
   explicit state(parameters &params);
   void verify_equal(state const &other) const;
 
