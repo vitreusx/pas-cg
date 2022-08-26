@@ -1,5 +1,6 @@
 #pragma once
 #include <cg/amino/amino_acid.h>
+#include <cg/simul/runtime.h>
 #include <cg/types/amp.h>
 #include <cg/utils/random.h>
 

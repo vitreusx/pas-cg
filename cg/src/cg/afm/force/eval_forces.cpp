@@ -18,4 +18,17 @@ void eval_forces::omp_async() const {
     iter(afm_tips[idx]);
   }
 }
+
+void eval_forces::for_slice(int from, int to) const {
+  for (int idx = from; idx < to; ++idx)
+    iter(afm_tips[idx]);
+}
+
+int eval_forces::total_size() const {
+  return afm_tips.size();
+}
+
+int eval_forces::slice_size() const {
+  return 1024;
+}
 } // namespace cg::afm::force

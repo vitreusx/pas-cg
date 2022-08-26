@@ -4,9 +4,10 @@
 #include <cg/base_forces/lj.h>
 #include <cg/base_forces/sink_lj.h>
 #include <cg/sbox/pbc.h>
+#include <cg/simul/runtime.h>
 
 namespace cg::pid {
-class eval_forces {
+class eval_forces : public simul::sliceable_task {
 public:
   lambda bb_plus_lam, bb_minus_lam, ss_lam;
   sink_lj bb_plus_lj, bb_minus_lj;
@@ -28,5 +29,9 @@ public:
   void omp_async() const;
 
   bool is_active(bundle const &bundle) const;
+
+  void for_slice(int from, int to) const override;
+  int total_size() const override;
+  int slice_size() const override;
 };
 } // namespace cg::pid

@@ -41,4 +41,17 @@ void eval_forces::omp_async() const {
     iter(es_pairs[idx]);
   }
 }
+
+void eval_forces::for_slice(int from, int to) const {
+  for (int idx = from; idx < to; ++idx)
+    iter(es_pairs[idx]);
+}
+
+int eval_forces::total_size() const {
+  return es_pairs.size();
+}
+
+int eval_forces::slice_size() const {
+  return 1024;
+}
 } // namespace cg::rel_dh

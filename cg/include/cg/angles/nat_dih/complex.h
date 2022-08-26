@@ -1,8 +1,9 @@
 #pragma once
 #include "nat_dih.h"
+#include <cg/simul/runtime.h>
 
 namespace cg::cnd {
-class eval_forces {
+class eval_forces : public simul::sliceable_task {
 public:
   real CDA, CDB;
   vect::const_view<vec3r> r;
@@ -14,5 +15,9 @@ public:
   template <typename E> void iter(nat_dih_expr<E> const &nat_dih) const;
   void operator()() const;
   void omp_async() const;
+
+  void for_slice(int from, int to) const override;
+  int total_size() const override;
+  int slice_size() const override;
 };
 } // namespace cg::cnd

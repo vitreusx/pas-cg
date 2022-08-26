@@ -377,7 +377,8 @@ void thread::pre_eval_async() {
   if (params->qa.enabled) {
     prepare_nh.omp_async();
     if (st->ss_spec_crit)
-      count_cys_neigh.omp_reset();
+#pragma omp single nowait
+      reset_cys_neigh();
   }
 
   if (st->nl_required)
@@ -421,10 +422,13 @@ void thread::fix_nl_async() {
     if (st->pid_enabled)
       update_pid_bundles();
   }
+
+  //  eval_slices.reset_all();
 }
 
 void thread::eval_forces() {
   dyn.reset();
+  //  eval_slices.reset_dynamic();
 
   if (st->chir_enabled)
     eval_chir_forces.omp_async();
@@ -477,6 +481,8 @@ void thread::eval_forces() {
     eval_vel_afm_forces.omp_async();
     eval_force_afm_forces.omp_async();
   }
+
+  //  eval_slices.run_async(tid, team->num_threads);
 
   dyn.omp_reduce_v2(st->dyn, *this);
 //  dyn.omp_reduce_v3(st->dyn, team);

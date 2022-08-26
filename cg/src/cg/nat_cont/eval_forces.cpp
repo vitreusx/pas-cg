@@ -54,4 +54,17 @@ void eval_forces::omp_async() const {
     iter(contacts->at(idx));
   }
 }
+
+void eval_forces::for_slice(int from, int to) const {
+  for (int idx = from; idx < to; ++idx)
+    iter(contacts->at(idx));
+}
+
+int eval_forces::total_size() const {
+  return contacts->size();
+}
+
+int eval_forces::slice_size() const {
+  return 1024;
+}
 } // namespace cg::nat_cont

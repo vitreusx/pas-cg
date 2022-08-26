@@ -24,4 +24,17 @@ void prepare_nh::omp_async() const {
     iter(idx);
   }
 }
+
+void prepare_nh::for_slice(int from, int to) const {
+  for (int idx = from; idx < to; ++idx)
+    iter(idx);
+}
+
+int prepare_nh::total_size() const {
+  return num_particles;
+}
+
+int prepare_nh::slice_size() const {
+  return 1024;
+}
 } // namespace cg::qa

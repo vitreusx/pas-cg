@@ -25,4 +25,17 @@ void eval_forces::omp_async() const {
   for (int idx = 0; idx < r.size(); ++idx)
     iter(idx);
 }
+
+void eval_forces::for_slice(int from, int to) const {
+  for (int idx = from; idx < to; ++idx)
+    iter(idx);
+}
+
+int eval_forces::total_size() const {
+  return r.size();
+}
+
+int eval_forces::slice_size() const {
+  return 1024;
+}
 } // namespace cg::wall::solid

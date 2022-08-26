@@ -1,9 +1,10 @@
 #pragma once
 #include "tip.h"
 #include <cg/base_forces/harmonic.h>
+#include <cg/simul/runtime.h>
 
 namespace cg::afm::vel {
-class eval_forces {
+class eval_forces: public simul::sliceable_task {
 public:
   harmonic afm_force;
 
@@ -18,5 +19,9 @@ public:
   void operator()() const;
   void omp_async() const;
   real compute_force(vel::tip const &tip) const;
+
+  void for_slice(int from, int to) const override;
+  int total_size() const override;
+  int slice_size() const override;
 };
 } // namespace cg::afm::vel

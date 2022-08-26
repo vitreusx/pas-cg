@@ -35,4 +35,17 @@ void sift_free::iter(int res_idx) const {
     }
   }
 }
+
+void sift_free::for_slice(int from, int to) const {
+  for (int idx = from; idx < to; ++idx)
+    iter(idx);
+}
+
+int sift_free::total_size() const {
+  return r.size();
+}
+
+int sift_free::slice_size() const {
+  return 1024;
+}
 } // namespace cg::wall::lj

@@ -69,6 +69,8 @@ public:
   state *st;
   parameters const *params;
 
+  set_of_task_slices eval_slices;
+
 public:
   rand_gen gen;
   void setup_gen();
@@ -124,6 +126,7 @@ public:
   qa::update_free_pairs update_qa_pairs;
   qa::update_cys_neigh update_cys_neigh;
   qa::prepare_nh prepare_nh;
+  qa::reset_cys_neigh reset_cys_neigh;
   qa::count_cys_neigh count_cys_neigh;
   qa::loop_over_candidates qa_loop_over_candidates;
   qa::process_contacts process_qa_contacts;

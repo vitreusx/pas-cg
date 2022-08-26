@@ -1,4 +1,4 @@
-#include <cg/angles/heur_dih/eval_forces.h>
+#include <cg/angles/heur_dih/rel.h>
 namespace cg::heur_dih {
 
 void eval_forces::operator()() const {
@@ -59,5 +59,18 @@ void eval_forces::omp_async() const {
   for (int idx = 0; idx < dihedrals.size(); ++idx) {
     iter(dihedrals[idx]);
   }
+}
+
+void eval_forces::for_slice(int from, int to) const {
+  for (int idx = from; idx < to; ++idx)
+    iter(dihedrals[idx]);
+}
+
+int eval_forces::total_size() const {
+  return dihedrals.size();
+}
+
+int eval_forces::slice_size() const {
+  return 1024;
 }
 } // namespace cg::heur_dih

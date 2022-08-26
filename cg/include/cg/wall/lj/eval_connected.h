@@ -1,8 +1,9 @@
 #pragma once
 #include "data.h"
+#include <cg/simul/runtime.h>
 
 namespace cg::wall::lj {
-class eval_connected {
+class eval_connected : public simul::sliceable_task {
 public:
   real min_dist, breaking_dist, saturation_diff;
   class lj force;
@@ -20,5 +21,9 @@ public:
   void operator()() const;
   void omp_async() const;
   void iter(int conn_idx) const;
+
+  void for_slice(int from, int to) const override;
+  int total_size() const override;
+  int slice_size() const override;
 };
 } // namespace cg::wall::lj

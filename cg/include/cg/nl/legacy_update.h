@@ -1,6 +1,7 @@
 #pragma once
 #include "data.h"
 #include "exclusion.h"
+#include <cg/simul/runtime.h>
 
 namespace cg::nl {
 class legacy_update {

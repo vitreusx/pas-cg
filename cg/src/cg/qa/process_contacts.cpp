@@ -81,4 +81,17 @@ void process_contacts::omp_async() const {
 void process_contacts::set_factor(double breaking_factor) {
   factor = breaking_factor * C216_INV;
 }
+
+void process_contacts::for_slice(int from, int to) const {
+  for (int idx = from; idx < to; ++idx)
+    iter(idx);
+}
+
+int process_contacts::total_size() const {
+  return free_pairs->size();
+}
+
+int process_contacts::slice_size() const {
+  return 1024;
+}
 } // namespace cg::qa

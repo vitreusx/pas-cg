@@ -2,11 +2,11 @@
 #include <cg/afm/force/eval_forces.h>
 #include <cg/afm/vel/eval_forces.h>
 #include <cg/angles/heur_ang/eval_forces.h>
-#include <cg/angles/heur_dih/eval_forces.h>
+#include <cg/angles/heur_dih/rel.h>
 #include <cg/angles/nat_ang/eval_forces.h>
 #include <cg/angles/nat_dih/complex.h>
 #include <cg/angles/nat_dih/simple.h>
-#include <cg/chir/rel.h>
+#include <cg/chir/eval_forces.h>
 #include <cg/ckpt/make_checkpoint.h>
 #include <cg/dh/const.h>
 #include <cg/dh/rel.h>
@@ -24,7 +24,7 @@
 #include <cg/pbar/render.h>
 #include <cg/pid/eval_forces.h>
 #include <cg/pid/update_bundles.h>
-#include <cg/qa/count_cys_neigh.h>
+#include <cg/qa/cys_neigh_comp.h>
 #include <cg/qa/finish_processing.h>
 #include <cg/qa/loop_over_candidates.h>
 #include <cg/qa/prepare_nh.h>

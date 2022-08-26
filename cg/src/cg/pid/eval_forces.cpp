@@ -105,7 +105,7 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
 
     auto rm_ninv = (real)1.0 / rm_n, rn_ninv = (real)1.0 / rn_n,
          rkj_ninv = norm_inv(rkj), rkj_n = (real)1.0 / rkj_ninv;
-    
+
     auto fi = rm * rkj_n * rm_ninv * rm_ninv;
     auto fl = -rn * rkj_n * rn_ninv * rn_ninv;
     auto df = (fi * dot(rij, rkj) - fl * dot(rkl, rkj)) * rkj_ninv * rkj_ninv;
@@ -203,5 +203,18 @@ bool eval_forces::is_active(const bundle &bundle) const {
   auto r_min = ss_ljs[bundle.type()].r_high();
   auto sigma = r_min * C216_INV;
   return r12 <= active_thr * sigma;
+}
+
+void eval_forces::for_slice(int from, int to) const {
+  for (int idx = from; idx < to; ++idx)
+    iter(bundles->at(idx));
+}
+
+int eval_forces::total_size() const {
+  return bundles->size();
+}
+
+int eval_forces::slice_size() const {
+  return 1024;
 }
 } // namespace cg::pid

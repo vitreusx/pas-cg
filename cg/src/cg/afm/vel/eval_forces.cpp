@@ -19,7 +19,7 @@ template <typename E> void eval_forces::iter(tip_expr<E> &tip) const {
     *V += V_;
     auto force = dV_dr * r_afm_u;
     F[tip.res_idx()] += force;
-    
+
     tip.avg_force().add(*t, -force);
 
     auto v = unit(tip.afm_vel());
@@ -44,5 +44,18 @@ void eval_forces::omp_async() const {
   for (int idx = 0; idx < afm_tips.size(); ++idx) {
     iter(afm_tips[idx]);
   }
+}
+
+void eval_forces::for_slice(int from, int to) const {
+  for (int idx = from; idx < to; ++idx)
+    iter(afm_tips[idx]);
+}
+
+int eval_forces::total_size() const {
+  return afm_tips.size();
+}
+
+int eval_forces::slice_size() const {
+  return 1024;
 }
 } // namespace cg::afm::vel

@@ -31,4 +31,17 @@ template <typename E> void eval_forces::iter(pair_expr<E> const &tether) const {
   F[i1] += dV_dr * r12_u;
   F[i2] -= dV_dr * r12_u;
 }
+
+void eval_forces::for_slice(int from, int to) const {
+  for (int idx = from; idx < to; ++idx)
+    iter(tethers[idx]);
+}
+
+int eval_forces::total_size() const {
+  return tethers.size();
+}
+
+int eval_forces::slice_size() const {
+  return 1024;
+}
 } // namespace cg::tether

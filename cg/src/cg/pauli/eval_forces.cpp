@@ -34,4 +34,17 @@ void eval_forces::omp_async() const {
     iter(pairs->at(idx));
   }
 }
+
+void eval_forces::for_slice(int from, int to) const {
+  for (int idx = from; idx < to; ++idx)
+    iter(pairs->at(idx));
+}
+
+int eval_forces::total_size() const {
+  return pairs->size();
+}
+
+int eval_forces::slice_size() const {
+  return 1024;
+}
 } // namespace cg::pauli

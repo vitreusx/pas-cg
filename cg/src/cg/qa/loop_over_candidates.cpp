@@ -104,4 +104,17 @@ void loop_over_candidates::omp_async() const {
     iter(idx);
   }
 }
+
+void loop_over_candidates::for_slice(int from, int to) const {
+  for (int idx = from; idx < to; ++idx)
+    iter(idx);
+}
+
+int loop_over_candidates::total_size() const {
+  return free_pairs->size();
+}
+
+int loop_over_candidates::slice_size() const {
+  return 1024;
+}
 } // namespace cg::qa

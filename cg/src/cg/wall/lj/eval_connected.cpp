@@ -42,4 +42,17 @@ void eval_connected::iter(int conn_idx) const {
     }
   }
 }
+
+void eval_connected::for_slice(int from, int to) const {
+  for (int idx = from; idx < to; ++idx)
+    iter(idx);
+}
+
+int eval_connected::total_size() const {
+  return conns->size();
+}
+
+int eval_connected::slice_size() const {
+  return 1024;
+}
 } // namespace cg::wall::lj

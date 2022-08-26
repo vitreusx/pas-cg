@@ -26,4 +26,17 @@ void eval_connected::iter(const connection_expr<E> &conn) const {
   F[conn.res_idx()] -= dV_dr * r12_u;
   wall_F[conn.wall_idx()] += dV_dr * r12_u;
 }
+
+void eval_connected::for_slice(int from, int to) const {
+  for (int idx = from; idx < to; ++idx)
+    iter(conns[idx]);
+}
+
+int eval_connected::total_size() const {
+  return conns.size();
+}
+
+int eval_connected::slice_size() const {
+  return 1024;
+}
 } // namespace cg::wall::harmonic

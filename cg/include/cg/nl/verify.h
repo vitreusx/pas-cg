@@ -1,5 +1,6 @@
 #pragma once
 #include "data.h"
+#include <cg/simul/runtime.h>
 
 namespace cg::nl {
 class verify {
