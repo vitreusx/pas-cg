@@ -34,21 +34,32 @@ def make_parser():
         "--single-file",
         action="store_true",
         help="compile the program as a single object file, instead of "
-             "separately compiling each source file and linking them",
+        "separately compiling each source file and linking them",
     )
     parser.add_argument(
         "--use-mixed-precision",
         action="store_true",
         help="use floats for computing the forces and doubles for integration,"
-             "instead of using doubles throughout"
+        "instead of using doubles throughout",
     )
     parser.add_argument("dir", default="build", help="output directory")
 
     return parser
 
 
+def format_cmd(cmd) -> str:
+    def enclose(s):
+        return f'"{s}"' if " " in s else s
+
+    cmd = [cmd[0], *map(enclose, cmd[1:])]
+    cmd = " ".join(cmd)
+    cmd = f"% {cmd}"
+    return cmd
+
+
 def execute(cmd):
-    print(cmd)
+    print(format_cmd(cmd))
+
     code = sp.call(cmd)
     if code != 0:
         print(f"Command {cmd} failed with code {code}")
@@ -61,7 +72,7 @@ def main():
     root_dir = Path(__file__).parent
     out_dir = Path(args.dir)
 
-    print(["mkdir", "-p", str(out_dir)])
+    print(format_cmd(["mkdir", "-p", str(out_dir)]))
     out_dir.mkdir(exist_ok=True, parents=True)
 
     cmd = ["cmake"]
@@ -75,8 +86,7 @@ def main():
     cmd += ["-B", str(out_dir)]
     cmd += ["-S", str(root_dir)]
 
-    build_type_map = {"debug": "Debug", "release": "Release",
-                      "staging": "Staging"}
+    build_type_map = {"debug": "Debug", "release": "Release", "staging": "Staging"}
     build_type = build_type_map[args.build_type]
     cmd += [f"-DCMAKE_BUILD_TYPE={build_type}"]
 
