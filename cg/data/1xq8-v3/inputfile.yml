@@ -1,0 +1,39 @@
+general:
+  total time: 15e3 tau
+  num of threads: 2
+  num of trajectories: 4
+
+input:
+  pdb file:
+    source:
+      (at path): 1xq8.pdb
+    ignore CRYST1: true
+  morph into SAW:
+    perform: true
+
+quasi-adiabatic:
+  enabled: false
+
+output:
+  output dir: 1xq8
+
+native angles:
+  enabled: false
+  
+complex native dihedrals:
+  enabled: false
+  
+native contacts:
+  enabled: false
+  
+pseudo-improper dihedral:
+  enabled: true
+
+lj force variants:
+  bb:
+    depth: 0.1 eps
+  ss:
+    use sinking variant: true
+    per pair:
+      depth:
+        (at path): mj-matrix.csv

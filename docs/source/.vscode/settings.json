@@ -1,0 +1,5 @@
+{
+  "esbonio.server.enabled": true,
+  "restructuredtext.confPath": "${workspaceFolder}",
+  "esbonio.sphinx.confDir": "/home/talos/next/code/pas-cg/docs/source"
+}
