@@ -1,0 +1,29 @@
+<component name="ProjectCodeStyleConfiguration">
+  <code_scheme name="Project" version="173">
+    <option name="LINE_SEPARATOR" value="&#10;" />
+    <option name="RIGHT_MARGIN" value="80" />
+    <Objective-C>
+      <option name="FUNCTION_PARAMETERS_ALIGN_MULTILINE" value="false" />
+      <option name="FUNCTION_CALL_ARGUMENTS_ALIGN_MULTILINE" value="false" />
+      <option name="CLASS_CONSTRUCTOR_INIT_LIST_ALIGN_MULTILINE" value="false" />
+      <option name="SUPERCLASS_LIST_ALIGN_MULTILINE" value="false" />
+    </Objective-C>
+    <clangFormatSettings>
+      <option name="ENABLED" value="true" />
+    </clangFormatSettings>
+    <codeStyleSettings language="CMake">
+      <indentOptions>
+        <option name="CONTINUATION_INDENT_SIZE" value="4" />
+      </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="Markdown">
+      <option name="RIGHT_MARGIN" value="80" />
+    </codeStyleSettings>
+    <codeStyleSettings language="ObjectiveC">
+      <option name="INDENT_CASE_FROM_SWITCH" value="false" />
+      <indentOptions>
+        <option name="CONTINUATION_INDENT_SIZE" value="4" />
+      </indentOptions>
+    </codeStyleSettings>
+  </code_scheme>
+</component>
