@@ -14,7 +14,7 @@ add_custom_target(copy-data-dir
     "${CMAKE_CURRENT_BINARY_DIR}/data"
     DEPENDS ${DataFiles})
 
-foreach(target cg cg_pho5)
+foreach (target cg_pho5)
     add_executable(${target})
     target_sources(${target} PRIVATE ${target}.f)
 
@@ -34,4 +34,4 @@ foreach(target cg cg_pho5)
         POST_BUILD
         COMMAND objdump -drlwC -Mintel ${target} >${target}.s
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-endforeach()
+endforeach ()

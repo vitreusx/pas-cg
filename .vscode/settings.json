@@ -1,0 +1,7 @@
+{
+  "esbonio.sphinx.confDir": "",
+  "cmake.configureOnOpen": false,
+  "python.formatting.provider": "black",
+  "cmake.buildDirectory": "${workspaceFolder}/build/${buildType}",
+  "cmake.generator": "Ninja"
+}

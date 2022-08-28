@@ -1,0 +1,11 @@
+buildType:
+  default: staging
+  choices:
+    debug:
+      short: Debug
+      long: Emit debug information, no optimizations
+      buildType: Debug
+    release:
+      short: Release
+      long: Optimize and do not emit debug information
+      buildType: Release
