@@ -44,7 +44,5 @@ int eval_forces::total_size() const {
   return pairs->size();
 }
 
-int eval_forces::slice_size() const {
-  return 1024;
-}
+
 } // namespace cg::pauli

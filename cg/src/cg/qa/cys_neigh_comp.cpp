@@ -46,7 +46,5 @@ int count_cys_neigh::total_size() const {
   return neigh->size();
 }
 
-int count_cys_neigh::slice_size() const {
-  return 1024;
-}
+
 } // namespace cg::qa

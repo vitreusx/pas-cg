@@ -51,7 +51,5 @@ int eval_forces::total_size() const {
   return es_pairs.size();
 }
 
-int eval_forces::slice_size() const {
-  return 1024;
-}
+
 } // namespace cg::rel_dh

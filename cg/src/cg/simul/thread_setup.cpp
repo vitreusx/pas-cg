@@ -22,6 +22,7 @@ thread::thread(thread_team &team) {
   st = team.st;
   params = &st->params;
   tid = omp_get_thread_num();
+  eval_slices = set_of_task_slices(team.num_threads);
 }
 
 void thread::init_kernels() {

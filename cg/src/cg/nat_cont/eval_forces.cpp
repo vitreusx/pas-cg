@@ -64,7 +64,5 @@ int eval_forces::total_size() const {
   return contacts->size();
 }
 
-int eval_forces::slice_size() const {
-  return 1024;
-}
+
 } // namespace cg::nat_cont

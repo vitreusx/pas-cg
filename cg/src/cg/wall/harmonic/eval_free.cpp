@@ -38,7 +38,5 @@ int eval_free::total_size() const {
   return r.size();
 }
 
-int eval_free::slice_size() const {
-  return 1024;
-}
+
 } // namespace cg::wall::harmonic

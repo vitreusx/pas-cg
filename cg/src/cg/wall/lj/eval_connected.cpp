@@ -52,7 +52,5 @@ int eval_connected::total_size() const {
   return conns->size();
 }
 
-int eval_connected::slice_size() const {
-  return 1024;
-}
+
 } // namespace cg::wall::lj

@@ -34,7 +34,5 @@ int prepare_nh::total_size() const {
   return num_particles;
 }
 
-int prepare_nh::slice_size() const {
-  return 1024;
-}
+
 } // namespace cg::qa

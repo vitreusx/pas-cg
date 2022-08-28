@@ -482,7 +482,7 @@ void thread::eval_forces() {
     eval_force_afm_forces.omp_async();
   }
 
-  //  eval_slices.run_async(tid, team->num_threads);
+  //  eval_slices.run_async(tid);
 
   dyn.omp_reduce_v2(st->dyn, *this);
 //  dyn.omp_reduce_v3(st->dyn, team);
@@ -495,10 +495,8 @@ void thread::post_eval_async() {
     if (st->pbar_enabled)
       render_pbar();
 
-    if (st->t > 0) {
-      if (params->out.enabled)
-        make_report();
-    }
+    if (params->out.enabled)
+      make_report();
 
     if (st->dump_enabled)
       print_raw_data();

@@ -214,7 +214,5 @@ int eval_forces::total_size() const {
   return bundles->size();
 }
 
-int eval_forces::slice_size() const {
-  return 1024;
-}
+
 } // namespace cg::pid

@@ -91,7 +91,5 @@ int process_contacts::total_size() const {
   return free_pairs->size();
 }
 
-int process_contacts::slice_size() const {
-  return 1024;
-}
+
 } // namespace cg::qa

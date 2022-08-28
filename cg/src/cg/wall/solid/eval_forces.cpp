@@ -35,7 +35,5 @@ int eval_forces::total_size() const {
   return r.size();
 }
 
-int eval_forces::slice_size() const {
-  return 1024;
-}
+
 } // namespace cg::wall::solid

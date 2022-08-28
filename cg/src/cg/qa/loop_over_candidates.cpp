@@ -114,7 +114,5 @@ int loop_over_candidates::total_size() const {
   return free_pairs->size();
 }
 
-int loop_over_candidates::slice_size() const {
-  return 1024;
-}
+
 } // namespace cg::qa

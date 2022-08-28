@@ -19,6 +19,6 @@ public:
 
   void for_slice(int from, int to) const override;
   int total_size() const override;
-  int slice_size() const override;
+
 };
 } // namespace cg::qa
