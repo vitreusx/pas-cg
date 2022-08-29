@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>User guide &mdash; PAS CG  documentation</title>
+  <title>User Guide &mdash; PAS CG  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -13,12 +13,15 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Structure of the repository" href="repo.html" />
-    <link rel="prev" title="Quick Start" href="../quickstart.html" /> 
+    <link rel="next" title="Developer Guide" href="../dev/index.html" />
+    <link rel="prev" title="Welcome to PAS CG’s documentation!" href="../index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -38,35 +41,23 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick Start</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">User guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="repo.html">Structure of the repository</a></li>
-<li class="toctree-l2"><a class="reference internal" href="files.html">Parameter and other files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="base_forces.html">Base forces. Variants of the Lennard-Jones potential</a></li>
-<li class="toctree-l2"><a class="reference internal" href="diff.html">Differences with the reference version</a></li>
-<li class="toctree-l2"><a class="reference internal" href="units.html">Internal units. Quantities</a></li>
-<li class="toctree-l2"><a class="reference internal" href="aa_data.html">Amino acid data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="general.html">General parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="input.html">Input layer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="output.html">Program output</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tether.html">Tether pair FF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="chir.html">Chirality FF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="nat_ang.html">Native bond angle FF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="heur_ang.html">Heurestic bond angle FF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="nat_dih.html">Native dihedral angle FFs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="heur_dih.html">Heurestic dihedral angle FF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="contacts.html">On native and non-native contacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="nat_cont.html">Native contacts FF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pauli.html">Pauli exclusion FF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dh.html">Debye-Hueckel FF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="qa.html">Quasi-adiabatic (QA) FF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pid.html">Pseudo-improper dihedral (PID) force field</a></li>
-<li class="toctree-l2"><a class="reference internal" href="langevin.html">Langevin PC integrator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="nl.html">Neighbor list</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pbar.html">Progress bar</a></li>
-<li class="toctree-l2"><a class="reference internal" href="afm.html">Atomic Force Microscope (AFM)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">User Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#requirements">Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#getting-the-program">Getting the program</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compiling">Compiling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#docker">Docker</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-start">Quick Start</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#functionality">Functionality</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/index.html">Developer Guide</a></li>
 </ul>
 
         </div>
@@ -83,7 +74,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>User guide</li>
+      <li>User Guide</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/user/index.md.txt" rel="nofollow"> View page source</a>
       </li>
@@ -94,40 +85,175 @@
            <div itemprop="articleBody">
              
   <div class="tex2jax_ignore mathjax_ignore section" id="user-guide">
-<h1>User guide<a class="headerlink" href="#user-guide" title="Permalink to this headline"></a></h1>
-<p>General topics:</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="repo.html">Structure of the repository</a></li>
-<li class="toctree-l1"><a class="reference internal" href="files.html">Parameter and other files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="base_forces.html">Base forces. Variants of the Lennard-Jones potential</a></li>
-<li class="toctree-l1"><a class="reference internal" href="diff.html">Differences with the reference version</a></li>
-<li class="toctree-l1"><a class="reference internal" href="units.html">Internal units. Quantities</a></li>
-<li class="toctree-l1"><a class="reference internal" href="aa_data.html">Amino acid data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="general.html">General parameters</a></li>
+<h1>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this heading"></a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h2>
+<div class="section" id="requirements">
+<h3>Requirements<a class="headerlink" href="#requirements" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Linux operating system;</p></li>
+<li><p>Git for cloning the repository, unless one uses a fixed release of the program;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gcc++</span></code> or <code class="docutils literal notranslate"><span class="pre">clang++</span></code> with ISO C++17 support;</p></li>
+<li><p>CMake 3.14+;</p></li>
+<li><p>(Optionally) Ninja build system;</p></li>
+<li><p>OpenMP;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xxd</span></code> program installed;</p></li>
+<li><p>Python 3, if using the <a class="reference internal" href="#build-script"><span class="std std-ref">build script</span></a>;</p></li>
+<li><p>Docker, if using the <a class="reference internal" href="#docker"><span class="std std-ref">Docker route</span></a>.</p></li>
 </ul>
 </div>
-<p>Concrete features:</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="input.html">Input layer</a></li>
-<li class="toctree-l1"><a class="reference internal" href="output.html">Program output</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tether.html">Tether pair FF</a></li>
-<li class="toctree-l1"><a class="reference internal" href="chir.html">Chirality FF</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nat_ang.html">Native bond angle FF</a></li>
-<li class="toctree-l1"><a class="reference internal" href="heur_ang.html">Heurestic bond angle FF</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nat_dih.html">Native dihedral angle FFs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="heur_dih.html">Heurestic dihedral angle FF</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contacts.html">On native and non-native contacts</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nat_cont.html">Native contacts FF</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pauli.html">Pauli exclusion FF</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dh.html">Debye-Hueckel FF</a></li>
-<li class="toctree-l1"><a class="reference internal" href="qa.html">Quasi-adiabatic (QA) FF</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pid.html">Pseudo-improper dihedral (PID) force field</a></li>
-<li class="toctree-l1"><a class="reference internal" href="langevin.html">Langevin PC integrator</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nl.html">Neighbor list</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pbar.html">Progress bar</a></li>
-<li class="toctree-l1"><a class="reference internal" href="afm.html">Atomic Force Microscope (AFM)</a></li>
+<div class="section" id="getting-the-program">
+<h3>Getting the program<a class="headerlink" href="#getting-the-program" title="Permalink to this heading"></a></h3>
+<p>To get the source code, you can clone the <a class="reference external" href="https://github.com/vitreusx/pas-cg">project repository</a>. For an end-user (i.e. just using the program and not extending it), shallow clone should be sufficient.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>% git clone <span class="se">\</span>
+    --depth <span class="m">1</span> <span class="se">\</span>
+    https://github.com/vitreusx/pas-cg.git
+
+% <span class="nb">cd</span> pas-cg
+</pre></div>
+</div>
+</div>
+<div class="section" id="compiling">
+<h3>Compiling<a class="headerlink" href="#compiling" title="Permalink to this heading"></a></h3>
+<p id="build-script">A build script has been provided, with following options:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>% python3 build.py --help
+usage: build.py <span class="o">[</span>-h<span class="o">]</span> <span class="o">[</span>--target <span class="o">{</span>cg,docs,parity,all,clean<span class="o">}]</span> <span class="o">[</span>--build-type <span class="o">{</span>debug,release,staging<span class="o">}]</span> <span class="o">[</span>--generator <span class="o">{</span>make,ninja<span class="o">}]</span> <span class="o">[</span>--single-file<span class="o">]</span> <span class="o">[</span>--use-mixed-precision<span class="o">]</span> dir
+
+Build script <span class="k">for</span> PAS CG program
+
+positional arguments:
+  dir                   output directory
+
+options:
+  -h, --help            show this <span class="nb">help</span> message and <span class="nb">exit</span>
+  --target <span class="o">{</span>cg,docs,parity,all,clean<span class="o">}</span>
+                        CMake target to build <span class="o">(</span>default: cg<span class="o">)</span>
+  --build-type <span class="o">{</span>debug,release,staging<span class="o">}</span>
+                        build <span class="nb">type</span> <span class="o">(</span>default: release<span class="o">)</span>
+  --generator <span class="o">{</span>make,ninja<span class="o">}</span>
+                        build generator <span class="o">(</span>default: ninja<span class="o">)</span>
+  --single-file         compile the program as a single object file, instead of separately compiling each <span class="nb">source</span> file and linking them <span class="o">(</span>default: False<span class="o">)</span>
+  --use-mixed-precision
+                        use floats <span class="k">for</span> computing the forces and doubles <span class="k">for</span> integration,instead of using doubles throughout <span class="o">(</span>default: False<span class="o">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="docker">
+<span id="id1"></span><h3>Docker<a class="headerlink" href="#docker" title="Permalink to this heading"></a></h3>
+<p>If all else fails, one can build and run the program as a Docker container. To build the image, run</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ ./docker/build.sh
+</pre></div>
+</div>
+<p>in the root repo directory. To run the program, you can use</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ ./docker/run.sh <span class="o">[</span>args<span class="o">]</span>
+</pre></div>
+</div>
+<p>with the arguments as usual. The run script prints the auto-generated container name - this can be used, for example, to kill the container via <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">rm</span> <span class="pre">-f</span> <span class="pre">${name}</span></code>, as the Docker-run program cannot be stopped with the usual <code class="docutils literal notranslate"><span class="pre">Ctrl-c</span></code>.</p>
+</div>
+</div>
+<div class="section" id="quick-start">
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this heading"></a></h2>
+<p>The program has (only) a command-line interface:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ ./cg -h
+PAS CG Coarse Grained Model
+Documentation: https://vitreusx.github.io/pas-cg
+Usage: ./cg <span class="o">[</span>options...<span class="o">]</span>
+  -h,        --help               Print this <span class="nb">help</span> message.
+  -p <span class="o">[</span>path<span class="o">]</span>, --param-file <span class="o">[</span>path<span class="o">]</span>  Load parameter file.
+  -c <span class="o">[</span>path<span class="o">]</span>, --ckpt-file <span class="o">[</span>path<span class="o">]</span>   Load simulation from checkpoint.
+</pre></div>
+</div>
+<p>One can either run the program from a checkpoint, or start with a <em>parameter file</em> (henceforth also called an <em>input file</em>). This file, in YAML format, completely specifies the simulation that will be run.</p>
+<div class="section" id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h3>
+<p>To quickly check how the program functions, one can use provided example files, placed in the <code class="docutils literal notranslate"><span class="pre">cg/data</span></code> directory. For example, one can run</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$ ./cg -p data/1ubq/inputfile.yml
+</pre></div>
+</div>
+<p>to run a simulation of ubiquitin.</p>
+</div>
+</div>
+<div class="section" id="functionality">
+<h2>Functionality<a class="headerlink" href="#functionality" title="Permalink to this heading"></a></h2>
+<p>The simulation program can be described to function in a following fashion:</p>
+<ol class="arabic simple">
+<li><p>Arguments are read, and either the simulation is started from a <a class="reference internal" href="_ckpt.html"><span class="doc std std-doc">checkpoint</span></a>, or an <a class="reference internal" href="_inputfile.html"><span class="doc std std-doc">input file</span></a> is read and run from that.</p></li>
+<li><p><a class="reference internal" href="_input.html"><span class="doc std std-doc">The protein(s) are loaded</span></a>, either from a PDB file or a “sequence file” in a custom format.</p></li>
+<li><p>The simulation proper is executed. The entire execution consists of a number of trajectories, with possibly different settings. Each trajectory starts from a (native or generated) conformation of the proteins loaded, which evolves according to the various force fields present and external factors for a given maximum simulation time.</p>
+<ol class="arabic simple">
+<li><p>The peptide chains can be contained in a <a class="reference internal" href="_sbox.html"><span class="doc std std-doc">simulation box</span></a>, bounded by a solid wall of potential. The geometry of the box can also be periodic.</p></li>
+<li><p>There are a number of force fields available:</p>
+<ol class="arabic simple">
+<li><p>“Local” forces, i.e. ones which apply to residues separated by at most two other residues:</p>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="_tether.html"><span class="doc std std-doc">Tether forces</span></a> between connected bonds.</p></li>
+<li><p><a class="reference internal" href="_chir.html"><span class="doc std std-doc">Chirality forces</span></a>, if starting from a native conformation.</p></li>
+<li><p><a class="reference internal" href="_angle.html"><span class="doc std std-doc">Bond angle forces</span></a>, acting on triples of consecutive residues. The value can be either derived from the native structure, or a heurestic can be used if no such native value is available.</p></li>
+<li><p><a class="reference internal" href="_angle.html"><span class="doc std std-doc">Dihedral angle forces</span></a>, acting on quadruples of consecutive residues. Similarly as with the bond angle forces, there are native and heurestic versions of this potential.</p></li>
+<li><p><a class="reference internal" href="_lrep.html"><span class="doc std std-doc">Local repulsive forces</span></a>, acting on residues separated by a single residue.</p></li>
+</ol>
+</li>
+<li><p>“Nonlocal” forces:</p>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="_pauli.html"><span class="doc std std-doc">Pauli exclusion forces</span></a>, to prevent residues from passing through each other.</p></li>
+<li><p><a class="reference internal" href="_dh.html"><span class="doc std std-doc">Debye-Hueckel electrostatic forces</span></a>, with a constant-electric-permittivity and a relative-electric-permittivity versions.</p></li>
+<li><p><a class="reference internal" href="_nc.html"><span class="doc std std-doc">Go model contacts</span></a>, in which contacts in the native conformation act through the Lennard-Jones potential.</p></li>
+</ol>
+</li>
+<li><p><a class="reference internal" href="_qa.html"><span class="doc std std-doc"><em>Quasi-adiabatic potential</em></span></a>, in which native-like contacts are continuously formed and broken, according to a number of criteria.</p></li>
+<li><p><a class="reference internal" href="_pid.html"><span class="doc std std-doc"><em>Pseudo-improper dihedral potential</em></span></a>, in which, depending on the geometry of the protein chains, the residues act as though there was a contact between them.</p></li>
+</ol>
+</li>
+<li><p>There are a number of simulation types:</p>
+<ol class="arabic simple">
+<li><p>“Free-form” simulations, in which the system undergoes evolution without any external intervention (except for the thermostat);</p></li>
+<li><p><a class="reference internal" href="_afm.html"><span class="doc std std-doc">Simulations with Atomic Force Microscope (AFM)</span></a>.</p>
+<ol class="arabic simple">
+<li><p>(Optional) At the very start of the simulation, the terminal residue of the first chain present is pulled in the direction opposite to the direction linking it with the initial residue. This takes place for a specified amount of time, at which poiint the chain is released.</p></li>
+<li><p>The system undergoes <em>equilibration</em>, during which the only external forces acting upon the system are the solid walls of the simulation box, if present, and the thermostat.</p></li>
+<li><p>(Optional) After the equilibration, the initial and terminal residues of the first chain are pulled apart from each other. This continues until the forces become too large and the simulation ends prematurely.</p></li>
+</ol>
+</li>
+<li><p>Simulations with deforming simulation box:</p>
+<ol class="arabic simple">
+<li><p>(Optional) After the initial equilibration, the simulation box <span class="xref myst">is squeezed</span> to reach desired size or residue density. This is succeeded by another period of equilibration.</p></li>
+<li><p>(Optional) The simulation box is <span class="xref myst">relaxed until the forces acting on it are approximately zero</span>. This is succeeded by another period of equilibration.</p></li>
+<li><p>(Optional) The system undergoes a series of <span class="xref myst"><em>oscillations</em></span>, during which the <span class="math notranslate nohighlight">\(z\)</span>-axis walls move towards each other, or sideways along the <span class="math notranslate nohighlight">\(x\)</span> axis. This occurs with a given displacement amplitude and oscillation angular frequency for a number of cycles. Each such cycle is succeeded by a period of equilibration.</p></li>
+<li><p>(Optional) Then, at the end, <span class="xref myst">the simulation box is dragged in a single direction</span>.</p></li>
+<li><p>Throughout all this, at certain points the walls can become attractive, at which point the residues close to them become attracted and/or attached to them.</p></li>
+</ol>
+</li>
+<li><p><span class="xref myst">(Un)folding study</span>:</p>
+<ol class="arabic simple">
+<li><p>Unfolding study: We start from a native conformation and wait until all the native contacts have been broken.</p></li>
+<li><p>Folding study: We start from a random conformation and wait until all the native contacts have been restored.</p></li>
+<li><p>This can be repeated for a number of trajectories, and median (un)folding times can be measured.</p></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p><a class="reference internal" href="_output.html"><span class="doc std std-doc">The output of the program</span></a> consists of:</p>
+<ol class="arabic simple">
+<li><p>A number of files about the current state of the system, emitted at regular intervals:</p>
+<ol class="arabic simple">
+<li><p>An <code class="docutils literal notranslate"><span class="pre">*.out</span></code> file, which contains scalars such as the current time and energy;</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">*.map</span></code> file with details concerning the contacts present and the values of bond/dihedral angles;</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">*.pdb</span></code> file with current positions of the residues.</p></li>
+</ol>
+</li>
+<li><p>(Optional) <a class="reference internal" href="_pbar.html"><span class="doc std std-doc">A progress bar</span></a>.</p></li>
+</ol>
+</li>
+</ol>
+<p>To get started and run your own simulation, either:</p>
+<ul class="simple">
+<li><p>start from a given <a class="reference internal" href="_ckpt.html"><span class="doc std std-doc">checkpoint</span></a>;</p></li>
+<li><p>write your own <a class="reference internal" href="_inputfile.html"><span class="doc std std-doc">input file</span></a>.</p></li>
 </ul>
 </div>
 </div>
@@ -136,8 +262,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../quickstart.html" class="btn btn-neutral float-left" title="Quick Start" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="repo.html" class="btn btn-neutral float-right" title="Structure of the repository" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../index.html" class="btn btn-neutral float-left" title="Welcome to PAS CG’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../dev/index.html" class="btn btn-neutral float-right" title="Developer Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

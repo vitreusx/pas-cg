@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Angle potentials &mdash; PAS CG  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> PAS CG
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/index.html">Developer Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PAS CG</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Angle potentials</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user/_angle.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="tex2jax_ignore mathjax_ignore section" id="angle-potentials">
+<h1>Angle potentials<a class="headerlink" href="#angle-potentials" title="Permalink to this heading"></a></h1>
+<div class="section" id="native-bond-angle-ff">
+<h2>Native bond angle FF<a class="headerlink" href="#native-bond-angle-ff" title="Permalink to this heading"></a></h2>
+<p>The native bond angle force field is described by:</p>
+<div class="math notranslate nohighlight">
+\[V = \sum \frac{1}{2}k(\theta - \theta_0)^2\]</div>
+<p>where the summation is over the triples with the native value of the bond angle
+present.</p>
+<p>The bond angle itself is determined as follows:</p>
+<div class="math notranslate nohighlight">
+\[\theta_{123} = \arccos
+\left[-\frac{\langle \vec{r_{12}}, \vec{r_{23}} \rangle}{r_{12} r_{23}}\right]\]</div>
+</div>
+<div class="section" id="heurestic-bond-angle-ff">
+<h2>Heurestic bond angle FF<a class="headerlink" href="#heurestic-bond-angle-ff" title="Permalink to this heading"></a></h2>
+<p>The heurestic bond angle force field is described by:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split} V = \sum f(\theta_i, \mathtt{type}_i)\\ f(\theta, \mathtt{type}) = \sum_
+{i=0}^D c_i[\mathtt{type}] \theta^D \end{split}\]</div>
+<p>where the summation is over the triples with the native value of the bond angle
+not present. In other words, we approximate the value of the potential by a set
+of polynomials, one for each different <em>type</em> of the triple of residues. The
+type of the triple is derived in the following fashion:</p>
+<ol class="arabic simple">
+<li><p>First, we class the residues into glycines (code <code class="docutils literal notranslate"><span class="pre">G</span></code>), prolines (code <code class="docutils literal notranslate"><span class="pre">P</span></code>)
+and all other amino acids into a single category (code <code class="docutils literal notranslate"><span class="pre">X</span></code>);</p></li>
+<li><p>Then, the type of the triple of residues corresponds to the pair consisting
+of the class of the second and of the third residue. Thus for example, if we
+have a triple of residues which are glycine, proline and valine, the type of
+the residue is <code class="docutils literal notranslate"><span class="pre">PX</span></code> (<code class="docutils literal notranslate"><span class="pre">P</span></code> for the proline, <code class="docutils literal notranslate"><span class="pre">X</span></code> for the valine).</p></li>
+<li><p>Thus, there are nine total types: <code class="docutils literal notranslate"><span class="pre">GG</span></code>, <code class="docutils literal notranslate"><span class="pre">GP</span></code>, <code class="docutils literal notranslate"><span class="pre">GX</span></code>, …, <code class="docutils literal notranslate"><span class="pre">XP</span></code>, <code class="docutils literal notranslate"><span class="pre">XX</span></code>.</p></li>
+</ol>
+</div>
+<div class="section" id="native-dihedral-angle-ffs">
+<h2>Native dihedral angle FFs<a class="headerlink" href="#native-dihedral-angle-ffs" title="Permalink to this heading"></a></h2>
+<p>There are two variants of the native dihedral angle force field: a <em>simple</em>
+variant and a <em>complex</em> variant. Both of them are described by:</p>
+<div class="math notranslate nohighlight">
+\[ V = \sum f(\varphi - \varphi_0)
+\]</div>
+<p>where the summation is over the quadruples with the native value of the dihedral
+angle present. They differ in the choice of the function <span class="math notranslate nohighlight">\(f\)</span>. For the complex
+variant, the choice is:</p>
+<div class="math notranslate nohighlight">
+\[ f_{\textrm{comp}}(\Delta\varphi) = \mathtt{CDA}(1-\cos{\Delta\varphi}) +
+\mathtt{CDB}(1-\cos{3\Delta\varphi})
+\]</div>
+<p>whereas for the simple variant, it is:</p>
+<div class="math notranslate nohighlight">
+\[ f_{\textrm{simp}}(\Delta\varphi) = \frac{1}{2}\mathtt{CDH} {\Delta\varphi}^2
+\]</div>
+<p>The value of the dihedral angle is computed in a following fashion:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split} \varphi_{1234}' =
+\arccos\left[\frac{\langle \vec{r_{12}} \times \vec{r_{23}}, \vec{r_{23}} \times \vec{r_{34}} \rangle}{|\vec{r_{12}} \times \vec{r_{23}}| |\vec{r_{23}} \times \vec{r_{34}}|} \right]
+\\ \varphi_{1234} = \begin{cases} \varphi_{1234}' &amp; \langle \vec{r_{12}} \times
+\vec{r_{23}}, \vec{r_{34}} \rangle \geq 0\\ -\varphi_{1234}' &amp;
+\mathrm{otherwise} \end{cases} \end{split}\]</div>
+</div>
+<div class="section" id="heurestic-dihedral-angle-ff">
+<h2>Heurestic dihedral angle FF<a class="headerlink" href="#heurestic-dihedral-angle-ff" title="Permalink to this heading"></a></h2>
+<p>The heurestic dihedral angle force field is described by:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split} V = \sum f(\varphi_i, \mathtt{type}_i)\\ f(\varphi, \mathtt{type}) = a + b
+\sin\varphi + c \cos\varphi + d\sin^2\varphi + e\cos^2\varphi + f\sin\varphi
+\cos\varphi \end{split}\]</div>
+<p>where the summation is over the quadruples without the native value and the
+coefficients are different for each <span class="math notranslate nohighlight">\(\mathtt{type}\)</span>. The type of the quadruple
+is determined in the same fashion as with the heurestic bond angle types, with the
+second and the third of the four residues determining the type.</p>
+</div>
+<div class="section" id="parameter-file-stanza">
+<h2>Parameter file stanza<a class="headerlink" href="#parameter-file-stanza" title="Permalink to this heading"></a></h2>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Parameters for the (bond and dihedral) angle potentials of various types.</span>
+<span class="nt">angle potentials</span><span class="p">:</span>
+  <span class="c1"># Whether all the potentials (native bond angle, heurestic bond angle,</span>
+  <span class="c1"># native dihedral angle, heurestic dihedral angle) are enabled. This can be</span>
+  <span class="c1"># overriden in the force-specific stanzas below.</span>
+  <span class="nt">all enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+
+  <span class="c1"># Whether the potentials for the dihedral angles are enabled.</span>
+  <span class="nt">dihedral potentials enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+
+  <span class="c1"># Parameters for the heurestic bond angle potential.</span>
+  <span class="nt">heurestic bond angles params</span><span class="p">:</span>
+    <span class="c1"># Coefficients of the polynomial describing the potential, depending on the</span>
+    <span class="c1"># type of residue (GLY, PRO and rest as X).</span>
+    <span class="nt">coefficients</span><span class="p">:</span> <span class="p p-Indicator">|</span>
+      <span class="no">type1,type2,a0,a1,a2,a3,a4,a5,a6</span>
+      <span class="no">G,G,20872.75597,-63260.52963,79318.301,-52680.17088,19554.21897,-3847.670279,313.6716916</span>
+      <span class="no">G,P,8222.83155,-25178.89003,31841.70634,-21290.04519,7941.501624,-1567.87285,128.0761621</span>
+      <span class="no">G,X,20872.75597,-63260.52963,79318.301,-52680.17088,19554.21897,-3847.670279,313.6716916</span>
+      <span class="no">P,G,34646.70029,-109957.2324,144423.9036,-100525.9874,39127.31928,-8079.214542,691.8417699</span>
+      <span class="no">P,P,10744.12043,-34148.94233,44818.66284,-31110.67875,12060.69185,-2479.723349,211.6367439</span>
+      <span class="no">P,X,34646.70029,-109957.2324,144423.9036,-100525.9874,39127.31928,-8079.214542,691.8417699</span>
+      <span class="no">X,G,15883.02041,-48923.1471,62360.6974,-42110.86572,15891.78309,-3178.490602,263.2916319</span>
+      <span class="no">X,P,16912.27207,-53570.09757,70150.19389,-48602.41198,18791.04978,-3844.690523,325.3085829</span>
+      <span class="no">X,X,15883.02041,-48923.1471,62360.6974,-42110.86572,15891.78309,-3178.490602,263.2916319</span>
+
+  <span class="c1"># Parameters for the native bond angle potential.</span>
+  <span class="nt">native bond angles params</span><span class="p">:</span>
+    <span class="c1"># `CBA` value in the potential V = CBA (theta - theta_n)^2.</span>
+    <span class="nt">CBA</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">30.0 eps/rad**2</span>
+
+  <span class="c1"># Parameters for the heurestic dihedral angle potential.</span>
+  <span class="nt">heurestic dihedral angles params</span><span class="p">:</span>
+    <span class="c1"># Coefficients for the equation describing the potential, depending on the</span>
+    <span class="c1"># type of residue (see above).</span>
+    <span class="nt">coefficients</span><span class="p">:</span> <span class="p p-Indicator">|</span>
+      <span class="no">type2,type3,const,sin,cos,sin2,cos2,sin_cos</span>
+      <span class="no">G,G,0.133672207,-0.007576316,0.003786907,-0.124627339,0.425373566,-0.060606303,</span>
+      <span class="no">G,P,0.935285048,0.928786712,-0.18516837,0.015857805,0.2861951,0.072728001</span>
+      <span class="no">G,X,0.210489196,-0.00606094,0.202709724,-0.160512736,0.461339767,0.13333598</span>
+      <span class="no">P,G,0.233402207,-0.101516187,0.109235732,0.14906496,0.151803103,-0.742423775</span>
+      <span class="no">P,P,1.810497634,1.171212546,0.091084321,-0.254152251,0.557619284,-1.569694253</span>
+      <span class="no">P,X,0.661379307,0.115151794,0.428904959,0.200723546,0.100490651,-0.803028162</span>
+      <span class="no">X,G,0.198889776,0.018181703,-0.070746181,0.122076238,0.178719533,-0.624241103</span>
+      <span class="no">X,P,1.254229713,0.739393723,0.686217752,0.219188398,0.083115678,-0.790909154</span>
+      <span class="no">X,X,0.275933756,0.00606063,0.257226522,0.15460117,0.146208844,-0.448484074</span>
+
+  <span class="c1"># Parameters for the native dihedral angle potential.</span>
+  <span class="nt">native dihedral angles params</span><span class="p">:</span>
+    <span class="c1"># Variant of the potential. Options: &quot;complex&quot;, &quot;simple&quot;.</span>
+    <span class="nt">variant</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">complex</span>
+
+    <span class="c1"># Complex variant parameters.</span>
+    <span class="nt">complex variant params</span><span class="p">:</span>
+      <span class="c1"># CDA parameter in the formula which I won&#39;t reproduce here.</span>
+      <span class="nt">CDA</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.66 eps</span>
+
+      <span class="c1"># CDB parameter in the formula which I won&#39;t reproduce here.</span>
+      <span class="nt">CDB</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.66 eps</span>
+
+    <span class="c1"># Simple variant parameters.</span>
+    <span class="nt">simple variant params</span><span class="p">:</span>
+      <span class="c1"># CDH parameter in the formula which I won&#39;t reproduce here.</span>
+      <span class="nt">CDH</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3.33 eps/rad**2</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jakub Bednarz, IF PAN.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

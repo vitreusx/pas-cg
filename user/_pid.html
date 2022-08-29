@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pseudo-improper dihedral (PID) force field &mdash; PAS CG  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> PAS CG
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/index.html">Developer Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PAS CG</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Pseudo-improper dihedral (PID) force field</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user/_pid.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="tex2jax_ignore mathjax_ignore section" id="pseudo-improper-dihedral-pid-force-field">
+<h1>Pseudo-improper dihedral (PID) force field<a class="headerlink" href="#pseudo-improper-dihedral-pid-force-field" title="Permalink to this heading"></a></h1>
+<p>Pseudo-improper dihedral (PID) force field is the second custom potential. It
+acts on “bundles” which consist of two central, interacting, residues (
+numbered <code class="docutils literal notranslate"><span class="pre">2</span></code> and <code class="docutils literal notranslate"><span class="pre">5</span></code>), along with the neighboring residues (<code class="docutils literal notranslate"><span class="pre">1</span></code> and <code class="docutils literal notranslate"><span class="pre">3</span></code> for the
+residue <code class="docutils literal notranslate"><span class="pre">2</span></code> and <code class="docutils literal notranslate"><span class="pre">4</span></code>, <code class="docutils literal notranslate"><span class="pre">6</span></code> for the residue <code class="docutils literal notranslate"><span class="pre">5</span></code>). The general form of the potential
+is:</p>
+<div class="math notranslate nohighlight">
+\[ V = \sum V_b(\mathtt{bundle})
+\]</div>
+<p>where the sum is over all the bundles, i.e. all pairs of non-terminal
+non-natively-connected residues along with the neighbors; whether the residues
+separated by 3 others should be included is controlled with
+the <code class="docutils literal notranslate"><span class="pre">include</span> <span class="pre">separated</span> <span class="pre">by</span> <span class="pre">3</span></code> setting. The bundle term is:</p>
+<div class="math notranslate nohighlight">
+\[ V_b = \sum_i \lambda_i(\psi_{24}) \lambda_i(\psi_{42}) \phi_i(r_{24})
+\]</div>
+<p>The sum runs over two components of the PID potential: “bb+/-“, and “ss”
+components. These differ in the choice of the Lennard-Jones potential <span class="math notranslate nohighlight">\(\phi_i\)</span>,
+as well as the parameters of the <span class="math notranslate nohighlight">\(\lambda\)</span> functions.</p>
+<p>The <span class="math notranslate nohighlight">\(\lambda\)</span> functions are Gaussian-like, and are parametrized by two
+parameters: <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\psi_0\)</span>. There are two variants of the mode of
+evaluation of the <span class="math notranslate nohighlight">\(\lambda\)</span> functions:</p>
+<ol class="arabic">
+<li><p>The “cosine” <span class="math notranslate nohighlight">\(\lambda\)</span> function:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split} \lambda(\psi) = \begin{cases} \frac{1}{2}(1+\cos \alpha(\psi-\psi_0)) &amp;
+   |\alpha (\psi - \psi_0)| &lt; \pi\\ 0 &amp; \textrm{otherwise} \end{cases} \end{split}\]</div>
+</li>
+<li><p>The “algebraic” <span class="math notranslate nohighlight">\(\lambda\)</span> function:</p>
+<div class="math notranslate nohighlight">
+\[ \lambda(\psi) = \frac{t^2-2|t|+1}{2t^2-2|t|+1}, t = \frac{\alpha (\psi -
+   \psi_0)}{\pi} \]</div>
+</li>
+</ol>
+<p>The terms <span class="math notranslate nohighlight">\(\psi_{42}\)</span> and <span class="math notranslate nohighlight">\(\psi_{24}\)</span> are the improper dihedral angles. For a
+configuration of three consecutive residues <code class="docutils literal notranslate"><span class="pre">123</span></code> and another residue <code class="docutils literal notranslate"><span class="pre">4</span></code>, by
+<span class="math notranslate nohighlight">\(\psi_{24}\)</span> we shall denote the angle between the planes <code class="docutils literal notranslate"><span class="pre">123</span></code> and <code class="docutils literal notranslate"><span class="pre">143</span></code>.</p>
+<div class="section" id="parameter-file-entry">
+<h2>Parameter file entry<a class="headerlink" href="#parameter-file-entry" title="Permalink to this heading"></a></h2>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Parameters for the pseudo-improper dihedral (PID) potential.</span>
+<span class="nt">pseudo-improper dihedral</span><span class="p">:</span>
+  <span class="c1"># Whether it&#39;s enabled.</span>
+  <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+
+  <span class="c1"># Whether to allow for interactions between residues separated by three other</span>
+  <span class="c1"># residues.</span>
+  <span class="l l-Scalar l-Scalar-Plain">include (i, i+4)</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+
+  <span class="c1"># Parameters for the &quot;lambda&quot; functions.</span>
+  <span class="nt">lambda</span><span class="p">:</span>
+    <span class="c1"># Variant of the lambda function used: Options: &quot;algebraic&quot;, &quot;cosine&quot;</span>
+    <span class="nt">variant</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">algebraic</span>
+
+    <span class="c1"># Function parameters for the &quot;bb plus&quot; term.</span>
+    <span class="nt">bb+</span><span class="p">:</span>
+      <span class="nt">alpha</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">6.4 1/rad</span>
+      <span class="nt">psi_0</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.05 rad</span>
+
+    <span class="c1"># Function parameters for the &quot;bb minus&quot; term.</span>
+    <span class="nt">bb-</span><span class="p">:</span>
+      <span class="nt">alpha</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">6.0 1/rad</span>
+      <span class="nt">psi_0</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">-1.44 rad</span>
+
+    <span class="c1"># Function parameters for the &quot;ss&quot; term.</span>
+    <span class="nt">ss</span><span class="p">:</span>
+      <span class="nt">alpha</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.2 1/rad</span>
+      <span class="nt">psi_0</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">-0.23 rad</span>
+
+  <span class="c1"># Parameters for the forces.</span>
+  <span class="nt">forces</span><span class="p">:</span>
+    <span class="c1"># Variant of the forces used; in this case, values other than &quot;lj&quot; and</span>
+    <span class="c1"># &quot;sink lj&quot; aren&#39;t supported. The case for the &quot;sink lj&quot; is somewhat</span>
+    <span class="c1"># special, as by default it *inherits* the values from the lj params spec</span>
+    <span class="c1"># below to r_high, and sets r_low to zero. In other words, if sinking lj</span>
+    <span class="c1"># is enabled, by default the sink extends to zero distance, and the end</span>
+    <span class="c1"># of the sink is as set in `ss_pairs_csv`.</span>
+    <span class="nt">variant</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">lj</span>
+
+    <span class="c1"># Parameters for the &quot;bb plus&quot; LJ potential.</span>
+    <span class="nt">bb+</span><span class="p">:</span>
+      <span class="nt">lj params</span><span class="p">:</span>
+        <span class="nt">depth</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.2 eps</span>
+        <span class="nt">r_min</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5.6 A</span>
+
+    <span class="c1"># Parameters for the &quot;bb minus&quot; LJ potential.</span>
+    <span class="nt">bb-</span><span class="p">:</span>
+      <span class="nt">lj params</span><span class="p">:</span>
+        <span class="nt">depth</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.2 eps</span>
+        <span class="nt">r_min</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">6.2 A</span>
+
+    <span class="c1"># Parameters for the &quot;ss&quot; LJ potential.</span>
+    <span class="nt">ss</span><span class="p">:</span>
+      <span class="nt">lj params</span><span class="p">:</span>
+        <span class="nt">default</span><span class="p">:</span>
+          <span class="nt">depth</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.0 eps</span>
+        <span class="nt">per pair</span><span class="p">:</span>
+          <span class="nt">r_min</span><span class="p">:</span> <span class="nv">*ss_pairs_csv</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jakub Bednarz, IF PAN.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

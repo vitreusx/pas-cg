@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulations with Atomic Force Microscope &mdash; PAS CG  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> PAS CG
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/index.html">Developer Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PAS CG</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Simulations with Atomic Force Microscope</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user/_afm.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="tex2jax_ignore mathjax_ignore section" id="simulations-with-atomic-force-microscope">
+<h1>Simulations with Atomic Force Microscope<a class="headerlink" href="#simulations-with-atomic-force-microscope" title="Permalink to this heading"></a></h1>
+<div class="section" id="parameter-file-entry">
+<h2>Parameter file entry<a class="headerlink" href="#parameter-file-entry" title="Permalink to this heading"></a></h2>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Options for pulling with Atomic Force Microscope tips.</span>
+<span class="nt">AFM simulations</span><span class="p">:</span>
+  <span class="c1"># Whether to perform such simulations.</span>
+  <span class="nt">perform</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+
+  <span class="c1"># Type of the AFM simulation. Options:</span>
+  <span class="c1"># - &quot;stretch&quot;: after equilibration, the first and last residues of the first</span>
+  <span class="c1">#   chain are pulled apart. To be more specific, the first residue is kept in</span>
+  <span class="c1">#   place by a not moving AFM tip of the &quot;const velocity&quot; type, and the last</span>
+  <span class="c1">#   one is pulled in the opposite direction by an AFM tip of either &quot;const</span>
+  <span class="c1">#   velocity&quot; or &quot;const force&quot; type.</span>
+  <span class="c1"># - &quot;pull, then release&quot;: before equilibration, the last residue of the first</span>
+  <span class="c1">#   chain is pulled by an AFM tip in a direction from the first to the last</span>
+  <span class="c1">#   residue.</span>
+  <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">stretch</span>
+
+  <span class="c1"># Time window, over which to average the force/velocity of the residues. See</span>
+  <span class="c1"># the discussion above about the precise meaning of the &quot;averaging&quot;.</span>
+  <span class="nt">average stats over</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100 tau</span>
+
+  <span class="c1"># Parameters for the &quot;pull, then release&quot; simulation type.</span>
+  <span class="nt">pull-release params</span><span class="p">:</span>
+    <span class="c1"># Time over which to pull the</span>
+    <span class="nt">time</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100 tau</span>
+
+  <span class="c1"># Parameters for the &quot;AFM tips&quot;.</span>
+  <span class="nt">tip params</span><span class="p">:</span>
+    <span class="c1"># Type of the AFM tip used on the last residue of the chain. Options:</span>
+    <span class="c1"># - &quot;const velocity&quot;: the AFM tip is attached to the residue with a harmonic</span>
+    <span class="c1">#   force, and moves in the prescribed direction.</span>
+    <span class="c1"># - &quot;const force&quot;: the &quot;AFM tip&quot; exerts a constant force on the residue,</span>
+    <span class="c1">#   so in effect it&#39;s not an AFM tip as much as it&#39;s just an added force to</span>
+    <span class="c1">#   the residue.</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">const velocity</span>
+
+    <span class="c1"># Parameters for the &quot;const velocity&quot; option.</span>
+    <span class="nt">velocity params</span><span class="p">:</span>
+      <span class="c1"># Velocity of the AFM tip.</span>
+      <span class="nt">velocity</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5e-3 A/tau</span>
+
+      <span class="c1"># H1 parameter in the harmonic force V = H1 d^2 + H2 d^4.</span>
+      <span class="nt">H1</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">30.0 eps/A**2</span>
+
+      <span class="c1"># H2 parameter in the harmonic force V = H1 d^2 + H2 d^4.</span>
+      <span class="nt">H2</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0 eps/A**2</span>
+
+    <span class="c1"># Parameters for the &quot;const force&quot; option.</span>
+    <span class="nt">force params</span><span class="p">:</span>
+      <span class="c1"># Force of the &quot;AFM tip&quot;.</span>
+      <span class="nt">force</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1e-2 eps/(A*tau)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jakub Bednarz, IF PAN.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

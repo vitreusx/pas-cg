@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Input/parameter file &mdash; PAS CG  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> PAS CG
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/index.html">Developer Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PAS CG</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Input/parameter file</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user/_inputfile.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="tex2jax_ignore mathjax_ignore section" id="input-parameter-file">
+<h1>Input/parameter file<a class="headerlink" href="#input-parameter-file" title="Permalink to this heading"></a></h1>
+<p>The execution of the program is controlled by modifying the input file provided in the <code class="docutils literal notranslate"><span class="pre">-p/--param-file</span></code> option.</p>
+<div class="section" id="default-yml-default-input-file">
+<span id="default-yml"></span><h2><code class="docutils literal notranslate"><span class="pre">default.yml</span></code> - Default input file<a class="headerlink" href="#default-yml-default-input-file" title="Permalink to this heading"></a></h2>
+<p>The reference input file with all the possible parameters and their default values, along with comments, is <code class="docutils literal notranslate"><span class="pre">cg/default.yml</span></code> - if in doubt, you can consult this file. You can also use this file as a template, though it is not necessary - internally, the two files are merged, with the user input file overriding the values in the default, so that, for example, user input file can be empty, or contain only those values which are changed. You can see the example input files in <code class="docutils literal notranslate"><span class="pre">cg/data</span></code> for more details. It is, moreover, highly advisable to read the default file whilst consulting the documentation on the various available settings, sections etc.</p>
+</div>
+<div class="section" id="structure-of-the-input-file">
+<h2>Structure of the input file<a class="headerlink" href="#structure-of-the-input-file" title="Permalink to this heading"></a></h2>
+<p>The input file is in a YAML format, extended by the possibility of referencing files - see <a class="reference internal" href="_formats.html"><span class="doc std std-doc">File formats</span></a> for further details. All the parameters are organized into sections, also called stanzas.</p>
+<div class="section" id="force-specification">
+<h3>Force specification<a class="headerlink" href="#force-specification" title="Permalink to this heading"></a></h3>
+<p>In a number of places, one inserts values for a given type of a “base” force field, like LJ, shifted LJ, harmonic etc. This format is as follows:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># An example spec for the regular forces.</span>
+<span class="nt">a random force</span><span class="p">:</span>
+  <span class="c1"># Force variant to be used. Options:</span>
+  <span class="c1"># - &quot;lj&quot;: Lennard-Jones force;</span>
+  <span class="c1"># - &quot;sink lj&quot;: a &quot;sinking&quot; LJ force, in which the pointlike minimum of the</span>
+  <span class="c1">#   potential is extended to span a certain interval of the radii.</span>
+  <span class="c1"># - &quot;shifted lj&quot;: a version of the LJ force, effective only at close distances</span>
+  <span class="c1">#   (i.e. below r_min) and shifted to make the value of the potential always</span>
+  <span class="c1">#   positive.</span>
+  <span class="c1"># - &quot;harmonic&quot;: harmonic force.</span>
+  <span class="nt">variant</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">lj</span>
+
+  <span class="c1"># Parameters for the &quot;lj&quot; option.</span>
+  <span class="nt">lj params</span><span class="p">:</span>
+    <span class="c1"># Depth of the potential.</span>
+    <span class="nt">depth</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1 eps</span>
+
+    <span class="c1"># Distance value, at which the potential reaches minimum; equivalently,</span>
+    <span class="c1"># 2^{1/6} \sigma.</span>
+    <span class="nt">r_min</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5 A</span>
+
+  <span class="c1"># Parameters for the &quot;shifted lj&quot; option - the same, as for the regular LJ</span>
+  <span class="c1"># potential.</span>
+  <span class="nt">shifted lj params</span><span class="p">:</span>
+    <span class="nt">depth</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1 eps</span>
+    <span class="nt">r_min</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4 A</span>
+
+  <span class="c1"># Parameters for the &quot;sink lj&quot; option.</span>
+  <span class="nt">sink lj params</span><span class="p">:</span>
+    <span class="c1"># Depth of the potential, as in the regular case.</span>
+    <span class="nt">depth</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1 eps</span>
+
+    <span class="c1"># The start of the &quot;sink&quot; of the potential, i.e. the interval of distances</span>
+    <span class="c1"># at which the potential reaches its minimum.</span>
+    <span class="nt">r_low</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5 A</span>
+
+    <span class="c1"># The end of the aforementioned interval.</span>
+    <span class="nt">r_high</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">9 A</span>
+
+  <span class="c1"># Parameters for the &quot;harmonic&quot; option.</span>
+  <span class="nt">harmonic params</span><span class="p">:</span>
+    <span class="c1"># Value of H1 in V = H1 d^2 + H2 d^4</span>
+    <span class="nt">H1</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100 eps/A**2</span>
+
+    <span class="c1"># Value of H2 in V = H1 d^2 + H2 d^4</span>
+    <span class="nt">H2</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0 eps/A**4</span>
+
+    <span class="c1"># Optional &quot;blanket&quot; value of the native distance, used for example with</span>
+    <span class="c1"># disulfide bonds.</span>
+    <span class="nt">nat_r</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">6.0 A</span>
+
+<span class="nt">a sidechain-sidechain force</span><span class="p">:</span>
+  <span class="nt">variant</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">lj</span>
+  <span class="nt">lj params</span><span class="p">:</span>
+    <span class="c1"># For each force parameter, we can set the &quot;default&quot;</span>
+    <span class="c1"># per-residue-pair parameters.</span>
+    <span class="nt">default</span><span class="p">:</span>
+      <span class="nt">depth</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1 eps</span>
+
+    <span class="c1"># Similarly, we can provide a table of values, in a format similar to the</span>
+    <span class="c1"># table of minima of the potentials in `ss_pairs_csv` entry.</span>
+    <span class="nt">per pair</span><span class="p">:</span>
+      <span class="nt">r_min</span><span class="p">:</span>
+        <span class="nt">(at path)</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">values.csv</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="#default-yml"><span class="std std-ref">default.yml - Default input file</span></a> for more details.</p>
+</div>
+<div class="section" id="internal-units-and-quantities">
+<h3>Internal units and quantities.<a class="headerlink" href="#internal-units-and-quantities" title="Permalink to this heading"></a></h3>
+<p>All the physical quantities in the input data can be given units. The quantity
+format is either <code class="docutils literal notranslate"><span class="pre">[number]</span></code>, in which case it is said to be dimensionless,
+or <code class="docutils literal notranslate"><span class="pre">[numerical</span> <span class="pre">value]</span> <span class="pre">[unit]</span></code>.</p>
+<p>The list of predefined units is: “f77unit” (internal unit of length, equal to 5
+Angstrem), “A” (angstrom), “nm”, “m”, “ns”, “tau” (internal unit of time, equal
+to 1 ns), “micros” (microseconds), “ms”, “s”, “atom”, “mol”, “eps” (internal
+unit of energy, equal to <span class="math notranslate nohighlight">\(\approx 1.5 \textrm{kcal}/\textrm{mol}\)</span>), “kcal”, “J”
+, “kB” (Boltzmann constant), “K”, “kg”, “amu”, “f77mass” (internal unit of mass,
+equal to average residue mass), “e”, “C”, “Amp” (Ampere, since “A” is taken by
+angstrom), “c”, “H”, “mu_0” (magnetic permittivity of the vacuum), “eps_0” (
+electric permittivity of the vacuum), “rad”, “deg”.</p>
+<p>The units can be divided or raised to nth power (with <code class="docutils literal notranslate"><span class="pre">**</span></code>) - in general, any
+arithmetic expression involving these predefined units can be entered.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The system of units is inconsistent. From <code class="docutils literal notranslate"><span class="pre">f77unit</span></code>, <code class="docutils literal notranslate"><span class="pre">tau</span></code> and <code class="docutils literal notranslate"><span class="pre">eps</span></code> one could derive the base unit of mass, yet <code class="docutils literal notranslate"><span class="pre">f77mass</span></code> is <strong>not</strong> equal to it.</p>
+</div>
+<p>For more info,
+see <a class="reference external" href="https://github.com/vitreusx/pas-cg/blob/main/cg/include/cg/utils/units.h"><code class="docutils literal notranslate"><span class="pre">units.h</span></code></a>
+and <a class="reference external" href="https://github.com/vitreusx/pas-cg/blob/main/cg/src/utils/quantity.cpp"><code class="docutils literal notranslate"><span class="pre">quantity.cpp</span></code></a>
+.</p>
+</div>
+</div>
+<div class="section" id="stanzas">
+<h2>Stanzas<a class="headerlink" href="#stanzas" title="Permalink to this heading"></a></h2>
+<p>Below, you can find the description of all the sections/stanzas available. Note that for many of them, we attach links to pages dedicated to the given functionality.</p>
+<div class="section" id="general-general-settings">
+<h3><code class="docutils literal notranslate"><span class="pre">general</span></code> - General settings<a class="headerlink" href="#general-general-settings" title="Permalink to this heading"></a></h3>
+<p>This stanza contains settings which do not belong to any more specialized section.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># General settings</span>
+<span class="nt">general</span><span class="p">:</span>
+  <span class="c1"># Program mode. Options:</span>
+  <span class="c1"># - &quot;perform simulation&quot;: Standard model</span>
+  <span class="c1"># - &quot;check determinism&quot;: Runs two copies of simulation in parallel to see</span>
+  <span class="c1">#   if the results are different. Effective when # of threads &gt; 1; one can</span>
+  <span class="c1">#   check in this way if the results obtained with multi-thread simulations</span>
+  <span class="c1">#   are reproducible.</span>
+  <span class="nt">mode</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">perform simulation</span>
+
+  <span class="c1"># Total, maximal time of simulation for a single trajectory. The actual</span>
+  <span class="c1"># execution time can be lower; in the other direction, processes such as</span>
+  <span class="c1"># oscillations can be prematurely terminated in this fashion.</span>
+  <span class="nt">total time</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3e6 tau</span>
+
+  <span class="c1"># Equilibration time, i.e. time spent before &quot;external mechanisms&quot;, such as</span>
+  <span class="c1"># pulling chains by AFM residues or squeezing, are turned on. The forces of</span>
+  <span class="c1"># friction and the thermostat are still active during equilibration, though.</span>
+  <span class="nt">equil time</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0 tau</span>
+
+  <span class="c1"># Simulation seed.</span>
+  <span class="nt">seed</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">448</span>
+
+  <span class="c1"># Number of threads used.</span>
+  <span class="nt">num of threads</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+
+  <span class="c1"># Number of trajectories sampled.</span>
+  <span class="nt">num of trajectories</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1</span>
+
+  <span class="c1"># Cutoff for the repulsive interactions. This includes local repulsive forces</span>
+  <span class="c1"># and Pauli exclusion forces.</span>
+  <span class="nt">repulsive cutoff</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5 A</span>
+
+  <span class="c1"># Counting factor, i.e. multiplier for \sigma in LJ potential, below which</span>
+  <span class="c1"># the contact is considered to be &quot;active&quot;.</span>
+  <span class="nt">counting factor</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.3</span>
+
+  <span class="c1"># Debug options</span>
+  <span class="nt">debug mode</span><span class="p">:</span>
+    <span class="c1"># Turn floating point exceptions on/off.</span>
+    <span class="nt">floating point exceptions</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+    <span class="c1"># Dump raw data at every step - used in the parity tests.</span>
+    <span class="nt">dump data for every step</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="input">
+<h3><code class="docutils literal notranslate"><span class="pre">input</span></code> - <a class="reference internal" href="_input.html"><span class="doc std std-doc">Input specifications</span></a><a class="headerlink" href="#input" title="Permalink to this heading"></a></h3>
+</div>
+<div class="section" id="simulation-box">
+<h3><code class="docutils literal notranslate"><span class="pre">simulation</span> <span class="pre">box</span></code> - <a class="reference internal" href="_sbox.html"><span class="doc std std-doc">Simulation box settings</span></a><a class="headerlink" href="#simulation-box" title="Permalink to this heading"></a></h3>
+</div>
+<div class="section" id="angle-potentials">
+<h3><code class="docutils literal notranslate"><span class="pre">angle</span> <span class="pre">potentials</span></code> - <a class="reference internal" href="_angle.html"><span class="doc std std-doc">Angle potentials</span></a><a class="headerlink" href="#angle-potentials" title="Permalink to this heading"></a></h3>
+</div>
+<div class="section" id="debye-hueckel">
+<h3><code class="docutils literal notranslate"><span class="pre">Debye-Hueckel</span></code> - <a class="reference internal" href="_dh.html"><span class="doc std std-doc">Debye-Hueckel FF</span></a><a class="headerlink" href="#debye-hueckel" title="Permalink to this heading"></a></h3>
+</div>
+<div class="section" id="pseudo-improper-dihedral">
+<h3><code class="docutils literal notranslate"><span class="pre">pseudo-improper</span> <span class="pre">dihedral</span></code> - <a class="reference internal" href="_pid.html"><span class="doc std std-doc">Pseudo-improper dihedral (PID) force field</span></a><a class="headerlink" href="#pseudo-improper-dihedral" title="Permalink to this heading"></a></h3>
+</div>
+<div class="section" id="quasi-adiabatic">
+<h3><code class="docutils literal notranslate"><span class="pre">quasi-adiabatic</span></code> - <a class="reference internal" href="_qa.html"><span class="doc std std-doc">Quasi-adiabatic (QA) FF</span></a><a class="headerlink" href="#quasi-adiabatic" title="Permalink to this heading"></a></h3>
+</div>
+<div class="section" id="chirality">
+<h3><code class="docutils literal notranslate"><span class="pre">chirality</span></code> - <a class="reference internal" href="_chir.html"><span class="doc std std-doc">Chirality FF</span></a><a class="headerlink" href="#chirality" title="Permalink to this heading"></a></h3>
+</div>
+<div class="section" id="native-contacts">
+<h3><code class="docutils literal notranslate"><span class="pre">native</span> <span class="pre">contacts</span></code> - <a class="reference internal" href="_nc.html"><span class="doc std std-doc">Native contacts FF</span></a><a class="headerlink" href="#native-contacts" title="Permalink to this heading"></a></h3>
+</div>
+<div class="section" id="pauli-exclusion">
+<h3><code class="docutils literal notranslate"><span class="pre">Pauli</span> <span class="pre">exclusion</span></code> - <a class="reference internal" href="_pauli.html"><span class="doc std std-doc">Pauli exclusion FF</span></a><a class="headerlink" href="#pauli-exclusion" title="Permalink to this heading"></a></h3>
+</div>
+<div class="section" id="tether-forces">
+<h3><code class="docutils literal notranslate"><span class="pre">tether</span> <span class="pre">forces</span></code> - <a class="reference internal" href="_tether.html"><span class="doc std std-doc">Tether pair FF</span></a><a class="headerlink" href="#tether-forces" title="Permalink to this heading"></a></h3>
+</div>
+<div class="section" id="progress-bar">
+<h3><code class="docutils literal notranslate"><span class="pre">progress</span> <span class="pre">bar</span></code> - <a class="reference internal" href="_pbar.html"><span class="doc std std-doc">Progress bar</span></a><a class="headerlink" href="#progress-bar" title="Permalink to this heading"></a></h3>
+</div>
+<div class="section" id="output">
+<h3><code class="docutils literal notranslate"><span class="pre">output</span></code> - <a class="reference internal" href="_output.html"><span class="doc std std-doc">Output files</span></a><a class="headerlink" href="#output" title="Permalink to this heading"></a></h3>
+</div>
+<div class="section" id="checkpoints">
+<h3><code class="docutils literal notranslate"><span class="pre">checkpoints</span></code> - <a class="reference internal" href="_ckpt.html"><span class="doc std std-doc">Checkpoints</span></a><a class="headerlink" href="#checkpoints" title="Permalink to this heading"></a></h3>
+</div>
+<div class="section" id="local-repulsive">
+<h3><code class="docutils literal notranslate"><span class="pre">local</span> <span class="pre">repulsive</span></code> - <a class="reference internal" href="_lrep.html"><span class="doc std std-doc">Local repulsive force field</span></a><a class="headerlink" href="#local-repulsive" title="Permalink to this heading"></a></h3>
+</div>
+<div class="section" id="amino-acid-data">
+<h3><code class="docutils literal notranslate"><span class="pre">amino</span> <span class="pre">acid</span> <span class="pre">data</span></code> - <a class="reference internal" href="_amino.html"><span class="doc std std-doc">Amino acid data</span></a><a class="headerlink" href="#amino-acid-data" title="Permalink to this heading"></a></h3>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jakub Bednarz, IF PAN.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

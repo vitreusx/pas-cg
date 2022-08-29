@@ -13,11 +13,12 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Quick Start" href="quickstart.html" /> 
+    <link rel="next" title="User Guide" href="user/index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -37,8 +38,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user/index.html">User guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dev/index.html">Developer Guide</a></li>
 </ul>
 
         </div>
@@ -66,54 +67,26 @@
            <div itemprop="articleBody">
              
   <div class="section" id="welcome-to-pas-cg-s-documentation">
-<h1>Welcome to PAS CG’s documentation!<a class="headerlink" href="#welcome-to-pas-cg-s-documentation" title="Permalink to this headline"></a></h1>
+<h1>Welcome to PAS CG’s documentation!<a class="headerlink" href="#welcome-to-pas-cg-s-documentation" title="Permalink to this heading"></a></h1>
 <p>This is the documentation for the PAS CG, a coarse-grained molecular dynamics
 model of the Polish Academy of Sciences. Created by Jakub Bednarz.</p>
 <p>Github: <a class="reference external" href="https://github.com/vitreusx/pas-cg">vitreusx/pas-cg</a></p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#requirements">Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#getting-the-program">Getting the program</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#running">Running</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#examples">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quickstart.html#docker">Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user/index.html">User Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user/index.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user/index.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user/index.html#quick-start">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user/index.html#functionality">Functionality</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="user/index.html">User guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="user/repo.html">Structure of the repository</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/files.html">Parameter and other files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/base_forces.html">Base forces. Variants of the Lennard-Jones potential</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/diff.html">Differences with the reference version</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/units.html">Internal units. Quantities</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/aa_data.html">Amino acid data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/general.html">General parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/input.html">Input layer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/output.html">Program output</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/tether.html">Tether pair FF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/chir.html">Chirality FF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/nat_ang.html">Native bond angle FF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/heur_ang.html">Heurestic bond angle FF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/nat_dih.html">Native dihedral angle FFs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/heur_dih.html">Heurestic dihedral angle FF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/contacts.html">On native and non-native contacts</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/nat_cont.html">Native contacts FF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/pauli.html">Pauli exclusion FF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/dh.html">Debye-Hueckel FF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/qa.html">Quasi-adiabatic (QA) FF</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/pid.html">Pseudo-improper dihedral (PID) force field</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/langevin.html">Langevin PC integrator</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/nl.html">Neighbor list</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/pbar.html">Progress bar</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/afm.html">Atomic Force Microscope (AFM)</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="dev/index.html">Developer Guide</a></li>
 </ul>
 </div>
 </div>
 <div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline"></a></h1>
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h1>
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
@@ -125,7 +98,7 @@ model of the Polish Academy of Sciences. Created by Jakub Bednarz.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="quickstart.html" class="btn btn-neutral float-right" title="Quick Start" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="user/index.html" class="btn btn-neutral float-right" title="User Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Input specifications &mdash; PAS CG  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> PAS CG
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/index.html">Developer Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PAS CG</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Input specifications</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user/_input.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="tex2jax_ignore mathjax_ignore section" id="input-specifications">
+<h1>Input specifications<a class="headerlink" href="#input-specifications" title="Permalink to this heading"></a></h1>
+<p>The program operates on protein chains, where each amino acid is represented by
+its Ca atom. These chains can be provided to the program in one of two ways -
+from a PDB file, or via a file written in custom sequence file format. Once that
+is done, one can further modify the protein chains by arranging them into a
+self-avoiding walk.</p>
+<div class="section" id="model-data">
+<h2>Model data<a class="headerlink" href="#model-data" title="Permalink to this heading"></a></h2>
+<p>The entire model, conceptually, consists of the following components:</p>
+<ol class="arabic simple">
+<li><p>Residues, with its amino acid type and an optional native position;</p></li>
+<li><p>Chains, which are essentially lists of residues;</p></li>
+<li><p>Native contacts, with the participating residues and the contact type. We
+distinguish following contact types: backbone-backbone, backbone-sidechain,
+sidechain-sidechain and disulfide bonds;</p></li>
+<li><p>Pairs of connected residues, auto-generated from the chain structure. If the
+model was generated from the PDB file, an original length of the tether is
+saved;</p></li>
+<li><p>Triples of connected residues, auto-generated from the chain structure. Each
+such triple angle may contain the native value of the bond angle, if such
+exists, in which case it is treated by the native bond angle force field.
+Otherwise, it is treated by the heurestic bond angle force field;</p></li>
+<li><p>Quadruples of connected residues, auto-generated from the chain structure.
+Each such quadruple may contain the native value of the dihedral angle, if
+such exists, in which case it is treated by the complex or simple variant of
+the native dihedral angle force field. Otherwise, it is treated by the
+heurestic dihedral angle force field.</p></li>
+</ol>
+</div>
+<div class="section" id="loading-from-a-pdb-file">
+<h2>Loading from a PDB file<a class="headerlink" href="#loading-from-a-pdb-file" title="Permalink to this heading"></a></h2>
+<p>A PDB file can be specified in the parameter file via either a path or an inline
+source of the file. The protein chains in the file are reduced to the
+coarse-grained representation by replacing the residues with the <span class="math notranslate nohighlight">\(C_\alpha\)</span>
+atoms. Before that is done, one can derive a contact map between the residues
+based on the distances between the <span class="math notranslate nohighlight">\(C_\alpha\)</span> atoms or between all the atoms.
+The contact is said to be established, if the distance between the atoms or
+residues is less than the sum of radii of the atoms or residues in question
+times <span class="math notranslate nohighlight">\((26/7)^{1/6}\)</span>. Moreover, the native tether distances, bond angles and
+dihedral angles are computed for the purposes of the relevant force fields.</p>
+</div>
+<div class="section" id="loading-from-sequence-file">
+<h2>Loading from sequence file<a class="headerlink" href="#loading-from-sequence-file" title="Permalink to this heading"></a></h2>
+<p>A custom sequence file can be specified. Such a file consists of a list of
+chains given by the amino acid codes of the consecutive residues. The chains are
+by default intrinsically disordered, and therefore handled by the heurestic
+force fields for the bond and dihedral angles. This can be overriden for
+contiguous parts of the protein chains with the use of the map files. Such a map
+file consists of the values of the native bond and dihedral angles, as well as a
+list of native contacts between the residues.</p>
+</div>
+<div class="section" id="sequence-file-format">
+<h2>Sequence file format<a class="headerlink" href="#sequence-file-format" title="Permalink to this heading"></a></h2>
+<p>Sequence file is written in a YAML format with a following “schema”:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
+  <span class="nt">chains</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">list of chain entries</span>
+</pre></div>
+</div>
+<p>where:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">chain</span><span class="p">:</span>
+  <span class="nt">seq</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">string of amino acid codes for the consecutive residues</span>
+  <span class="nt">maps</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">list of map entries</span>
+
+<span class="nt">map</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">map-file subnode</span>
+
+<span class="nt">map</span><span class="p">:</span>
+  <span class="nt">__source</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">map-file subnode</span>
+  <span class="nt">shift</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">integer</span>
+
+<span class="nt">map-file</span><span class="p">:</span>
+  <span class="nt">contacts</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">csv file</span>
+  <span class="nt">angles</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">csv file</span>
+  <span class="nt">dihedrals</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">csv file</span>
+</pre></div>
+</div>
+<p>The two formats of <code class="docutils literal notranslate"><span class="pre">map</span></code> entry (an unshifted one and a shifted one) are mutually
+exclusive. The shift is added to all the indices present in the <code class="docutils literal notranslate"><span class="pre">map-file</span></code>.
+The <code class="docutils literal notranslate"><span class="pre">map</span></code> entry of the <code class="docutils literal notranslate"><span class="pre">chain</span></code> node is optional - if missing, the chain is
+intrinsically disordered.</p>
+<p>Regarding the schemas of csv files:</p>
+<ul class="simple">
+<li><p>the schema of the contacts csv file is <code class="docutils literal notranslate"><span class="pre">i1,i2,length</span></code>, where <code class="docutils literal notranslate"><span class="pre">length</span></code> is
+assumed to be in Angstroms, if given without a unit;</p></li>
+<li><p>the schema of the angles csv file is <code class="docutils literal notranslate"><span class="pre">i1,i2,i3,theta</span></code>, where <code class="docutils literal notranslate"><span class="pre">theta</span></code> is
+assumed to be in radians, if given without a unit;</p></li>
+<li><p>thhe schema of the dihedrals csv file is <code class="docutils literal notranslate"><span class="pre">i1,i2,i3,i4,phi</span></code>, where <code class="docutils literal notranslate"><span class="pre">phi</span></code> is
+assumed to be in radians, if left without a unit.</p></li>
+</ul>
+</div>
+<div class="section" id="morphing-the-chains-into-a-self-avoiding-walk">
+<h2>Morphing the chains into a self-avoiding walk<a class="headerlink" href="#morphing-the-chains-into-a-self-avoiding-walk" title="Permalink to this heading"></a></h2>
+<p>Positions of the residues can be set (or overriden in the case of the PDB file)
+into a self-avoiding walk. The parameters for the procedure are:</p>
+<ul class="simple">
+<li><p>The initial residue density, from which an initial simulation box size is
+computed;</p></li>
+<li><p>Bond distance between the residues;</p></li>
+<li><p>Distance threshold for the residues to intersect;</p></li>
+<li><p>Number of retries;</p></li>
+<li><p>Whether the computed simulation box should be used in the simulation or
+discarded.</p></li>
+</ul>
+<p>The procedure itself is as follows:</p>
+<ol class="arabic simple">
+<li><p>For each chain:</p>
+<ol class="arabic simple">
+<li><p>We sample a position from the initial simulation box for the first
+residue in the chain, and sample a random direction in which the next
+residue will be placed.</p></li>
+<li><p>For the remaining residues, we place them at a bond distance from a
+previous residue in the direction of the current direction vector, and
+after that disturb the current direction vector by tilting it by an angle
+drawn uniformly from [<span class="math notranslate nohighlight">\(0\)</span>, <span class="math notranslate nohighlight">\(\pi/3\)</span>] and rotating it round the original
+value by an angle drawn uniformly from [<span class="math notranslate nohighlight">\(0\)</span>, <span class="math notranslate nohighlight">\(2\pi\)</span>]</p></li>
+</ol>
+</li>
+<li><p>We repeat it for all the chains, and after that check if any of the residues
+intersect:</p>
+<ol class="arabic simple">
+<li><p>If they do, we start all over, for at most the given number of retries;</p></li>
+<li><p>Otherwise, we end the procedure;</p></li>
+<li><p>If the number of retries is exceeded, an exception is thrown.</p></li>
+</ol>
+</li>
+</ol>
+</div>
+<div class="section" id="parameter-file-stanza">
+<h2>Parameter file stanza<a class="headerlink" href="#parameter-file-stanza" title="Permalink to this heading"></a></h2>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Input specification</span>
+<span class="nt">input</span><span class="p">:</span>
+  <span class="c1"># Following two stanzas, &quot;pdb file&quot; and &quot;seq file&quot;, are mutually exclusive,</span>
+  <span class="c1"># and one of them is required for the program to function.</span>
+
+  <span class="c1"># PDB file specification.</span>
+  <span class="nt">pdb file</span><span class="p">:</span>
+    <span class="c1"># Source file (verbatim or via path to file)</span>
+    <span class="c1">#    source: ~</span>
+    <span class="c1">#      (file contents)</span>
+    <span class="c1">#      (at path): path to PDB file</span>
+
+    <span class="c1"># Whether to load CRYST1 record from the PDB file, in which case the</span>
+    <span class="c1"># simulation box size gets set to the size in the record.</span>
+    <span class="nt">ignore CRYST1</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+
+    <span class="c1"># Whether to skip unknown atoms in the PDB file.</span>
+    <span class="nt">skip unknown</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+
+    <span class="c1"># A map of aliases of the residues - some PDB files use nonstandard residue</span>
+    <span class="c1"># names which are nominally not supported by the program.</span>
+    <span class="nt">aliases</span><span class="p">:</span> <span class="p p-Indicator">{</span><span class="nt"> HSD</span><span class="p">:</span> <span class="nv">HIS</span> <span class="p p-Indicator">}</span>
+
+    <span class="c1"># Sequence file specification</span>
+    <span class="nt">seq file</span><span class="p">:</span>
+    <span class="c1"># Source file (verbatim or via path to file)</span>
+  <span class="c1">#      source: ~</span>
+  <span class="c1">#        (file contents)</span>
+  <span class="c1">#        (at path): path to seq file</span>
+
+  <span class="c1"># Morphing the input model into a self-avoiding walk.</span>
+  <span class="nt">morph into SAW</span><span class="p">:</span>
+    <span class="c1"># Whether to perform the procedure</span>
+    <span class="nt">perform</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+
+    <span class="c1"># Bond distance used. In actuality, it&#39;s *slightly* more complicated, in</span>
+    <span class="c1"># that this bond distance is used if the input comes from the sequence file,</span>
+    <span class="c1"># and if the input comes from the PDB file, then the average of native</span>
+    <span class="c1"># state tether lengths is used.</span>
+    <span class="nt">bond distance</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3.8f A</span>
+
+    <span class="c1"># A start box, i.e. the box from which the first residues in the chains are</span>
+    <span class="c1"># sampled. The options are:</span>
+    <span class="c1"># - scalar &quot;origin&quot;, in which case the first residues are always given the</span>
+    <span class="c1">#   position (0, 0, 0) - note that this **will** cause issues with more</span>
+    <span class="c1">#   than one chain;</span>
+    <span class="c1"># - a map with a &quot;density&quot; key, in which case the box spans from [-a/2,</span>
+    <span class="c1">#   -a/2, -a/2] to [a/2, a/2, a/2], where a is computed so that the (molar)</span>
+    <span class="c1">#   density of the start box is equal to the given value;</span>
+    <span class="c1"># - a map with a &quot;size&quot; key, similar to the previous case but with an</span>
+    <span class="c1">#   explicitly set box side length.</span>
+    <span class="nt">start box</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">origin</span>
+    <span class="c1">#    start box:</span>
+    <span class="c1">#      density: 1e-4 residue/A**3</span>
+    <span class="c1">#      size: 0 A</span>
+
+    <span class="c1"># A distance, at which a given generated conformation is considered to be</span>
+    <span class="c1"># self-intersecting, in which case we sample another conformation until</span>
+    <span class="c1"># there are no such intersections.</span>
+    <span class="nt">intersection at</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4.56 A</span>
+
+    <span class="c1"># A number of retries of the procedure (with the retries being caused by</span>
+    <span class="c1"># the aforementioned intersections).</span>
+    <span class="nt">num of retries</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">9001</span>
+
+    <span class="c1"># Whether the procedure should take place in a start box with periodic</span>
+    <span class="c1"># boundary conditions.</span>
+    <span class="nt">periodic boundary conditions</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+
+  <span class="c1"># Whether to use actual masses of the residues, as specified in the `amino</span>
+  <span class="c1"># acid` stanza further ahead, or to average them out to a single value.</span>
+  <span class="nt">normalize mass</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+
+  <span class="c1"># Whether to load native structure (angles and dihedrals) from the PDB or</span>
+  <span class="c1"># sequence file.</span>
+  <span class="nt">load native structure</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jakub Bednarz, IF PAN.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

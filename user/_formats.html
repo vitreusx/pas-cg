@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>File formats &mdash; PAS CG  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> PAS CG
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/index.html">Developer Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PAS CG</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>File formats</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user/_formats.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="tex2jax_ignore mathjax_ignore section" id="file-formats">
+<h1>File formats<a class="headerlink" href="#file-formats" title="Permalink to this heading"></a></h1>
+<div class="section" id="parameter-file">
+<h2>Parameter file<a class="headerlink" href="#parameter-file" title="Permalink to this heading"></a></h2>
+<p>The parameter file(s) are created in the <a class="reference internal" href="#yaml-files"><span class="std std-doc">YAML</span></a> format. All the
+defaults are located in
+the <a class="reference external" href="https://github.com/vitreusx/pas-cg/tree/main/cg/src/default.yml"><code class="docutils literal notranslate"><span class="pre">cg/default.yml</span></code></a>
+master file.</p>
+</div>
+<div class="section" id="yaml-files">
+<h2>YAML files<a class="headerlink" href="#yaml-files" title="Permalink to this heading"></a></h2>
+<p>The <a class="reference external" href="https://en.wikipedia.org/wiki/YAML">YAML</a> files used throughout the program
+are standard YAML files, with few “conventions” added. In the documentation, we
+specify schemas for the entries, i.e. associate types with various nodes. Aside
+from the usual types, like numbers or strings or lists etc., we introduce a
+number of custom types.</p>
+<div class="section" id="file-nodes">
+<h3>File nodes<a class="headerlink" href="#file-nodes" title="Permalink to this heading"></a></h3>
+<p>Whenever a given YAML entry in the documentation is denoted as <code class="docutils literal notranslate"><span class="pre">file</span></code>, one can
+either provide it as a scalar with the contents, or refer to it by a path. The
+path is relative <strong>to the YAML file</strong>.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">scalar</span>
+
+<span class="nt">file</span><span class="p">:</span>
+  <span class="nt">(at path)</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">relpath</span>
+</pre></div>
+</div>
+<p>This is chiefly done in order to not have to include the file verbatim in the
+YAML file, while ensuring the consistency of such “external” references.</p>
+</div>
+<div class="section" id="subnodes">
+<h3>Subnodes<a class="headerlink" href="#subnodes" title="Permalink to this heading"></a></h3>
+<p>In certain cases an entry is denoted as <code class="docutils literal notranslate"><span class="pre">subnode</span></code> - this means that either we
+can provide its value as a regular YAML subnode, or refer to it in another file
+in a manner as above.</p>
+</div>
+<div class="section" id="csv-files">
+<h3>CSV files<a class="headerlink" href="#csv-files" title="Permalink to this heading"></a></h3>
+<p>A CSV file (usually denoted as <code class="docutils literal notranslate"><span class="pre">csv</span> <span class="pre">file</span></code>) can be included in the YAML file in
+the same way that a regular file is, by contents or by a path.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jakub Bednarz, IF PAN.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

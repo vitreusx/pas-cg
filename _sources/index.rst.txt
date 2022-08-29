@@ -15,8 +15,8 @@ Github: `vitreusx/pas-cg <https://github.com/vitreusx/pas-cg>`_
    :maxdepth: 2
    :caption: Contents:
 
-   quickstart
    user/index
+   dev/index
 
 
 Indices and tables

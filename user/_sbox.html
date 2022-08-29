@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulation box settings &mdash; PAS CG  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> PAS CG
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/index.html">Developer Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PAS CG</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Simulation box settings</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user/_sbox.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="tex2jax_ignore mathjax_ignore section" id="simulation-box-settings">
+<h1>Simulation box settings<a class="headerlink" href="#simulation-box-settings" title="Permalink to this heading"></a></h1>
+<div class="section" id="squeezing">
+<span id="id1"></span><h2>Squeezing<a class="headerlink" href="#squeezing" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="finding-force-minimum">
+<span id="id2"></span><h2>Finding force minimum<a class="headerlink" href="#finding-force-minimum" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="oscillations">
+<span id="id3"></span><h2>Oscillations<a class="headerlink" href="#oscillations" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="pulling-at-the-end">
+<span id="id4"></span><h2>Pulling at the end<a class="headerlink" href="#pulling-at-the-end" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="parameter-file-stanza">
+<h2>Parameter file stanza<a class="headerlink" href="#parameter-file-stanza" title="Permalink to this heading"></a></h2>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Simulation box settings, as well as the parameters detailing simulation-box-</span>
+<span class="c1"># related simulation protocols, such as squeezing, oscillations etc.</span>
+<span class="nt">simulation box</span><span class="p">:</span>
+  <span class="c1"># Initial size specification.</span>
+  <span class="nt">initial size</span><span class="p">:</span>
+    <span class="c1"># Type of the derivation of the initial simulation box size. Options:</span>
+    <span class="c1"># - &quot;sufficient&quot;: the box is such as to contain all the residues. See</span>
+    <span class="c1">#   `sufficient box params` for more details.</span>
+    <span class="c1"># - &quot;from CRYST1 record&quot;: the box is set to one spanning from [0, 0, 0] to</span>
+    <span class="c1">#   [a, b, c] where the latter values are taken from CRYST1 record in the</span>
+    <span class="c1">#   PDB file. Note: this usually only makes sense if the periodic boundary</span>
+    <span class="c1">#   conditions are enabled, or there are no walls.</span>
+    <span class="c1"># - &quot;keep from SAW&quot;: the box is set to one which was used in the SAW</span>
+    <span class="c1">#   procedure with the periodic boundary conditions (Note: this is **not**</span>
+    <span class="c1">#   the same as the CRYST1 box, as the latter is not actually used in the</span>
+    <span class="c1">#   SAW procedure, even if periodic boundary conditions are used)</span>
+    <span class="c1"># - &quot;infinite&quot;: the simulation box is boundless; of course, this setting</span>
+    <span class="c1">#   only makes sense with no walls.</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">sufficient</span>
+
+    <span class="c1"># Further parameters for the &quot;sufficient&quot; option for the &quot;type&quot; property</span>
+    <span class="c1"># above.</span>
+    <span class="nt">sufficient box params</span><span class="p">:</span>
+      <span class="c1"># A multiple of the bond size (derived as mentioned previously), which</span>
+      <span class="c1"># gets added in each direction to the minimal box containing the residues.</span>
+      <span class="nt">pad (x bond)</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2.0</span>
+
+      <span class="c1"># Maximum density of the box. Optional. To be more specific, if set, the</span>
+      <span class="c1"># simulation box necessarily contains a cube with a size derived so as to</span>
+      <span class="c1"># make it have the specified molar density, in a fashion similar to an</span>
+      <span class="c1"># option &quot;start box&quot; in the section about morphing into SAW, centered in</span>
+      <span class="c1"># zero.</span>
+      <span class="nt">maximum density</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1e-4 residue/A**3</span>
+
+      <span class="c1"># Whether the generated simulation box should be cubic or not.</span>
+      <span class="nt">cubic</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+
+  <span class="c1"># Parameters for the simulation box walls.</span>
+  <span class="nt">walls</span><span class="p">:</span>
+    <span class="c1"># Types of the walls. This can be set separately for x/y/z axes, as well as</span>
+    <span class="c1"># set for all axes at the same time.</span>
+    <span class="c1"># The key options are:</span>
+    <span class="c1"># - &quot;x axis&quot;, &quot;y axis&quot;, &quot;z axis&quot;: separately;</span>
+    <span class="c1"># - &quot;all axes&quot;: all at once.</span>
+    <span class="c1"># The wall types are:</span>
+    <span class="c1"># - &quot;void&quot;: no walls on the given axis/axes;</span>
+    <span class="c1"># - &quot;periodic&quot;: periodic boundary conditions on a given</span>
+    <span class="c1">#   axis/axes (this is, one must admit, a mild misuse of the language, but</span>
+    <span class="c1">#   putting it here seems like a most fitting option.)</span>
+    <span class="c1"># - &quot;solid&quot;: the walls being &quot;solid&quot;, i.e. described by potential V ~ d^{-9}.</span>
+    <span class="c1"># Note that, if enabled, the walls can change the type to an attractive one</span>
+    <span class="c1"># during the simulation; this usually only makes sense if the type of the</span>
+    <span class="c1"># wall is &quot;solid&quot;.</span>
+    <span class="nt">all axes</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">void</span>
+
+    <span class="c1"># Threshold for the wall interactions. (Note: equivalent to `walmindist`)</span>
+    <span class="nt">threshold</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5.0 A</span>
+
+    <span class="c1"># Parameters for the &quot;solid&quot; wall type.</span>
+    <span class="nt">solid wall params</span><span class="p">:</span>
+      <span class="c1"># Depth of the potential.</span>
+      <span class="nt">depth</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4.0 eps</span>
+
+    <span class="c1"># Parameters for the LJ attractive wall type.</span>
+    <span class="nt">lj wall params</span><span class="p">:</span>
+      <span class="c1"># Depth of the potential.</span>
+      <span class="nt">depth</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">4.0 eps</span>
+
+      <span class="c1"># Timespan, over which the target depth is acquired quasi-adiabatically.</span>
+      <span class="nt">cycle duration</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0 tau</span>
+
+      <span class="c1"># A multiplier for the minimum of the radius, above which the connection</span>
+      <span class="c1"># of a residue with the wall is considered to be broken.</span>
+      <span class="nt">breaking dist factor</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.5</span>
+
+      <span class="c1"># Connection limit for each wall.</span>
+      <span class="c1"># Options:</span>
+      <span class="c1"># - a number: a fixed number of connections.</span>
+      <span class="c1"># - &quot;auto&quot;: a value derived via a fairly complex formula which I won&#39;t</span>
+      <span class="c1">#   reproduce here.</span>
+      <span class="nt">connection limit</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">auto</span>
+
+    <span class="c1"># Parameters for the harmonic attractive wall type.</span>
+    <span class="nt">harmonic wall params</span><span class="p">:</span>
+      <span class="c1"># The &quot;depth&quot;: V = HH1 d^2</span>
+      <span class="nt">HH1</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">30.0 eps/A**2</span>
+
+      <span class="c1"># Connection limit for each wall. See the description in the</span>
+      <span class="c1"># &quot;lj wlal params&quot; for details.</span>
+      <span class="nt">connection limit</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">auto</span>
+
+  <span class="c1"># Common parameters for squeezing, oscillations etc.</span>
+  <span class="nt">common</span><span class="p">:</span>
+    <span class="c1"># A &quot;resting period&quot; between various phases of the simulation.</span>
+    <span class="nt">rest period</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10e3 tau</span>
+
+    <span class="c1"># Maximum (regular) velocity of wall movement, reached with constant</span>
+    <span class="c1"># acceleration over a given distance.</span>
+    <span class="nt">target velocity</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5e-3 A/tau</span>
+
+    <span class="c1"># Distance, over which the walls reach the full/target velocity.</span>
+    <span class="nt">distance before acquiring full velocity</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">12.0 A</span>
+
+    <span class="c1"># A span of time, over which to average the wall forces. The value of this</span>
+    <span class="c1"># force average is not computed with relation to the current time point -</span>
+    <span class="c1"># rather, simulation is divided into &quot;time windows&quot;, and the current value of</span>
+    <span class="c1"># the force average is equal to the average of forces in the *previous* window;</span>
+    <span class="c1"># in the first window, the value is undefined.</span>
+    <span class="nt">average forces over</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100 tau</span>
+
+  <span class="c1"># Squeezing phase settings.</span>
+  <span class="nt">squeezing</span><span class="p">:</span>
+    <span class="c1"># Whether to perform box squeezing.</span>
+    <span class="nt">perform</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+
+    <span class="c1"># Density of the target box.</span>
+    <span class="nt">target density</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1e-3 residue/A**3</span>
+
+    <span class="c1"># Velocity used when the simulation box volume is twice above the target</span>
+    <span class="c1"># volume - this being done to speed up the simulation, as one presumes that</span>
+    <span class="c1"># one needs not be that careful when there are barely any residues</span>
+    <span class="c1"># interacting with the walls.</span>
+    <span class="nt">velocity above 2V</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2e-2 A/tau</span>
+
+  <span class="c1"># &quot;Finding force minimum&quot; phase.</span>
+  <span class="nt">finding force minimum</span><span class="p">:</span>
+    <span class="c1"># Whether to perform the phase.</span>
+    <span class="nt">perform</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+
+    <span class="c1"># Force for max velocity. The velocity of the wall is proportional to the</span>
+    <span class="c1"># forces acting on the wall, clipped at a given force threshold.</span>
+    <span class="nt">force for max velocity</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.4 eps/A</span>
+
+  <span class="c1"># Oscillations phase.</span>
+  <span class="nt">oscillations</span><span class="p">:</span>
+    <span class="c1"># Whether to perform the phase.</span>
+    <span class="nt">perform</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+
+    <span class="c1"># Type of wall movement. Options:</span>
+    <span class="c1"># - &quot;squeeze&quot;: in which the z-axis walls are moved closer/apart.</span>
+    <span class="c1"># - &quot;shear&quot;: in which the z-axis walls are moved along the x-axis.</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">squeeze</span>
+
+    <span class="c1"># Number of oscillation cycles to perform.</span>
+    <span class="nt">num of cycles</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">6</span>
+
+    <span class="c1"># Parameters for the amplitude of the oscillations.</span>
+    <span class="nt">amplitude</span><span class="p">:</span>
+      <span class="c1"># Variant of the derivation of the amplitude. Options:</span>
+      <span class="c1"># - &quot;absolute&quot;: the amplitude value is as given in &quot;absolute value&quot; entry</span>
+      <span class="c1">#   below;</span>
+      <span class="c1"># - &quot;relative&quot;: the amplitude value is the distance between the z-axis</span>
+      <span class="c1">#   walls multiplied by the value of &quot;relative value&quot; entry below.</span>
+      <span class="nt">variant</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">absolute</span>
+      <span class="nt">absolute value</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10.0 A</span>
+      <span class="nt">relative value</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.1</span>
+
+    <span class="c1"># Angular frequency of the oscillations.</span>
+    <span class="nt">angular frequency</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1e-4 rad/tau</span>
+
+  <span class="c1"># &quot;Pulling at the end&quot; phase. [Not implemented]</span>
+  <span class="nt">pulling at the end</span><span class="p">:</span>
+    <span class="c1"># Whether to perform the phase.</span>
+    <span class="nt">perform</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+
+  <span class="c1"># Parameters for attractive walls. [Not implemented]</span>
+  <span class="nt">attractive walls</span><span class="p">:</span>
+    <span class="c1"># When to turn on the attractive walls. Options: ??</span>
+    <span class="nt">when</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">never</span>
+    <span class="c1"># Type of attractive wall: Options: &quot;lj&quot;, &quot;harmonic&quot;.</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">lj</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Jakub Bednarz, IF PAN.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
