@@ -31,6 +31,7 @@ public:
   void operator()() const;
   void emit_all() const;
   void at_simul_end() const;
+  void write_inputfile() const;
 
 private:
   real kinetic_energy() const;

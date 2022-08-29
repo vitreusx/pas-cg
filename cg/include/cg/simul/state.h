@@ -47,9 +47,10 @@ enum axis {
 class state {
 public:
   state() = default;
-  explicit state(parameters &params);
+  explicit state(ioxx::xyaml::node const &raw_params);
   void verify_equal(state const &other) const;
 
+  YAML::Node raw_params;
   parameters params;
 
   phase cur_phase = phase::SIMUL_INIT;

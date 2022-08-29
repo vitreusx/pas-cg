@@ -2,6 +2,7 @@
 #include <Eigen/SVD>
 #include <cg/input/records.h>
 #include <cg/output/make_report.h>
+#include <cg/utils/text.h>
 #include <fstream>
 #include <iostream>
 
@@ -657,5 +658,43 @@ void make_report::emit_map() const {
   auto map_path = with_ext(prefix, ".map");
   auto map_of = open_file(map_path);
   map_of << rep->map_root;
+}
+
+static void custom_emit(YAML::Emitter &e, YAML::Node const &n) {
+  if (n.IsScalar()) {
+    auto num_lines = std::count(n.Scalar().begin(), n.Scalar().end(), '\n') + 1;
+    if (num_lines > 1)
+      e << YAML::Literal << n;
+    else
+      e << n;
+  } else if (n.IsMap()) {
+    e << YAML::BeginMap;
+    for (auto iter = n.begin(); iter != n.end(); ++iter) {
+      e << YAML::Key;
+      custom_emit(e, iter->first);
+      e << YAML::Value;
+      custom_emit(e, iter->second);
+    }
+    e << YAML::EndMap;
+  } else if (n.IsSequence()) {
+    e << YAML::BeginSeq;
+    for (auto iter = n.begin(); iter != n.end(); ++iter) {
+      custom_emit(e, *iter);
+    }
+    e << YAML::EndSeq;
+  } else {
+    e << n;
+  }
+}
+
+void make_report::write_inputfile() const {
+  auto prefix_name = prefix.filename().string();
+  auto input_file_name = format("inputfile.%s.yml", prefix_name.c_str());
+  auto input_file_path = prefix.parent_path() / input_file_name;
+  auto input_file_of = open_file(input_file_path);
+
+  YAML::Emitter e;
+  custom_emit(e, st->raw_params);
+  input_file_of << e.c_str();
 }
 } // namespace cg::out

@@ -73,6 +73,10 @@ void thread::simul_init_step() {
     st->simul_setup();
     st->traj_idx = 0;
     st->cur_phase = phase::TRAJ_INIT;
+
+    setup_output();
+    if (st->out_enabled)
+      make_report.write_inputfile();
   }
 }
 

@@ -109,19 +109,20 @@ void program::main(int argc, char **argv) {
     using prog_mode = gen::parameters::prog_mode;
     switch (params.gen.mode) {
     case prog_mode::perform_simulation:
-      perform_simulation(params);
+      perform_simulation(params, params_yml);
       break;
     case prog_mode::check_determinism:
-      check_determinism(params);
+      check_determinism(params, params_yml);
       break;
     }
   }
 }
 
-void program::perform_simulation(parameters &params) {
+void program::perform_simulation(parameters const &params,
+                                 ioxx::xyaml::node const &raw_params) {
   omp_set_num_threads((int)params.gen.num_of_threads);
 
-  auto st = state(params);
+  auto st = state(raw_params);
   auto team = thread_team(st);
 
 #pragma omp parallel default(none) shared(team)
@@ -131,10 +132,11 @@ void program::perform_simulation(parameters &params) {
   }
 }
 
-void program::check_determinism(parameters &params) {
+void program::check_determinism(parameters const &params,
+                                ioxx::xyaml::node const &raw_params) {
   omp_set_num_threads((int)params.gen.num_of_threads);
 
-  auto st1 = state(params), st2 = state(params);
+  auto st1 = state(raw_params), st2 = state(raw_params);
   auto team1 = thread_team(st1), team2 = thread_team(st2);
 
 #pragma omp parallel default(none) shared(st1, team1, st2, team2)
@@ -162,7 +164,7 @@ void program::run_from_checkpoint(const std::filesystem::path &ckpt_path) {
 
   auto const &params = st.params;
   omp_set_num_threads((int)params.gen.num_of_threads);
-  
+
   auto team = thread_team(st);
 
 #pragma omp parallel default(none) shared(team)

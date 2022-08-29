@@ -1,7 +1,10 @@
 #include <cg/simul/state.h>
 namespace cg::simul {
 
-state::state(parameters &params) : params(params) {}
+state::state(ioxx::xyaml::node const &raw_params) {
+  this->raw_params = raw_params.flatten();
+  raw_params >> params;
+}
 
 static void allclose(real u, real v) {
   if (abs(u) < 1e-8 && abs(v) < 1e-8)
@@ -38,11 +41,11 @@ void state::simul_setup() {
   gen = rand_gen(params.gen.seed);
   load_model();
   simul_setup_output();
-  rep = out::report();
 }
 
 void state::simul_setup_output() {
   rep = out::report();
+  out_enabled = params.out.enabled;
 }
 
 void state::load_model() {

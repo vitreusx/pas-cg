@@ -65,9 +65,18 @@ input:
     # names which are nominally not supported by the program.
     aliases: { HSD: HIS }
 
-    # Sequence file specification
-    seq file:
-    # Source file (verbatim or via path to file)
+    # Whether (and how) to derive native contacts from the native structure.
+    # Options:
+    # - null: No contact derivation takes place;
+    # - "from all atoms": Contacts are derived according to the overlap of all
+    #   atoms;
+    # - "only from residues": Contacts are derived according to the overlap of
+    #   CA atoms only.
+    contact deriv: ~
+
+  # Sequence file specification
+  seq file: ~
+  # Source file (verbatim or via path to file)
   #      source: ~
   #        (file contents)
   #        (at path): path to seq file
