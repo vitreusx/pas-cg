@@ -22,7 +22,30 @@ thread::thread(thread_team &team) {
   st = team.st;
   params = &st->params;
   tid = omp_get_thread_num();
+
   eval_slices = set_of_task_slices(team.num_threads);
+  eval_slices.add_static_task(eval_chir_forces, st->chir_enabled);
+  eval_slices.add_static_task(eval_tether_forces, st->tether_enabled);
+  eval_slices.add_static_task(eval_lrep_forces, st->lrep_enabled);
+  eval_slices.add_static_task(eval_nat_cont_forces, st->nat_cont_enabled);
+  eval_slices.add_static_task(eval_pauli_forces, st->pauli_enabled);
+  eval_slices.add_static_task(eval_const_dh_forces, st->dh_enabled);
+  eval_slices.add_static_task(eval_rel_dh_forces, st->dh_enabled);
+  eval_slices.add_static_task(qa_loop_over_candidates, st->qa_enabled);
+  eval_slices.add_static_task(process_qa_contacts, st->qa_enabled);
+  eval_slices.add_static_task(eval_pid_forces, st->pid_enabled);
+  eval_slices.add_static_task(eval_nat_ang_forces, st->nat_ang_enabled);
+  eval_slices.add_static_task(eval_heur_ang_forces, st->heur_ang_enabled);
+  eval_slices.add_static_task(eval_heur_dih_forces, st->heur_dih_enabled);
+  eval_slices.add_static_task(eval_cnd_forces, st->nat_dih_enabled);
+  eval_slices.add_static_task(eval_snd_forces, st->nat_dih_enabled);
+  eval_slices.add_static_task(eval_solid_wall_forces, st->solid_walls_enabled);
+  eval_slices.add_static_task(hw_eval_free, st->harmonic_walls_enabled);
+  eval_slices.add_static_task(hw_eval_conn, st->harmonic_walls_enabled);
+  eval_slices.add_static_task(ljw_sift_free, st->lj_walls_enabled);
+  eval_slices.add_static_task(ljw_eval_conn, st->lj_walls_enabled);
+  eval_slices.add_static_task(eval_vel_afm_forces, st->afm_enabled);
+  eval_slices.add_static_task(eval_force_afm_forces, st->afm_enabled);
 }
 
 void thread::init_kernels() {
@@ -43,6 +66,7 @@ void thread::init_kernels() {
   setup_pid();
   setup_afm();
   setup_walls();
+  eval_slices.reset_all();
 }
 
 void thread::setup_gen() {
@@ -173,8 +197,6 @@ void thread::setup_local_rep() {
     eval.cutoff = params->gen.repulsive_cutoff;
     eval.r = st->r;
     eval.pairs = st->local_rep_pairs;
-
-    eval_slices.add_static_task(eval);
   }
 }
 
@@ -185,8 +207,6 @@ void thread::setup_chir() {
     eval.quads = st->chir_quads;
     eval.V = &dyn.V;
     eval.F = dyn.F;
-
-    eval_slices.add_static_task(eval);
   }
 }
 
@@ -200,8 +220,6 @@ void thread::setup_tether() {
     eval.tethers = st->tether_pairs;
     eval.V = &dyn.V;
     eval.F = dyn.F;
-
-    eval_slices.add_static_task(eval);
   }
 }
 
@@ -213,8 +231,6 @@ void thread::setup_angles() {
     eval.angles = st->native_angles;
     eval.V = &dyn.V;
     eval.F = dyn.F;
-
-    eval_slices.add_static_task(eval);
   }
 
   if (params->angles.heur_ang.enabled) {
@@ -230,8 +246,6 @@ void thread::setup_angles() {
             params->angles.heur_ang.coeffs.at(heur_pair).poly[d];
       }
     }
-
-    eval_slices.add_static_task(eval);
   }
 
   if (params->angles.nat_dih.enabled) {
@@ -244,8 +258,6 @@ void thread::setup_angles() {
       eval.dihedrals = st->native_dihedrals;
       eval.V = &dyn.V;
       eval.F = dyn.F;
-
-      eval_slices.add_static_task(eval);
     } else if (nat_dih_var == "simple") {
       auto &eval = eval_snd_forces;
       eval.CDH = params->angles.nat_dih.simple.CDH;
@@ -253,8 +265,6 @@ void thread::setup_angles() {
       eval.dihedrals = st->native_dihedrals;
       eval.V = &dyn.V;
       eval.F = dyn.F;
-
-      eval_slices.add_static_task(eval);
     }
   }
 
@@ -275,8 +285,6 @@ void thread::setup_angles() {
       eval.coeffs.cos2[idx] = coeffs.cos2;
       eval.coeffs.sin_cos[idx] = coeffs.sin_cos;
     }
-
-    eval_slices.add_static_task(eval);
   }
 }
 
@@ -290,8 +298,6 @@ void thread::setup_pauli() {
     eval.pairs = &st->pauli_pairs;
     eval.V = &dyn.V;
     eval.F = dyn.F;
-
-    eval_slices.add_static_task(eval);
 
     auto &update = update_pauli_pairs;
     update.r = st->r;
@@ -335,8 +341,6 @@ void thread::setup_nat_cont() {
     else
       eval.disulfide = std::nullopt;
 
-    eval_slices.add_static_task(eval);
-
     auto &update = update_nat_contacts;
     update.r = st->r;
     update.simul_box = &st->pbc;
@@ -375,8 +379,6 @@ void thread::setup_dh() {
     eval.V = &dyn.V;
     eval.F = dyn.F;
     eval.cutoff = params->dh.cutoff;
-
-    eval_slices.add_static_task(eval);
   } else if (dh_var == "relative") {
     auto &eval = eval_rel_dh_forces;
     eval.set_V_factor(params->dh.rel_dh.perm_factor);
@@ -387,8 +389,6 @@ void thread::setup_dh() {
     eval.V = &dyn.V;
     eval.F = dyn.F;
     eval.cutoff = params->dh.cutoff;
-
-    eval_slices.add_static_task(eval);
   }
 }
 
@@ -427,8 +427,6 @@ void thread::setup_qa() {
 
     for (auto const &aa : amino_acid::all())
       loop.ptype[(uint8_t)aa] = st->comp_aa_data.ptype[(uint8_t)aa];
-
-    eval_slices.add_static_task(loop);
 
     auto &fin_proc = qa_finish_processing;
     fin_proc.candidates = &st->qa_candidates;
@@ -516,8 +514,6 @@ void thread::setup_qa() {
     for (auto const &ctype : qa::contact_type::all())
       loop.req_min_dist[(int16_t)ctype] =
           proc_cont.ljs[(int16_t)ctype].r_high();
-
-    eval_slices.add_static_task(proc_cont);
 
     auto &update = update_qa_pairs;
     update.r = st->r;
@@ -677,8 +673,6 @@ void thread::setup_pid() {
     eval.V = &dyn.V;
     eval.F = dyn.F;
 
-    eval_slices.add_static_task(eval);
-
     auto &update = update_pid_bundles;
     update.r = st->r;
     update.prev = st->prev;
@@ -715,13 +709,9 @@ void thread::setup_afm() {
     eval_vafm.afm_force.nat_r = 0;
     eval_vafm.afm_tips = st->vel_afm_tips;
 
-    eval_slices.add_static_task(eval_vafm);
-
     auto &eval_afm = eval_force_afm_forces;
     eval_afm.F = dyn.F;
     eval_afm.afm_tips = st->force_afm_tips;
-
-    eval_slices.add_static_task(eval_afm);
 
     if (params->out.enabled) {
       make_report.vel_afm = &eval_vafm;
@@ -739,8 +729,6 @@ void thread::setup_solid_walls() {
     eval.depth = params->sbox.walls.solid_wall.depth;
     eval.r = st->r;
     eval.F = dyn.F;
-
-    eval_slices.add_static_task(eval);
   }
 }
 
@@ -756,8 +744,6 @@ void thread::setup_harmonic_walls() {
     free.F = dyn.F;
     free.V = &dyn.V;
 
-    eval_slices.add_static_task(free);
-
     auto &conn = hw_eval_conn;
     conn.walls = st->harmonic_walls;
     conn.wall_F = dyn.harmonic_wall_F;
@@ -766,8 +752,6 @@ void thread::setup_harmonic_walls() {
     conn.HH1 = params->sbox.walls.harmonic_wall.HH1;
     conn.F = dyn.F;
     conn.V = &dyn.V;
-
-    eval_slices.add_static_task(conn);
   }
 }
 
@@ -786,8 +770,6 @@ void thread::setup_lj_walls() {
     sift.F = dyn.F;
     sift.V = &dyn.V;
 
-    eval_slices.add_static_task(sift);
-
     auto &eval = ljw_eval_conn;
     eval.min_dist = sift.min_dist;
     eval.force.depth() = sift.force.depth;
@@ -804,8 +786,6 @@ void thread::setup_lj_walls() {
     eval.wall_F = sift.wall_F;
     eval.F = sift.F;
     eval.V = sift.V;
-
-    eval_slices.add_static_task(eval);
 
     auto &proc = ljw_proc_cand;
     proc.walls = eval.walls;

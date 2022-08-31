@@ -427,66 +427,66 @@ void thread::fix_nl_async() {
       update_pid_bundles();
   }
 
-  //  eval_slices.reset_all();
+  eval_slices.reset_all();
 }
 
 void thread::eval_forces() {
   dyn.reset();
-  //  eval_slices.reset_dynamic();
+  eval_slices.reset_dynamic();
 
-  if (st->chir_enabled)
-    eval_chir_forces.omp_async();
-  if (st->tether_enabled)
-    eval_tether_forces.omp_async();
-  if (st->lrep_enabled)
-    eval_lrep_forces.omp_async();
-  if (st->nat_cont_enabled)
-    eval_nat_cont_forces.omp_async();
-  if (st->pauli_enabled)
-    eval_pauli_forces.omp_async();
+  //  if (st->chir_enabled)
+  //    eval_chir_forces.omp_async();
+  //  if (st->tether_enabled)
+  //    eval_tether_forces.omp_async();
+  //  if (st->lrep_enabled)
+  //    eval_lrep_forces.omp_async();
+  //  if (st->nat_cont_enabled)
+  //    eval_nat_cont_forces.omp_async();
+  //  if (st->pauli_enabled)
+  //    eval_pauli_forces.omp_async();
+  //
+  //  if (st->dh_enabled) {
+  //    eval_const_dh_forces.omp_async();
+  //    eval_rel_dh_forces.omp_async();
+  //  }
+  //
+  //  if (st->qa_enabled) {
+  //    qa_loop_over_candidates.omp_async();
+  //    process_qa_contacts.omp_async();
+  //  }
+  //  if (st->pid_enabled)
+  //    eval_pid_forces.omp_async();
+  //
+  //  if (st->nat_ang_enabled)
+  //    eval_nat_ang_forces.omp_async();
+  //  if (st->heur_ang_enabled)
+  //    eval_heur_ang_forces.omp_async();
+  //  if (st->heur_dih_enabled)
+  //    eval_heur_dih_forces.omp_async();
+  //  if (st->nat_dih_enabled) {
+  //    eval_cnd_forces.omp_async();
+  //    eval_snd_forces.omp_async();
+  //  }
+  //
+  //  if (st->solid_walls_enabled)
+  //    eval_solid_wall_forces.omp_async();
+  //
+  //  if (st->harmonic_walls_enabled) {
+  //    hw_eval_free.omp_async();
+  //    hw_eval_conn.omp_async();
+  //  }
+  //
+  //  if (st->lj_walls_enabled) {
+  //    ljw_sift_free.omp_async();
+  //    ljw_eval_conn.omp_async();
+  //  }
+  //
+  //  if (st->afm_enabled) {
+  //    eval_vel_afm_forces.omp_async();
+  //    eval_force_afm_forces.omp_async();
+  //  }
 
-  if (st->dh_enabled) {
-    eval_const_dh_forces.omp_async();
-    eval_rel_dh_forces.omp_async();
-  }
-
-  if (st->qa_enabled) {
-    qa_loop_over_candidates.omp_async();
-    process_qa_contacts.omp_async();
-  }
-  if (st->pid_enabled)
-    eval_pid_forces.omp_async();
-
-  if (st->nat_ang_enabled)
-    eval_nat_ang_forces.omp_async();
-  if (st->heur_ang_enabled)
-    eval_heur_ang_forces.omp_async();
-  if (st->heur_dih_enabled)
-    eval_heur_dih_forces.omp_async();
-  if (st->nat_dih_enabled) {
-    eval_cnd_forces.omp_async();
-    eval_snd_forces.omp_async();
-  }
-
-  if (st->solid_walls_enabled)
-    eval_solid_wall_forces.omp_async();
-
-  if (st->harmonic_walls_enabled) {
-    hw_eval_free.omp_async();
-    hw_eval_conn.omp_async();
-  }
-
-  if (st->lj_walls_enabled) {
-    ljw_sift_free.omp_async();
-    ljw_eval_conn.omp_async();
-  }
-
-  if (st->afm_enabled) {
-    eval_vel_afm_forces.omp_async();
-    eval_force_afm_forces.omp_async();
-  }
-
-  //  eval_slices.run_async(tid);
+  eval_slices.run_async(tid);
 
   dyn.omp_reduce_v2(st->dyn, *this);
 //  dyn.omp_reduce_v3(st->dyn, team);
