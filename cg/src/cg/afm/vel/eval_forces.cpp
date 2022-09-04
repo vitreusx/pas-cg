@@ -7,7 +7,7 @@ void eval_forces::operator()() const {
   }
 }
 
-template <typename E> void eval_forces::iter(tip_expr<E> &tip) const {
+template <typename E> void eval_forces::iter(tip_expr<E> const &tip) const {
   auto r_ = r[tip.res_idx()];
   auto cur_afm_pos = tip.afm_orig() + (*t - tip.ref_t()) * tip.afm_vel();
 
@@ -54,6 +54,5 @@ void eval_forces::for_slice(int from, int to) const {
 int eval_forces::total_size() const {
   return afm_tips.size();
 }
-
 
 } // namespace cg::afm::vel

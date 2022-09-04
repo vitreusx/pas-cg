@@ -10,7 +10,7 @@ void loop_over_candidates::operator()() const {
 }
 
 void loop_over_candidates::iter(int idx) const {
-  auto &node = free_pairs->at(idx);
+  decltype(auto) node = free_pairs->at(idx);
 
   if (node.is_vacant())
     return;
@@ -113,6 +113,5 @@ void loop_over_candidates::for_slice(int from, int to) const {
 int loop_over_candidates::total_size() const {
   return free_pairs->size();
 }
-
 
 } // namespace cg::qa

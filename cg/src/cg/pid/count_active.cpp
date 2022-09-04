@@ -35,10 +35,11 @@ active_counts count_active::operator()() const {
       auto i1_ = i1, i2_ = i1n, i3_ = i1p, i4_ = i2;
       //    auto r1_ = r[i1_], r2_ = r[i2_], r3_ = r[i3_], r4_ = r[i4_];
       //    auto rij = r1_ - r2_, rkj = r3_ - r2_, rkl = r3_ - r4_;
-      auto rij = eval->r[i1_] - (i2_ < n ? eval->r[i2_] : vec3r());
-      auto rkj = i3_ >= 0 ? eval->r[i3_] - (i2_ < n ? eval->r[i2_] : vec3r())
-                          : vec3r();
-      auto rkl = (i3_ >= 0 ? eval->r[i3_] : vec3r()) - eval->r[i4_];
+      auto rij = eval->r[i1_] - (i2_ < n ? (vec3r)eval->r[i2_] : vec3r());
+      auto rkj = i3_ >= 0
+                     ? eval->r[i3_] - (i2_ < n ? (vec3r)eval->r[i2_] : vec3r())
+                     : vec3r();
+      auto rkl = (i3_ >= 0 ? (vec3r)eval->r[i3_] : vec3r()) - eval->r[i4_];
       auto rm = cross(rij, rkj);
       auto rn = cross(rkj, rkl);
       auto rm_ninv = norm_inv(rm), rn_ninv = norm_inv(rn),
@@ -80,10 +81,11 @@ active_counts count_active::operator()() const {
       auto i1_ = i2, i2_ = i2n, i3_ = i2p, i4_ = i1;
       //    auto r1_ = r[i1_], r2_ = r[i2_], r3_ = r[i3_], r4_ = r[i4_];
       //    auto rij = r1_ - r2_, rkj = r3_ - r2_, rkl = r3_ - r4_;
-      auto rij = eval->r[i1_] - (i2_ < n ? eval->r[i2_] : vec3r());
-      auto rkj = i3_ >= 0 ? eval->r[i3_] - (i2_ < n ? eval->r[i2_] : vec3r())
-                          : vec3r();
-      auto rkl = (i3_ >= 0 ? eval->r[i3_] : vec3r()) - eval->r[i4_];
+      auto rij = eval->r[i1_] - (i2_ < n ? (vec3r)eval->r[i2_] : vec3r());
+      auto rkj = i3_ >= 0
+                     ? eval->r[i3_] - (i2_ < n ? (vec3r)eval->r[i2_] : vec3r())
+                     : vec3r();
+      auto rkl = (i3_ >= 0 ? (vec3r)eval->r[i3_] : vec3r()) - eval->r[i4_];
       auto rm = cross(rij, rkj);
       auto rn = cross(rkj, rkl);
       auto rm_ninv = norm_inv(rm), rn_ninv = norm_inv(rn),

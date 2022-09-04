@@ -20,12 +20,12 @@ public:
   int *num_changed;
 
 public:
-  template <typename E> void iter(nat_cont_expr<E> &nat_cont) const;
+  template <typename E>
+  void iter(nat_cont_expr<E> const &nat_cont) const;
   void operator()() const;
   void omp_async() const;
 
   void for_slice(int from, int to) const override;
   int total_size() const override;
-
 };
 } // namespace cg::nat_cont

@@ -26,15 +26,6 @@ quasi-adiabatic:
 native contacts:
   enabled: false
 
-pseudo-improper dihedral:
-  forces:
-    variant: sink lj
-    sink lj params:
-      ss:
-        per pair:
-          depth:
-            (at path): md05.csv
-
 langevin:
   temperature: 0.38 eps/kB
 

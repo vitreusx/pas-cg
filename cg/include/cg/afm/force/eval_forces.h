@@ -11,12 +11,11 @@ public:
   real const *t;
 
 public:
-  template <typename E> void iter(tip_expr<E> &tip) const;
+  template <typename E> void iter(tip_expr<E> const &tip) const;
   void operator()() const;
   void omp_async() const;
 
   void for_slice(int from, int to) const override;
   int total_size() const override;
-
 };
 } // namespace cg::afm::force

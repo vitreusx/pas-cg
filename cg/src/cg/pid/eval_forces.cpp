@@ -44,9 +44,10 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
     auto i1_ = i1, i2_ = i1n, i3_ = i1p, i4_ = i2;
     //    auto r1_ = r[i1_], r2_ = r[i2_], r3_ = r[i3_], r4_ = r[i4_];
     //    auto rij = r1_ - r2_, rkj = r3_ - r2_, rkl = r3_ - r4_;
-    auto rij = r[i1_] - (i2_ < n ? r[i2_] : vec3r());
-    auto rkj = i3_ >= 0 ? r[i3_] - (i2_ < n ? r[i2_] : vec3r()) : vec3r();
-    auto rkl = (i3_ >= 0 ? r[i3_] : vec3r()) - r[i4_];
+    auto rij = r[i1_] - (i2_ < n ? (vec3r)r[i2_] : vec3r());
+    auto rkj =
+        i3_ >= 0 ? r[i3_] - (i2_ < n ? (vec3r)r[i2_] : vec3r()) : vec3r();
+    auto rkl = (i3_ >= 0 ? (vec3r)r[i3_] : vec3r()) - r[i4_];
 
     auto rm = cross(rij, rkj);
     auto rn = cross(rkj, rkl);
@@ -92,9 +93,10 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
     auto i1_ = i2, i2_ = i2n, i3_ = i2p, i4_ = i1;
     //    auto r1_ = r[i1_], r2_ = r[i2_], r3_ = r[i3_], r4_ = r[i4_];
     //    auto rij = r1_ - r2_, rkj = r3_ - r2_, rkl = r3_ - r4_;
-    auto rij = r[i1_] - (i2_ < n ? r[i2_] : vec3r());
-    auto rkj = i3_ >= 0 ? r[i3_] - (i2_ < n ? r[i2_] : vec3r()) : vec3r();
-    auto rkl = (i3_ >= 0 ? r[i3_] : vec3r()) - r[i4_];
+    auto rij = r[i1_] - (i2_ < n ? (vec3r)r[i2_] : vec3r());
+    auto rkj =
+        i3_ >= 0 ? r[i3_] - (i2_ < n ? (vec3r)r[i2_] : vec3r()) : vec3r();
+    auto rkl = (i3_ >= 0 ? (vec3r)r[i3_] : vec3r()) - r[i4_];
 
     auto rm = cross(rij, rkj);
     auto rn = cross(rkj, rkl);
@@ -213,6 +215,5 @@ void eval_forces::for_slice(int from, int to) const {
 int eval_forces::total_size() const {
   return bundles->size();
 }
-
 
 } // namespace cg::pid

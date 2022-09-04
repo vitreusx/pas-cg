@@ -9,7 +9,7 @@ dynamics::dynamics(int num_residues) {
 void dynamics::reset() {
   V = 0.0;
   for (auto *Fs : {&F, &solid_wall_F, &lj_wall_F, &harmonic_wall_F}) {
-    for (auto &F_ : *Fs)
+    for (decltype(auto) F_ : *Fs)
       F_ = vec3r::Zero();
   }
 }
@@ -73,7 +73,7 @@ void dynamics::omp_reduce_v3(dynamics &target, const thread_team &team) {
 #pragma omp for schedule(static) nowait
   for (int idx = 0; idx < F.size(); ++idx) {
     vec3r f;
-    for (auto const &F_ : team.forces)
+    for (decltype(auto) F_ : team.forces)
       f += F_[idx];
     target.F[idx] += f;
   }

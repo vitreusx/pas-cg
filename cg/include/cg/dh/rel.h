@@ -14,16 +14,16 @@ public:
   vect::const_view<vec3r> r;
   vect::view<vec3r> F;
   sbox::pbc<real> const *simul_box;
-  vect::const_view<dh::pair> es_pairs;
+  vect::vector<dh::pair> const *es_pairs = nullptr;
   real *V;
 
 public:
-  template <typename E> void iter(dh::pair_expr<E> const &pair) const;
+  template <typename E>
+  void iter(dh::pair_expr<E> const &pair) const;
   void operator()() const;
   void omp_async() const;
 
   void for_slice(int from, int to) const override;
   int total_size() const override;
-
 };
 } // namespace cg::rel_dh

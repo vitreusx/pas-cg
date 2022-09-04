@@ -36,8 +36,8 @@ native contacts:
 pseudo-improper dihedral:
   forces:
     variant: sink lj
-    sink lj params:
-      ss:
+    ss:
+      sink lj params:
         per pair:
           depth:
             (at path): ../_mj/md05.csv

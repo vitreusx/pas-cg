@@ -11,7 +11,7 @@ kconnecttime 9
 krst 10
 ksave 10
 kksave 10
-kteql 10
+kteql 10000
 paramfile parametersMD05_pho.txt
 lcoilang T
 lcoildih T

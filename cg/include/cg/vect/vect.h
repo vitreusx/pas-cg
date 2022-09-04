@@ -1,8 +1,7 @@
 #pragma once
-#include "aos.h"
-#include "common/macros.h"
-#include "debug.h"
+#include "ind.h"
+#include "ind/macros.h"
 
 namespace cg {
-namespace vect = nitro::debug;
-} // namespace cg
+namespace vect = nitro::ind;
+}

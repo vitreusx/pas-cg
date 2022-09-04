@@ -1,7 +1,7 @@
 general:
   total time: 10000000 tau
   repulsive cutoff: 4 A
-  num of threads: 4
+  num of threads: 1
   num of trajectories: 1
   seed: 1
 

@@ -1,0 +1,1051 @@
+# General settings
+general:
+  # Program mode. Options:
+  # - "perform simulation": Standard model
+  # - "check determinism": Runs two copies of simulation in parallel to see
+  #   if the results are different. Effective when # of threads > 1; one can
+  #   check in this way if the results obtained with multi-thread simulations
+  #   are reproducible.
+  mode: perform simulation
+
+  # Total, maximal time of simulation for a single trajectory. The actual
+  # execution time can be lower; in the other direction, processes such as
+  # oscillations can be prematurely terminated in this fashion.
+  total time: 10000000 tau
+
+  # Equilibration time, i.e. time spent before "external mechanisms", such as
+  # pulling chains by AFM residues or squeezing, are turned on. The forces of
+  # friction and the thermostat are still active during equilibration, though.
+  equil time: 0 tau
+
+  # Simulation seed.
+  seed: 1
+
+  # Number of threads used.
+  num of threads: 1
+
+  # Number of trajectories sampled.
+  num of trajectories: 1
+
+  # Cutoff for the repulsive interactions. This includes local repulsive forces
+  # and Pauli exclusion forces.
+  repulsive cutoff: 4 A
+
+  # Counting factor, i.e. multiplier for \sigma in LJ potential, below which
+  # the contact is considered to be "active".
+  counting factor: 1.3
+
+  # Debug options
+  debug mode:
+    # Turn floating point exceptions on/off.
+    floating point exceptions: false
+    # Dump raw data at every step - used in the parity tests.
+    dump data for every step: false
+
+# Input specification
+input:
+  # Following two stanzas, "pdb file" and "seq file", are mutually exclusive,
+  # and one of them is required for the program to function.
+
+  # PDB file specification.
+  pdb file:
+    # Source file (verbatim or via path to file)
+    source:
+      (at path): midupdate.pdb
+
+    # Whether to load CRYST1 record from the PDB file, in which case the
+    # simulation box size gets set to the size in the record.
+    ignore CRYST1: false
+
+    # Whether to skip unknown atoms in the PDB file.
+    skip unknown: true
+
+    # A map of aliases of the residues - some PDB files use nonstandard residue
+    # names which are nominally not supported by the program.
+    aliases: { HSD: HIS }
+
+    # Whether (and how) to derive native contacts from the native structure.
+    # Options:
+    # - null: No contact derivation takes place;
+    # - "from all atoms": Contacts are derived according to the overlap of all
+    #   atoms;
+    # - "only from residues": Contacts are derived according to the overlap of
+    #   CA atoms only.
+    contact deriv: from all atoms
+
+  # Sequence file specification
+  seq file: ~
+  # Source file (verbatim or via path to file)
+  #      source: ~
+  #        (file contents)
+  #        (at path): path to seq file
+
+  # Morphing the input model into a self-avoiding walk.
+  morph into SAW:
+    # Whether to perform the procedure
+    perform: false
+
+    # Bond distance used. In actuality, it's *slightly* more complicated, in
+    # that this bond distance is used if the input comes from the sequence file,
+    # and if the input comes from the PDB file, then the average of native
+    # state tether lengths is used.
+    bond distance: 3.8f A
+
+    # A start box, i.e. the box from which the first residues in the chains are
+    # sampled. The options are:
+    # - scalar "origin", in which case the first residues are always given the
+    #   position (0, 0, 0) - note that this **will** cause issues with more
+    #   than one chain;
+    # - a map with a "density" key, in which case the box spans from [-a/2,
+    #   -a/2, -a/2] to [a/2, a/2, a/2], where a is computed so that the (molar)
+    #   density of the start box is equal to the given value;
+    # - a map with a "size" key, similar to the previous case but with an
+    #   explicitly set box side length.
+#    start box: origin
+    start box:
+      density: 54e-7 residue/A**3
+#      size: 0 A
+
+    # A distance, at which a given generated conformation is considered to be
+    # self-intersecting, in which case we sample another conformation until
+    # there are no such intersections.
+    intersection at: 4.56 A
+
+    # A number of retries of the procedure (with the retries being caused by
+    # the aforementioned intersections).
+    num of retries: 9001
+
+    # Whether the procedure should take place in a start box with periodic
+    # boundary conditions.
+    periodic boundary conditions: true
+
+  # Whether to use actual masses of the residues, as specified in the `amino
+  # acid` stanza further ahead, or to average them out to a single value.
+  normalize mass: true
+
+  # Whether to load native structure (angles and dihedrals) from the PDB or
+  # sequence file.
+  load native structure: false
+
+# Simulation box settings, as well as the parameters detailing simulation-box-
+# related simulation protocols, such as squeezing, oscillations etc.
+simulation box:
+  # Initial size specification.
+  initial size:
+    # Type of the derivation of the initial simulation box size. Options:
+    # - "sufficient": the box is such as to contain all the residues. See
+    #   `sufficient box params` for more details.
+    # - "from CRYST1 record": the box is set to one spanning from [0, 0, 0] to
+    #   [a, b, c] where the latter values are taken from CRYST1 record in the
+    #   PDB file. Note: this usually only makes sense if the periodic boundary
+    #   conditions are enabled, or there are no walls.
+    # - "keep from SAW": the box is set to one which was used in the SAW
+    #   procedure with the periodic boundary conditions (Note: this is **not**
+    #   the same as the CRYST1 box, as the latter is not actually used in the
+    #   SAW procedure, even if periodic boundary conditions are used)
+    # - "infinite": the simulation box is boundless; of course, this setting
+    #   only makes sense with no walls.
+    type: from CRYST1 record
+
+    # Further parameters for the "sufficient" option for the "type" property
+    # above.
+    sufficient box params:
+      # A multiple of the bond size (derived as mentioned previously), which
+      # gets added in each direction to the minimal box containing the residues.
+      pad (x bond): 2.0
+
+      # Maximum density of the box. Optional. To be more specific, if set, the
+      # simulation box necessarily contains a cube with a size derived so as to
+      # make it have the specified molar density, in a fashion similar to an
+      # option "start box" in the section about morphing into SAW, centered in
+      # zero.
+      maximum density: 54e-7 residue/A**3
+
+      # Whether the generated simulation box should be cubic or not.
+      cubic: false
+
+  # Parameters for the simulation box walls.
+  walls:
+    # Types of the walls. This can be set separately for x/y/z axes, as well as
+    # set for all axes at the same time.
+    # The key options are:
+    # - "x axis", "y axis", "z axis": separately;
+    # - "all axes": all at once.
+    # The wall types are:
+    # - "void": no walls on the given axis/axes;
+    # - "periodic": periodic boundary conditions on a given
+    #   axis/axes (this is, one must admit, a mild misuse of the language, but
+    #   putting it here seems like a most fitting option.)
+    # - "solid": the walls being "solid", i.e. described by potential V ~ d^{-9}.
+    # Note that, if enabled, the walls can change the type to an attractive one
+    # during the simulation; this usually only makes sense if the type of the
+    # wall is "solid".
+    all axes: periodic
+
+    # Threshold for the wall interactions. (Note: equivalent to `walmindist`)
+    threshold: 5.0 A
+
+    # Parameters for the "solid" wall type.
+    solid wall params:
+      # Depth of the potential.
+      depth: 4.0 eps
+
+    # Parameters for the LJ attractive wall type.
+    lj wall params:
+      # Depth of the potential.
+      depth: 4.0 eps
+
+      # Timespan, over which the target depth is acquired quasi-adiabatically.
+      cycle duration: 0.0 tau
+
+      # A multiplier for the minimum of the radius, above which the connection
+      # of a residue with the wall is considered to be broken.
+      breaking dist factor: 1.5
+
+      # Connection limit for each wall.
+      # Options:
+      # - a number: a fixed number of connections.
+      # - "auto": a value derived via a fairly complex formula which I won't
+      #   reproduce here.
+      connection limit: auto
+
+    # Parameters for the harmonic attractive wall type.
+    harmonic wall params:
+      # The "depth": V = HH1 d^2
+      HH1: 30.0 eps/A**2
+
+      # Connection limit for each wall. See the description in the
+      # "lj wlal params" for details.
+      connection limit: auto
+
+  # Common parameters for squeezing, oscillations etc.
+  common:
+    # A "resting period" between various phases of the simulation.
+    rest period: 10e3 tau
+
+    # Maximum (regular) velocity of wall movement, reached with constant
+    # acceleration over a given distance.
+    target velocity: 5e-3 A/tau
+
+    # Distance, over which the walls reach the full/target velocity.
+    distance before acquiring full velocity: 12.0 A
+
+    # A span of time, over which to average the wall forces. The value of this
+    # force average is not computed with relation to the current time point -
+    # rather, simulation is divided into "time windows", and the current value of
+    # the force average is equal to the average of forces in the *previous* window;
+    # in the first window, the value is undefined.
+    average forces over: 100 tau
+
+  # Squeezing phase settings.
+  squeezing:
+    # Whether to perform box squeezing.
+    perform: true
+
+    # Density of the target box.
+    target density: 14e-5 residue/A**3
+
+    # Velocity used when the simulation box volume is twice above the target
+    # volume - this being done to speed up the simulation, as one presumes that
+    # one needs not be that careful when there are barely any residues
+    # interacting with the walls.
+    velocity above 2V: 5e-1 A/tau
+
+  # "Finding force minimum" phase.
+  finding force minimum:
+    # Whether to perform the phase.
+    perform: true
+
+    # Force for max velocity. The velocity of the wall is proportional to the
+    # forces acting on the wall, clipped at a given force threshold.
+    force for max velocity: 0.4 eps/A
+
+  # Oscillations phase.
+  oscillations:
+    # Whether to perform the phase.
+    perform: true
+
+    # Type of wall movement. Options:
+    # - "squeeze": in which the z-axis walls are moved closer/apart.
+    # - "shear": in which the z-axis walls are moved along the x-axis.
+    type: squeeze
+
+    # Number of oscillation cycles to perform.
+    num of cycles: 6
+
+    # Parameters for the amplitude of the oscillations.
+    amplitude:
+      # Variant of the derivation of the amplitude. Options:
+      # - "absolute": the amplitude value is as given in "absolute value" entry
+      #   below;
+      # - "relative": the amplitude value is the distance between the z-axis
+      #   walls multiplied by the value of "relative value" entry below.
+      variant: relative
+      absolute value: 10.0 A
+      relative value: 0.5
+
+    # Angular frequency of the oscillations.
+    angular frequency: 4e-4 rad/tau
+
+  # "Pulling at the end" phase. [Not implemented]
+  pulling at the end:
+    # Whether to perform the phase.
+    perform: false
+
+  # Parameters for attractive walls. [Not implemented]
+  attractive walls:
+    # When to turn on the attractive walls. Options: ??
+    when: never
+    # Type of attractive wall: Options: "lj", "harmonic".
+    type: lj
+
+# Options for pulling with Atomic Force Microscope tips.
+AFM simulations:
+  # Whether to perform such simulations.
+  perform: false
+
+  # Type of the AFM simulation. Options:
+  # - "stretch": after equilibration, the first and last residues of the first
+  #   chain are pulled apart. To be more specific, the first residue is kept in
+  #   place by a not moving AFM tip of the "const velocity" type, and the last
+  #   one is pulled in the opposite direction by an AFM tip of either "const
+  #   velocity" or "const force" type.
+  # - "pull, then release": before equilibration, the last residue of the first
+  #   chain is pulled by an AFM tip in a direction from the first to the last
+  #   residue.
+  type: stretch
+
+  # Time window, over which to average the force/velocity of the residues. See
+  # the discussion above about the precise meaning of the "averaging".
+  average stats over: 100 tau
+
+  # Parameters for the "pull, then release" simulation type.
+  pull-release params:
+    # Time over which to pull the
+    time: 100 tau
+
+  # Parameters for the "AFM tips".
+  tip params:
+    # Type of the AFM tip used on the last residue of the chain. Options:
+    # - "const velocity": the AFM tip is attached to the residue with a harmonic
+    #   force, and moves in the prescribed direction.
+    # - "const force": the "AFM tip" exerts a constant force on the residue,
+    #   so in effect it's not an AFM tip as much as it's just an added force to
+    #   the residue.
+    type: const velocity
+
+    # Parameters for the "const velocity" option.
+    velocity params:
+      # Velocity of the AFM tip.
+      velocity: 5e-3 A/tau
+
+      # H1 parameter in the harmonic force V = H1 d^2 + H2 d^4.
+      H1: 30.0 eps/A**2
+
+      # H2 parameter in the harmonic force V = H1 d^2 + H2 d^4.
+      H2: 0.0 eps/A**2
+
+    # Parameters for the "const force" option.
+    force params:
+      # Force of the "AFM tip".
+      force: 1e-2 eps/(A*tau)
+
+# Parameters for the Langevin integrator.
+langevin:
+  # Whether it's enabled. Note: if no integrator is enabled, of which there is
+  # only one at the moment, the time doesn't move forward.
+  enabled: true
+
+  # Gamma factor in the equation mr'' = -dV/dr - gamma r' + noise, where the
+  # noise has variance sigma^2 = 2 gamma k_B T
+  gamma factor: 2.0f 1/tau
+
+  # Temperature; see the variance of the noise term above.
+  temperature: 0.38 eps/kB
+
+  # Integrator time step.
+  dt: 5e-3f tau
+
+# Parameters for the neighbor (Verlet) list.
+neighbor list:
+  # Extra padding used to not have to recompute the list on each step.
+  pad: 10.0 A
+
+  # Overall cutoff of the interactions, excluding the electrostatics.
+  cutoff: 20.0 A
+
+# Parameters for the (bond and dihedral) angle potentials of various types.
+angle potentials:
+  # Whether all the potentials (native bond angle, heurestic bond angle,
+  # native dihedral angle, heurestic dihedral angle) are enabled. This can be
+  # overriden in the force-specific stanzas below.
+  all enabled: true
+
+  # Whether the potentials for the dihedral angles are enabled.
+  dihedral potentials enabled: true
+
+  # Parameters for the heurestic bond angle potential.
+  heurestic bond angles params:
+    # Coefficients of the polynomial describing the potential, depending on the
+    # type of residue (GLY, PRO and rest as X).
+    coefficients: |
+      type1,type2,a0,a1,a2,a3,a4,a5,a6
+      G,G,20872.75597,-63260.52963,79318.301,-52680.17088,19554.21897,-3847.670279,313.6716916
+      G,P,8222.83155,-25178.89003,31841.70634,-21290.04519,7941.501624,-1567.87285,128.0761621
+      G,X,20872.75597,-63260.52963,79318.301,-52680.17088,19554.21897,-3847.670279,313.6716916
+      P,G,34646.70029,-109957.2324,144423.9036,-100525.9874,39127.31928,-8079.214542,691.8417699
+      P,P,10744.12043,-34148.94233,44818.66284,-31110.67875,12060.69185,-2479.723349,211.6367439
+      P,X,34646.70029,-109957.2324,144423.9036,-100525.9874,39127.31928,-8079.214542,691.8417699
+      X,G,15883.02041,-48923.1471,62360.6974,-42110.86572,15891.78309,-3178.490602,263.2916319
+      X,P,16912.27207,-53570.09757,70150.19389,-48602.41198,18791.04978,-3844.690523,325.3085829
+      X,X,15883.02041,-48923.1471,62360.6974,-42110.86572,15891.78309,-3178.490602,263.2916319
+
+  # Parameters for the native bond angle potential.
+  native bond angles params:
+    # `CBA` value in the potential V = CBA (theta - theta_n)^2.
+    CBA: 30.0 eps/rad**2
+
+  # Parameters for the heurestic dihedral angle potential.
+  heurestic dihedral angles params:
+    # Coefficients for the equation describing the potential, depending on the
+    # type of residue (see above).
+    coefficients: |
+      type2,type3,const,sin,cos,sin2,cos2,sin_cos
+      G,G,0.133672207,-0.007576316,0.003786907,-0.124627339,0.425373566,-0.060606303,
+      G,P,0.935285048,0.928786712,-0.18516837,0.015857805,0.2861951,0.072728001
+      G,X,0.210489196,-0.00606094,0.202709724,-0.160512736,0.461339767,0.13333598
+      P,G,0.233402207,-0.101516187,0.109235732,0.14906496,0.151803103,-0.742423775
+      P,P,1.810497634,1.171212546,0.091084321,-0.254152251,0.557619284,-1.569694253
+      P,X,0.661379307,0.115151794,0.428904959,0.200723546,0.100490651,-0.803028162
+      X,G,0.198889776,0.018181703,-0.070746181,0.122076238,0.178719533,-0.624241103
+      X,P,1.254229713,0.739393723,0.686217752,0.219188398,0.083115678,-0.790909154
+      X,X,0.275933756,0.00606063,0.257226522,0.15460117,0.146208844,-0.448484074
+
+  # Parameters for the native dihedral angle potential.
+  native dihedral angles params:
+    # Variant of the potential. Options: "complex", "simple".
+    variant: complex
+
+    # Complex variant parameters.
+    complex variant params:
+      # CDA parameter in the formula which I won't reproduce here.
+      CDA: 0.66 eps
+
+      # CDB parameter in the formula which I won't reproduce here.
+      CDB: 0.66 eps
+
+    # Simple variant parameters.
+    simple variant params:
+      # CDH parameter in the formula which I won't reproduce here.
+      CDH: 3.33 eps/rad**2
+
+# Parameters for the Debye-Hueckel (electrostatics) potential.
+Debye-Hueckel:
+  # Whether it's enabled.
+  enabled: false
+
+  # Variant of the D-H potential. Options:
+  # - "constant", in which permittivity is constant;
+  # - "relative", in which permittivity is described as eps = A r, with "A" a
+  #   permittivity factor.
+  variant: constant
+
+  # Screening distance for the D-H potential.
+  screening distance: 15.0 A
+
+  # A special cutoff distance for the electrostatics.
+  cutoff distance: 20.0 A
+
+  # Parameters for the constant-permittivity version.
+  constant variant params:
+    # Permittivity of the medium.
+    permittivity: 80.0 eps_0
+
+  # Parameters for the relative-permittivity version.
+  relative variant params:
+    # Permittivity factor, as described above.
+    permittivity factor: 4.0 eps_0/A
+
+# Minima of the LJ potentials for both the quasi-adiabatic and PID potentials;
+# it's extracted here to not have to repeat it twice.
+ss_pairs_csv: &ss_pairs_csv |
+  type,ALA,ARG,ASN,ASP,CYS,GLN,GLU,GLY,HIS,ILE,LEU,LYS,MET,PHE,PHO,PRO,SER,THR,TRP,TYR,VAL
+  ALA,6.41596,7.99254,7.02481,6.73004,6.96894,7.39072,7.03513,0.0,7.49807,7.4515,7.64571,7.25636,7.90635,8.167,6.73004,6.84509,6.52979,6.94089,8.6489,8.01558,7.06164
+  ARG,7.99254,10.0222,8.87054,9.12439,8.24142,9.25989,9.51825,0.0,9.2293,8.75517,8.98363,9.49215,9.27252,9.2578,9.12439,8.6967,8.27447,8.49644,9.82199,9.50922,8.31488
+  ASN,7.02481,8.87054,7.74478,7.49738,7.49217,8.18851,7.99731,0.0,8.36404,7.95509,8.13966,8.11461,8.48918,8.64859,7.49738,7.55152,7.18018,7.45743,9.10847,8.96106,7.53705
+  ASP,6.73004,9.12439,7.49738,7.3958,7.17592,8.15441,7.81457,0.0,8.49948,7.65258,7.85839,8.58582,8.14884,8.5134,7.3958,7.23515,6.99305,7.19339,9.10307,9.34604,7.22267
+  CYS,6.96894,8.24142,7.49217,7.17592,7.55733,7.72232,7.44878,0.0,8.1679,7.94719,8.07406,7.83117,8.29132,8.49679,7.17592,7.52633,6.97079,7.4017,8.94558,8.25576,7.55818
+  GLN,7.39072,9.25989,8.18851,8.15441,7.72232,8.6339,8.40626,0.0,8.64366,8.24492,8.43726,8.68554,8.83875,8.95351,8.15441,7.90612,7.63811,7.76803,9.58092,9.27035,7.8121
+  GLU,7.03513,9.51825,7.99731,7.81457,7.44878,8.40626,8.37524,0.0,8.8443,7.97275,8.19823,8.90461,8.61045,8.74517,7.81457,7.53281,7.40681,7.50872,9.47919,9.47761,7.49567
+  GLY,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0
+  HIS,7.49807,9.2293,8.36404,8.49948,8.1679,8.64366,8.8443,0.0,8.82674,8.36691,8.56678,8.57814,8.9267,8.97502,8.49948,7.90923,7.87748,7.97856,9.65746,9.38343,7.91666
+  ILE,7.4515,8.75517,7.95509,7.65258,7.94719,8.24492,7.97275,0.0,8.36691,8.5263,8.77193,8.15891,8.9472,9.11118,7.65258,7.87539,7.52021,7.92881,9.57259,8.77521,8.06246
+  LEU,7.64571,8.98363,8.13966,7.85839,8.07406,8.43726,8.19823,0.0,8.56678,8.77193,8.93237,8.39261,9.14397,9.33507,7.85839,8.01034,7.68498,8.12374,9.78508,9.01661,8.29202
+  LYS,7.25636,9.49215,8.11461,8.58582,7.83117,8.68554,8.90461,0.0,8.57814,8.15891,8.39261,8.93192,8.79787,8.79341,8.58582,7.80572,7.73488,7.79424,9.20968,9.03734,7.68742
+  MET,7.90635,9.27252,8.48918,8.14884,8.29132,8.83875,8.61045,0.0,8.9267,8.9472,9.14397,8.79787,9.29013,9.55493,8.14884,8.28535,7.94113,8.33046,10.0219,9.28102,8.48089
+  PHE,8.167,9.2578,8.64859,8.5134,8.49679,8.95351,8.74517,0.0,8.97502,9.11118,9.33507,8.79341,9.55493,9.73068,8.5134,8.35495,8.24345,8.58396,10.168,9.56181,8.68731
+  PHO,6.73004,9.12439,7.49738,7.3958,7.17592,8.15441,7.81457,0.0,8.49948,7.65258,7.85839,8.58582,8.14884,8.5134,7.3958,7.23515,6.99305,7.19339,9.10307,9.34604,7.22267
+  PRO,6.84509,8.6967,7.55152,7.23515,7.52633,7.90612,7.53281,0.0,7.90923,7.87539,8.01034,7.80572,8.28535,8.35495,7.23515,7.41516,7.04405,7.31767,8.73009,8.60035,7.47655
+  SER,6.52979,8.27447,7.18018,6.99305,6.97079,7.63811,7.40681,0.0,7.87748,7.52021,7.68498,7.73488,7.94113,8.24345,6.99305,7.04405,6.64507,6.96918,8.753,8.35846,7.16628
+  THR,6.94089,8.49644,7.45743,7.19339,7.4017,7.76803,7.50872,0.0,7.97856,7.92881,8.12374,7.79424,8.33046,8.58396,7.19339,7.31767,6.96918,7.30031,9.13956,8.5783,7.54035
+  TRP,8.6489,9.82199,9.10847,9.10307,8.94558,9.58092,9.47919,0.0,9.65746,9.57259,9.78508,9.20968,10.0219,10.168,9.10307,8.73009,8.753,9.13956,10.8456,10.0829,9.22171
+  TYR,8.01558,9.50922,8.96106,9.34604,8.25576,9.27035,9.47761,0.0,9.38343,8.77521,9.01661,9.03734,9.28102,9.56181,9.34604,8.60035,8.35846,8.5783,10.0829,9.34099,8.38777
+  VAL,7.06164,8.31488,7.53705,7.22267,7.55818,7.8121,7.49567,0.0,7.91666,8.06246,8.29202,7.68742,8.48089,8.68731,7.22267,7.47655,7.16628,7.54035,9.22171,8.38777,7.64602
+
+# Before we continue: the specs for the forces in the following stanzas adhere
+# to a regular schema. We distinguish two types of specs: a regular spec, for
+# stuff like a backbone-backbone force, and an "ss" spec for sidechain-sidechain
+# forces which sometimes require per-residue-pair-type values of the parameters.
+
+# An example spec for the regular forces.
+a random force:
+  # Force variant to be used. Options:
+  # - "lj": Lennard-Jones force;
+  # - "sink lj": a "sinking" LJ force, in which the pointlike minimum of the
+  #   potential is extended to span a certain interval of the radii.
+  # - "shifted lj": a version of the LJ force, effective only at close distances
+  #   (i.e. below r_min) and shifted to make the value of the potential always
+  #   positive.
+  # - "harmonic": harmonic force.
+  variant: lj
+
+  # Parameters for the "lj" option.
+  lj params:
+    # Depth of the potential.
+    depth: 1 eps
+
+    # Distance value, at which the potential reaches minimum; equivalently,
+    # 2^{1/6} \sigma.
+    r_min: 5 A
+
+  # Parameters for the "shifted lj" option - the same, as for the regular LJ
+  # potential.
+  shifted lj params:
+    depth: 1 eps
+    r_min: 4 A
+
+  # Parameters for the "sink lj" option.
+  sink lj params:
+    # Depth of the potential, as in the regular case.
+    depth: 1 eps
+
+    # The start of the "sink" of the potential, i.e. the interval of distances
+    # at which the potential reaches its minimum.
+    r_low: 5 A
+
+    # The end of the aforementioned interval.
+    r_high: 9 A
+
+  # Parameters for the "harmonic" option.
+  harmonic params:
+    # Value of H1 in V = H1 d^2 + H2 d^4
+    H1: 100 eps/A**2
+
+    # Value of H2 in V = H1 d^2 + H2 d^4
+    H2: 0 eps/A**4
+
+    # Optional "blanket" value of the native distance, used for example with
+    # disulfide bonds.
+    nat_r: 6.0 A
+
+# An example spec for a sidechain-sidechain force; we'll focus only on the
+# changes from the regular spec.
+a sidechain-sidechain force:
+  variant: lj
+  lj params:
+    # For each force parameter, we can set the "default"
+    # per-residue-pair parameters.
+    default:
+      depth: 1 eps
+
+    # Similarly, we can provide a table of values, in a format similar to the
+    # table of minima of the potentials in `ss_pairs_csv` entry.
+    per pair:
+      r_min:
+        (at path): values.csv
+
+# Parameters for the pseudo-improper dihedral (PID) potential.
+pseudo-improper dihedral:
+  # Whether it's enabled.
+  enabled: false
+
+  # Whether to allow for interactions between residues separated by three other
+  # residues.
+  include (i, i+4): true
+
+  # Parameters for the "lambda" functions.
+  lambda:
+    # Variant of the lambda function used: Options: "algebraic", "cosine"
+    variant: algebraic
+
+    # Function parameters for the "bb plus" term.
+    bb+:
+      alpha: 6.4 1/rad
+      psi_0: 1.05 rad
+
+    # Function parameters for the "bb minus" term.
+    bb-:
+      alpha: 6.0 1/rad
+      psi_0: -1.44 rad
+
+    # Function parameters for the "ss" term.
+    ss:
+      alpha: 1.2 1/rad
+      psi_0: -0.23 rad
+
+  # Parameters for the forces.
+  forces:
+    # Variant of the forces used; in this case, values other than "lj" and
+    # "sink lj" aren't supported. The case for the "sink lj" is somewhat
+    # special, as by default it *inherits* the values from the lj params spec
+    # below to r_high, and sets r_low to zero. In other words, if sinking lj
+    # is enabled, by default the sink extends to zero distance, and the end
+    # of the sink is as set in `ss_pairs_csv`.
+    variant: sink lj
+
+    # Parameters for the "bb plus" LJ potential.
+    bb+:
+      lj params:
+        depth: 0.2 eps
+        r_min: 5.6 A
+
+    # Parameters for the "bb minus" LJ potential.
+    bb-:
+      lj params:
+        depth: 0.2 eps
+        r_min: 6.2 A
+
+    # Parameters for the "ss" LJ potential.
+    ss:
+      lj params:
+        default:
+          depth: 1.0 eps
+        per pair:
+          r_min: *ss_pairs_csv
+      sink lj params:
+        per pair:
+          depth:
+            (at path): ../_mj/md05.csv
+
+# Parameters for the quasi-adiabatic potential.
+quasi-adiabatic:
+  # Whether it's enabled.
+  enabled: false
+
+  # Time span of saturation/breaking of the contacts in a quasi-adiabatic
+  # manner.
+  phase duration: 10 tau
+
+  # An extra buffer for the distance criterion during formation. More
+  # specifically, the minimum distance becomes (1-[tolerance value]) * r_min
+  # with r_min the value appropriate for the given residue-pair type.
+  formation tolerance: 0
+
+  # A set of values for the geometric criteria in the formation process, which
+  # I don't describe here.
+  min |cos(h, r)|: 0.92
+  min |cos(h, h)| for bb: 0.75
+  max cos(n, r): 0.5
+
+  # Whether to include interactions between residues separated by three other
+  # residues.
+  include (i, i+4): true
+
+  # Specs for the forces between the residues.
+  forces:
+    variant: lj
+
+    # Forces for contacts of the "backbone-backbone" type.
+    bb:
+      lj params:
+        depth: 1.0 eps
+        r_min: 5.0 A
+
+    # Forces for contacts of the "backbone-sidechain" (and vice versa) type.
+    bs:
+      lj params:
+        depth: 1.0 eps
+        r_min: 6.8 A
+
+    # Forces for contacts of the "sidechain-sidechain" (and vice versa) type.
+    ss:
+      lj params:
+        default:
+          depth: 1.0 eps
+        per pair:
+          r_min: *ss_pairs_csv
+
+  # Parameters for the dynamically-formed disulfide bonds. WARN: I'm not
+  # precisely sure if it's 100% implemented correctly, to be completely
+  # honest.
+  disulfides:
+    force:
+      variant: harmonic
+      harmonic params:
+        H1: 100 eps/A**2
+        H2: 0 eps/A**4
+        nat_r: 6.0 A
+      lj params:
+        depth: 4.0 eps
+        r_min: 6.0 A
+    special criteria:
+      enabled: false
+      max neigh count: 9
+      neigh radius: 7.5 A
+      def bond dist: 6.0 A
+      max bond dist deviation: 0.1 A
+
+# Parameters for the chirality potential.
+chirality:
+  # Whether it's enabled.
+  enabled: false
+
+  # Depth of the potential.
+  e_chi: 1 eps
+
+# Parameters for the Go-model contacts, as well as some "simulation protocol"
+# settings pertaining to these.
+native contacts:
+  # Whether it's enabled.
+  enabled: false
+
+  # Depth of the LJ potential used.
+  lj depth: 1 eps
+
+  # Parameters for the native disulfide bonds (the SSBOND entries in
+  # the PDB file). NOTE: I'm not sure if it should include all native contacts
+  # two cysteines, or only the ones for which an SSBOND record exists.
+  disulfide bond force:
+    variant: harmonic
+    harmonic params:
+      H1: 100 eps/A**2
+      H2: 0 eps/A**4
+      nat_r: 6.0 A
+    lj params:
+      depth: 4.0 eps
+      r_min: 6.0 A
+
+  # Parameters specifying the folding/unfolding study/protocol.
+  (un)folding study:
+    # Enable early stopping when all contacts are formed or broken (more
+    # generally, having changed the state from the native one).
+    stop when all are formed/broken: false
+
+    # Measure median first-change (formed -> broken or broken -> formed for
+    # unfolding/folding studies respectively) time across multiple trajectories.
+    measure median times: false
+
+# Parameters for the Pauli exclusion force.
+Pauli exclusion:
+  # Whether it's enabled.
+  enabled: true
+
+  # Depth of the force.
+  depth: 1.0 eps
+
+# Parameters for the tether forces.
+tether forces:
+  # Whether it's enabled.
+  enabled: true
+  H1: 100 eps/A**2
+  H2: 0 eps/A**4
+
+# Parameters for the progress bar.
+progress bar:
+  # Whether it's enabled.
+  enabled: true
+
+  # Width of the progress bar, in characters.
+  width: 64
+
+  # Real-time update period.
+  update period: 2.5 s
+
+# Parameters for the output part of the program.
+output:
+  # Whether it's enabled.
+  enabled: true
+
+  # Write stats (.out file) every x time (in simulation time).
+  emit stats every: 1e2 tau
+
+  # Write structure (.pdb and .map files) every x time (in simulation time).
+  emit structure every: 1e2 tau
+
+  # Prefix for the output files (so, the files will be output.out, output.pdb
+  # etc.)
+  file prefix: updatesq14
+
+# Parameters for the checkpoint generation.
+checkpoints:
+  # Whether it's enabled.
+  enabled: true
+
+  # Write new checkpoint every x time (in simulation time).
+  save every: 1e2 tau
+
+  # Format string for the checkpoint files. The singular parameter of the
+  # format file is time (in the units of tau).
+  path format: "ckpt/%.3f"
+
+# Parameters for local repulsive potential.
+local repulsive:
+  # Whether it's enabled.
+  enabled: true
+
+  # Depth of the potential.
+  depth: 1.0 eps
+
+# Details for the amino acid residues.
+amino acid data:
+  default atom data:
+    C: 1.61 A
+    CA: 1.88 A
+    CB: 1.88 A
+    CD: 1.88 A
+    CD1: 1.61 A
+    CD2: 1.76 A
+    CE: 1.88 A
+    CE1: 1.76 A
+    CE2: 1.76 A
+    CE3: 1.76 A
+    CG: 1.88 A
+    CG1: 1.88 A
+    CG2: 1.88 A
+    CH2: 1.76 A
+    CZ: 1.61 A
+    CZ2: 1.76 A
+    CZ3: 1.73 A
+    N: 1.64 A
+    ND1: 1.64 A
+    ND2: 1.64 A
+    NE: 1.64 A
+    NE1: 1.61 A
+    NE2: 1.64 A
+    NH1: 1.64 A
+    NH2: 1.64 A
+    NZ: 1.64 A
+    O: 1.42 A
+    OD1: 1.42 A
+    OD2: 1.42 A
+    OE1: 1.42 A
+    OE2: 1.42 A
+    OG: 1.46 A
+    OG1: 1.46 A
+    OH: 1.46 A
+    SG: 1.77 A
+    SD: 1.77 A
+
+  amino acids:
+    ALA:
+      mass: 71.037113805 amu
+      radius: 3.35 A
+      polarization: hydrophobic
+      contact limits:
+        back: 2
+        side (all): 4
+        side (hydrophobic): 1
+        side (polar): 1
+    ARG:
+      mass: 156.101111050 amu
+      radius: 3.95 A
+      polarization: polar
+      charge: 1 e
+      contact limits:
+        back: 2
+        side (all): 4
+        side (hydrophobic): 0
+        side (polar): 2
+    ASN:
+      mass: 114.042927470 amu
+      radius: 3.65 A
+      polarization: polar
+      contact limits:
+        back: 2
+        side (all): 3
+        side (hydrophobic): 0
+        side (polar): 2
+    ASP:
+      mass: 115.026943065 amu
+      alt atom data:
+        CG: 1.61 A
+        OD1: 1.46 A
+      radius: 3.5 A
+      polarization: polar
+      charge: -1 e
+      contact limits:
+        back: 2
+        side (all): 2
+        side (hydrophobic): 0
+        side (polar): 2
+    CYS:
+      mass: 103.009184505 amu
+      radius: 3.7 A
+      polarization: hydrophobic
+      contact limits:
+        back: 2
+        side (all): 5
+        side (hydrophobic): 2
+        side (polar): 2
+    GLU:
+      mass: 129.042593135 amu
+      alt atom data:
+        CD: 1.88 A
+        OE1: 1.46 A
+      radius: 3.65 A
+      polarization: polar
+      charge: -1 e
+      contact limits:
+        back: 2
+        side (all): 2
+        side (hydrophobic): 0
+        side (polar): 2
+    GLN:
+      mass: 128.058577540 amu
+      radius: 3.9 A
+      polarization: polar
+      contact limits:
+        back: 2
+        side (all): 3
+        side (hydrophobic): 0
+        side (polar): 2
+    GLY:
+      mass: 57.021463735 amu
+      radius: 3.15 A
+      contact limits:
+        back: 2
+        side (all): 0
+        side (hydrophobic): 0
+        side (polar): 0
+    HIS:
+      mass: 137.058911875 amu
+      radius: 4.0 A
+      polarization: polar
+      contact limits:
+        back: 2
+        side (all): 4
+        side (hydrophobic): 0
+        side (polar): 2
+    ILE:
+      mass: 113.084064015 amu
+      alt atom data:
+        CD: 1.88 A
+      radius: 4.5 A
+      polarization: hydrophobic
+      contact limits:
+        back: 2
+        side (all): 7
+        side (hydrophobic): 4
+        side (polar): 2
+    LEU:
+      mass: 113.084064015 amu
+      alt atom data:
+        CD1: 1.88 A
+        CD2: 1.88 A
+      radius: 4.6 A
+      polarization: hydrophobic
+      contact limits:
+        back: 2
+        side (all): 7
+        side (hydrophobic): 4
+        side (polar): 2
+    LYS:
+      mass: 128.094963050 amu
+      radius: 3.65 A
+      polarization: polar
+      charge: 1 e
+      contact limits:
+        back: 2
+        side (all): 3
+        side (hydrophobic): 0
+        side (polar): 2
+    MET:
+      mass: 131.040484645 amu
+      radius: 4.5
+      polarization: hydrophobic
+      contact limits:
+        back: 2
+        side (all): 7
+        side (hydrophobic): 1
+        side (polar): 1
+    PHE:
+      mass: 147.068413945 amu
+      alt atom data:
+        CZ: 1.76 A
+      radius: 4.6 A
+      polarization: hydrophobic
+      contact limits:
+        back: 2
+        side (all): 7
+        side (hydrophobic): 4
+        side (polar): 2
+    PRO:
+      mass: 97.052763875 amu
+      radius: 3.7 A
+      contact limits:
+        back: 1
+        side (all): 0
+        side (hydrophobic): 0
+        side (polar): 0
+    SER:
+      mass: 87.032028435 amu
+      radius: 3.3 A
+      polarization: polar
+      contact limits:
+        back: 2
+        side (all): 2
+        side (hydrophobic): 0
+        side (polar): 2
+    THR:
+      mass: 101.047678505 amu
+      radius: 3.6 A
+      polarization: polar
+      contact limits:
+        back: 2
+        side (all): 3
+        side (hydrophobic): 0
+        side (polar): 2
+    TRP:
+      mass: 186.079312980 amu
+      alt atom data:
+        CD1: 1.76 A
+        CD2: 1.61 A
+        CE2: 1.64 A
+      radius: 4.7 A
+      polarization: hydrophobic
+      contact limits:
+        back: 2
+        side (all): 8
+        side (hydrophobic): 4
+        side (polar): 3
+    TYR:
+      mass: 163.063328575 amu
+      alt atom data:
+        CD1: 1.76 A
+        CG: 1.61 A
+      radius: 4.5 A
+      polarization: hydrophobic
+      contact limits:
+        back: 2
+        side (all): 7
+        side (hydrophobic): 2
+        side (polar): 2
+    VAL:
+      mass: 99.068413945 amu
+      radius: 4.0 A
+      polarization: hydrophobic
+      contact limits:
+        back: 2
+        side (all): 6
+        side (hydrophobic): 4
+        side (polar): 1
+    PHO:
+      mass: 129.116 amu
+      radius: 3.5 A
+      polarization: polar
+      charge: -2 e
+      contact limits:
+        back: 2
+        side (all): 2
+        side (hydrophobic): 0
+        side (polar): 2

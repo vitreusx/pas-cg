@@ -375,7 +375,7 @@ void thread::setup_dh() {
     eval.screen_dist_inv = 1.0 / params->dh.screening_dist;
     eval.r = st->r;
     eval.simul_box = &st->pbc;
-    eval.es_pairs = st->dh_pairs;
+    eval.es_pairs = &st->dh_pairs;
     eval.V = &dyn.V;
     eval.F = dyn.F;
     eval.cutoff = params->dh.cutoff;
@@ -385,7 +385,7 @@ void thread::setup_dh() {
     eval.screen_dist_inv = 1.0 / params->dh.screening_dist;
     eval.r = st->r;
     eval.simul_box = &st->pbc;
-    eval.es_pairs = st->dh_pairs;
+    eval.es_pairs = &st->dh_pairs;
     eval.V = &dyn.V;
     eval.F = dyn.F;
     eval.cutoff = params->dh.cutoff;
@@ -722,6 +722,8 @@ void thread::setup_afm() {
 
 void thread::setup_solid_walls() {
   if (st->solid_walls_enabled) {
+    dyn.solid_wall_F = st->dyn.solid_wall_F;
+
     auto &eval = eval_solid_wall_forces;
     eval.min_dist = params->sbox.walls.threshold;
     eval.walls = st->solid_walls;
@@ -734,6 +736,8 @@ void thread::setup_solid_walls() {
 
 void thread::setup_harmonic_walls() {
   if (st->harmonic_walls_enabled) {
+    dyn.harmonic_wall_F = st->dyn.harmonic_wall_F;
+
     auto &free = hw_eval_free;
     free.depth = params->sbox.walls.solid_wall.depth;
     free.walls = st->harmonic_walls;
@@ -757,6 +761,8 @@ void thread::setup_harmonic_walls() {
 
 void thread::setup_lj_walls() {
   if (st->lj_walls_enabled) {
+    dyn.lj_wall_F = st->dyn.lj_wall_F;
+
     auto &sift = ljw_sift_free;
     sift.r = st->r;
     sift.walls = st->lj_walls;
@@ -801,7 +807,6 @@ void thread::setup_walls() {
   setup_solid_walls();
   setup_harmonic_walls();
   setup_lj_walls();
-  dyn = st->dyn;
 
   log_wall_forces_enabled = st->walls[POS_Z] && st->walls[NEG_Z];
   if (log_wall_forces_enabled) {

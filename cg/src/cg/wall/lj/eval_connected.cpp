@@ -13,7 +13,7 @@ void eval_connected::omp_async() const {
 }
 
 void eval_connected::iter(int conn_idx) const {
-  auto &node = conns->at(conn_idx);
+  decltype(auto) node = conns->at(conn_idx);
   if (node.is_vacant())
     return;
 
@@ -51,6 +51,5 @@ void eval_connected::for_slice(int from, int to) const {
 int eval_connected::total_size() const {
   return conns->size();
 }
-
 
 } // namespace cg::wall::lj

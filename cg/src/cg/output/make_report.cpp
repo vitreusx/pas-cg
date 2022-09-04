@@ -234,7 +234,7 @@ void make_report::add_cur_scalars() const {
 
   if (qa) {
     int num_intra = 0, num_inter = 0;
-    for (auto const &entry : *qa->contacts) {
+    for (decltype(auto) entry : *qa->contacts) {
       if (entry.is_vacant())
         continue;
 

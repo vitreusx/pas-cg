@@ -8,7 +8,8 @@ void eval_forces::operator()() const {
   }
 }
 
-template <typename E> void eval_forces::iter(nat_cont_expr<E> &nat_cont) const {
+template <typename E>
+void eval_forces::iter(nat_cont_expr<E> const &nat_cont) const {
   auto i1 = nat_cont.i1(), i2 = nat_cont.i2();
   auto nat_dist = nat_cont.nat_dist();
 
@@ -37,7 +38,7 @@ template <typename E> void eval_forces::iter(nat_cont_expr<E> &nat_cont) const {
   bool active_now = r12_n <= nat_dist * C216_INV * breaking_threshold;
   if (active_now ^ nat_cont.active()) {
     auto ref_idx = nat_cont.all_cont_idx();
-    auto &ref_contact = all_contacts[ref_idx];
+    decltype(auto) ref_contact = all_contacts[ref_idx];
     nat_cont.active() = ref_contact.active() = active_now;
 
     if (nat_cont.change_t() < 0) {
@@ -63,6 +64,5 @@ void eval_forces::for_slice(int from, int to) const {
 int eval_forces::total_size() const {
   return contacts->size();
 }
-
 
 } // namespace cg::nat_cont

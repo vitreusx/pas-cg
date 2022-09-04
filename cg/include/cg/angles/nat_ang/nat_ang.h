@@ -3,7 +3,9 @@
 #include <cg/vect/vect.h>
 
 namespace cg::nat_ang {
-template <typename E> struct nat_ang_expr { EXPR(i1, i2, i3, nat_theta) };
+template <typename E> struct nat_ang_expr {
+  EXPR(i1, i2, i3, nat_theta)
+};
 
 class nat_ang : public nat_ang_expr<nat_ang> {
 public:

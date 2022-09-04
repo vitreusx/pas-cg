@@ -4,7 +4,7 @@
 #include <cg/simul/runtime.h>
 
 namespace cg::afm::vel {
-class eval_forces: public simul::sliceable_task {
+class eval_forces : public simul::sliceable_task {
 public:
   harmonic afm_force;
 
@@ -15,13 +15,12 @@ public:
   vect::view<tip> afm_tips;
 
 public:
-  template <typename E> void iter(tip_expr<E> &tip) const;
+  template <typename E> void iter(tip_expr<E> const &tip) const;
   void operator()() const;
   void omp_async() const;
   real compute_force(vel::tip const &tip) const;
 
   void for_slice(int from, int to) const override;
   int total_size() const override;
-
 };
 } // namespace cg::afm::vel

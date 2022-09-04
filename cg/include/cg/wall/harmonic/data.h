@@ -2,7 +2,8 @@
 #include "../data.h"
 
 namespace cg::wall::harmonic {
-template <typename E> struct connection_expr {
+template <typename E>
+struct connection_expr {
   EXPR(wall_idx, res_idx, bead_offset, nat_dist)
 };
 
@@ -13,7 +14,8 @@ public:
 };
 
 struct wall : public gen_wall {
-  inline wall(cg::plane<real> const &plane, vec3r *F, real avg_t, int limit)
+  inline wall(cg::plane<real> const &plane, vect::iterator<vec3r> F, real avg_t,
+              int limit)
       : gen_wall{plane, F, avg_t}, limit{limit} {}
 
   int limit;

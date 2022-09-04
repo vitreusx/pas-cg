@@ -200,7 +200,7 @@ void state::compile_model() {
       box.max = {side, side, side};
       box.min = -box.max;
     } else {
-      for (int idx = 0; idx < num_res; ++idx) {
+      for (int idx = 1; idx < num_res; ++idx) {
         auto p = r[idx];
         box.min.x() = min(box.min.x(), p.x() - pad);
         box.min.y() = min(box.min.y(), p.y() - pad);
@@ -315,7 +315,7 @@ void state::setup_langevin() {
       for (int idx = 0; idx < num_res; ++idx) {
         y1[idx] -= sum_vel / num_res;
         //      x += norm_squared(y1[idx]);
-        auto &v = y1[idx];
+        decltype(auto) v = y1[idx];
         x = x + v.x() * v.x() + v.y() * v.y() + v.z() * v.z();
       }
 
@@ -618,35 +618,39 @@ void state::setup_walls() {
     auto_limit /= 2;
 
     if (wall_type[axis] == "solid") {
-      auto &neg_force = dyn.solid_wall_F.emplace_back();
-      auto &neg_wall = solid_walls.emplace_back(neg_axis_plane, &neg_force,
-                                                params.sbox.avg_forces_over);
+      decltype(auto) neg_force = dyn.solid_wall_F.emplace_back();
+      decltype(auto) neg_wall = solid_walls.emplace_back(
+          neg_axis_plane, vect::iterator<vec3r>(neg_force),
+          params.sbox.avg_forces_over);
       walls[neg_side] = &neg_wall;
 
-      auto &pos_force = dyn.solid_wall_F.emplace_back();
-      auto &pos_wall = solid_walls.emplace_back(pos_axis_plane, &pos_force,
-                                                params.sbox.avg_forces_over);
+      decltype(auto) pos_force = dyn.solid_wall_F.emplace_back();
+      decltype(auto) pos_wall = solid_walls.emplace_back(
+          pos_axis_plane, vect::iterator<vec3r>(pos_force),
+          params.sbox.avg_forces_over);
       walls[pos_side] = &pos_wall;
 
       solid_walls_enabled = true;
     } else if (wall_type[axis] == "harmonic") {
       auto limit = params.sbox.walls.harmonic_wall.limit.value_or(auto_limit);
 
-      auto &neg_force = dyn.harmonic_wall_F.emplace_back();
-      auto &neg_wall = harmonic_walls.emplace_back(
-          neg_axis_plane, &neg_force, params.sbox.avg_forces_over, limit);
+      decltype(auto) neg_force = dyn.harmonic_wall_F.emplace_back();
+      decltype(auto) neg_wall = harmonic_walls.emplace_back(
+          neg_axis_plane, vect::iterator<vec3r>(neg_force),
+          params.sbox.avg_forces_over, limit);
       walls[neg_side] = &neg_wall;
 
-      auto &pos_force = dyn.harmonic_wall_F.emplace_back();
-      auto &pos_wall = harmonic_walls.emplace_back(
-          pos_axis_plane, &pos_force, params.sbox.avg_forces_over, limit);
+      decltype(auto) pos_force = dyn.harmonic_wall_F.emplace_back();
+      decltype(auto) pos_wall = harmonic_walls.emplace_back(
+          pos_axis_plane, vect::iterator<vec3r>(pos_force),
+          params.sbox.avg_forces_over, limit);
       walls[pos_side] = &pos_wall;
 
       harmonic_walls_enabled = true;
 
       vect::vector<std::pair<real, int>> dist(num_res);
       for (int wall_idx = 0; wall_idx < harmonic_walls.size(); ++wall_idx) {
-        auto const &wall = harmonic_walls[wall_idx];
+        decltype(auto) wall = harmonic_walls[wall_idx];
         for (int res_idx = 0; res_idx < num_res; ++res_idx) {
           dist[res_idx] = std::make_pair(wall.plane.dist(r[res_idx]), res_idx);
         }
@@ -667,15 +671,17 @@ void state::setup_walls() {
     } else if (wall_type[axis] == "lj") {
       auto limit = params.sbox.walls.lj_wall.limit.value_or(auto_limit);
 
-      auto &neg_force = dyn.lj_wall_F.emplace_back();
-      auto &neg_wall = lj_walls.emplace_back(
-          neg_axis_plane, &neg_force, params.sbox.avg_forces_over, limit);
+      decltype(auto) neg_force = dyn.lj_wall_F.emplace_back();
+      decltype(auto) neg_wall = lj_walls.emplace_back(
+          neg_axis_plane, vect::iterator<vec3r>(neg_force),
+          params.sbox.avg_forces_over, limit);
       walls.push_back(&neg_wall);
       walls[neg_side] = &neg_wall;
 
-      auto &pos_force = dyn.lj_wall_F.emplace_back();
-      auto &pos_wall = lj_walls.emplace_back(
-          pos_axis_plane, &pos_force, params.sbox.avg_forces_over, limit);
+      decltype(auto) pos_force = dyn.lj_wall_F.emplace_back();
+      decltype(auto) pos_wall = lj_walls.emplace_back(
+          pos_axis_plane, vect::iterator<vec3r>(pos_force),
+          params.sbox.avg_forces_over, limit);
       walls[pos_side] = &pos_wall;
 
       lj_walls_enabled = true;

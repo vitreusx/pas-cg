@@ -6,7 +6,7 @@ void finish_processing::operator()() const {
   for (int idx = 0; idx < removed->size(); ++idx) {
     auto removed_idx = removed->at(idx);
 
-    auto &node = contacts->at(removed_idx);
+    decltype(auto) node = contacts->at(removed_idx);
     auto contact = node.item();
     auto i1 = contact.i1(), i2 = contact.i2();
 
@@ -29,7 +29,7 @@ void finish_processing::operator()() const {
   });
 
   for (int idx = 0; idx < candidates->size(); ++idx) {
-    auto &candidate = candidates->at(idx);
+    decltype(auto) candidate = candidates->at(idx);
 
     auto i1 = candidate.i1(), i2 = candidate.i2();
     auto type = candidate.type();

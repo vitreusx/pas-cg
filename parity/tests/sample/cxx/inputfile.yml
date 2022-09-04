@@ -36,13 +36,14 @@ native contacts:
   enabled: false
 
 pseudo-improper dihedral:
+  enabled: true
   forces:
     variant: sink lj
-    sink lj params:
-      ss:
+    ss:
+      sink lj params:
         per pair:
           depth:
-            (at path): ../_mj/md05.csv
+            (at path): md05.csv
 
 langevin:
   temperature: 0.38 eps/kB

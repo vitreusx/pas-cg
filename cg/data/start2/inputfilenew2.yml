@@ -1,20 +1,31 @@
 general:
-  total time: 100 tau
+  total time: 200 tau
   num of threads: 1
   num of trajectories: 1
   seed: 1
+  debug mode:
+    dump data for every step: true
 
 input:
   pdb file:
     source:
-      (at path): start_7_2.pdb
-    contact deriv: from all atoms
+      (at path): start_170.pdb
   morph into SAW:
     perform: false
+    start box:
+      density: 3e-6 residue/A**3
+    periodic boundary conditions: true
+  load native structure: false
 
 simulation box:
   initial size:
     type: from CRYST1 record
+    sufficient box params:
+      maximum density: 3e-6 residue/A**3
+  squeezing:
+    perform: true
+    target density: 3e-6 residue/A**3
+    velocity above 2V: 5e-1 A/tau
   walls:
     all axes: periodic
 
@@ -25,27 +36,20 @@ native contacts:
   enabled: false
 
 pseudo-improper dihedral:
+  enabled: true
   forces:
     variant: sink lj
-    sink lj params:
-      ss:
+    ss:
+      sink lj params:
         per pair:
           depth:
             (at path): md05.csv
 
 langevin:
   temperature: 0.38 eps/kB
-  
-Debye-Hueckel:
-  enabled: false
-  variant: constant
-  screening distance: 15.0 A
-  cutoff distance: 20.0 A
-  constant variant params:
-    permittivity: 80.0 eps_0
-    
+
 output:
   enabled: true
-  emit stats every: 1e2 tau
-  emit structure every: 1e2 tau
+  emit stats every: 1e1 tau
+  emit structure every: 1e1 tau
   file prefix: Alpha_seq_50

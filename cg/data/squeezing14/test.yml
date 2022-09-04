@@ -1,0 +1,81 @@
+general:
+  mode: perform simulation
+  total time: 10000000 tau
+  num of threads: 1
+  counting factor: 1.3
+  repulsive cutoff: 5 A
+  num of trajectories: 1
+  seed: 1
+  debug mode:
+    # Turn floating point exceptions on/off.
+    floating point exceptions: false
+    # Dump raw data at every step - used in the parity tests.
+    dump data for every step: false
+
+input:
+  pdb file:
+    source:
+      (at path): midupdate.pdb
+    contact deriv: from all atoms
+  morph into SAW:
+    perform: false
+
+simulation box:
+  initial size:
+    type: from CRYST1 record
+    sufficient box params:
+      pad (x bond): 2.0
+      maximum density: 14e-5 residue/A**3
+  squeezing:
+    perform: true
+    target density: 14e-5 residue/A**3
+    velocity above 2V: 1e-1 A/tau
+    acceleration time: 100 tau
+  finding force minimum:
+    perform: false
+  oscillations:
+    perform: false
+    angular frequency: 4e-4 rad/tau
+    amplitude:
+      variant: relative
+      relative value: 0.5
+  walls:
+    all axes: periodic
+
+quasi-adiabatic:
+  enabled: false
+
+pseudo-improper dihedral:
+    enabled: true
+    forces:
+    variant: sink lj
+    sink lj params:
+      ss:
+        per pair:
+          depth:
+            (at path): ../_mj/md05.csv
+
+
+Debye-Hueckel:
+  enabled: true
+  variant: constant
+  screening distance: 15.0 A
+  cutoff distance: 20.0 A
+  constant variant params:
+    permittivity: 80.0 eps_0
+
+native contacts:
+  (un)folding study:
+    stop when all are formed/broken: true
+    measure median times: true
+
+langevin:
+  enabled: true
+  gamma factor: 2.0f 1/tau
+  temperature: 0.38 eps/kB
+
+output:
+  file prefix: testupdated
+  emit structure every: 100 tau 
+
+
