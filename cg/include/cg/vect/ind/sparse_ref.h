@@ -1,21 +1,21 @@
 #pragma once
 // #include "../bit/lane_ref.h"
-#include "../def/lane_ref.h"
+#include "../def/sparse_ref.h"
 #include "ind_seq.h"
 #include "tuple.h"
 #include "type_list.h"
 #include "type_traits.h"
 
 namespace nitro::ind {
-template <bool Indexed, typename T, std::size_t N, std::size_t W>
-struct _lane_ref_impl;
+template <bool Indexed, typename T, typename Idxes>
+struct _sparse_ref_impl;
 
-template <typename T, std::size_t N, std::size_t W>
-using lane_ref = typename _lane_ref_impl<is_indexed_v<T>, T, N, W>::type;
+template <typename T, typename Idxes>
+using sparse_ref = typename _sparse_ref_impl<is_indexed_v<T>, T, Idxes>::type;
 
-template <typename T, std::size_t N, std::size_t W>
-struct _lane_ref_impl<false, T, N, W> {
-  using type = def::lane_ref<T, N, W>;
+template <typename T, typename Idxes>
+struct _sparse_ref_impl<false, T, Idxes> {
+  using type = def::sparse_ref<T, Idxes>;
 };
 
 // template <std::size_t N, std::size_t W>
@@ -23,8 +23,8 @@ struct _lane_ref_impl<false, T, N, W> {
 //   using type = bit::lane_ref<N, W>;
 // };
 
-template <typename T, std::size_t N, std::size_t W>
-struct _lane_ref_impl<true, T, N, W> {
+template <typename T, typename Idx>
+struct _sparse_ref_impl<true, T, Idx> {
   template <typename Idxes>
   struct _1;
 
@@ -36,11 +36,12 @@ struct _lane_ref_impl<true, T, N, W> {
     template <typename... Types>
     struct _2<type_list<Types...>> {
       class impl : public expr_t<T, impl>,
-                   public tuple<lane_ref<Types, N, W>...> {
+                   public tuple<sparse_ref<Types, Idx>...> {
       public:
-        using tuple<lane_ref<Types, N, W>...>::tuple;
-        using tuple<lane_ref<Types, N, W>...>::get;
-        using tuple<lane_ref<Types, N, W>...>::operator=;
+        using Base = tuple<sparse_ref<Types, Idx>...>;
+        using Base::get;
+        using Base::tuple;
+        using Base::operator=;
         using expr_t<T, impl>::Idxes;
       };
     };

@@ -1,6 +1,6 @@
 #pragma once
 #include "const_iterator.h"
-#include "lane_const_ref.h"
+#include "lane.h"
 
 namespace nitro::def {
 template <typename T>
@@ -13,13 +13,20 @@ public:
     return data[idx];
   }
 
-  T const &at(int idx) const {
+  template <typename Idxes, typename = std::enable_if_t<is_lane_like_v<Idxes>>>
+  auto operator[](Idxes idxes) const {
+    using Data = lane<T, lane_size_v<Idxes>, lane_width_v<Idxes>>;
+    return gather<Data>(data, idxes);
+  }
+
+  template <typename Idx>
+  decltype(auto) at(Idx idx) const {
     return (*this)[idx];
   }
 
-  template <std::size_t N, std::size_t W>
-  lane_const_ref<T, N, W> at_lane(int idx) const {
-    return lane_const_ref<T, N, W>(data + N * idx);
+  template <std::size_t N, std::size_t W = opt_width_v>
+  lane<T, N, W> at_lane(int idx) const {
+    return construct<lane<T, N, W>>(data + N * idx);
   }
 
   int size() const {

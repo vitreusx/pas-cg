@@ -98,9 +98,9 @@ endif ()
 target_link_libraries(cg
     PRIVATE vcl yaml-cpp cparse Boost Eigen3::Eigen)
 
-#set_target_properties(cg
-#    PROPERTIES
-#    INTERPROCEDURAL_OPTIMIZATION TRUE)
+set_target_properties(cg
+    PROPERTIES
+    INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 file(GLOB_RECURSE DataFiles CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/data/**")
 

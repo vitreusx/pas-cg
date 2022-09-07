@@ -3,7 +3,7 @@
 
 namespace cg::pid {
 
-void eval_forces::operator()() {
+void eval_forces::operator()() const {
   for (int idx = 0; idx < bundles->size(); ++idx) {
     iter(bundles->at(idx));
   }
@@ -215,5 +215,8 @@ void eval_forces::for_slice(int from, int to) const {
 int eval_forces::total_size() const {
   return bundles->size();
 }
+
+template <std::size_t N, std::size_t W>
+void eval_forces::vect_iter(int lane_idx) const {}
 
 } // namespace cg::pid

@@ -2,6 +2,7 @@
 #include "const_view.h"
 #include "iterator.h"
 #include "lane_ref.h"
+#include "sparse_ref.h"
 
 namespace nitro::def {
 template <typename T>
@@ -14,11 +15,17 @@ public:
     return data[idx];
   }
 
-  T &at(int idx) const {
+  template <typename Idxes, typename = std::enable_if_t<is_lane_like_v<Idxes>>>
+  auto operator[](Idxes idxes) const {
+    return sparse_ref(data, idxes);
+  }
+
+  template <typename Idx>
+  decltype(auto) at(Idx idx) const {
     return (*this)[idx];
   }
 
-  template <std::size_t N, std::size_t W>
+  template <std::size_t N, std::size_t W = opt_width_v>
   lane_ref<T, N, W> at_lane(int idx) const {
     return lane_ref<T, N, W>(data + N * idx);
   }

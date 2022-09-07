@@ -1,5 +1,5 @@
 #pragma once
-#include "../bit/vector.h"
+// #include "../bit/vector.h"
 #include "../def/vector.h"
 #include "allocator.h"
 #include "const_iterator.h"
@@ -77,27 +77,41 @@ struct _vector_impl<true, T, Alloc> {
           return ref<T>(this->template get<Idxes>()[idx]...);
         }
 
+        template <typename Idx,
+                  typename = std::enable_if_t<def::is_lane_like_v<Idx>>>
+        auto operator[](Idx idx) {
+          return sparse_ref<T, Idx>(this->template get<Idxes>()[idx]...);
+        }
+
         const_ref<T> operator[](int idx) const {
           return const_ref<T>(this->template get<Idxes>()[idx]...);
         }
 
-        ref<T> at(int idx) {
+        template <typename Idx,
+                  typename = std::enable_if_t<def::is_lane_like_v<Idx>>>
+        auto operator[](Idx idx) const {
+          return sparse_const_ref<T, Idx>(this->template get<Idxes>()[idx]...);
+        }
+
+        template <typename Idx>
+        decltype(auto) at(Idx const &idx) {
           return (*this)[idx];
         }
 
-        const_ref<T> at(int idx) const {
+        template <typename Idx>
+        decltype(auto) at(Idx const &idx) const {
           return (*this)[idx];
         }
 
-        template <std::size_t N, std::size_t W>
+        template <std::size_t N, std::size_t W = def::opt_width_v>
         lane_ref<T, N, W> at_lane(int idx) {
           return lane_ref<T, N, W>(
               this->template get<Idxes>().template at_lane<N, W>(idx)...);
         }
 
-        template <std::size_t N, std::size_t W>
-        lane_const_ref<T, N, W> at_lane(int idx) const {
-          return lane_const_ref<T, N, W>(
+        template <std::size_t N, std::size_t W = def::opt_width_v>
+        lane<T, N, W> at_lane(int idx) const {
+          return lane<T, N, W>(
               this->template get<Idxes>().template at_lane<N, W>(idx)...);
         }
 
