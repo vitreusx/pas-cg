@@ -393,7 +393,7 @@ void state::setup_tether() {
       auto i1 = res_map[tether.res1], i2 = res_map[tether.res2];
       //      auto nat_dist =
       //      (real)tether.length.value_or(params.tether.def_length);
-      auto nat_dist = norm(pbc.wrap(orig_r[i1], orig_r[i2]));
+      auto nat_dist = norm(pbc.wrap<vec3r>(orig_r[i1], orig_r[i2]));
       tether_pairs.emplace_back(i1, i2, nat_dist);
     }
   }

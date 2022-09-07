@@ -14,7 +14,7 @@ void update_bundles::operator()() const {
     if (!include4 && chain1 == chain2 && abs(seq1 - seq2) == 4)
       continue;
 
-    auto dist = norm(simul_box->wrap(r1, r2));
+    auto dist = norm(simul_box->wrap<vec3r>(r1, r2));
     if (dist < cutoff + nl->orig_pad) {
       //      auto prev1 = prev[i1], next1 = next[i1];
       //      auto prev2 = prev[i2], next2 = next[i2];

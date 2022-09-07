@@ -12,7 +12,7 @@ active_counts count_active::operator()() const {
 
     auto chain1 = chain_idx[i1], chain2 = chain_idx[i2];
     vec3r r1 = eval->r[i1], r2 = eval->r[i2];
-    auto r12 = eval->simul_box->wrap(r1, r2);
+    auto r12 = eval->simul_box->wrap<vec3r>(r1, r2);
     auto r12_n = norm(r12);
     if (r12_n > eval->cutoff)
       continue;

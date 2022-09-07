@@ -18,3 +18,6 @@ lwritemap T
 kwrite 100
 lsawconftm F
 lcpb T
+lwall T
+lwalls F
+lnowal T

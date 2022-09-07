@@ -41,4 +41,76 @@ inline constexpr std::size_t opt_width_v = 256;
 
 template <typename T, std::size_t N, std::size_t W = opt_width_v>
 using lane = typename _lane<T, N, W>::type;
+
+template <typename Lane, typename T>
+void load(Lane &data, T const *src) {
+  if constexpr (has_repr_v<T>)
+    proxy_load(data, src);
+  else if constexpr (is_vcl_lane_v<Lane>)
+    vcl_load(data, src);
+  else
+    array_load(data, src);
+}
+
+template <typename Lane, typename T>
+void store(Lane const &data, T *dst) {
+  if constexpr (has_repr_v<T>)
+    proxy_store(data, dst);
+  else if constexpr (is_vcl_lane_v<Lane>)
+    vcl_store(data, dst);
+  else
+    array_store(data, dst);
+}
+
+template <typename Lane, typename T>
+Lane construct(T const *src) {
+  if constexpr (has_repr_v<T>)
+    return proxy_construct<Lane>(src);
+  else if constexpr (is_vcl_lane_v<Lane>)
+    return vcl_construct<Lane>(src);
+  else
+    return array_construct<Lane>(src);
+}
+
+template <typename Lane, typename T, typename Idxes>
+Lane gather(T const *src, Idxes const &idxes) {
+  if constexpr (has_repr_v<T>)
+    return proxy_gather<Lane>(src, idxes);
+  else if constexpr (is_vcl_lane_v<Lane>)
+    return vcl_gather<Lane>(src, idxes);
+  else
+    return array_gather<Lane>(src, idxes);
+}
+
+template <typename Lane, typename T, typename Idxes>
+void scatter(Lane const &data, T *dst, Idxes const &idxes) {
+  if constexpr (has_repr_v<T>)
+    proxy_scatter(data, dst, idxes);
+  else if constexpr (is_vcl_lane_v<Lane>)
+    vcl_scatter(data, dst, idxes);
+  else
+    array_scatter(data, dst, idxes);
+}
+
+template <typename Lane, typename T, typename Idxes, typename Mask>
+Lane masked_gather(T const *src, Idxes const &idxes, Mask const &mask) {
+  if constexpr (has_repr_v<T>)
+    return proxy_masked_gather<Lane>(src, idxes, mask);
+  else if constexpr (is_vcl_lane_v<Lane>)
+    return vcl_masked_gather<Lane>(src, idxes, mask);
+  //  else
+  //    return array_masked_gather<Lane>(src, idxes, mask);
+}
+
+template <typename Lane, typename T, typename Idxes, typename Mask>
+void masked_scatter(Lane const &data, T *dst, Idxes const &idxes,
+                    Mask const &mask) {
+  if constexpr (has_repr_v<T>)
+    proxy_masked_scatter(data, dst, idxes, mask);
+  else if constexpr (is_vcl_lane_v<Lane>)
+    vcl_masked_scatter(data, dst, idxes, mask);
+  //  else
+  //    array_masked_scatter(dst, idxes, mask);
+}
+
 } // namespace nitro::def

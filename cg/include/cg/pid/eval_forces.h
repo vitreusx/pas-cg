@@ -29,7 +29,6 @@ public:
   void operator()() const;
   void omp_async() const;
 
-  template<std::size_t N, std::size_t W>
   void vect_iter(int lane_idx) const;
 
   bool is_active(bundle const &bundle) const;

@@ -415,7 +415,7 @@ void make_report::emit_pdb() const {
       auto chain_Rg = gyration_radius(snap.r, chain_indices);
       auto r_first = snap.r[st->chain_first[chain_idx]];
       auto r_last = snap.r[st->chain_last[chain_idx]];
-      auto chain_L = norm(snap.model_box.wrap(r_first, r_last));
+      auto chain_L = norm(snap.model_box.wrap<vec3r>(r_first, r_last));
       auto chain_W = asphericity(snap.r, chain_indices);
       auto chain_N = chain_indices.size();
 
@@ -529,7 +529,7 @@ void make_report::add_map_data() const {
       nc_row["inter/intra"] = (chain1 == chain2) ? "inter" : "intra";
       nc_row["type"] = format_nc_type(cont.type());
 
-      auto dist = norm(st->pbc.wrap(st->r[cont.i1()], st->r[cont.i2()]));
+      auto dist = norm(st->pbc.wrap<vec3r>(st->r[cont.i1()], st->r[cont.i2()]));
       nc_row["dist[A]"] = quantity(dist).value_in("A");
 
       nc_row["active"] = cont.active();
@@ -569,7 +569,7 @@ void make_report::add_map_data() const {
       qa_row["inter/intra"] = (chain1 == chain2) ? "inter" : "intra";
       qa_row["type"] = format_qa_type(cont.type());
 
-      auto dist = norm(st->pbc.wrap(st->r[cont.i1()], st->r[cont.i2()]));
+      auto dist = norm(st->pbc.wrap<vec3r>(st->r[cont.i1()], st->r[cont.i2()]));
       qa_row["dist[A]"] = quantity(dist).value_in("A");
     }
 
@@ -602,7 +602,8 @@ void make_report::add_map_data() const {
 
         pid_row["inter/intra"] = (chain1 == chain2) ? "inter" : "intra";
 
-        auto dist = norm(st->pbc.wrap(st->r[bundle.i1()], st->r[bundle.i2()]));
+        auto dist =
+            norm(st->pbc.wrap<vec3r>(st->r[bundle.i1()], st->r[bundle.i2()]));
         pid_row["dist[A]"] = quantity(dist).value_in("A");
       }
     }

@@ -21,7 +21,7 @@ void eval_forces::iter(dh::pair_expr<E> const &es) const {
   auto q1_x_q2 = es.q1_x_q2();
 
   auto r1 = r[i1], r2 = r[i2];
-  auto r12 = simul_box->wrap(r1, r2);
+  auto r12 = simul_box->wrap<vec3r>(r1, r2);
 
   auto r12_n = norm(r12);
   if (r12_n > cutoff)

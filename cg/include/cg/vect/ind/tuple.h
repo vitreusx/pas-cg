@@ -26,6 +26,12 @@ public:
   explicit tuple(Head &&head, Tail &&...tail)
       : head{std::forward<Head>(head)}, tail(std::forward<Tail>(tail)...) {}
 
+  template <typename U = Head,
+            typename = std::enable_if_t<std::conjunction_v<
+                std::is_default_constructible<U>,
+                std::is_default_constructible<tuple<Tail...>>>>>
+  tuple() : head{}, tail{} {}
+
   template <typename E, typename = std::enable_if_t<is_indexed_v<E>>>
   auto &operator=(E const &e) {
     assign<E>(e, e.Idxes());

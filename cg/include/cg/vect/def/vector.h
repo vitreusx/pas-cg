@@ -91,6 +91,14 @@ public:
     return sparse_ref<T, Idxes>(data, idxes);
   }
 
+  template <typename Idxes, typename Mask,
+            typename =
+                std::enable_if_t<is_lane_like_v<Idxes> && is_lane_like_v<Mask>>>
+  auto operator[](std::pair<Idxes, Mask> idxes_mask) {
+    auto const &[idxes, mask] = idxes_mask;
+    return masked_ref(data, idxes, mask);
+  }
+
   T const &operator[](int idx) const {
     return data[idx];
   }
@@ -99,6 +107,15 @@ public:
   auto operator[](Idxes idxes) const {
     using Data = lane<T, lane_size_v<Idxes>, lane_width_v<Idxes>>;
     return gather<Data>(data, idxes);
+  }
+
+  template <typename Idxes, typename Mask,
+            typename =
+                std::enable_if_t<is_lane_like_v<Idxes> && is_lane_like_v<Mask>>>
+  auto operator[](std::pair<Idxes, Mask> idxes_mask) const {
+    using Data = lane<T, lane_size_v<Idxes>, lane_width_v<Idxes>>;
+    auto const &[idxes, mask] = idxes_mask;
+    return masked_gather<Data>(data, idxes, mask);
   }
 
   template <typename Idx>

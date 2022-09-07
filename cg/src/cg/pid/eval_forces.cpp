@@ -1,5 +1,6 @@
 #include <cg/pid/eval_forces.h>
 #include <iostream>
+#include <vcl/vectormath_trig.h>
 
 namespace cg::pid {
 
@@ -19,7 +20,7 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
     return;
 
   vec3r r1 = r[i1], r2 = r[i2];
-  auto r12 = simul_box->wrap(r1, r2);
+  auto r12 = simul_box->wrap<vec3r>(r1, r2);
   auto r12_rn = norm_inv(r12);
   if ((real)1.0 > r12_rn * cutoff)
     return;
@@ -201,7 +202,7 @@ bool eval_forces::is_active(const bundle &bundle) const {
   auto i1 = bundle.i1(), i2 = bundle.i2();
   vec3r r1 = r[i1], r2 = r[i2];
 
-  auto r12 = norm(simul_box->wrap(r1, r2));
+  auto r12 = norm(simul_box->wrap<vec3r>(r1, r2));
   auto r_min = ss_ljs[bundle.type()].r_high();
   auto sigma = r_min * C216_INV;
   return r12 <= active_thr * sigma;
@@ -216,7 +217,215 @@ int eval_forces::total_size() const {
   return bundles->size();
 }
 
-template <std::size_t N, std::size_t W>
-void eval_forces::vect_iter(int lane_idx) const {}
+template <typename Mask, typename E, typename = void>
+struct select_impl {
+  static auto impl(Mask const &mask, E const &if_true, E const &if_false) {
+    return ::select(mask, if_true, if_false);
+  }
+};
+
+template <typename Mask, typename E>
+auto select_(Mask const &mask, E const &if_true, E const &if_false) {
+  return select_impl<Mask, E>::impl(mask, if_true, if_false);
+}
+
+template <typename Mask, typename E>
+struct select_impl<Mask, E, std::enable_if_t<vect::is_indexed_v<E>>> {
+  template <std::size_t... Idxes>
+  static auto aux(Mask const &mask, E const &if_true, E const &if_false,
+                  vect::ind_seq<Idxes...>) {
+    return E(select_(mask, if_true.template get<Idxes>(),
+                     if_false.template get<Idxes>())...);
+  }
+
+  static auto impl(Mask const &mask, E const &if_true, E const &if_false) {
+    return aux(mask, if_true, if_false, vect::idxes_t<E>{});
+  }
+};
+
+template <typename E>
+auto norm_(vec3_expr<E> const &v) {
+  return ::sqrt(norm_squared(v));
+}
+
+void eval_forces::vect_iter(int lane_idx) const {
+  static constexpr std::size_t N = 4, W = 256;
+
+  auto bundle = bundles->template at_lane<N, W>(lane_idx);
+  auto i1 = bundle.i1(), i2 = bundle.i2();
+
+  auto mask = (atype[i1] != aa_code::PRO) & (atype[i2] != aa_code::PRO);
+
+  auto r1 = r[i1], r2 = r[i2];
+  auto r12 = simul_box->wrap<vect::lane<vec3r, N, W>>(r1, r2);
+  auto r12_n = norm_(r12);
+  auto r12_rn = (real)1.0 / r12_n;
+  mask = mask & (r12_n < cutoff);
+
+  vect::lane<real, N, W> psi1, psi2;
+  vect::lane<vec3r, N, W> dpsi1_dr1p, dpsi1_dr1, dpsi1_dr1n, dpsi1_dr2;
+  vect::lane<vec3r, N, W> dpsi2_dr2p, dpsi2_dr2, dpsi2_dr2n, dpsi2_dr1;
+
+  vect::lane<int, N, W> i1p = i1 - 1, i1n = i1 + 1, i2p = i2 - 1, i2n = i2 + 1;
+  auto n = r.size();
+  auto val_i1p = (i1p >= 0), val_i1n = (i1n < n), val_i2p = (i2p >= 0),
+       val_i2n = (i2n < n);
+  auto r_i1p = r[std::make_pair(i1p, val_i1p)],
+       r_i1n = r[std::make_pair(i1n, val_i1n)],
+       r_i2p = r[std::make_pair(i2p, val_i2p)],
+       r_i2n = r[std::make_pair(i2n, val_i2n)];
+
+  vect::lane<bool, N, W> bb_lam_1_opt, bb_lam_2_opt, bb_lj_opt;
+
+  vect::lane<lambda, N, W> bb_plus_lam_v = bb_plus_lam,
+                           bb_minus_lam_v = bb_minus_lam;
+
+  {
+    //    auto &i1_ = i1, &i2_ = i1n, &i3_ = i1p, &i4_ = i2;
+    //    auto rkj =
+    //        select(i3_ >= 0, r[i3_] - select(i2_ < n, r[i2_], zero_v),
+    //        zero_v);
+    //    auto rkl = select(i3_ >= 0, r[i3_], zero_v) - r[i4_];
+
+    auto rij = r1 - r_i1n;
+    auto rkj = r_i1p - r_i1n;
+    auto rkl = r_i1p - r2;
+
+    auto rm = cross(rij, rkj);
+    auto rn = cross(rkj, rkl);
+
+    auto rm_n = norm_(rm), rn_n = norm_(rn);
+    mask = mask & (rm_n >= (real)0.1) & (rn_n >= (real)0.1);
+
+    auto rm_ninv = (real)1.0 / rm_n, rn_ninv = (real)1.0 / rm_n,
+         rkj_ninv = norm_inv(rkj), rkj_n = (real)1.0 / rkj_ninv;
+
+    auto fi = rm * rkj_n * rm_ninv * rm_ninv;
+    auto fl = -rn * rkj_n * rn_ninv * rn_ninv;
+    auto df = (fi * dot(rij, rkj) - fl * dot(rkl, rkj)) * rkj_ninv * rkj_ninv;
+    auto fj = -fi + df;
+    auto fk = -fl - df;
+
+    dpsi1_dr1 = fi;
+    dpsi1_dr1n = fj;
+    dpsi1_dr1p = fk;
+    dpsi1_dr2 = fl;
+
+    auto cos_psi1 = dot(rm, rn) * rm_ninv * rn_ninv;
+    psi1 = acos(cos_psi1);
+    psi1 = select_(dot(rij, rn) < (real)0.0, -psi1, psi1);
+
+    int m = 1;
+    bb_lam_1_opt = (i2 - i1 != 3) | (m != 2);
+
+    auto bb_lam_1 = select_(bb_lam_1_opt, bb_plus_lam_v, bb_minus_lam_v);
+    bb_lam_1_opt =
+        bb_lam_1_opt & bb_lam_1.supp(psi1) & ((i2 - i1 != 3) | (m != 1));
+  }
+
+  {
+    //    auto &i1_ = i2, &i2_ = i2n, &i3_ = i2p, &i4_ = i1;
+    //    auto rij = r[i1_] - select(i2_ < n, r[i2_], zero_v);
+    //    auto rkj =
+    //        select(i3_ >= 0, r[i3_] - select(i2_ < n, r[i2_], zero_v),
+    //        zero_v);
+    //    auto rkl = select(i3_ >= 0, r[i3_], zero_v) - r[i4_];
+    auto rij = r12 - r_i2n;
+    auto rkj = r_i2p - r_i2n;
+    auto rkl = r_i2p - r1;
+
+    auto rm = cross(rij, rkj);
+    auto rn = cross(rkj, rkl);
+
+    auto rm_n = norm_(rm), rn_n = norm_(rn);
+    mask = mask & (rm_n >= (real)0.1) & (rn_n >= (real)0.1);
+
+    auto rm_ninv = (real)1.0 / rm_n, rn_ninv = (real)1.0 / rm_n,
+         rkj_ninv = norm_inv(rkj), rkj_n = (real)1.0 / rkj_ninv;
+
+    auto fi = rm * rkj_n * rm_ninv * rm_ninv;
+    auto fl = -rn * rkj_n * rn_ninv * rn_ninv;
+    auto df = (fi * dot(rij, rkj) - fl * dot(rkl, rkj)) * rkj_ninv * rkj_ninv;
+    auto fj = -fi + df;
+    auto fk = -fl - df;
+
+    dpsi2_dr2 = fi;
+    dpsi2_dr2n = fj;
+    dpsi2_dr2p = fk;
+    dpsi2_dr1 = fl;
+
+    auto cos_psi2 = dot(rm, rn) * rm_ninv * rn_ninv;
+    psi2 = acos(cos_psi2);
+    psi2 = select_(dot(rij, rn) < (real)0.0, -psi2, psi2);
+
+    int m = 2;
+    bb_lam_2_opt = (i2 - i1 != 3) | (m != 2);
+
+    auto bb_lam_2 = select_(bb_lam_2_opt, bb_plus_lam_v, bb_minus_lam_v);
+    bb_lam_2_opt =
+        bb_lam_2_opt & bb_lam_2.supp(psi1) & ((i2 - i1 != 3) | (m != 1));
+
+    bb_lj_opt = bb_lam_2_opt;
+  }
+
+  vect::lane<real, N, W> dV_dpsi1 = (real)0.0, dV_dpsi2 = (real)0.0,
+                         dV_dr = (real)0.0, V_ = (real)0.0;
+
+  auto bb_lam_1 = select_(bb_lam_1_opt, bb_plus_lam_v, bb_minus_lam_v);
+  auto bb_lam_2 = select_(bb_lam_2_opt, bb_plus_lam_v, bb_minus_lam_v);
+  auto bb_supp = bb_lam_1.supp(psi1) & bb_lam_2.supp(psi2);
+
+  if (horizontal_or(bb_supp)) {
+    auto [lam1, deriv1] = bb_lam_1(psi1);
+    auto [lam2, deriv2] = bb_lam_2(psi2);
+
+    vect::lane<sink_lj, N, W> bb_minus_lj_v = bb_minus_lj,
+                              bb_plus_lj_v = bb_plus_lj;
+    auto bb_lj = select_(bb_lj_opt, bb_minus_lj_v, bb_plus_lj_v);
+
+    auto _mask = bb_supp & (lam1 * lam2 > (real)5e-5);
+    auto [lj_V, lj_dV_dr] = bb_lj(r12_n, r12_rn);
+
+    V_ = if_add(_mask, V_, lam1 * lam2 * lj_V);
+    dV_dpsi1 = if_add(_mask, dV_dpsi1, deriv1 * lam2 * lj_V);
+    dV_dpsi2 = if_add(_mask, dV_dpsi2, deriv2 * lam1 * lj_V);
+    dV_dr = if_add(_mask, dV_dr, lam1 * lam2 * lj_dV_dr);
+  }
+
+  auto type = bundle.type();
+  auto ss_sink_lj = ss_ljs[type];
+  auto ss_supp = ss_lam.supp(psi1) & ss_lam.supp(psi2);
+
+  if (horizontal_or(ss_supp)) {
+    auto [lam1, deriv1] = ss_lam(psi1);
+    auto [lam2, deriv2] = ss_lam(psi2);
+
+    auto _mask = ss_supp & (lam1 * lam2 > (real)5e-5) &
+                 (ss_sink_lj.depth() > (real)5e-5);
+    auto [lj_V, lj_dV_dr] = ss_sink_lj(r12_n, r12_rn);
+
+    V_ = if_add(_mask, V_, lam1 * lam2 * lj_V);
+    dV_dpsi1 = if_add(_mask, dV_dpsi1, deriv1 * lam2 * lj_V);
+    dV_dpsi2 = if_add(_mask, dV_dpsi2, deriv2 * lam1 * lj_V);
+    dV_dr = if_add(_mask, dV_dr, lam1 * lam2 * lj_dV_dr);
+  }
+
+  *V += horizontal_add(V_);
+
+  auto r12_u = r12 * r12_rn;
+
+  auto F_i1p = F[std::make_pair(i1p, val_i1p)],
+       F_i1n = F[std::make_pair(i1n, val_i1n)],
+       F_i2p = F[std::make_pair(i2p, val_i2p)],
+       F_i2n = F[std::make_pair(i2n, val_i2n)];
+  auto F_i1 = F[i1], F_i2 = F[i2];
+
+  F_i1p = F_i1p - dV_dpsi1 * dpsi1_dr1p;
+  F_i1 = F_i1 - dV_dpsi1 * dpsi1_dr1 + dV_dpsi2 * dpsi2_dr1 - dV_dr * r12_u;
+  F_i1n = F_i1n - dV_dpsi1 * dpsi1_dr1n;
+  F_i2p = F_i2p - dV_dpsi2 * dpsi2_dr2p;
+  F_i2 = F_i2 - dV_dpsi1 * dpsi1_dr2 + dV_dpsi2 * dpsi2_dr2 + dV_dr * r12_u;
+  F_i2n = F_i2n + dV_dpsi2 * dpsi2_dr2n;
+}
 
 } // namespace cg::pid

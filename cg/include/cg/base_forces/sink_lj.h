@@ -6,17 +6,20 @@
 #include <cg/vect/vect.h>
 
 namespace cg {
-template <typename E> struct sink_lj_expr {
+template <typename E>
+struct sink_lj_expr {
   EXPR(depth, r_low, r_high)
 
-  auto operator()(real r, real r_inv) const {
-    auto r_eff = (r < r_low() ? r_low() : (r < r_high() ? r : r_high()));
+  template <typename T1, typename T2>
+  auto operator()(T1 r, T2 r_inv) const {
+    auto r_eff =
+        select(r < r_low(), r_low(), select(r < r_high(), r, r_high()));
     auto s = r_inv * r_eff, s6 = ipow<6>(s), s12 = s6 * s6;
-    auto V = depth() * (s12 - 2.0f * s6);
-    auto dV_dr = 12.0f * depth() * r_inv * (s6 - s12);
-    dV_dr = (r_low() < r && r < r_low()) ? 0 : dV_dr;
-    V = clamp<real>(V, -1.0e3, 1.0e3);
-    dV_dr = clamp<real>(dV_dr, -1.0e3, 1.0e3);
+    auto V = depth() * (s12 - (real)2.0f * s6);
+    auto dV_dr = (real)12.0f * depth() * r_inv * (s6 - s12);
+    dV_dr = select((r_low() < r) && (r < r_low()), decltype(dV_dr)(0), dV_dr);
+    //    V = clamp<real>(V, (real)-1.0e3, (real)1.0e3);
+    //    dV_dr = clamp<real>(dV_dr, (real)-1.0e3, (real)1.0e3);
     return std::make_tuple(V, dV_dr);
   }
 

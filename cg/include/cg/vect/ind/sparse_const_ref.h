@@ -1,7 +1,7 @@
 #pragma once
 // #include "../bit/lane_ref.h"
 // #include "../def/sparse_ref.h"
-#include "../def/sparse_const_ref.h"
+#include "../def/const_ref.h"
 #include "ind_seq.h"
 #include "tuple.h"
 #include "type_list.h"
@@ -41,8 +41,8 @@ struct _sparse_const_ref_impl<true, T, Idx> {
                    public tuple<sparse_const_ref<Types, Idx>...> {
       public:
         using Base = tuple<sparse_const_ref<Types, Idx>...>;
+        using Base::Base;
         using Base::get;
-        using Base::tuple;
         using Base::operator=;
         using expr_t<T, impl>::Idxes;
       };

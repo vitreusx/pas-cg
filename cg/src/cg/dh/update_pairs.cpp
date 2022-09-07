@@ -15,7 +15,7 @@ void update_pairs::operator()() const {
 
     auto r1 = r[i1], r2 = r[i2];
 
-    if (norm_inv(simul_box->wrap(r1, r2)) > min_norm_inv) {
+    if (norm_inv(simul_box->wrap<vec3r>(r1, r2)) > min_norm_inv) {
       pairs->emplace_back(i1, i2, q1_x_q2);
     }
   }

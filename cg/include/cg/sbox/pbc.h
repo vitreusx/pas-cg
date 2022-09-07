@@ -3,7 +3,8 @@
 #include <cg/utils/math.h>
 
 namespace cg::sbox {
-template <typename U> class pbc {
+template <typename U>
+class pbc {
 public:
   vec3<U> cell, cell_inv;
 
@@ -33,18 +34,18 @@ public:
       cell.z() = (U)1.0 / cell_inv.z();
   }
 
-  template <typename E> inline auto wrap(E const &e) const {
-    vec3<U> in_box_ = e;
-    in_box_.x() -= cell.x() * nearbyint(e.x() * cell_inv.x());
-    in_box_.y() -= cell.y() * nearbyint(e.y() * cell_inv.y());
-    in_box_.z() -= cell.z() * nearbyint(e.z() * cell_inv.z());
-    return in_box_;
+  template <typename V>
+  inline auto wrap(V v) const {
+    v.x() -= cell.x() * round(v.x() * cell_inv.x());
+    v.y() -= cell.y() * round(v.y() * cell_inv.y());
+    v.z() -= cell.z() * round(v.z() * cell_inv.z());
+    return v;
   }
 
-  template <typename E, typename F>
+  template <typename V, typename E, typename F>
   inline auto wrap(E const &e, F const &f) const {
-    vec3<U> diff = f - e;
-    return wrap(diff);
+    auto diff = f - e;
+    return wrap<V>(diff);
   }
 };
 } // namespace cg::sbox

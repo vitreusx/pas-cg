@@ -4,6 +4,7 @@
 #include "const_iterator.h"
 #include "const_ref.h"
 #include "lane.h"
+#include "masked_const_ref.h"
 #include "sparse_const_ref.h"
 
 namespace nitro::ind {
@@ -49,6 +50,14 @@ struct _const_view_impl<true, T> {
                   typename = std::enable_if_t<def::is_lane_like_v<Idx>>>
         auto operator[](Idx idx) const {
           return sparse_const_ref<T, Idx>(this->template get<Idxes>()[idx]...);
+        }
+
+        template <typename Idx, typename Mask,
+                  typename = std::enable_if_t<def::is_lane_like_v<Idx> &&
+                                              def::is_lane_like_v<Mask>>>
+        auto operator[](std::pair<Idx, Mask> idx_mask) const {
+          return masked_const_ref<T, Idx, Mask>{
+              this->template get<Idxes>()[idx_mask]...};
         }
 
         template <typename Idx>

@@ -22,7 +22,7 @@ void legacy_update::operator()() const {
       if (chain1 == chain2 && diff < 3)
         continue;
 
-      auto orig_dist = norm(simul_box->wrap(r1, r2));
+      auto orig_dist = norm(simul_box->wrap<vec3r>(r1, r2));
       if (orig_dist < req_r) {
         bool non_native = true;
         auto cur_pair = pair(i1, i2, orig_dist);
@@ -84,7 +84,7 @@ void legacy_update::omp_async() const {
     if (chain1 == chain2 && diff < 3)
       continue;
 
-    auto orig_dist = norm(simul_box->wrap(r1, r2));
+    auto orig_dist = norm(simul_box->wrap<vec3r>(r1, r2));
     if (orig_dist < req_r) {
       bool non_native = true;
       auto cur_pair = pair(i1, i2, orig_dist);

@@ -14,7 +14,7 @@ void eval_forces::iter(nat_cont_expr<E> const &nat_cont) const {
   auto nat_dist = nat_cont.nat_dist();
 
   auto r1 = r[i1], r2 = r[i2];
-  auto r12 = simul_box->wrap(r1, r2);
+  auto r12 = simul_box->wrap<vec3r>(r1, r2);
   auto r12_n = norm(r12);
 
   if (r12_n >= cutoff)

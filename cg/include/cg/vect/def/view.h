@@ -2,6 +2,7 @@
 #include "const_view.h"
 #include "iterator.h"
 #include "lane_ref.h"
+#include "masked_ref.h"
 #include "sparse_ref.h"
 
 namespace nitro::def {
@@ -18,6 +19,14 @@ public:
   template <typename Idxes, typename = std::enable_if_t<is_lane_like_v<Idxes>>>
   auto operator[](Idxes idxes) const {
     return sparse_ref(data, idxes);
+  }
+
+  template <typename Idxes, typename Mask,
+            typename =
+                std::enable_if_t<is_lane_like_v<Idxes> && is_lane_like_v<Mask>>>
+  auto operator[](std::pair<Idxes, Mask> idxes_mask) const {
+    auto const &[idxes, mask] = idxes_mask;
+    return masked_ref(data, idxes, mask);
   }
 
   template <typename Idx>

@@ -217,7 +217,7 @@ void model::morph_into_saw(rand_gen &gen,
         auto r1 = chain->residues[i]->pos;
         for (int j = i + 3; j < n && success; ++j) {
           auto r2 = chain->residues[j]->pos;
-          auto dx = saw_pbc.wrap(r1, r2);
+          auto dx = saw_pbc.wrap<vec3<double>>(r1, r2);
           if (norm_squared(dx) < min_dist_sq) {
             success = false;
             break;

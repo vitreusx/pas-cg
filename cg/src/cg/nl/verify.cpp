@@ -9,7 +9,7 @@ void verify::operator()() const {
     real max_r_disp = 0.0f;
     for (int idx = 0; idx < num_particles; ++idx) {
       auto r_ = r[idx], orig_r_ = nl_data->orig_r.at(idx);
-      auto dr = simul_box->wrap(r_, orig_r_);
+      auto dr = simul_box->wrap<vec3r>(r_, orig_r_);
       max_r_disp = max(max_r_disp, norm(dr));
     }
 
@@ -33,7 +33,7 @@ void verify::omp_async() const {
 #pragma omp for schedule(static) nowait
     for (int idx = 0; idx < num_particles; ++idx) {
       auto r_ = r[idx], orig_r_ = nl_data->orig_r.at(idx);
-      auto dr = simul_box->wrap(r_, orig_r_);
+      auto dr = simul_box->wrap<vec3r>(r_, orig_r_);
       max_r_disp = max(max_r_disp, norm(dr));
     }
 

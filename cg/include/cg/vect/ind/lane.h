@@ -35,12 +35,22 @@ struct _lane_impl<true, T, N, W> {
 
     template <typename... Types>
     struct _2<type_list<Types...>> {
+      using _Types = type_list<Types...>;
+
+      template <std::size_t I>
+      using _subtype = lane<std::tuple_element_t<I, _Types>, N, W>;
+
       class impl : public expr_t<T, impl>, public tuple<lane<Types, N, W>...> {
       public:
-        using tuple<lane<Types, N, W>...>::tuple;
-        using tuple<lane<Types, N, W>...>::get;
-        using tuple<lane<Types, N, W>...>::operator=;
+        using Base = tuple<lane<Types, N, W>...>;
+        using Base::Base;
+        using Base::get;
+        using Base::operator=;
         using expr_t<T, impl>::Idxes;
+
+        template <typename E, typename = std::enable_if_t<is_indexed_v<E>>>
+        impl(E const &e)
+            : Base{_subtype<_Idxes>(e.template get<_Idxes>())...} {}
       };
     };
   };

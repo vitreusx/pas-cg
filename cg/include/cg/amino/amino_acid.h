@@ -51,10 +51,10 @@ public:
   explicit amino_acid(char letter);
   explicit amino_acid(std::string const &name);
 
-  inline operator aa_code() const {
+  explicit operator aa_code() const {
     return code;
   };
-  inline operator uint8_t() const {
+  explicit operator uint8_t() const {
     return static_cast<uint8_t>(code);
   }
   char letter() const;
@@ -84,7 +84,8 @@ bool operator!=(amino_acid const &aa1, amino_acid const &aa2);
 } // namespace cg
 
 namespace std {
-template <> struct hash<cg::amino_acid> {
+template <>
+struct hash<cg::amino_acid> {
   size_t operator()(cg::amino_acid const &aa) const;
 };
 } // namespace std

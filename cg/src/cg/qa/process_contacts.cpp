@@ -22,7 +22,7 @@ void process_contacts::iter(int idx) const {
   auto saturation = contact.saturation();
 
   auto r1 = r[i1], r2 = r[i2];
-  auto r12 = simul_box->wrap(r1, r2);
+  auto r12 = simul_box->wrap<vec3r>(r1, r2);
   auto r12_rn = norm_inv(r12);
   if (fixed_cutoff.has_value() && r12_rn * fixed_cutoff.value() < 1.0)
     return;
@@ -90,6 +90,5 @@ void process_contacts::for_slice(int from, int to) const {
 int process_contacts::total_size() const {
   return free_pairs->size();
 }
-
 
 } // namespace cg::qa

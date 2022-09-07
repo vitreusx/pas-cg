@@ -71,9 +71,9 @@ template <typename T>
 struct vcl_lane_type {
   using type = std::tuple_element_t<
       T::elementtype(),
-      std::tuple<void *, void *, void *, void *, int8_t, uint8_t, int16_t,
-                 uint16_t, int32_t, uint32_t, int64_t, uint64_t, void *, void *,
-                 void *, void *, float, double>>;
+      std::tuple<void *, bool, bool, bool, int8_t, uint8_t, int16_t, uint16_t,
+                 int32_t, uint32_t, int64_t, uint64_t, void *, void *, void *,
+                 void *, float, double>>;
 };
 
 #define VCL_LANE(T)                                                            \
