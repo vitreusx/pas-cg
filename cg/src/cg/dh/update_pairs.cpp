@@ -6,9 +6,11 @@ void update_pairs::operator()() const {
 
   auto min_norm_inv = (real)1.0 / (cutoff + nl->orig_pad);
 
-  for (int pair_idx = 0; pair_idx < nl->non_native.size(); ++pair_idx) {
-    auto pair = nl->non_native.at(pair_idx);
-    auto i1 = pair.i1(), i2 = pair.i2();
+  for (decltype(auto) nl_pair : nl->pairs) {
+    if (nl_pair.taken())
+      continue;
+
+    auto i1 = nl_pair.i1(), i2 = nl_pair.i2();
     auto q1_x_q2 = q[(uint8_t)atype[i1]] * q[(uint8_t)atype[i2]];
     if (q1_x_q2 == 0)
       continue;
@@ -17,6 +19,7 @@ void update_pairs::operator()() const {
 
     if (norm_inv(simul_box->wrap<vec3r>(r1, r2)) > min_norm_inv) {
       pairs->emplace_back(i1, i2, q1_x_q2);
+      //      nl_pair.taken() = true;
     }
   }
 }

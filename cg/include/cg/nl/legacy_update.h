@@ -16,10 +16,8 @@ public:
   real const *t;
   bool *invalid;
   vect::const_view<int> chain_idx, seq_idx;
-  vect::const_view<exclusion> all_nat_cont;
 
 public:
-  void operator()() const;
   void omp_async() const;
 };
 } // namespace cg::nl

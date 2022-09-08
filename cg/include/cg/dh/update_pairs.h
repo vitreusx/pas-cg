@@ -14,7 +14,7 @@ public:
 public:
   vect::const_view<vec3r> r;
   sbox::pbc<real> const *simul_box;
-  nl::data const *nl;
+  nl::data *nl;
   vect::vector<pair> *pairs;
   vect::const_view<amino_acid> atype;
 

@@ -15,7 +15,7 @@ public:
   vect::const_view<int> prev, next, chain_idx, seq_idx;
   vect::const_view<amino_acid> atype;
   sbox::pbc<real> const *simul_box;
-  nl::data const *nl;
+  nl::data *nl;
   vect::vector<bundle> *bundles;
 
 public:

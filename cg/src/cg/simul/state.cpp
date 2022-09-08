@@ -46,6 +46,7 @@ void state::simul_setup() {
 void state::simul_setup_output() {
   rep = out::report();
   out_enabled = params.out.enabled;
+
 }
 
 void state::load_model() {
@@ -263,6 +264,8 @@ void state::setup_output() {
     ckpt_last_t = std::numeric_limits<real>::lowest();
 
   dump_enabled = params.gen.dump_data;
+  if (dump_enabled)
+    std::ofstream raw_data_txt("raw_data.txt");
 }
 
 void state::setup_langevin() {

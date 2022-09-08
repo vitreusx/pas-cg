@@ -6,7 +6,7 @@
 namespace cg::nl {
 class data {
 public:
-  vect::vector<pair> native, non_native;
+  vect::vector<pair> pairs;
   real orig_pad;
   sbox::pbc<real> orig_pbc;
   vect::vector<vec3r> orig_r;

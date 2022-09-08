@@ -4,8 +4,10 @@ namespace cg::qa {
 void update_free_pairs::operator()() const {
   pairs->clear();
 
-  for (int pair_idx = 0; pair_idx < nl->non_native.size(); ++pair_idx) {
-    auto nl_pair = nl->non_native[pair_idx];
+  for (decltype(auto) nl_pair : nl->pairs) {
+    if (nl_pair.taken())
+      continue;
+
     auto i1 = nl_pair.i1(), i2 = nl_pair.i2();
     auto r1 = r[i1], r2 = r[i2];
 
@@ -17,6 +19,7 @@ void update_free_pairs::operator()() const {
     auto dist = norm(simul_box->wrap<vec3r>(r1, r2));
     if (dist < cutoff + nl->orig_pad) {
       pairs->emplace(i1, i2, nl_pair.orig_dist());
+      nl_pair.taken() = true;
     }
   }
 }

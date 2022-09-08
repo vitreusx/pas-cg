@@ -7,14 +7,31 @@ namespace cg::nat_cont {
 void update_contacts::operator()() const {
   contacts->clear();
 
-  for (int idx = 0; idx < all_contacts.size(); ++idx) {
-    auto nat_cont = all_contacts[idx];
-    auto idx1 = nat_cont.i1(), idx2 = nat_cont.i2();
+  auto nat_cont_iter = all_contacts.begin();
 
-    auto r1 = r[idx1], r2 = r[idx2];
-    auto cur_dist = norm(simul_box->wrap<vec3r>(r1, r2));
-    if (cur_dist < cutoff + nl->orig_pad) {
-      contacts->push_back(nat_cont);
+  for (decltype(auto) nl_pair : nl->pairs) {
+    if (nl_pair.taken())
+      continue;
+
+    auto nl_pair_ = std::make_pair(nl_pair.i1(), nl_pair.i2());
+
+    while (nat_cont_iter != all_contacts.end()) {
+      auto nat_cont = *nat_cont_iter;
+      auto nat_pair = std::make_pair(nat_cont.i1(), nat_cont.i2());
+
+      if (nat_pair < nl_pair_) {
+        ++nat_cont_iter;
+      } else {
+        if (nat_pair == nl_pair_) {
+          auto r1 = r[nl_pair.i1()], r2 = r[nl_pair.i2()];
+          auto cur_dist = norm(simul_box->wrap<vec3r>(r1, r2));
+          if (cur_dist < cutoff + nl->orig_pad) {
+            contacts->push_back(nat_cont);
+            nl_pair.taken() = true;
+          }
+        }
+        break;
+      }
     }
   }
 }

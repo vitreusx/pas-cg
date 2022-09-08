@@ -112,7 +112,7 @@ void thread::setup_output() {
 #pragma omp master
     {
       print_raw_data.data_file =
-          std::make_shared<std::ofstream>("raw_data.txt");
+          std::make_shared<std::ofstream>("raw_data.txt", std::ios::app);
       print_raw_data.st = st;
     }
   }
@@ -310,8 +310,6 @@ void thread::setup_pauli() {
 
 void thread::setup_nat_cont() {
   if (params->nat_cont.enabled) {
-    nl_legacy.all_nat_cont = st->nat_cont_excl;
-
     auto &eval = eval_nat_cont_forces;
     eval.depth = params->nat_cont.lj_depth;
     eval.simul_box = &st->pbc;

@@ -405,27 +405,21 @@ void thread::fix_nl_async() {
 
 #pragma omp barrier
 
-#pragma omp sections
+#pragma omp master
   {
-#pragma omp section
-    if (st->pauli_enabled)
-      update_pauli_pairs();
-#pragma omp section
     if (st->nat_cont_enabled)
       update_nat_contacts();
-#pragma omp section
-    if (st->dh_enabled)
-      update_dh_pairs();
-#pragma omp section
-    if (st->qa_enabled)
-      update_qa_pairs();
-#pragma omp section
     if (st->qa_enabled && st->ss_spec_crit)
       update_cys_neigh();
-#pragma omp section
+    if (st->qa_enabled)
+      update_qa_pairs();
     if (st->pid_enabled)
       update_pid_bundles();
-  }
+    if (st->dh_enabled)
+      update_dh_pairs();
+    if (st->pauli_enabled)
+      update_pauli_pairs();
+  };
 
   //  eval_slices.reset_all();
 }

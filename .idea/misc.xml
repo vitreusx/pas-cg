@@ -9,6 +9,7 @@
       <file path="$PROJECT_DIR$/cg/ext/cparse" />
       <file path="$PROJECT_DIR$/cg/ext/eigen-3.4.0" />
       <file path="$PROJECT_DIR$/cg/ext/vcl-2.01.04" />
+      <file path="$PROJECT_DIR$/cg/ext/version2-2.02.00" />
       <file path="$PROJECT_DIR$/cg/ext/yaml-cpp-0.7.0" />
       <file path="$PROJECT_DIR$/tests/f77" />
     </excludeRoots>

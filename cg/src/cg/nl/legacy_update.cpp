@@ -1,71 +1,21 @@
 #include <cg/nl/legacy_update.h>
-#include <cg/nl/order.h>
+
 namespace cg::nl {
-
-void legacy_update::operator()() const {
-  auto req_r = cutoff + pad;
-
-  nl_data->native.clear();
-  nl_data->non_native.clear();
-
-  int nat_cont_idx = 0;
-
-  for (int i1 = 0; i1 < num_particles; ++i1) {
-    auto r1 = r[i1];
-    auto chain1 = chain_idx[i1], seq1 = seq_idx[i1];
-
-    for (int i2 = i1 + 1; i2 < num_particles; ++i2) {
-      auto r2 = r[i2];
-      auto chain2 = chain_idx[i2], seq2 = seq_idx[i2];
-
-      auto diff = seq1 > seq2 ? seq1 - seq2 : seq2 - seq1;
-      if (chain1 == chain2 && diff < 3)
-        continue;
-
-      auto orig_dist = norm(simul_box->wrap<vec3r>(r1, r2));
-      if (orig_dist < req_r) {
-        bool non_native = true;
-        auto cur_pair = pair(i1, i2, orig_dist);
-
-        while (nat_cont_idx < all_nat_cont.size()) {
-          auto cur_nat_cont = all_nat_cont[nat_cont_idx];
-
-          if (cur_nat_cont < cur_pair) {
-            ++nat_cont_idx;
-          } else {
-            if (!(cur_nat_cont > cur_pair)) {
-              nl_data->native.push_back(cur_pair);
-              non_native = false;
-            }
-            break;
-          }
-        }
-
-        if (non_native) {
-          nl_data->non_native.push_back(cur_pair);
-        }
-      }
-    }
-  }
-
-  nl_data->orig_pad = pad;
-  for (int idx = 0; idx < r.size(); ++idx)
-    nl_data->orig_r[idx] = r[idx];
-  nl_data->orig_pbc = *simul_box;
-  *invalid = false;
+template <typename E1, typename E2>
+static bool operator<(nl::pair_expr<E1> const &left,
+                      nl::pair_expr<E2> const &right) {
+  return std::make_pair(left.i1(), left.i2()) <
+         std::make_pair(right.i1(), right.i2());
 }
 
 void legacy_update::omp_async() const {
   auto req_r = cutoff + pad;
 
 #pragma omp master
-  {
-    nl_data->native.clear();
-    nl_data->non_native.clear();
-  }
+  nl_data->pairs.clear();
+
 #pragma omp barrier
 
-  int nat_cont_idx = 0;
   int num_pairs = num_particles * num_particles;
 
 #pragma omp for schedule(static) nowait
@@ -85,37 +35,14 @@ void legacy_update::omp_async() const {
       continue;
 
     auto orig_dist = norm(simul_box->wrap<vec3r>(r1, r2));
-    if (orig_dist < req_r) {
-      bool non_native = true;
-      auto cur_pair = pair(i1, i2, orig_dist);
-
-      while (nat_cont_idx < all_nat_cont.size()) {
-        auto cur_nat_cont = all_nat_cont[nat_cont_idx];
-
-        if (cur_nat_cont < cur_pair) {
-          ++nat_cont_idx;
-        } else {
-          if (!(cur_nat_cont > cur_pair)) {
-#pragma omp critical
-            nl_data->native.push_back(cur_pair);
-            non_native = false;
-          }
-          break;
-        }
-      }
-
-      if (non_native) {
-#pragma omp critical
-        nl_data->non_native.push_back(cur_pair);
-      }
-    }
+    if (orig_dist < req_r)
+      nl_data->pairs.emplace_back(i1, i2, orig_dist, false);
   }
 #pragma omp barrier
 
 #pragma omp master
   {
-    std::sort(nl_data->non_native.begin(), nl_data->non_native.end());
-    std::sort(nl_data->native.begin(), nl_data->native.end());
+    std::sort(nl_data->pairs.begin(), nl_data->pairs.end());
 
     nl_data->orig_pad = pad;
     for (int idx = 0; idx < r.size(); ++idx)

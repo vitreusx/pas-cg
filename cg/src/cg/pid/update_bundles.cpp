@@ -4,8 +4,10 @@ namespace cg::pid {
 void update_bundles::operator()() const {
   bundles->clear();
 
-  for (int pair_idx = 0; pair_idx < nl->non_native.size(); ++pair_idx) {
-    auto nl_pair = nl->non_native[pair_idx];
+  for (decltype(auto) nl_pair : nl->pairs) {
+    if (nl_pair.taken())
+      continue;
+
     auto i1 = nl_pair.i1(), i2 = nl_pair.i2();
     auto r1 = r[i1], r2 = r[i2];
 
@@ -26,6 +28,7 @@ void update_bundles::operator()() const {
       int16_t type = (int16_t)(uint8_t)atype1 * (int16_t)amino_acid::NUM_TYPES +
                      (int16_t)(uint8_t)atype2;
       bundles->emplace_back(i1, i2, nl_pair.orig_dist(), type);
+      //      nl_pair.taken() = true;
     }
   }
 }

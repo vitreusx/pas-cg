@@ -13,7 +13,6 @@ public:
   real *total_disp;
 
 public:
-  void operator()() const;
   void omp_async() const;
 };
 } // namespace cg::nl
