@@ -7,15 +7,15 @@ class sparse_ref {
 public:
   using Data = lane<T, lane_size_v<Idxes>, lane_width_v<Idxes>>;
 
-  explicit sparse_ref(T *p, Idxes const &idxes)
-      : p{p}, idxes{idxes}, data{gather<Data>(p, idxes)} {}
+  explicit sparse_ref(T *p, Idxes const &idxes) : p{p}, idxes{idxes} {}
 
-  operator Data const &() const {
-    return data;
+  operator Data() const {
+    return gather<Data>(p, idxes);
   }
 
   template <typename U>
   auto &operator=(U const &value) {
+    auto data = gather<Data>(p, idxes);
     data = value;
     scatter(data, p, idxes);
     return *this;
@@ -29,7 +29,6 @@ public:
 private:
   T *p;
   Idxes idxes;
-  Data data;
 };
 
 template <typename T, typename Idxes>

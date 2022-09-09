@@ -7,14 +7,15 @@ class lane_ref {
 public:
   using Data = lane<T, N, W>;
 
-  explicit lane_ref(T *p) : p{p}, data{construct<Data>(p)} {}
+  explicit lane_ref(T *p) : p{p} {}
 
-  operator Data const &() const {
-    return data;
+  operator Data() const {
+    return construct<Data>(p);
   }
 
   template <typename U>
   auto &operator=(U const &value) {
+    auto data = construct<Data>(p);
     data = value;
     store(data, p);
     return *this;
@@ -27,7 +28,6 @@ public:
 
 private:
   T *p;
-  Data data;
 };
 
 template <typename T, std::size_t N, std::size_t W>

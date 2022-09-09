@@ -18,12 +18,14 @@ void eval_forces::iter(heur_ang_expr<E> const &angle) const {
   auto x12_23 = cross(r12, r23);
   auto r12_rn = norm_inv(r12), r23_rn = norm_inv(r23);
 
-  auto dtheta_dr1 = unit(cross(r12, x12_23)) * r12_rn;
-  auto dtheta_dr3 = unit(cross(r23, x12_23)) * r23_rn;
-  auto dtheta_dr2 = -dtheta_dr1 - dtheta_dr3;
+  vec3r dtheta_dr1 = unit(cross(r12, x12_23)) * r12_rn;
+  vec3r dtheta_dr3 = unit(cross(r23, x12_23)) * r23_rn;
+  vec3r dtheta_dr2 = -dtheta_dr1 - dtheta_dr3;
 
   auto cos_theta = -dot(r12, r23) * r12_rn * r23_rn;
   cos_theta = clamp(cos_theta, (real)-1.0, (real)1.0);
+  if (cos_theta == (real)0.0)
+    dtheta_dr1 = dtheta_dr2 = dtheta_dr3 = vec3r::Zero();
   auto theta = acos(cos_theta);
 
   auto theta2 = theta * theta, theta3 = theta2 * theta, theta4 = theta3 * theta,
@@ -63,6 +65,5 @@ void eval_forces::for_slice(int from, int to) const {
 int eval_forces::total_size() const {
   return angles.size();
 }
-
 
 } // namespace cg::heur_ang

@@ -37,13 +37,13 @@ private:
 
     if (ver == COSINE) {
       auto s = alpha() * (psi - psi_0());
-      auto mask = abs(s) >= M_PI;
+      auto mask = abs(s) < M_PI;
       auto val = select(mask, 0.5f * cos(s) + 0.5f, (T)0);
       auto deriv = select(mask, -0.5f * alpha() * sin(s), (T)0);
       return std::make_tuple(val, deriv);
     } else if (ver == ALGEBRAIC) {
       auto t = alpha() * (psi - psi_0()) * M_1_PI, a = abs(t);
-      auto mask = (a >= M_PI);
+      auto mask = (a < M_PI);
       auto x = 2 * a * (a - 1);
       auto val = select(mask, 1.0 - (a * a) / (x + 1), (T)0);
       auto dval_da = x / ((x + 1) * (x + 1));

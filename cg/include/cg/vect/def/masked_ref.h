@@ -8,15 +8,15 @@ public:
   using Data = lane<T, lane_size_v<Idxes>, lane_width_v<Idxes>>;
 
   explicit masked_ref(T *p, Idxes const &idxes, Mask const &mask)
-      : p{p}, idxes{idxes}, mask{mask}, data{masked_gather<Data>(p, idxes,
-                                                                 mask)} {}
+      : p{p}, idxes{idxes}, mask{mask} {}
 
-  operator Data const &() const {
-    return data;
+  operator Data() const {
+    return masked_gather<Data>(p, idxes, mask);
   }
 
   template <typename U>
   auto &operator=(U const &value) {
+    auto data = masked_gather<Data>(p, idxes, mask);
     data = value;
     masked_scatter(data, p, idxes, mask);
     return *this;
@@ -31,7 +31,6 @@ private:
   T *p;
   Idxes idxes;
   Mask mask;
-  Data data;
 };
 
 template <typename T, typename Idxes, typename Mask>

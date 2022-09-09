@@ -189,6 +189,8 @@ void eval_forces::iter(bundle_expr<E> const &bundle) const {
   F[i2] -= dV_dpsi1 * dpsi1_dr2 + dV_dpsi2 * dpsi2_dr2 + dV_dr * r12_u;
   if (i2n < n)
     F[i2n] -= dV_dpsi2 * dpsi2_dr2n;
+
+  (void)0;
 }
 
 void eval_forces::omp_async() const {
@@ -209,15 +211,15 @@ bool eval_forces::is_active(const bundle &bundle) const {
 }
 
 void eval_forces::for_slice(int from, int to) const {
-  //  int idx = from;
-  //  for (; idx % 4 != 0 && idx < to; ++idx)
-  //    iter(bundles->at(idx));
-  //  for (; idx < to - 3; idx += 4)
-  //    vect_iter(idx / 4);
-  //  for (; idx < to; ++idx)
-  //    iter(bundles->at(idx));
-  for (int idx = from; idx < to; ++idx)
+  int idx = from;
+  for (; idx % 4 != 0 && idx < to; ++idx)
     iter(bundles->at(idx));
+  for (; idx < to - 3; idx += 4)
+    vect_iter(idx / 4);
+  for (; idx < to; ++idx)
+    iter(bundles->at(idx));
+  //  for (int idx = from; idx < to; ++idx)
+  //    iter(bundles->at(idx));
 }
 
 int eval_forces::total_size() const {
@@ -259,34 +261,125 @@ static Vec4qb mask_conv(Vec4db mask) {
   return static_cast<Vec4qb>(mask);
 }
 
+template <typename E>
+std::ostream &operator<<(std::ostream &os, vec3_expr<E> const &v) {
+  os << "(" << v.x() << " " << v.y() << " " << v.z() << ")";
+  return os;
+}
+
+std::ostream &operator<<(std::ostream &os, vect::lane<vec3r, 4, 256> const &v) {
+  vect::vector<vec3r> V(4);
+  V.template at_lane<4, 256>(0) = v;
+  os << "[";
+  for (std::size_t idx = 0; idx < 4; ++idx) {
+    if (idx > 0)
+      os << " ";
+    os << V[idx];
+  }
+  os << "]";
+  return os;
+}
+
+template <typename T, std::size_t N>
+std::ostream &operator<<(std::ostream &os, std::array<T, N> const &A) {
+  os << "[";
+  for (std::size_t idx = 0; idx < N; ++idx) {
+    if (idx > 0)
+      os << " ";
+    os << A[idx];
+  }
+  os << "]";
+  return os;
+}
+
+std::ostream &operator<<(std::ostream &os, Vec4q v) {
+  std::array<int64_t, 4> A;
+  nitro::def::store(v, A.data());
+  return (os << A);
+}
+
+std::ostream &operator<<(std::ostream &os, Vec4uq v) {
+  std::array<uint64_t, 4> A;
+  nitro::def::store(v, A.data());
+  return (os << A);
+}
+
+std::ostream &operator<<(std::ostream &os, Vec4d v) {
+  std::array<double, 4> A;
+  nitro::def::store(v, A.data());
+  return (os << A);
+}
+
+std::ostream &operator<<(std::ostream &os, Vec4qb v) {
+  std::array<bool, 4> A;
+  nitro::def::store(v, A.data());
+  return (os << A);
+}
+
+template <typename T, std::size_t N, std::size_t W>
+auto to_array(vect::lane<T, N, W> const &lane) {
+  vect::array<T, N> elems;
+  elems.template at_lane<N, W>(0) = lane;
+  return elems;
+}
+
+// #define PPRINT(var) std::cout << #var " = " << (var) << '\n';
+#define PPRINT(var) (void)0
+
 void eval_forces::vect_iter(int lane_idx) const {
   static constexpr std::size_t N = 4, W = 256;
   using mask_t = vect::lane<bool, N, W>;
+  using reals = vect::lane<real, N, W>;
+  using vec3rs = vect::lane<vec3r, N, W>;
 
   auto bundle = bundles->template at_lane<N, W>(lane_idx);
   auto i1 = bundle.i1(), i2 = bundle.i2();
+  PPRINT(i1);
+  PPRINT(i2);
 
   auto mask =
       mask_t(atype[i1] != aa_code::PRO) & mask_t(atype[i2] != aa_code::PRO);
+  PPRINT(mask);
 
   auto r1 = r[i1], r2 = r[i2];
+  PPRINT((vec3rs)r1);
+  PPRINT((vec3rs)r2);
+
   auto r12 = simul_box->wrap<vect::lane<vec3r, N, W>>(r1, r2);
+  PPRINT((vec3rs)r12);
   auto r12_n = norm_(r12);
+  PPRINT(r12_n);
   auto r12_rn = (real)1.0 / r12_n;
+  PPRINT(r12_rn);
   mask = mask & mask_t(r12_n < cutoff);
+  PPRINT(mask);
 
   vect::lane<real, N, W> psi1, psi2;
   vect::lane<vec3r, N, W> dpsi1_dr1p, dpsi1_dr1, dpsi1_dr1n, dpsi1_dr2;
   vect::lane<vec3r, N, W> dpsi2_dr2p, dpsi2_dr2, dpsi2_dr2n, dpsi2_dr1;
 
   vect::lane<int, N, W> i1p = i1 - 1, i1n = i1 + 1, i2p = i2 - 1, i2n = i2 + 1;
+  PPRINT(i1p);
+  PPRINT(i1n);
+  PPRINT(i2p);
+  PPRINT(i2n);
+
   auto n = r.size();
   auto val_i1p = (i1p >= 0), val_i1n = (i1n < n), val_i2p = (i2p >= 0),
        val_i2n = (i2n < n);
+  PPRINT(val_i1p);
+  PPRINT(val_i1n);
+  PPRINT(val_i2p);
+  PPRINT(val_i2n);
+
   auto r_i1p = r[std::make_pair(i1p, val_i1p)],
        r_i1n = r[std::make_pair(i1n, val_i1n)],
        r_i2p = r[std::make_pair(i2p, val_i2p)],
        r_i2n = r[std::make_pair(i2n, val_i2n)];
+  PPRINT((vec3rs)r_i1p);
+  PPRINT((vec3rs)r_i1n);
+  PPRINT((vec3rs)r_i2p);
+  PPRINT((vec3rs)r_i2n);
 
   vect::lane<bool, N, W> bb_lam_1_opt, bb_lam_2_opt, bb_lj_opt;
 
@@ -301,23 +394,40 @@ void eval_forces::vect_iter(int lane_idx) const {
     //    auto rkl = select(i3_ >= 0, r[i3_], zero_v) - r[i4_];
 
     auto rij = r1 - r_i1n;
-    auto rkj = r_i1p - r_i1n;
+    PPRINT((vec3rs)rij);
+    auto rkj = select_(val_i1p, vec3rs(r_i1p - r_i1n), vec3rs());
+    PPRINT((vec3rs)rkj);
     auto rkl = r_i1p - r2;
+    PPRINT((vec3rs)rkl);
 
     auto rm = cross(rij, rkj);
+    PPRINT((vec3rs)rm);
     auto rn = cross(rkj, rkl);
+    PPRINT((vec3rs)rn);
 
     auto rm_n = norm_(rm), rn_n = norm_(rn);
+    PPRINT(rm_n);
+    PPRINT(rn_n);
     mask = mask & mask_t(rm_n >= (real)0.1) & mask_t(rn_n >= (real)0.1);
+    PPRINT(mask);
 
-    auto rm_ninv = (real)1.0 / rm_n, rn_ninv = (real)1.0 / rm_n,
+    auto rm_ninv = (real)1.0 / rm_n, rn_ninv = (real)1.0 / rn_n,
          rkj_ninv = norm_inv(rkj), rkj_n = (real)1.0 / rkj_ninv;
+    PPRINT(rm_ninv);
+    PPRINT(rn_ninv);
+    PPRINT(rkj_ninv);
+    PPRINT(rkj_n);
 
     auto fi = rm * rkj_n * rm_ninv * rm_ninv;
+    PPRINT((vec3rs)fi);
     auto fl = -rn * rkj_n * rn_ninv * rn_ninv;
+    PPRINT((vec3rs)fl);
     auto df = (fi * dot(rij, rkj) - fl * dot(rkl, rkj)) * rkj_ninv * rkj_ninv;
+    PPRINT((vec3rs)df);
     auto fj = -fi + df;
+    PPRINT((vec3rs)fj);
     auto fk = -fl - df;
+    PPRINT((vec3rs)fk);
 
     dpsi1_dr1 = fi;
     dpsi1_dr1n = fj;
@@ -325,15 +435,19 @@ void eval_forces::vect_iter(int lane_idx) const {
     dpsi1_dr2 = fl;
 
     auto cos_psi1 = dot(rm, rn) * rm_ninv * rn_ninv;
+    PPRINT(cos_psi1);
+    cos_psi1 = ::max(::min(cos_psi1, (reals)1.0), (reals)-1.0);
     psi1 = acos(cos_psi1);
-    psi1 = select_(dot(rij, rn) < (real)0.0, -psi1, psi1);
+    psi1 = select_(dot(rij, rn) < (reals)0.0, -psi1, psi1);
+    PPRINT(psi1);
 
     int m = 1;
     bb_lam_1_opt = (i2 - i1 != 3) | (m != 2);
 
     auto bb_lam_1 = select_(bb_lam_1_opt, bb_plus_lam_v, bb_minus_lam_v);
-    bb_lam_1_opt = bb_lam_1_opt & mask_t(bb_lam_1.supp(psi1)) &
-                   mask_t((i2 - i1 != 3) | (m != 1));
+    bb_lam_1_opt = bb_lam_1_opt & !((!mask_t(bb_lam_1.supp(psi1))) &
+                                    mask_t((i2 - i1 != 3) | (m != 1)));
+    PPRINT(bb_lam_1_opt);
   }
 
   {
@@ -343,8 +457,8 @@ void eval_forces::vect_iter(int lane_idx) const {
     //        select(i3_ >= 0, r[i3_] - select(i2_ < n, r[i2_], zero_v),
     //        zero_v);
     //    auto rkl = select(i3_ >= 0, r[i3_], zero_v) - r[i4_];
-    auto rij = r12 - r_i2n;
-    auto rkj = r_i2p - r_i2n;
+    auto rij = r2 - r_i2n;
+    auto rkj = select_(val_i2p, vec3rs(r_i2p - r_i2n), vec3rs());
     auto rkl = r_i2p - r1;
 
     auto rm = cross(rij, rkj);
@@ -353,7 +467,7 @@ void eval_forces::vect_iter(int lane_idx) const {
     auto rm_n = norm_(rm), rn_n = norm_(rn);
     mask = mask & mask_t(rm_n >= (real)0.1) & mask_t(rn_n >= (real)0.1);
 
-    auto rm_ninv = (real)1.0 / rm_n, rn_ninv = (real)1.0 / rm_n,
+    auto rm_ninv = (real)1.0 / rm_n, rn_ninv = (real)1.0 / rn_n,
          rkj_ninv = norm_inv(rkj), rkj_n = (real)1.0 / rkj_ninv;
 
     auto fi = rm * rkj_n * rm_ninv * rm_ninv;
@@ -368,15 +482,17 @@ void eval_forces::vect_iter(int lane_idx) const {
     dpsi2_dr1 = fl;
 
     auto cos_psi2 = dot(rm, rn) * rm_ninv * rn_ninv;
+    cos_psi2 = ::max(::min(cos_psi2, (reals)1.0), (reals)-1.0);
     psi2 = acos(cos_psi2);
-    psi2 = select_(dot(rij, rn) < (real)0.0, -psi2, psi2);
+    psi2 = select_(dot(rij, rn) < (reals)0.0, -psi2, psi2);
+    PPRINT(psi2);
 
     int m = 2;
     bb_lam_2_opt = (i2 - i1 != 3) | (m != 2);
 
     auto bb_lam_2 = select_(bb_lam_2_opt, bb_plus_lam_v, bb_minus_lam_v);
-    bb_lam_2_opt = bb_lam_2_opt & mask_t(bb_lam_2.supp(psi1)) &
-                   mask_t((i2 - i1 != 3) | (m != 1));
+    bb_lam_2_opt = bb_lam_2_opt & !((!mask_t(bb_lam_2.supp(psi2))) &
+                                    mask_t((i2 - i1 != 3) | (m != 1)));
 
     bb_lj_opt = bb_lam_2_opt;
   }
@@ -384,20 +500,29 @@ void eval_forces::vect_iter(int lane_idx) const {
   vect::lane<real, N, W> dV_dpsi1 = (real)0.0, dV_dpsi2 = (real)0.0,
                          dV_dr = (real)0.0, V_ = (real)0.0;
 
+  PPRINT(bb_lam_1_opt);
   auto bb_lam_1 = select_(bb_lam_1_opt, bb_plus_lam_v, bb_minus_lam_v);
+  PPRINT(bb_lam_2_opt);
   auto bb_lam_2 = select_(bb_lam_2_opt, bb_plus_lam_v, bb_minus_lam_v);
   mask_t bb_supp = mask_conv(bb_lam_1.supp(psi1) & bb_lam_2.supp(psi2));
+  PPRINT(bb_supp);
 
   if (horizontal_or(bb_supp)) {
     auto [lam1, deriv1] = bb_lam_1(psi1);
+    PPRINT(lam1);
+    PPRINT(deriv1);
     auto [lam2, deriv2] = bb_lam_2(psi2);
+    PPRINT(lam2);
+    PPRINT(deriv2);
 
     vect::lane<sink_lj, N, W> bb_minus_lj_v = bb_minus_lj,
                               bb_plus_lj_v = bb_plus_lj;
-    auto bb_lj = select_(bb_lj_opt, bb_minus_lj_v, bb_plus_lj_v);
+    auto bb_lj = select_(bb_lj_opt, bb_plus_lj_v, bb_minus_lj_v);
 
     auto _mask = bb_supp & mask_t(lam1 * lam2 > (real)5e-5);
     auto [lj_V, lj_dV_dr] = bb_lj(r12_n, r12_rn);
+    PPRINT(lj_V);
+    PPRINT(lj_dV_dr);
 
     V_ = if_add(_mask, V_, lam1 * lam2 * lj_V);
     dV_dpsi1 = if_add(_mask, dV_dpsi1, deriv1 * lam2 * lj_V);
@@ -408,14 +533,21 @@ void eval_forces::vect_iter(int lane_idx) const {
   auto type = bundle.type();
   auto ss_sink_lj = ss_ljs[type];
   mask_t ss_supp = mask_conv(ss_lam.supp(psi1) & ss_lam.supp(psi2));
+  PPRINT(ss_supp);
 
   if (horizontal_or(ss_supp)) {
     auto [lam1, deriv1] = ss_lam(psi1);
+    PPRINT(lam1);
+    PPRINT(deriv1);
     auto [lam2, deriv2] = ss_lam(psi2);
+    PPRINT(lam2);
+    PPRINT(deriv2);
 
     auto _mask = ss_supp & mask_t(lam1 * lam2 > (real)5e-5) &
                  mask_t(ss_sink_lj.depth() > (real)5e-5);
     auto [lj_V, lj_dV_dr] = ss_sink_lj(r12_n, r12_rn);
+    PPRINT(lj_V);
+    PPRINT(lj_dV_dr);
 
     V_ = if_add(_mask, V_, lam1 * lam2 * lj_V);
     dV_dpsi1 = if_add(_mask, dV_dpsi1, deriv1 * lam2 * lj_V);
@@ -423,27 +555,50 @@ void eval_forces::vect_iter(int lane_idx) const {
     dV_dr = if_add(_mask, dV_dr, lam1 * lam2 * lj_dV_dr);
   }
 
-  *V += horizontal_add(V_);
+  PPRINT(mask);
+  PPRINT(V_);
+  PPRINT(dV_dpsi1);
+  PPRINT(dV_dpsi2);
+  PPRINT(dV_dr);
 
   auto r12_u = r12 * r12_rn;
 
-  auto F_i1p = F[std::make_pair(i1p, val_i1p)],
-       F_i1n = F[std::make_pair(i1n, val_i1n)],
-       F_i2p = F[std::make_pair(i2p, val_i2p)],
-       F_i2n = F[std::make_pair(i2n, val_i2n)];
-  auto F_i1 = F[i1], F_i2 = F[i2];
-
   vect::lane<real, N, W> zero_v = (real)0;
-  dV_dpsi1 = select_(mask, dV_dpsi1, zero_v);
-  dV_dpsi2 = select_(mask, dV_dpsi2, zero_v);
-  dV_dr = select_(mask, dV_dr, zero_v);
+  V_ = select_(mask, V_, zero_v);
+  *V += horizontal_add(V_);
 
-  F_i1p = F_i1p - dV_dpsi1 * dpsi1_dr1p;
-  F_i1 = F_i1 - dV_dpsi1 * dpsi1_dr1 + dV_dpsi2 * dpsi2_dr1 - dV_dr * r12_u;
-  F_i1n = F_i1n - dV_dpsi1 * dpsi1_dr1n;
-  F_i2p = F_i2p - dV_dpsi2 * dpsi2_dr2p;
-  F_i2 = F_i2 - dV_dpsi1 * dpsi1_dr2 + dV_dpsi2 * dpsi2_dr2 + dV_dr * r12_u;
-  F_i2n = F_i2n + dV_dpsi2 * dpsi2_dr2n;
+  PPRINT(dpsi1_dr1p);
+  PPRINT(dpsi1_dr1);
+  PPRINT(dpsi1_dr1n);
+  PPRINT(dpsi1_dr2);
+  PPRINT(dpsi2_dr2p);
+  PPRINT(dpsi2_dr2);
+  PPRINT(dpsi2_dr2n);
+  PPRINT(dpsi2_dr1);
+
+  auto diff_F_i1p = to_array<vec3r, N, W>(dV_dpsi1 * dpsi1_dr1p);
+  auto diff_F_i1 = to_array<vec3r, N, W>(dV_dpsi1 * dpsi1_dr1 +
+                                         dV_dpsi2 * dpsi2_dr1 - dV_dr * r12_u);
+  auto diff_F_i1n = to_array<vec3r, N, W>(dV_dpsi1 * dpsi1_dr1n);
+  auto diff_F_i2p = to_array<vec3r, N, W>(dV_dpsi2 * dpsi2_dr2p);
+  auto diff_F_i2 = to_array<vec3r, N, W>(dV_dpsi1 * dpsi1_dr2 +
+                                         dV_dpsi2 * dpsi2_dr2 + dV_dr * r12_u);
+  auto diff_F_i2n = to_array<vec3r, N, W>(dV_dpsi2 * dpsi2_dr2n);
+
+  for (std::size_t idx = 0; idx < N; ++idx) {
+    if (!mask[idx])
+      continue;
+    if (val_i1p[idx])
+      F[i1p[idx]] -= diff_F_i1p[idx];
+    F[i1[idx]] -= diff_F_i1[idx];
+    if (val_i1n[idx])
+      F[i1n[idx]] -= diff_F_i1n[idx];
+    if (val_i2p[idx])
+      F[i2p[idx]] -= diff_F_i2p[idx];
+    F[i2[idx]] -= diff_F_i2[idx];
+    if (val_i2n[idx])
+      F[i2n[idx]] -= diff_F_i2n[idx];
+  }
 }
 
 } // namespace cg::pid

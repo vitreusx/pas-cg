@@ -46,7 +46,6 @@ void state::simul_setup() {
 void state::simul_setup_output() {
   rep = out::report();
   out_enabled = params.out.enabled;
-
 }
 
 void state::load_model() {
@@ -336,7 +335,7 @@ void state::setup_langevin() {
 }
 
 void state::setup_pbar() {
-  pbar_enabled = params.pbar.enabled;
+  pbar_enabled = params.pbar.enabled && !dump_enabled;
 
   if (pbar_enabled) {
     pbar_first_time = true;
