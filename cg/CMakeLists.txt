@@ -115,4 +115,10 @@ add_custom_target(copy-data-dir
     "${CMAKE_CURRENT_BINARY_DIR}/data"
     DEPENDS ${DataFiles})
 
+add_custom_command(
+    TARGET cg
+    POST_BUILD
+    COMMAND objdump -drlwC -Mintel cg >cg.s
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
 add_dependencies(cg copy-data-dir)
