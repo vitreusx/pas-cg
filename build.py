@@ -71,6 +71,10 @@ def execute(cmd):
         exit(1)
 
 
+def to_bool(s):
+    return s in ("1", "true", "True", "ON")
+
+
 def main():
     args = make_parser().parse_args()
 
@@ -97,9 +101,9 @@ def main():
     cmd += [f"-DCMAKE_BUILD_TYPE={build_type}"]
 
     cmd += [
-        f"-DSINGLE_FILE={int(bool(args.single_file))}",
-        f"-DUSE_MIXED_PRECISION={int(bool(args.use_mixed_precision))}",
-        f"-DUSE_VECTORIZED_IMPLS={int(bool(args.use_vectorized_impls))}"
+        f"-DSINGLE_FILE={to_bool(args.single_file)}",
+        f"-DUSE_MIXED_PRECISION={to_bool(args.use_mixed_precision)}",
+        f"-DUSE_VECTORIZED_IMPLS={to_bool(args.use_vectorized_impls)}"
     ]
 
     execute(cmd)
