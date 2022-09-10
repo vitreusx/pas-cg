@@ -33,21 +33,21 @@ def make_parser():
     parser.add_argument(
         "--single-file",
         type=bool,
-        default=false,
+        default=False,
         help="compile the program as a single object file, instead of "
              "separately compiling each source file and linking them",
     )
     parser.add_argument(
         "--use-mixed-precision",
         type=bool,
-        default=false,
+        default=False,
         help="use floats for computing the forces and doubles for integration,"
              "instead of using doubles throughout",
     )
     parser.add_argument(
         "--use-vectorized-impls",
         type=bool,
-        default=true,
+        default=True,
         help="use vectorized implementations of the algorithms"
     )
     parser.add_argument("dir", default="build", help="output directory")
