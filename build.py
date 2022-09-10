@@ -72,7 +72,7 @@ def execute(cmd):
 
 
 def to_bool(s):
-    return s in ("1", "true", "True", "ON", True)
+    return int(s in ("1", "true", "True", "ON", True))
 
 
 def main():
