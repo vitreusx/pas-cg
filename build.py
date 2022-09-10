@@ -32,21 +32,18 @@ def make_parser():
     )
     parser.add_argument(
         "--single-file",
-        type=bool,
         default=False,
         help="compile the program as a single object file, instead of "
              "separately compiling each source file and linking them",
     )
     parser.add_argument(
         "--use-mixed-precision",
-        type=bool,
         default=False,
         help="use floats for computing the forces and doubles for integration,"
              "instead of using doubles throughout",
     )
     parser.add_argument(
         "--use-vectorized-impls",
-        type=bool,
         default=True,
         help="use vectorized implementations of the algorithms"
     )
@@ -100,9 +97,9 @@ def main():
     cmd += [f"-DCMAKE_BUILD_TYPE={build_type}"]
 
     cmd += [
-        f"-DSINGLE_FILE={int(args.single_file)}",
-        f"-DUSE_MIXED_PRECISION={int(args.use_mixed_precision)}",
-        f"-DUSE_VECTORIZED_IMPLS={int(args.use_vectorized_impls)}"
+        f"-DSINGLE_FILE={int(bool(args.single_file))}",
+        f"-DUSE_MIXED_PRECISION={int(bool(args.use_mixed_precision))}",
+        f"-DUSE_VECTORIZED_IMPLS={int(bool(args.use_vectorized_impls))}"
     ]
 
     execute(cmd)
