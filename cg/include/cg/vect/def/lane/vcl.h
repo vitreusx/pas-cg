@@ -106,7 +106,9 @@ VCL_LANE(Vec4qb);
 VCL_LANE(Vec8q);
 VCL_LANE(Vec8uq);
 VCL_LANE(Vec8d);
+#if INSTRSET < 10
 VCL_LANE(Vec8qb);
+#endif
 
 VCL_LANE(Vec16i);
 VCL_LANE(Vec16ui);

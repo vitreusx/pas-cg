@@ -11,6 +11,7 @@ inline void store(Vec8ib const &data, byte *dst) {
   *dst = to_bits(data);
 }
 
+#if INSTRSET < 10
 inline void load(Vec8qb &data, byte const *src) {
   data.load_bits(*src);
 }
@@ -18,6 +19,7 @@ inline void load(Vec8qb &data, byte const *src) {
 inline void store(Vec8qb const &data, byte *dst) {
   *dst = to_bits(data);
 }
+#endif
 
 inline void load(Vec16ib &data, byte const *src) {
   data.load_bits(*(uint16_t const *)src);

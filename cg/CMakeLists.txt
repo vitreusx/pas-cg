@@ -64,8 +64,7 @@ target_include_directories(cg
 
 target_compile_options(cg
     PRIVATE
-    -Wall;-Wextra;-Wpedantic;-Wno-unused-but-set-parameter;
-    -Wno-c99-extensions;
+    -Wall;-Wextra;-Wpedantic;-Wno-unused-but-set-parameter;-Wno-c99-extensions;
     $<$<CONFIG:Deployment>:-Ofast>;
     $<$<CONFIG:Release>:-Ofast;-march=native>;
     $<$<CONFIG:Staging>:-Ofast;-march=native;-g>;

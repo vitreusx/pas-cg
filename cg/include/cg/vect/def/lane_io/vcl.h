@@ -373,7 +373,7 @@ inline void vcl_store(Vec8q &data, int8_t *dst) {
 
 inline void vcl_load(Vec8uq &data, uint8_t const *src) {
 #ifdef __AVX512F__
-  __m128i small_load = _mm_loadl_epi64((const __m128i *)ptr);
+  __m128i small_load = _mm_loadl_epi64((const __m128i *)src);
   data = _mm512_cvtepu8_epi64(small_load);
 #else
   Vec8ui proxy;
@@ -477,7 +477,7 @@ inline void vcl_store(Vec8d const &data, double *dst) {
 }
 
 // IMPL(bool, 8, 512, Vec8qb);
-
+#if INSTRSET < 10
 inline void vcl_load(Vec8qb &data, bool const *src) {
   // Vec8uq idata;
   // load(idata, reinterpret_cast<repr_t<bool> const *>(src));
@@ -493,6 +493,7 @@ inline void vcl_store(Vec8qb const &data, bool *dst) {
   for (int idx = 0; idx < 8; ++idx)
     dst[idx] = idata[idx];
 }
+#endif
 
 template <typename Lane, typename T>
 Lane vcl_construct(T const *src) {
