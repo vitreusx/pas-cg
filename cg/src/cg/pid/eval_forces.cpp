@@ -212,6 +212,7 @@ bool eval_forces::is_active(const bundle &bundle) const {
 }
 
 void eval_forces::for_slice(int from, int to) const {
+#if USE_VECTORIZED_IMPLS
 #ifdef __AVX512F__
   static constexpr std::size_t W = 512;
 #else
@@ -226,8 +227,10 @@ void eval_forces::for_slice(int from, int to) const {
     vect_iter<N, W>(idx / N);
   for (; idx < to; ++idx)
     iter(bundles->at(idx));
-  //  for (int idx = from; idx < to; ++idx)
-  //    iter(bundles->at(idx));
+#else
+  for (int idx = from; idx < to; ++idx)
+    iter(bundles->at(idx));
+#endif
 }
 
 int eval_forces::total_size() const {
@@ -406,11 +409,11 @@ void eval_forces::vect_iter(int lane_idx) const {
     psi1 = select_(dot(rij, rn) < (reals)0.0, -psi1, psi1);
 
     int m = 1;
-    bb_lam_1_opt = (i2 - i1 != 3) | (m != 2);
+    bb_lam_1_opt = (i2 - i1 != 3) | mask_t(m != 2);
 
     auto bb_lam_1 = select_(bb_lam_1_opt, bb_plus_lam_v, bb_minus_lam_v);
     bb_lam_1_opt = bb_lam_1_opt & !((!mask_t(bb_lam_1.supp(psi1))) &
-                                    mask_t((i2 - i1 != 3) | (m != 1)));
+                                    mask_t((i2 - i1 != 3) | mask_t(m != 1)));
   }
 
   {
@@ -451,11 +454,11 @@ void eval_forces::vect_iter(int lane_idx) const {
     psi2 = select_(dot(rij, rn) < (reals)0.0, -psi2, psi2);
 
     int m = 2;
-    bb_lam_2_opt = (i2 - i1 != 3) | (m != 2);
+    bb_lam_2_opt = (i2 - i1 != 3) | mask_t(m != 2);
 
     auto bb_lam_2 = select_(bb_lam_2_opt, bb_plus_lam_v, bb_minus_lam_v);
     bb_lam_2_opt = bb_lam_2_opt & !((!mask_t(bb_lam_2.supp(psi2))) &
-                                    mask_t((i2 - i1 != 3) | (m != 1)));
+                                    mask_t((i2 - i1 != 3) | mask_t(m != 1)));
 
     bb_lj_opt = bb_lam_2_opt;
   }

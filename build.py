@@ -32,15 +32,23 @@ def make_parser():
     )
     parser.add_argument(
         "--single-file",
-        action="store_true",
+        type=bool,
+        default=false,
         help="compile the program as a single object file, instead of "
-        "separately compiling each source file and linking them",
+             "separately compiling each source file and linking them",
     )
     parser.add_argument(
         "--use-mixed-precision",
-        action="store_true",
+        type=bool,
+        default=false,
         help="use floats for computing the forces and doubles for integration,"
-        "instead of using doubles throughout",
+             "instead of using doubles throughout",
+    )
+    parser.add_argument(
+        "--use-vectorized-impls",
+        type=bool,
+        default=true,
+        help="use vectorized implementations of the algorithms"
     )
     parser.add_argument("dir", default="build", help="output directory")
 
@@ -86,15 +94,16 @@ def main():
     cmd += ["-B", str(out_dir)]
     cmd += ["-S", str(root_dir)]
 
-    build_type_map = {"debug": "Debug", "release": "Release", "staging": "Staging"}
+    build_type_map = {"debug": "Debug", "release": "Release",
+                      "staging": "Staging"}
     build_type = build_type_map[args.build_type]
     cmd += [f"-DCMAKE_BUILD_TYPE={build_type}"]
 
-    if args.single_file:
-        cmd += [f"-DSINGLE_FILE=ON"]
-
-    if args.use_mixed_precision:
-        cmd += [f"-DUSE_MIXED_PRECISION=1"]
+    cmd += [
+        f"-DSINGLE_FILE={int(args.single_file)}",
+        f"-DUSE_MIXED_PRECISION={int(args.use_mixed_precision)}",
+        f"-DUSE_VECTORIZED_IMPLS={int(args.use_vectorized_impls)}"
+    ]
 
     execute(cmd)
 
