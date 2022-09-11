@@ -1,5 +1,11 @@
-option(USE_OMP "Use OpenMP" ON)
-option(SINGLE_FILE "Concatenate all source files" OFF)
+set(USE_OMP ON CACHE BOOL
+    "Use OpenMP" FORCE)
+set(SINGLE_FILE OFF CACHE BOOL
+    "Concatenate all source files" FORCE)
+set(USE_MIXED_PRECISION OFF CACHE BOOL
+    "Use floats for computing the forces and doubles for integration, instead of using doubles throughout" FORCE)
+set(USE_VECTORIZED_IMPLS ON CACHE BOOL
+    "Use vectorized implementations of the algorithms" FORCE)
 
 function(message)
     if (NOT MESSAGE_QUIET)
@@ -74,7 +80,9 @@ target_compile_options(cg
 target_compile_definitions(cg
     PRIVATE
     COMPAT_MODE
-    $<$<NOT:$<CONFIG:Debug>>:NDEBUG>)
+    $<$<NOT:$<CONFIG:Debug>>:NDEBUG>
+    USE_MIXED_PRECISION=$<BOOL:${USE_MIXED_PRECISION}>
+    USE_VECTORIZED_IMPLS=$<BOOL:${USE_VECTORIZED_IMPLS}>)
 
 add_subdirectory(ext/cparse EXCLUDE_FROM_ALL)
 add_subdirectory(ext/boost EXCLUDE_FROM_ALL)

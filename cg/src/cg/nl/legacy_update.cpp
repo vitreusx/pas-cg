@@ -35,8 +35,10 @@ void legacy_update::omp_async() const {
       continue;
 
     auto orig_dist = norm(simul_box->wrap<vec3r>(r1, r2));
-    if (orig_dist < req_r)
+    if (orig_dist < req_r) {
+#pragma omp critical
       nl_data->pairs.emplace_back(i1, i2, orig_dist, false);
+    }
   }
 #pragma omp barrier
 
