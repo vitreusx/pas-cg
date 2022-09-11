@@ -421,6 +421,7 @@ void thread::fix_nl_async() {
       update_pauli_pairs();
   };
 
+#pragma omp barrier
   eval_slices.reset_all();
 }
 
