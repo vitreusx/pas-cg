@@ -31,6 +31,12 @@ def make_parser():
         help="build generator",
     )
     parser.add_argument(
+        "--compiler",
+        choices=["clang", "gcc"],
+        default="clang",
+        help="compiler choice - clang seems to be way better for some reason"
+    )
+    parser.add_argument(
         "--single-file",
         default=False,
         help="compile the program as a single object file, instead of "
@@ -91,6 +97,11 @@ def main():
     else:
         generator = "Unix Makefiles"
     cmd += ["-G", generator]
+
+    if args.compiler == "clang" and shutil.which("clang") is not None:
+        cmd += ["-DCMAKE_C_COMPILER=clang", "-DCMAKE_CXX_COMPILER=clang++"]
+    else:
+        cmd += ["-DCMAKE_C_COMPILER=gcc", "-DCMAKE_CXX_COMPILER=g++"]
 
     cmd += ["-B", str(out_dir)]
     cmd += ["-S", str(root_dir)]

@@ -64,15 +64,6 @@ target_include_directories(cg
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include/cg>)
 
-target_compile_options(cg
-    PRIVATE
-    -Wall;-Wextra;-Wpedantic;-Wno-unused-but-set-parameter;-Wno-c99-extensions;
-    $<$<CONFIG:Deployment>:-Ofast>;
-    $<$<CONFIG:Release>:-Ofast;-march=native>;
-    $<$<CONFIG:Staging>:-Ofast;-march=native;-g>;
-    $<$<CONFIG:Debug>:-g>;
-    $<$<CONFIG:Compat>:-g>)
-
 target_compile_definitions(cg
     PRIVATE
     COMPAT_MODE
@@ -100,7 +91,16 @@ if (${USE_OMP})
 endif ()
 
 target_link_libraries(cg
-    PRIVATE vcl yaml-cpp cparse Boost Eigen3::Eigen)
+    PUBLIC vcl yaml-cpp cparse Boost Eigen3::Eigen)
+
+target_compile_options(cg
+    PUBLIC
+    -Wall;-Wextra;-Wpedantic;-Wno-unused-but-set-parameter;-Wno-c99-extensions;
+    $<$<CONFIG:Deployment>:-Ofast>;
+    $<$<CONFIG:Release>:-Ofast;-march=native>;
+    $<$<CONFIG:Staging>:-Ofast;-march=native;-g>;
+    $<$<CONFIG:Debug>:-g>;
+    $<$<CONFIG:Compat>:-g>)
 
 set_target_properties(cg
     PROPERTIES
