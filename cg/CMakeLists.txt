@@ -1,11 +1,7 @@
-set(USE_OMP ON CACHE BOOL
-    "Use OpenMP" FORCE)
-set(SINGLE_FILE OFF CACHE BOOL
-    "Concatenate all source files" FORCE)
-set(USE_MIXED_PRECISION OFF CACHE BOOL
-    "Use floats for computing the forces and doubles for integration, instead of using doubles throughout" FORCE)
-set(USE_VECTORIZED_IMPLS ON CACHE BOOL
-    "Use vectorized implementations of the algorithms" FORCE)
+option(USE_OMP "Use OpenMP" ON)
+option(SINGLE_FILE "Concatenate all source files" OFF)
+option(USE_MIXED_PRECISION "Use floats for computing the forces and doubles for integration, instead of using doubles throughout" OFF)
+option(USE_VECTORIZED_IMPLS "Use vectorized implementations of the algorithms" ON)
 
 function(message)
     if (NOT MESSAGE_QUIET)
