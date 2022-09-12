@@ -1,20 +1,15 @@
 FROM ubuntu:20.04
 
 ENV DEBIAN_FRONTEND=noninteractive 
-RUN apt-get update && apt-get install -y cmake ninja-build xxd g++
+RUN apt-get update && apt-get install -y cmake ninja-build xxd clang python3.8
 
 RUN mkdir host
 
 COPY cg cg
 COPY CMakeLists.txt CMakeLists.txt
+COPY build.py build.py
 
-RUN mkdir build \
-    && cd build \
-    && cmake -DCMAKE_C_COMPILER=/usr/bin/gcc \
-             -DCMAKE_CXX_COMPILER=/usr/bin/g++ \
-             -DCMAKE_BUILD_TYPE=Release \
-             -G Ninja .. \
-    && ninja cg
+RUN python3 build.py build
 
 WORKDIR "/host"
 ENTRYPOINT ["/build/cg/cg"]
