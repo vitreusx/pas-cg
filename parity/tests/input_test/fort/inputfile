@@ -33,4 +33,5 @@ lnowal T
 lpbc T
 lcpb T
 lcleanrst F
+dumpdata T
 

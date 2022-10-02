@@ -4,7 +4,8 @@ general:
   num of trajectories: 1
   seed: 1
   debug mode:
-    dump data for every step: true
+    dump data:
+      enabled: true
 
 input:
   pdb file:

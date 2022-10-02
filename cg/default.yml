@@ -39,8 +39,10 @@ general:
   debug mode:
     # Turn floating point exceptions on/off.
     floating point exceptions: false
-    # Dump raw data at every step - used in the parity tests.
-    dump data for every step: false
+    # Dumping raw data - used for e.g. parity tests
+    dump data:
+      enabled: false
+      period in steps: 1
 
 # Input specification
 input:

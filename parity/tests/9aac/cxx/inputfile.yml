@@ -4,7 +4,8 @@ general:
   num of trajectories: 1
   num of threads: 1
   debug mode:
-    dump data for every step: true
+    dump data:
+      enabled: true
   seed: 77977
 
 langevin:

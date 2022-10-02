@@ -11,6 +11,7 @@ void thread::main() {
 
 void thread::step() {
   if (st->trajectory_should_end()) {
+#pragma omp barrier
 #pragma omp single
     st->cur_phase = phase::TRAJ_END;
   }
@@ -506,7 +507,7 @@ void thread::post_eval_async() {
     if (st->pbar_enabled)
       render_pbar();
 
-    if (params->out.enabled)
+    if (params->out.enabled && st->t > 0)
       make_report();
 
     if (st->dump_enabled)

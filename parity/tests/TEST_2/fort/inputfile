@@ -34,3 +34,4 @@ lpbc T
 lcpb T
 lcleanrst F
 lenetab F
+dumpdata T

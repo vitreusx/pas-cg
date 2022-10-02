@@ -12,7 +12,8 @@ void parameters::load(ioxx::xyaml::node const &p) {
 
   auto dp = p["debug mode"];
   dp["floating point exceptions"] >> fp_exceptions;
-  dp["dump data for every step"] >> dump_data;
+  dp["dump data"]["enabled"] >> dump_data;
+  dp["dump data"]["period in steps"] >> dump_data_period;
 
   auto mode_str = p["mode"].as<std::string>();
   if (mode_str == "perform simulation")

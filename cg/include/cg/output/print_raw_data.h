@@ -7,6 +7,7 @@ namespace cg::out {
 class print_raw_data {
 public:
   std::shared_ptr<std::ofstream> data_file;
+  int dump_period;
   simul::state const *st;
 
 public:

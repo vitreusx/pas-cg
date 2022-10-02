@@ -114,6 +114,7 @@ void thread::setup_output() {
       print_raw_data.data_file =
           std::make_shared<std::ofstream>("raw_data.txt", std::ios::app);
       print_raw_data.st = st;
+      print_raw_data.dump_period = params->gen.dump_data_period;
     }
   }
 }

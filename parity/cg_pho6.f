@@ -71,7 +71,7 @@ c       The i,i+2 contacts purely repulsive
         dimension adfres(100000),adfres2(100000)
         dimension caac(len*50),kaak(len*50)
 
-        pdbfile='fortran_pdb.pdb'         ! PDB INPUT FILEAME
+        pdbfile='midnew.pdb'         ! PDB INPUT FILEAME
         seqfile='seq_20.txt'         ! SEQUENCE INPUT FILE
         outfile='saw.out'          ! OUTPUT FILENAME
         savfile='saw.pdb'          ! FILENAME FOR SAVING CONFORMATIONS
@@ -261,12 +261,12 @@ c        factor=2.0    ! HOW MANY TIMES BACKB-BACKB. TOLERANCE IS BIGGER
         sigma1(6)=6.6  ! L-J MINIMUM FOR BCKB-SDCH CONTACTS [Angstrems]
         sigma1(7)=6.6  ! L-J MINIMUM FOR SDCH-BCKB CONTACTS [Angstrems]
         sigma1(8)=6.1  ! L-J MINIMUM FOR i,i+4 CONTACTS [Angstrems]
-        screend=15.0   ! ELECTROSTATIC SCREENING LENGTH [Angstrems]
+        screend=50.0   ! ELECTROSTATIC SCREENING LENGTH [Angstrems]
         coul=85.0      ! CONSTANT FOR COULOMBIC INTERACTION [eps*A*A]
         if(lecperm) coul=2.63 ! 210 IF REL. PERMITTIVITY=1 [eps*A]
         cut=5.0        ! CUT-OFF FOR REPULSIVE TERM [Angstrem]
-        elecut=20.d0   ! CUT-OFF FOR ELECTROSTATIC TERM [Angstrem]
-        rcut=20.d0     ! CUT-OFF FOR THE REST [Angstrem]
+        elecut=100.d0   ! CUT-OFF FOR ELECTROSTATIC TERM [Angstrem]
+        rcut=18.d0     ! CUT-OFF FOR THE REST [Angstrem]
         kmaxbckb=2     ! MAXIMAL NUMBER OF BACKBONE CONTACTS
         bckbmin=0.75   ! MINIMUM VALUE OF BACKBONE ANGLE
         bckb2min=0.92  ! MINIMUM VALUE OF BACKBONE ANGLE
@@ -619,10 +619,10 @@ c        factor=2.0    ! HOW MANY TIMES BACKB-BACKB. TOLERANCE IS BIGGER
             write(outfile,stafile) filname,'.out'
             write(mapfile,stafile) filname,'.map'
             write(savfile,stafile) filname,'.pdb'
-        elseif(buffer(1:8).eq.'dumpdata') then
-            read(buffer(9:),*) ldumpdata
-        elseif(buffer(1:9).eq.'dumpevery') then
-            read(buffer(10:),*) idumpevery
+            elseif(buffer(1:8).eq.'dumpdata') then
+                read(buffer(9:),*) ldumpdata
+            elseif(buffer(1:9).eq.'dumpevery') then
+                read(buffer(10:),*) idumpevery
         else ! writing to console, unless file indexes 5 or 6 are in use
             write(*,*) 'UNRECOGNIZED OPTION: ',buffer
         endif
@@ -3230,9 +3230,15 @@ c               rkj(m,2)=y0(i3)-y0(i2)
                rkj(m,2)=v(5,i3)
 c               rkj(m,3)=z0(i3)-z0(i2)
                rkj(m,3)=v(6,i3)
-               rkl(m,1)=x0(i3)-x0(i4)
-               rkl(m,2)=y0(i3)-y0(i4)
-               rkl(m,3)=z0(i3)-z0(i4)
+               drx=x0(i3)-x0(i4)
+               if(lpbcx) drx = drx-xsep*nint(drx*xinv)
+               rkl(m,1)=drx
+               dry=y0(i3)-y0(i4)
+               if(lpbcy) dry = dry-ysep*nint(dry*yinv)
+               rkl(m,2)=dry
+               drz=z0(i3)-z0(i4)
+               if(lpbcz) drz = drz-zsep*nint(drz*zinv)
+               rkl(m,3)=drz
 c               rm(m,1)=rij(m,2)*rkj(m,3)-rij(m,3)*rkj(m,2)
                rm(m,1)=vxv(4,i1)
 c               rm(m,2)=rij(m,3)*rkj(m,1)-rij(m,1)*rkj(m,3)

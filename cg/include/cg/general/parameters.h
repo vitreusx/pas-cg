@@ -11,7 +11,7 @@ struct parameters {
 
   prog_mode mode;
   quantity total_time, equil_time, repulsive_cutoff, counting_factor;
-  int seed, num_of_threads, num_of_traj;
+  int seed, num_of_threads, num_of_traj, dump_data_period;
   bool fp_exceptions, dump_data;
 
   void load(ioxx::xyaml::node const &node);

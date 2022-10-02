@@ -1,0 +1,79 @@
+general:
+  total time: 5000 tau
+  repulsive cutoff: 5 A
+  num of threads: 1
+  num of trajectories: 1
+  seed: 2
+  debug mode:
+    dump data:
+      enabled: true
+      period in steps: 100
+
+input:
+  seq file:
+    source:
+      (at path): test.yml
+
+simulation box:
+  initial size:
+    type: infinite
+  squeezing:
+    perform: false
+  walls:
+    all axes: void
+
+quasi-adiabatic:
+  enabled: false
+
+native contacts:
+  enabled: false
+
+native angles:
+  enabled: false
+
+complex native dihedrals:
+  enabled: false
+
+pseudo-improper dihedral:
+  enabled: true
+  include (i, i+4): false
+  forces:
+    variant: sink lj
+    ss:
+      sink lj params:
+        per pair:
+          depth:
+            (at path): md05_2.csv
+
+langevin:
+  enabled: true
+  gamma factor: 2.0 1/tau
+  temperature: 0.38 eps/kB
+  dt: 5e-3 tau
+  type: legacy
+
+Debye-Hueckel:
+  enabled: true
+  variant: constant
+  screening distance: 50.0 A
+  cutoff distance: 100.0 A
+  constant variant params:
+    permittivity: 80.0 eps_0
+
+neighbor list:
+  algorithm: legacy
+  pad: 10.0 A
+  cutoff: 18.0 A
+
+local repulsive:
+  enabled: true
+  depth: 1.0 eps
+
+checkpoints:
+  enabled: false
+
+output:
+  enabled: true
+  emit stats every: 1e2 tau
+  emit structure every: 2e2 tau
+  file prefix: mHP1a_AFB_25_0.13_0.38

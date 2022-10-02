@@ -2,7 +2,8 @@ general:
   total time: 10 tau
   repulsive cutoff: 4.0 A
   debug mode:
-    dump data for every step: true
+    dump data:
+      enabled: true
   counting factor: 1.5
 
 input:
