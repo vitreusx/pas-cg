@@ -98,7 +98,7 @@ target_compile_options(cg
     -Wall;-Wextra;-Wpedantic;-Wno-unused-parameter;-Wno-c99-extensions;
     $<$<CONFIG:Deployment>:-Ofast>;
     $<$<CONFIG:Release>:-Ofast;-march=native>;
-    $<$<CONFIG:Staging>:-Ofast;-march=native;-g>;
+    $<$<CONFIG:Staging>:-Ofast;-march=native;-gdwarf-4>;
     $<$<CONFIG:Debug>:-g>;
     $<$<CONFIG:Compat>:-g>)
 
