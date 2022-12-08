@@ -167,6 +167,7 @@ public:
 
   bool pid_enabled;
   vect::vector<pid::bundle> pid_bundles;
+  int pid_fast_iter_end;
   void setup_pid();
 
   bool harmonic_walls_enabled;

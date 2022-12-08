@@ -96,11 +96,8 @@ target_link_libraries(cg
 target_compile_options(cg
     PUBLIC
     -Wall;-Wextra;-Wpedantic;-Wno-unused-parameter;-Wno-c99-extensions;
-    $<$<CONFIG:Deployment>:-Ofast>;
-    $<$<CONFIG:Release>:-Ofast;-march=native>;
-    $<$<CONFIG:Staging>:-Ofast;-march=native;-gdwarf-4>;
-    $<$<CONFIG:Debug>:-g>;
-    $<$<CONFIG:Compat>:-g>)
+    $<$<CONFIG:Release,Staging>:-Ofast;-march=native>;
+    $<$<CONFIG:Debug,Staging>:-gdwarf-4>;)
 
 set_target_properties(cg
     PROPERTIES

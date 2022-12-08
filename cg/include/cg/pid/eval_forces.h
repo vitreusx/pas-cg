@@ -19,20 +19,29 @@ public:
   vect::view<vec3r> F;
   sbox::pbc<real> const *simul_box;
   vect::vector<bundle> const *bundles;
+  int const *fast_iter_end;
   real *V, *total_disp;
   vect::const_view<int> prev, next;
   vect::const_view<amino_acid> atype;
 
 public:
+  bool is_active(bundle const &bundle) const;
+
+public:
+  template <typename E>
+  void fast_iter(bundle_expr<E> const &bundle) const;
+
+  template <std::size_t N, std::size_t W>
+  void fast_vect_iter(int lane_idx) const;
+
   template <typename E>
   void iter(bundle_expr<E> const &bundle) const;
-  void operator()() const;
-  void omp_async() const;
 
   template <std::size_t N, std::size_t W>
   void vect_iter(int lane_idx) const;
 
-  bool is_active(bundle const &bundle) const;
+  void operator()() const;
+  void omp_async() const;
 
   void for_slice(int from, int to) const override;
   int total_size() const override;

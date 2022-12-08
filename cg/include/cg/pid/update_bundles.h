@@ -6,6 +6,9 @@
 
 namespace cg::pid {
 class update_bundles {
+private:
+  mutable vect::vector<bundle> end_bundles;
+
 public:
   real cutoff;
   bool include4;
@@ -17,6 +20,7 @@ public:
   sbox::pbc<real> const *simul_box;
   nl::data *nl;
   vect::vector<bundle> *bundles;
+  int *fast_iter_end;
 
 public:
   void operator()() const;

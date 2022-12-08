@@ -3,6 +3,7 @@ namespace cg::pid {
 
 void update_bundles::operator()() const {
   bundles->clear();
+  end_bundles.clear();
 
   for (decltype(auto) nl_pair : nl->pairs) {
     if (nl_pair.taken())
@@ -18,18 +19,24 @@ void update_bundles::operator()() const {
 
     auto dist = norm(simul_box->wrap<vec3r>(r1, r2));
     if (dist < cutoff + nl->orig_pad) {
-      //      auto prev1 = prev[i1], next1 = next[i1];
-      //      auto prev2 = prev[i2], next2 = next[i2];
-      //      if (prev1 < 0 || next1 < 0 || prev2 < 0 || next2 < 0)
-      //        continue;
+      auto prev1 = prev[i1], next1 = next[i1];
+      auto prev2 = prev[i2], next2 = next[i2];
+
+      auto terminal = prev1 < 0 || next1 < 0 || prev2 < 0 || next2 < 0;
+      auto *bundles_ = terminal ? &end_bundles : bundles;
+      //      auto *bundles_ = bundles;
 
       auto atype1 = atype[i1], atype2 = atype[i2];
 
       int16_t type = (int16_t)(uint8_t)atype1 * (int16_t)amino_acid::NUM_TYPES +
                      (int16_t)(uint8_t)atype2;
-      bundles->emplace_back(i1, i2, nl_pair.orig_dist(), type);
+      bundles_->emplace_back(i1, i2, nl_pair.orig_dist(), type);
       //      nl_pair.taken() = true;
     }
   }
+
+  *fast_iter_end = bundles->size();
+  for (auto bundle : end_bundles)
+    bundles->push_back(bundle);
 }
 } // namespace cg::pid

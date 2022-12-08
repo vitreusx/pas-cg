@@ -667,6 +667,7 @@ void thread::setup_pid() {
     eval.r = st->r;
     eval.simul_box = &st->pbc;
     eval.bundles = &st->pid_bundles;
+    eval.fast_iter_end = &st->pid_fast_iter_end;
     eval.prev = st->prev;
     eval.next = st->next;
     eval.V = &dyn.V;
@@ -680,6 +681,7 @@ void thread::setup_pid() {
     update.simul_box = &st->pbc;
     update.nl = &st->nl;
     update.bundles = &st->pid_bundles;
+    update.fast_iter_end = &st->pid_fast_iter_end;
     update.chain_idx = st->chain_idx;
     update.seq_idx = st->seq_idx;
     update.include4 = params->pid.include4;
