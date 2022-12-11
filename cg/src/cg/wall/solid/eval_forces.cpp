@@ -15,25 +15,7 @@ void eval_forces::iter(int res_idx) const {
   }
 }
 
-void eval_forces::operator()() const {
-  for (int idx = 0; idx < r.size(); ++idx)
-    iter(idx);
-}
-
-void eval_forces::omp_async() const {
-#pragma omp for schedule(static) nowait
-  for (int idx = 0; idx < r.size(); ++idx)
-    iter(idx);
-}
-
-void eval_forces::for_slice(int from, int to) const {
-  for (int idx = from; idx < to; ++idx)
-    iter(idx);
-}
-
-int eval_forces::total_size() const {
+int eval_forces::size() const {
   return r.size();
 }
-
-
 } // namespace cg::wall::solid

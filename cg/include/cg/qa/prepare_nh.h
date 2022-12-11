@@ -1,10 +1,10 @@
 #pragma once
 #include <cg/sbox/pbc.h>
-#include <cg/simul/runtime.h>
+#include <cg/simul/sched.h>
 #include <cg/types/amp.h>
 
 namespace cg::qa {
-class prepare_nh : public simul::sliceable_task {
+class prepare_nh : public simul::iter_divisible_mixin<prepare_nh> {
 public:
   vect::const_view<vec3r> r;
   vect::view<vec3r> n, h;
@@ -14,11 +14,6 @@ public:
 
 public:
   void iter(int idx) const;
-  void operator()() const;
-  void omp_async() const;
-
-  void for_slice(int from, int to) const override;
-  int total_size() const override;
-
+  int size() const;
 };
 } // namespace cg::qa

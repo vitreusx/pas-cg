@@ -58,4 +58,11 @@ struct _lane_impl<true, T, N, W> {
   using type = typename _1<idxes_t<T>>::template _2<subtypes_t<T>>::impl;
 };
 
+#ifdef __AVX512F___
+inline constexpr int VECT_BITS = 512;
+#else
+inline constexpr int VECT_BITS = 256;
+#endif
+inline constexpr int VECT_BYTES = VECT_BITS / 8;
+
 } // namespace nitro::ind

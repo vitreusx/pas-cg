@@ -2,13 +2,8 @@
 #include <cg/local_rep/eval_forces.h>
 
 namespace cg::local_rep {
-void eval_forces::operator()() const {
-  for (int idx = 0; idx < pairs.size(); ++idx) {
-    iter(pairs[idx]);
-  }
-}
-
-template <typename E> void eval_forces::iter(pair_expr<E> const &pair) const {
+void eval_forces::iter(int idx) const {
+  auto pair = pairs[idx];
   auto i1 = pair.i1(), i2 = pair.i2();
 
   auto r1 = r[i1], r2 = r[i2];
@@ -27,21 +22,8 @@ template <typename E> void eval_forces::iter(pair_expr<E> const &pair) const {
   F[i2] -= r12_u * dV_dr;
 }
 
-void eval_forces::omp_async() const {
-#pragma omp for schedule(static) nowait
-  for (int idx = 0; idx < pairs.size(); ++idx) {
-    iter(pairs[idx]);
-  }
-}
-
-void eval_forces::for_slice(int from, int to) const {
-  for (int idx = from; idx < to; ++idx)
-    iter(pairs[idx]);
-}
-
-int eval_forces::total_size() const {
+int eval_forces::size() const {
   return pairs.size();
 }
-
 
 } // namespace cg::local_rep

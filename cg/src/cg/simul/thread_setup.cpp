@@ -23,29 +23,33 @@ thread::thread(thread_team &team) {
   params = &st->params;
   tid = omp_get_thread_num();
 
-  eval_slices = set_of_task_slices(team.num_threads);
-  eval_slices.add_static_task(eval_chir_forces, st->chir_enabled);
-  eval_slices.add_static_task(eval_tether_forces, st->tether_enabled);
-  eval_slices.add_static_task(eval_lrep_forces, st->lrep_enabled);
-  eval_slices.add_static_task(eval_nat_cont_forces, st->nat_cont_enabled);
-  eval_slices.add_static_task(eval_pauli_forces, st->pauli_enabled);
-  eval_slices.add_static_task(eval_const_dh_forces, st->dh_enabled);
-  eval_slices.add_static_task(eval_rel_dh_forces, st->dh_enabled);
-  eval_slices.add_static_task(qa_loop_over_candidates, st->qa_enabled);
-  eval_slices.add_static_task(process_qa_contacts, st->qa_enabled);
-  eval_slices.add_static_task(eval_pid_forces, st->pid_enabled);
-  eval_slices.add_static_task(eval_nat_ang_forces, st->nat_ang_enabled);
-  eval_slices.add_static_task(eval_heur_ang_forces, st->heur_ang_enabled);
-  eval_slices.add_static_task(eval_heur_dih_forces, st->heur_dih_enabled);
-  eval_slices.add_static_task(eval_cnd_forces, st->nat_dih_enabled);
-  eval_slices.add_static_task(eval_snd_forces, st->nat_dih_enabled);
-  eval_slices.add_static_task(eval_solid_wall_forces, st->solid_walls_enabled);
-  eval_slices.add_static_task(hw_eval_free, st->harmonic_walls_enabled);
-  eval_slices.add_static_task(hw_eval_conn, st->harmonic_walls_enabled);
-  eval_slices.add_static_task(ljw_sift_free, st->lj_walls_enabled);
-  eval_slices.add_static_task(ljw_eval_conn, st->lj_walls_enabled);
-  eval_slices.add_static_task(eval_vel_afm_forces, st->afm_enabled);
-  eval_slices.add_static_task(eval_force_afm_forces, st->afm_enabled);
+  eval_divs = set_of_divisibles();
+
+  int hint = 256;
+  eval_divs.divs = {
+      {(divisible *)&eval_chir_forces, &st->chir_enabled, hint},
+      {(divisible *)&eval_tether_forces, &st->tether_enabled, hint},
+      {(divisible *)&eval_lrep_forces, &st->lrep_enabled, hint},
+      {(divisible *)&eval_nat_cont_forces, &st->nat_cont_enabled, hint},
+      {(divisible *)&eval_pauli_forces, &st->pauli_enabled, hint},
+      {(divisible *)&eval_const_dh_forces, &st->dh_enabled, hint},
+      {(divisible *)&eval_rel_dh_forces, &st->dh_enabled, hint},
+      {(divisible *)&qa_loop_over_candidates, &st->qa_enabled, hint},
+      {(divisible *)&process_qa_contacts, &st->qa_enabled, hint},
+      {(divisible *)&eval_pid_forces, &st->pid_enabled, hint},
+      {(divisible *)&eval_nat_ang_forces, &st->nat_ang_enabled, hint},
+      {(divisible *)&eval_heur_ang_forces, &st->heur_ang_enabled, hint},
+      {(divisible *)&eval_heur_dih_forces, &st->heur_dih_enabled, hint},
+      {(divisible *)&eval_cnd_forces, &st->nat_dih_enabled, hint},
+      {(divisible *)&eval_snd_forces, &st->nat_dih_enabled, hint},
+      {(divisible *)&eval_solid_wall_forces, &st->solid_walls_enabled, hint},
+      {(divisible *)&hw_eval_free, &st->harmonic_walls_enabled, hint},
+      {(divisible *)&hw_eval_conn, &st->harmonic_walls_enabled, hint},
+      {(divisible *)&ljw_sift_free, &st->lj_walls_enabled, hint},
+      {(divisible *)&ljw_eval_conn, &st->lj_walls_enabled, hint},
+      {(divisible *)&eval_vel_afm_forces, &st->afm_enabled, hint},
+      {(divisible *)&eval_force_afm_forces, &st->afm_enabled, hint},
+  };
 }
 
 void thread::init_kernels() {
@@ -66,7 +70,7 @@ void thread::init_kernels() {
   setup_pid();
   setup_afm();
   setup_walls();
-  eval_slices.reset_all();
+  eval_divs.update();
 }
 
 void thread::setup_gen() {

@@ -1,14 +1,8 @@
 #include <cg/chir/eval_forces.h>
+
 namespace cg::chir {
-
-void eval_forces::operator()() const {
-  for (int idx = 0; idx < quads.size(); ++idx) {
-    iter(quads[idx]);
-  }
-}
-
-template <typename E>
-void eval_forces::iter(chiral_quad_expr<E> const &quad) const {
+void eval_forces::iter(int idx) const {
+  auto quad = quads[idx];
   auto i1 = quad.i1(), i2 = quad.i2(), i3 = quad.i3(), i4 = quad.i4();
   auto nat_chir = quad.nat_chir();
   auto nat_factor = quad.nat_factor();
@@ -30,21 +24,8 @@ void eval_forces::iter(chiral_quad_expr<E> const &quad) const {
   F[i4] -= f * x12_23;
 }
 
-void eval_forces::omp_async() const {
-#pragma omp for schedule(static) nowait
-  for (int idx = 0; idx < quads.size(); ++idx) {
-    iter(quads[idx]);
-  }
-}
-
-void eval_forces::for_slice(int from, int to) const {
-  for (int idx = from; idx < to; ++idx)
-    iter(quads[idx]);
-}
-
-int eval_forces::total_size() const {
+int eval_forces::size() const {
   return quads.size();
 }
-
 
 } // namespace cg::chir

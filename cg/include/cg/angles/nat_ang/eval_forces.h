@@ -1,9 +1,9 @@
 #pragma once
 #include "nat_ang.h"
-#include <cg/simul/runtime.h>
+#include <cg/simul/sched.h>
 
 namespace cg::nat_ang {
-class eval_forces : public simul::sliceable_task {
+class eval_forces : public simul::iter_divisible_mixin<eval_forces> {
 public:
   real CBA;
 
@@ -14,12 +14,7 @@ public:
   vect::const_view<nat_ang> angles;
 
 public:
-  template <typename E> void iter(nat_ang_expr<E> const &angle) const;
-  void operator()() const;
-  void omp_async() const;
-
-  void for_slice(int from, int to) const override;
-  int total_size() const override;
-
+  void iter(int idx) const;
+  int size() const;
 };
 } // namespace cg::nat_ang

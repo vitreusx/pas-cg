@@ -1,17 +1,6 @@
 #include <cg/wall/lj/sift_free.h>
 
 namespace cg::wall::lj {
-void sift_free::operator()() const {
-  for (int idx = 0; idx < r.size(); ++idx)
-    iter(idx);
-}
-
-void sift_free::omp_async() const {
-#pragma omp for schedule(static) nowait
-  for (int idx = 0; idx < r.size(); ++idx)
-    iter(idx);
-}
-
 void sift_free::iter(int res_idx) const {
   if (is_connected[res_idx])
     return;
@@ -36,14 +25,7 @@ void sift_free::iter(int res_idx) const {
   }
 }
 
-void sift_free::for_slice(int from, int to) const {
-  for (int idx = from; idx < to; ++idx)
-    iter(idx);
-}
-
-int sift_free::total_size() const {
+int sift_free::size() const {
   return r.size();
 }
-
-
 } // namespace cg::wall::lj

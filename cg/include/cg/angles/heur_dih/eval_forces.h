@@ -1,9 +1,9 @@
 #pragma once
 #include "heur_dih.h"
-#include <cg/simul/runtime.h>
+#include <cg/simul/sched.h>
 
 namespace cg::heur_dih {
-class eval_forces : public simul::sliceable_task {
+class eval_forces : public simul::iter_divisible_mixin<eval_forces> {
 public:
   struct coeffs_t {
     real const_[aa_heur_pair::NUM_TYPES];
@@ -22,12 +22,7 @@ public:
   real *V;
 
 public:
-  template <typename E> void iter(heur_dih_expr<E> const &heur_dih) const;
-  void operator()() const;
-  void omp_async() const;
-
-  void for_slice(int from, int to) const override;
-  int total_size() const override;
-
+  void iter(int idx) const;
+  int size() const;
 };
 } // namespace cg::heur_dih

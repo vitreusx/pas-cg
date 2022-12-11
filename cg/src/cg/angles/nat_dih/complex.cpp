@@ -1,14 +1,8 @@
 #include <cg/angles/nat_dih/complex.h>
+
 namespace cg::cnd {
-
-void eval_forces::operator()() const {
-  for (int idx = 0; idx < dihedrals.size(); ++idx) {
-    iter(dihedrals[idx]);
-  }
-}
-
-template <typename E>
-void eval_forces::iter(nat_dih_expr<E> const &nat_dih) const {
+void eval_forces::iter(int idx) const {
+  auto nat_dih = dihedrals[idx];
   auto i1 = nat_dih.i1(), i2 = nat_dih.i2(), i3 = nat_dih.i3(),
        i4 = nat_dih.i4();
   auto nat_phi = nat_dih.nat_phi();
@@ -46,21 +40,7 @@ void eval_forces::iter(nat_dih_expr<E> const &nat_dih) const {
   F[i4] -= dV_dphi * dphi_dr4;
 }
 
-void eval_forces::omp_async() const {
-#pragma omp for schedule(static) nowait
-  for (int idx = 0; idx < dihedrals.size(); ++idx) {
-    iter(dihedrals[idx]);
-  }
-}
-
-void eval_forces::for_slice(int from, int to) const {
-  for (int idx = from; idx < to; ++idx)
-    iter(dihedrals[idx]);
-}
-
-int eval_forces::total_size() const {
+int eval_forces::size() const {
   return dihedrals.size();
 }
-
-
 } // namespace cg::cnd

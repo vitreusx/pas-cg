@@ -1,14 +1,9 @@
 #include <cg/angles/heur_ang/eval_forces.h>
+
 namespace cg::heur_ang {
+void eval_forces::iter(int idx) const {
+  auto angle = angles[idx];
 
-void eval_forces::operator()() const {
-  for (int idx = 0; idx < angles.size(); ++idx) {
-    iter(angles[idx]);
-  }
-}
-
-template <typename E>
-void eval_forces::iter(heur_ang_expr<E> const &angle) const {
   auto i1 = angle.i1(), i2 = angle.i2(), i3 = angle.i3();
   auto type_val = (uint8_t)angle.type();
 
@@ -50,19 +45,7 @@ void eval_forces::iter(heur_ang_expr<E> const &angle) const {
   F[i3] -= dV_dtheta * dtheta_dr3;
 }
 
-void eval_forces::omp_async() const {
-#pragma omp for schedule(static) nowait
-  for (int idx = 0; idx < angles.size(); ++idx) {
-    iter(angles[idx]);
-  }
-}
-
-void eval_forces::for_slice(int from, int to) const {
-  for (int idx = from; idx < to; ++idx)
-    iter(angles[idx]);
-}
-
-int eval_forces::total_size() const {
+int eval_forces::size() const {
   return angles.size();
 }
 

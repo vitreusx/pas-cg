@@ -3,14 +3,8 @@
 
 namespace cg::pauli {
 
-void eval_forces::operator()() const {
-  for (int idx = 0; idx < pairs->size(); ++idx) {
-    iter(pairs->at(idx));
-  }
-}
-
-template <typename E>
-void eval_forces::iter(pair_expr<E> const &pair) const {
+void eval_forces::iter(int idx) const {
+  auto pair = pairs->at(idx);
   auto i1 = pair.i1(), i2 = pair.i2();
 
   auto r1 = r[i1], r2 = r[i2];
@@ -29,19 +23,7 @@ void eval_forces::iter(pair_expr<E> const &pair) const {
   F[i2] -= r12_u * dV_dr;
 }
 
-void eval_forces::omp_async() const {
-#pragma omp for schedule(static) nowait
-  for (int idx = 0; idx < pairs->size(); ++idx) {
-    iter(pairs->at(idx));
-  }
-}
-
-void eval_forces::for_slice(int from, int to) const {
-  for (int idx = from; idx < to; ++idx)
-    iter(pairs->at(idx));
-}
-
-int eval_forces::total_size() const {
+int eval_forces::size() const {
   return pairs->size();
 }
 

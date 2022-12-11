@@ -28,7 +28,7 @@ void set_of_task_slices::emplace_from(
     if (!*enabled)
       continue;
 
-    //    auto slice_size = (task->total_size() + num_threads - 1) /
+    //    auto slice_size = (task->size() + num_threads - 1) /
     //    num_threads;
     auto slice_size = 256;
     emplace_slices(task, slice_size);

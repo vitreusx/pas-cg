@@ -423,7 +423,7 @@ void thread::fix_nl_async() {
   };
 
 #pragma omp barrier
-  eval_slices.reset_all();
+  eval_divs.update();
 }
 
 template <typename E>
@@ -434,7 +434,6 @@ std::ostream &operator<<(std::ostream &os, vec3_expr<E> const &e) {
 
 void thread::eval_forces() {
   dyn.reset();
-  eval_slices.reset_dynamic();
 
   //  if (st->chir_enabled)
   //    eval_chir_forces.omp_async();
@@ -488,7 +487,7 @@ void thread::eval_forces() {
   //    eval_force_afm_forces.omp_async();
   //  }
 
-  eval_slices.run_async(tid);
+  eval_divs.omp_async();
 
   //  std::cout << "step_idx = " << st->step_idx << "; V = " << dyn.V << '\n';
   //  for (int idx = 0; idx < st->num_res; ++idx) {

@@ -2,13 +2,6 @@
 #include <cg/qa/loop_over_candidates.h>
 
 namespace cg::qa {
-
-void loop_over_candidates::operator()() const {
-  for (int idx = 0; idx < free_pairs->size(); ++idx) {
-    iter(idx);
-  }
-}
-
 void loop_over_candidates::iter(int idx) const {
   decltype(auto) node = free_pairs->at(idx);
 
@@ -98,20 +91,7 @@ void loop_over_candidates::iter(int idx) const {
                            sync_diff1, sync_diff2);
 }
 
-void loop_over_candidates::omp_async() const {
-#pragma omp for schedule(static) nowait
-  for (int idx = 0; idx < free_pairs->size(); ++idx) {
-    iter(idx);
-  }
-}
-
-void loop_over_candidates::for_slice(int from, int to) const {
-  for (int idx = from; idx < to; ++idx)
-    iter(idx);
-}
-
-int loop_over_candidates::total_size() const {
+int loop_over_candidates::size() const {
   return free_pairs->size();
 }
-
 } // namespace cg::qa

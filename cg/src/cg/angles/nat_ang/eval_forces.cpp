@@ -1,14 +1,8 @@
 #include <cg/angles/nat_ang/eval_forces.h>
+
 namespace cg::nat_ang {
-
-void eval_forces::operator()() const {
-  for (int idx = 0; idx < angles.size(); ++idx) {
-    iter(angles[idx]);
-  }
-}
-
-template <typename E>
-void eval_forces::iter(nat_ang_expr<E> const &angle) const {
+void eval_forces::iter(int idx) const {
+  auto angle = angles[idx];
   int i1 = angle.i1(), i2 = angle.i2(), i3 = angle.i3();
   auto nat_theta = angle.nat_theta();
   auto r1 = r[i1], r2 = r[i2], r3 = r[i3];
@@ -37,19 +31,7 @@ void eval_forces::iter(nat_ang_expr<E> const &angle) const {
   F[i3] -= dV_dtheta * dtheta_dr3;
 }
 
-void eval_forces::omp_async() const {
-#pragma omp for schedule(static) nowait
-  for (int idx = 0; idx < angles.size(); ++idx) {
-    iter(angles[idx]);
-  }
-}
-
-void eval_forces::for_slice(int from, int to) const {
-  for (int idx = from; idx < to; ++idx)
-    iter(angles[idx]);
-}
-
-int eval_forces::total_size() const {
+int eval_forces::size() const {
   return angles.size();
 }
 

@@ -1,9 +1,9 @@
 #pragma once
 #include "tip.h"
-#include <cg/simul/runtime.h>
+#include <cg/simul/sched.h>
 
 namespace cg::afm::force {
-class eval_forces : public simul::sliceable_task {
+class eval_forces : public simul::iter_divisible_mixin<eval_forces> {
 public:
   vect::view<vec3r> F;
   vect::view<tip> afm_tips;
@@ -11,11 +11,7 @@ public:
   real const *t;
 
 public:
-  template <typename E> void iter(tip_expr<E> const &tip) const;
-  void operator()() const;
-  void omp_async() const;
-
-  void for_slice(int from, int to) const override;
-  int total_size() const override;
+  void iter(int idx) const;
+  int size() const;
 };
 } // namespace cg::afm::force

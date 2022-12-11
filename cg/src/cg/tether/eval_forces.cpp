@@ -1,21 +1,9 @@
 #include <cg/base_forces/harmonic.h>
 #include <cg/tether/eval_forces.h>
+
 namespace cg::tether {
-
-void eval_forces::operator()() const {
-  for (int idx = 0; idx < tethers.size(); ++idx) {
-    iter(tethers[idx]);
-  }
-}
-
-void eval_forces::omp_async() const {
-#pragma omp for schedule(static) nowait
-  for (int idx = 0; idx < tethers.size(); ++idx) {
-    iter(tethers[idx]);
-  }
-}
-
-template <typename E> void eval_forces::iter(pair_expr<E> const &tether) const {
+void eval_forces::iter(int idx) const {
+  auto tether = tethers[idx];
   auto i1 = tether.i1(), i2 = tether.i2();
   auto nat_dist = tether.nat_dist();
 
@@ -32,14 +20,7 @@ template <typename E> void eval_forces::iter(pair_expr<E> const &tether) const {
   F[i2] -= dV_dr * r12_u;
 }
 
-void eval_forces::for_slice(int from, int to) const {
-  for (int idx = from; idx < to; ++idx)
-    iter(tethers[idx]);
-}
-
-int eval_forces::total_size() const {
+int eval_forces::size() const {
   return tethers.size();
 }
-
-
 } // namespace cg::tether

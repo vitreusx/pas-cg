@@ -1,9 +1,9 @@
 #pragma once
 #include "data.h"
-#include <cg/simul/runtime.h>
+#include <cg/simul/sched.h>
 
 namespace cg::wall::lj {
-class eval_connected : public simul::sliceable_task {
+class eval_connected : public simul::iter_divisible_mixin<eval_connected> {
 public:
   real min_dist, breaking_dist, saturation_diff;
   class lj force;
@@ -18,12 +18,7 @@ public:
   vect::vector<int> *removed;
 
 public:
-  void operator()() const;
-  void omp_async() const;
   void iter(int conn_idx) const;
-
-  void for_slice(int from, int to) const override;
-  int total_size() const override;
-
+  int size() const;
 };
 } // namespace cg::wall::lj

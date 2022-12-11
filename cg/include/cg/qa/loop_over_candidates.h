@@ -4,10 +4,11 @@
 #include <cg/amino/amino_acid.h>
 #include <cg/amino/sync_data.h>
 #include <cg/sbox/pbc.h>
-#include <cg/simul/runtime.h>
+#include <cg/simul/sched.h>
 
 namespace cg::qa {
-class loop_over_candidates : public simul::sliceable_task {
+class loop_over_candidates
+    : public simul::iter_divisible_mixin<loop_over_candidates> {
 public:
   real min_abs_cos_hr, min_abs_cos_hh, max_cos_nr;
   real req_min_dist[contact_type::NUM_TYPES];
@@ -34,11 +35,6 @@ public:
 
 public:
   void iter(int idx) const;
-  void operator()() const;
-  void omp_async() const;
-
-  void for_slice(int from, int to) const override;
-  int total_size() const override;
-
+  int size() const;
 };
 } // namespace cg::qa

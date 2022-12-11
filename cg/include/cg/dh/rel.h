@@ -1,11 +1,11 @@
 #pragma once
 #include "pair.h"
 #include <cg/sbox/pbc.h>
-#include <cg/simul/runtime.h>
+#include <cg/simul/sched.h>
 #include <optional>
 
 namespace cg::rel_dh {
-class eval_forces : public simul::sliceable_task {
+class eval_forces : public simul::iter_divisible_mixin<eval_forces> {
 public:
   real screen_dist_inv, V_factor, cutoff;
   void set_V_factor(real factor);
@@ -18,12 +18,7 @@ public:
   real *V;
 
 public:
-  template <typename E>
-  void iter(dh::pair_expr<E> const &pair) const;
-  void operator()() const;
-  void omp_async() const;
-
-  void for_slice(int from, int to) const override;
-  int total_size() const override;
+  void iter(int idx) const;
+  int size() const;
 };
 } // namespace cg::rel_dh

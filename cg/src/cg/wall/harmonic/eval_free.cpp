@@ -1,17 +1,6 @@
 #include <cg/wall/harmonic/eval_free.h>
 
 namespace cg::wall::harmonic {
-void eval_free::operator()() const {
-  for (int idx = 0; idx < r.size(); ++idx)
-    iter(idx);
-}
-
-void eval_free::omp_async() const {
-#pragma omp for schedule(static) nowait
-  for (int idx = 0; idx < r.size(); ++idx)
-    iter(idx);
-}
-
 void eval_free::iter(int idx) const {
   if (!is_connected[idx]) {
     auto res_r = r[idx];
@@ -29,14 +18,7 @@ void eval_free::iter(int idx) const {
   }
 }
 
-void eval_free::for_slice(int from, int to) const {
-  for (int idx = from; idx < to; ++idx)
-    iter(idx);
-}
-
-int eval_free::total_size() const {
+int eval_free::size() const {
   return r.size();
 }
-
-
 } // namespace cg::wall::harmonic

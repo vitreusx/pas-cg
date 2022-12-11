@@ -1,10 +1,10 @@
 #pragma once
 #include "tip.h"
 #include <cg/base_forces/harmonic.h>
-#include <cg/simul/runtime.h>
+#include <cg/simul/sched.h>
 
 namespace cg::afm::vel {
-class eval_forces : public simul::sliceable_task {
+class eval_forces : public simul::iter_divisible_mixin<eval_forces> {
 public:
   harmonic afm_force;
 
@@ -15,12 +15,9 @@ public:
   vect::view<tip> afm_tips;
 
 public:
-  template <typename E> void iter(tip_expr<E> const &tip) const;
-  void operator()() const;
-  void omp_async() const;
-  real compute_force(vel::tip const &tip) const;
+  void iter(int idx) const;
+  int size() const;
 
-  void for_slice(int from, int to) const override;
-  int total_size() const override;
+  real compute_force(vel::tip const &tip) const;
 };
 } // namespace cg::afm::vel

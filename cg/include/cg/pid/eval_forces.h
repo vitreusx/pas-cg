@@ -5,9 +5,10 @@
 #include <cg/base_forces/sink_lj.h>
 #include <cg/sbox/pbc.h>
 #include <cg/simul/runtime.h>
+#include <cg/simul/sched.h>
 
 namespace cg::pid {
-class eval_forces : public simul::sliceable_task {
+class eval_forces : public simul::vect_iter_divisible_mixin<eval_forces> {
 public:
   lambda bb_plus_lam, bb_minus_lam, ss_lam;
   sink_lj bb_plus_lj, bb_minus_lj;
@@ -28,22 +29,10 @@ public:
   bool is_active(bundle const &bundle) const;
 
 public:
-  template <typename E>
-  void fast_iter(bundle_expr<E> const &bundle) const;
+  void iter(int idx) const;
+  void vect_iter(int vect_idx) const;
+  int size() const;
 
-  template <std::size_t N, std::size_t W>
-  void fast_vect_iter(int lane_idx) const;
-
-  template <typename E>
-  void iter(bundle_expr<E> const &bundle) const;
-
-  template <std::size_t N, std::size_t W>
-  void vect_iter(int lane_idx) const;
-
-  void operator()() const;
-  void omp_async() const;
-
-  void for_slice(int from, int to) const override;
-  int total_size() const override;
+  static inline constexpr int elems_per_vect = vect::VECT_BYTES / sizeof(real);
 };
 } // namespace cg::pid

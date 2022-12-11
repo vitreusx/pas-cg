@@ -69,7 +69,7 @@ public:
   state *st;
   parameters const *params;
 
-  set_of_task_slices eval_slices;
+  set_of_divisibles eval_divs;
 
 public:
   rand_gen gen;

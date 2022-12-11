@@ -1,9 +1,9 @@
 #pragma once
 #include "pair.h"
-#include <cg/simul/runtime.h>
+#include <cg/simul/sched.h>
 
 namespace cg::tether {
-class eval_forces : public simul::sliceable_task {
+class eval_forces : public simul::iter_divisible_mixin<eval_forces> {
 public:
   real H1, H2;
   real def_length;
@@ -15,12 +15,7 @@ public:
   real *V;
 
 public:
-  template <typename E> void iter(pair_expr<E> const &tether) const;
-  void operator()() const;
-  void omp_async() const;
-
-  void for_slice(int from, int to) const override;
-  int total_size() const override;
-
+  void iter(int idx) const;
+  int size() const;
 };
 } // namespace cg::tether

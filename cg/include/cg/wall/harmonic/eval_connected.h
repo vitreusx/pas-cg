@@ -1,9 +1,9 @@
 #pragma once
 #include "data.h"
-#include <cg/simul/runtime.h>
+#include <cg/simul/sched.h>
 
 namespace cg::wall::harmonic {
-class eval_connected : public simul::sliceable_task {
+class eval_connected : public simul::iter_divisible_mixin<eval_connected> {
 public:
   real HH1;
 
@@ -15,12 +15,7 @@ public:
   real *V;
 
 public:
-  void operator()() const;
-  void omp_async() const;
-  template <typename E> void iter(connection_expr<E> const &conn) const;
-
-  void for_slice(int from, int to) const override;
-  int total_size() const override;
-
+  void iter(int idx) const;
+  int size() const;
 };
 } // namespace cg::wall::harmonic

@@ -1,13 +1,8 @@
 #include <cg/afm/vel/eval_forces.h>
+
 namespace cg::afm::vel {
-
-void eval_forces::operator()() const {
-  for (int idx = 0; idx < afm_tips.size(); ++idx) {
-    iter(afm_tips[idx]);
-  }
-}
-
-template <typename E> void eval_forces::iter(tip_expr<E> const &tip) const {
+void eval_forces::iter(int idx) const {
+  auto tip = afm_tips[idx];
   auto r_ = r[tip.res_idx()];
   auto cur_afm_pos = tip.afm_orig() + (*t - tip.ref_t()) * tip.afm_vel();
 
@@ -30,6 +25,10 @@ template <typename E> void eval_forces::iter(tip_expr<E> const &tip) const {
   }
 }
 
+int eval_forces::size() const {
+  return afm_tips.size();
+}
+
 cg::real eval_forces::compute_force(const vel::tip &tip) const {
   auto r_ = r[tip.res_idx()];
   auto cur_afm_pos = tip.afm_orig() + (*t - tip.ref_t()) * tip.afm_vel();
@@ -38,21 +37,4 @@ cg::real eval_forces::compute_force(const vel::tip &tip) const {
   auto [_, dV_dr] = afm_force(r_afm_n);
   return dV_dr;
 }
-
-void eval_forces::omp_async() const {
-#pragma omp for schedule(static) nowait
-  for (int idx = 0; idx < afm_tips.size(); ++idx) {
-    iter(afm_tips[idx]);
-  }
-}
-
-void eval_forces::for_slice(int from, int to) const {
-  for (int idx = from; idx < to; ++idx)
-    iter(afm_tips[idx]);
-}
-
-int eval_forces::total_size() const {
-  return afm_tips.size();
-}
-
 } // namespace cg::afm::vel

@@ -1,9 +1,9 @@
 #pragma once
 #include "data.h"
-#include <cg/simul/runtime.h>
+#include <cg/simul/sched.h>
 
 namespace cg::wall::solid {
-class eval_forces : public simul::sliceable_task {
+class eval_forces : public simul::iter_divisible_mixin<eval_forces> {
 public:
   real min_dist;
 
@@ -15,12 +15,7 @@ public:
   vect::view<vec3r> F, wall_F;
 
 public:
-  void operator()() const;
-  void omp_async() const;
   void iter(int idx) const;
-
-  void for_slice(int from, int to) const override;
-  int total_size() const override;
-
+  int size() const;
 };
 } // namespace cg::wall::solid

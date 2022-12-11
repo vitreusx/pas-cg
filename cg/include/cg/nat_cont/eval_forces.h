@@ -2,10 +2,10 @@
 #include "nat_cont.h"
 #include <cg/base_forces/disulfide.h>
 #include <cg/sbox/pbc.h>
-#include <cg/simul/runtime.h>
+#include <cg/simul/sched.h>
 
 namespace cg::nat_cont {
-class eval_forces : public simul::sliceable_task {
+class eval_forces : public simul::iter_divisible_mixin<eval_forces> {
 public:
   real depth, breaking_threshold, cutoff;
   std::optional<disulfide_force> disulfide;
@@ -20,12 +20,7 @@ public:
   int *num_changed;
 
 public:
-  template <typename E>
-  void iter(nat_cont_expr<E> const &nat_cont) const;
-  void operator()() const;
-  void omp_async() const;
-
-  void for_slice(int from, int to) const override;
-  int total_size() const override;
+  void iter(int idx) const;
+  int size() const;
 };
 } // namespace cg::nat_cont

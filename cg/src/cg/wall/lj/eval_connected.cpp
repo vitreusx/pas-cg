@@ -1,17 +1,6 @@
 #include <cg/wall/lj/eval_connected.h>
 
 namespace cg::wall::lj {
-void eval_connected::operator()() const {
-  for (int idx = 0; idx < conns->size(); ++idx)
-    iter(idx);
-}
-
-void eval_connected::omp_async() const {
-#pragma omp for schedule(static) nowait
-  for (int idx = 0; idx < conns->size(); ++idx)
-    iter(idx);
-}
-
 void eval_connected::iter(int conn_idx) const {
   decltype(auto) node = conns->at(conn_idx);
   if (node.is_vacant())
@@ -43,12 +32,7 @@ void eval_connected::iter(int conn_idx) const {
   }
 }
 
-void eval_connected::for_slice(int from, int to) const {
-  for (int idx = from; idx < to; ++idx)
-    iter(idx);
-}
-
-int eval_connected::total_size() const {
+int eval_connected::size() const {
   return conns->size();
 }
 

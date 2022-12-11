@@ -1,6 +1,6 @@
 #include <cg/qa/cys_neigh_comp.h>
-namespace cg::qa {
 
+namespace cg::qa {
 void update_cys_neigh::operator()() const {
   neigh->clear();
 
@@ -26,23 +26,7 @@ void count_cys_neigh::iter(int idx) const {
     ++neigh_count[pair.cys_idx()];
 }
 
-void count_cys_neigh::operator()() const {
-  for_slice(0, total_size());
-}
-
-void count_cys_neigh::omp_async() const {
-#pragma omp for schedule(static) nowait
-  for (int idx = 0; idx < neigh->size(); ++idx)
-    iter(idx);
-}
-
-void count_cys_neigh::for_slice(int from, int to) const {
-  for (int idx = from; idx < to; ++idx)
-    iter(idx);
-}
-
-int count_cys_neigh::total_size() const {
+int count_cys_neigh::size() const {
   return neigh->size();
 }
-
 } // namespace cg::qa

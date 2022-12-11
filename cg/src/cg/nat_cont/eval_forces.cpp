@@ -1,15 +1,9 @@
 #include <cg/base_forces/lj.h>
 #include <cg/nat_cont/eval_forces.h>
+
 namespace cg::nat_cont {
-
-void eval_forces::operator()() const {
-  for (int idx = 0; idx < contacts->size(); ++idx) {
-    iter(contacts->at(idx));
-  }
-}
-
-template <typename E>
-void eval_forces::iter(nat_cont_expr<E> const &nat_cont) const {
+void eval_forces::iter(int idx) const {
+  auto nat_cont = contacts->at(idx);
   auto i1 = nat_cont.i1(), i2 = nat_cont.i2();
   auto nat_dist = nat_cont.nat_dist();
 
@@ -49,19 +43,7 @@ void eval_forces::iter(nat_cont_expr<E> const &nat_cont) const {
   }
 }
 
-void eval_forces::omp_async() const {
-#pragma omp for schedule(static) nowait
-  for (int idx = 0; idx < contacts->size(); ++idx) {
-    iter(contacts->at(idx));
-  }
-}
-
-void eval_forces::for_slice(int from, int to) const {
-  for (int idx = from; idx < to; ++idx)
-    iter(contacts->at(idx));
-}
-
-int eval_forces::total_size() const {
+int eval_forces::size() const {
   return contacts->size();
 }
 

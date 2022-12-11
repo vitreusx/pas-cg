@@ -34,7 +34,7 @@ pseudo-improper dihedral:
             (at path): ../_mj/md05.csv
 
 AFM simulations:
-  perform: true
+  perform: false
   tip params:
     type: const velocity
     velocity params:

@@ -6,10 +6,10 @@
 #include <cg/base_forces/disulfide.h>
 #include <cg/base_forces/sink_lj.h>
 #include <cg/sbox/pbc.h>
-#include <cg/simul/runtime.h>
+#include <cg/simul/sched.h>
 
 namespace cg::qa {
-class process_contacts : public simul::sliceable_task {
+class process_contacts : public simul::iter_divisible_mixin<process_contacts> {
 public:
   vect::vector<sink_lj> ljs;
   real saturation_speed, dt, factor;
@@ -36,11 +36,6 @@ public:
 
 public:
   void iter(int idx) const;
-  void operator()() const;
-  void omp_async() const;
-
-  void for_slice(int from, int to) const override;
-  int total_size() const override;
-
+  int size() const;
 };
 } // namespace cg::qa

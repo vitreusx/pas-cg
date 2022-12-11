@@ -1,9 +1,9 @@
 #pragma once
 #include "nat_dih.h"
-#include <cg/simul/runtime.h>
+#include <cg/simul/sched.h>
 
 namespace cg::snd {
-class eval_forces : public simul::sliceable_task {
+class eval_forces : public simul::iter_divisible_mixin<eval_forces> {
 public:
   real CDH;
   vect::const_view<vec3r> r;
@@ -12,12 +12,7 @@ public:
   real *V;
 
 public:
-  template <typename E> void iter(nat_dih_expr<E> const &nat_dih) const;
-  void operator()() const;
-  void omp_async() const;
-
-  void for_slice(int from, int to) const override;
-  int total_size() const override;
-
+  void iter(int idx) const;
+  int size() const;
 };
 } // namespace cg::snd

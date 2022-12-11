@@ -2,13 +2,6 @@
 #include <cg/utils/math.h>
 
 namespace cg::qa {
-
-void process_contacts::operator()() const {
-  for (int idx = 0; idx < contacts->size(); ++idx) {
-    iter(idx);
-  }
-}
-
 void process_contacts::iter(int idx) const {
   auto const &node = contacts->at(idx);
 
@@ -71,24 +64,11 @@ void process_contacts::iter(int idx) const {
   contact.saturation() = saturation;
 }
 
-void process_contacts::omp_async() const {
-#pragma omp for schedule(static) nowait
-  for (int idx = 0; idx < contacts->size(); ++idx) {
-    iter(idx);
-  }
-}
-
 void process_contacts::set_factor(double breaking_factor) {
   factor = breaking_factor * C216_INV;
 }
 
-void process_contacts::for_slice(int from, int to) const {
-  for (int idx = from; idx < to; ++idx)
-    iter(idx);
-}
-
-int process_contacts::total_size() const {
+int process_contacts::size() const {
   return free_pairs->size();
 }
-
 } // namespace cg::qa

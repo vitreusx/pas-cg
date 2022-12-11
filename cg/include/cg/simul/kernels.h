@@ -2,7 +2,7 @@
 #include <cg/afm/force/eval_forces.h>
 #include <cg/afm/vel/eval_forces.h>
 #include <cg/angles/heur_ang/eval_forces.h>
-#include <cg/angles/heur_dih/rel.h>
+#include <cg/angles/heur_dih/eval_forces.h>
 #include <cg/angles/nat_ang/eval_forces.h>
 #include <cg/angles/nat_dih/complex.h>
 #include <cg/angles/nat_dih/simple.h>
