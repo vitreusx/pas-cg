@@ -31,7 +31,57 @@ public:
 public:
   void iter(int idx) const;
   void vect_iter(int vect_idx) const;
+  void fast_vect_iter(int vect_idx) const;
   int size() const;
+
+  class fast_version_t : public simul::divisible {
+  public:
+    fast_version_t() = default;
+    void reset() override;
+    void divide(std::vector<simul::task const *> &subtasks,
+                int size_hint) override;
+
+  private:
+    friend class eval_forces;
+    eval_forces const *super = nullptr;
+    explicit fast_version_t(eval_forces const *super);
+
+    class slice : public simul::task {
+    public:
+      explicit slice(eval_forces const *eval, int from, int to);
+      void run() const override;
+
+    private:
+      eval_forces const *eval;
+      int from, to;
+    };
+
+    class fast_vect_slice : public simul::task {
+    public:
+      explicit fast_vect_slice(eval_forces const *eval, int from, int to);
+      void run() const override;
+
+    private:
+      eval_forces const *eval;
+      int from, to;
+    };
+
+    class vect_slice : public simul::task {
+    public:
+      explicit vect_slice(eval_forces const *eval, int from, int to);
+      void run() const override;
+
+    private:
+      eval_forces const *eval;
+      int from, to;
+    };
+
+    std::vector<slice> slices;
+    std::vector<fast_vect_slice> fast_vect_slices;
+    std::vector<vect_slice> vect_slices;
+  };
+
+  fast_version_t fast_version() const;
 
   static inline constexpr int elems_per_vect = vect::VECT_BYTES / sizeof(real);
 };

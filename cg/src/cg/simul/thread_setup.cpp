@@ -37,6 +37,7 @@ thread::thread(thread_team &team) {
       {(divisible *)&qa_loop_over_candidates, &st->qa_enabled, hint},
       {(divisible *)&process_qa_contacts, &st->qa_enabled, hint},
       {(divisible *)&eval_pid_forces, &st->pid_enabled, hint},
+      //      {(divisible *)&eval_pid_fast, &st->pid_enabled, hint},
       {(divisible *)&eval_nat_ang_forces, &st->nat_ang_enabled, hint},
       {(divisible *)&eval_heur_ang_forces, &st->heur_ang_enabled, hint},
       {(divisible *)&eval_heur_dih_forces, &st->heur_dih_enabled, hint},
@@ -676,6 +677,8 @@ void thread::setup_pid() {
     eval.next = st->next;
     eval.V = &dyn.V;
     eval.F = dyn.F;
+
+    eval_pid_fast = eval.fast_version();
 
     auto &update = update_pid_bundles;
     update.r = st->r;

@@ -134,6 +134,7 @@ public:
   void setup_qa();
 
   pid::eval_forces eval_pid_forces;
+  pid::eval_forces::fast_version_t eval_pid_fast;
   pid::update_bundles update_pid_bundles;
   void setup_pid();
 
