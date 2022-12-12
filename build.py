@@ -2,60 +2,99 @@ import argparse
 import os
 import shutil
 import subprocess as sp
+import tempfile
 from pathlib import Path
 
 
 def make_parser():
-    parser = argparse.ArgumentParser(
+    p = argparse.ArgumentParser(
         prog="build.py",
         description="Build script for PAS CG program",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
-    parser.add_argument(
-        "--target",
-        choices=["cg", "docs", "parity", "all", "clean"],
+    mode = p.add_subparsers(dest="mode")
+
+    cxx = mode.add_parser("cxx")
+
+    cxx.add_argument(
+        "-t", "--target",
+        choices=["cg", "docs", "parity", "all"],
         default="cg",
         help="CMake target to build",
     )
-    parser.add_argument(
-        "--build-type",
+    cxx.add_argument(
+        "-B", "--build-type",
         choices=["debug", "release", "staging"],
         default="release",
         help="build type",
     )
-    parser.add_argument(
-        "--generator",
+    cxx.add_argument(
+        "-G", "--generator",
         choices=["make", "ninja"],
         default="ninja",
         help="build generator",
     )
-    parser.add_argument(
-        "--compiler",
-        choices=["clang", "gcc"],
+    cxx.add_argument(
+        "-C", "--compiler",
+        choices=["clang", "gcc", "intel"],
         default="clang",
-        help="compiler choice - clang seems to be way better for some reason"
+        help="compiler choice"
     )
-    parser.add_argument(
+    cxx.add_argument(
         "--single-file",
         default=False,
-        help="compile the program as a single object file, instead of "
+        help="whether to compile the program as a single object file, instead of "
              "separately compiling each source file and linking them",
     )
-    parser.add_argument(
-        "--use-mixed-precision",
+    cxx.add_argument(
+        "--mixed-precision",
         default=False,
-        help="use floats for computing the forces and doubles for integration,"
+        help="whether to  use floats for computing the forces and doubles for integration,"
              "instead of using doubles throughout",
     )
-    parser.add_argument(
-        "--use-vectorized-impls",
+    cxx.add_argument(
+        "--vectorized-impls",
         default=True,
-        help="use vectorized implementations of the algorithms"
+        help="whether to use vectorized implementations of the algorithms",
     )
-    parser.add_argument("dir", default="build", help="output directory")
 
-    return parser
+    out_g = cxx.add_mutually_exclusive_group()
+    out_g.add_argument("-f", "--output-file",
+                       help="output executable file (cg)")
+    out_g.add_argument("-d", "--output-dir", default="build",
+                       help="output CMake directory")
+
+    fort = mode.add_parser("fort")
+
+    fort.add_argument(
+        "-B", "--build-type",
+        choices=["debug", "release-g", "release"],
+        default="release",
+        help="build type",
+    )
+
+    fort.add_argument(
+        "-C", "--compiler",
+        choices=["gcc", "intel"],
+        default="gcc",
+        help="compiler to use",
+    )
+
+    fort.add_argument(
+        "--variant",
+        choices=["pho5", "pho6"],
+        default="pho6",
+        help="Fortran program variant",
+    )
+
+    fort.add_argument(
+        "output_file",
+        default="cg",
+        help="executable path",
+    )
+
+    return p
 
 
 def format_cmd(cmd) -> str:
@@ -81,14 +120,18 @@ def to_bool(s):
     return int(s in ("1", "true", "True", "ON", True))
 
 
-def main():
-    args = make_parser().parse_args()
-
+def build_cxx(args):
     root_dir = Path(__file__).parent
-    out_dir = Path(args.dir)
 
-    print(format_cmd(["mkdir", "-p", str(out_dir)]))
-    out_dir.mkdir(exist_ok=True, parents=True)
+    if args.output_file is not None:
+        tmp_out_dir = tempfile.TemporaryDirectory()
+        out_dir = Path(tmp_out_dir.name)
+        out_file = Path(args.output_file)
+    else:
+        out_dir = Path(args.output_dir)
+        print(format_cmd(["mkdir", "-p", str(out_dir)]))
+        out_dir.mkdir(exist_ok=True, parents=True)
+        out_file = None
 
     cmd = ["cmake"]
 
@@ -100,8 +143,12 @@ def main():
 
     if args.compiler == "clang" and shutil.which("clang") is not None:
         cmd += ["-DCMAKE_C_COMPILER=clang", "-DCMAKE_CXX_COMPILER=clang++"]
-    else:
+    elif args.compiler == "intel" and shutil.which("icc") is not None:
+        cmd += ["-DCMAKE_C_COMPILER=icc", "-DCMAKE_CXX_COMPILER=icc"]
+    elif shutil.which("gcc") is not None:
         cmd += ["-DCMAKE_C_COMPILER=gcc", "-DCMAKE_CXX_COMPILER=g++"]
+    else:
+        raise RuntimeError("Could not find any compiler!")
 
     cmd += ["-B", str(out_dir)]
     cmd += ["-S", str(root_dir)]
@@ -113,8 +160,8 @@ def main():
 
     cmd += [
         f"-DSINGLE_FILE={to_bool(args.single_file)}",
-        f"-DUSE_MIXED_PRECISION={to_bool(args.use_mixed_precision)}",
-        f"-DUSE_VECTORIZED_IMPLS={to_bool(args.use_vectorized_impls)}"
+        f"-DUSE_MIXED_PRECISION={to_bool(args.mixed_precision)}",
+        f"-DUSE_VECTORIZED_IMPLS={to_bool(args.vectorized_impls)}"
     ]
 
     execute(cmd)
@@ -125,6 +172,43 @@ def main():
     cmd += ["--target", args.target]
 
     execute(cmd)
+
+    if out_file is not None:
+        shutil.copy2(out_dir / "cg" / "cg", out_file)
+        tmp_out_dir.cleanup()
+
+
+def build_fort(args):
+    cmd = []
+
+    if args.compiler == "intel" and shutil.which("ifort") is not None:
+        cmd += ["ifort", "-std=legacy", "-mcmodel=large"]
+    elif args.compiler == "gcc" and shutil.which("gfortran") is not None:
+        cmd += ["gfortran", "-std=legacy", "-mcmodel=large"]
+    else:
+        raise RuntimeError("Could not find compiler.")
+
+    if args.build_type != "release":
+        cmd += ["-g"]
+    if args.build_type != "debug":
+        cmd += ["-Ofast", "-march=native"]
+
+    out_f = Path(args.output_file)
+    cmd += ["-o", str(out_f)]
+
+    root_dir = Path(__file__).parent
+    cg_f = root_dir / "fort" / f"cg_{args.variant}.f"
+    cmd += [str(cg_f)]
+
+    execute(cmd)
+
+
+def main():
+    args = make_parser().parse_args()
+    if args.mode == "cxx":
+        build_cxx(args)
+    elif args.mode == "fort":
+        build_fort(args)
 
 
 if __name__ == "__main__":
