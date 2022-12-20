@@ -1,0 +1,8 @@
+#!/usr/bin/sh
+
+LD_PRELOAD=/usr/lib/libprofiler.so \
+CPUPROFILE=cg.prof \
+TSAN_OPTIONS='ignore_noninstrumented_modules=1' \
+./cg "$@"
+
+pprof --callgrind ./cg cg.prof >cg.callgrind

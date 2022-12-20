@@ -5,6 +5,7 @@ void update_bundles::operator()() const {
   bundles->clear();
   end_bundles.clear();
 
+  auto n = r.size();
   for (decltype(auto) nl_pair : nl->pairs) {
     if (nl_pair.taken())
       continue;
@@ -19,12 +20,11 @@ void update_bundles::operator()() const {
 
     auto dist = norm(simul_box->wrap<vec3r>(r1, r2));
     if (dist < cutoff + nl->orig_pad) {
-      auto prev1 = prev[i1], next1 = next[i1];
-      auto prev2 = prev[i2], next2 = next[i2];
-
-      auto terminal = prev1 < 0 || next1 < 0 || prev2 < 0 || next2 < 0;
+      auto i1p = i1 - 1, i1n = i1 + 1, i2p = i2 - 1, i2n = i2 + 1;
+      auto val_i1p = (i1p >= 0), val_i1n = (i1n < n), val_i2p = (i2p >= 0),
+           val_i2n = (i2n < n);
+      auto terminal = !(val_i1p && val_i1n && val_i2p && val_i2n);
       auto *bundles_ = terminal ? &end_bundles : bundles;
-      //      auto *bundles_ = bundles;
 
       auto atype1 = atype[i1], atype2 = atype[i2];
 

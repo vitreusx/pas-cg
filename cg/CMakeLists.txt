@@ -91,7 +91,7 @@ if (${USE_OMP})
 endif ()
 
 target_link_libraries(cg
-    PUBLIC vcl yaml-cpp cparse Boost Eigen3::Eigen)
+    PUBLIC vcl yaml-cpp cparse Boost_ Eigen3::Eigen)
 
 target_compile_options(cg
     PUBLIC
@@ -115,10 +115,21 @@ add_custom_target(copy-data-dir
     "${CMAKE_CURRENT_BINARY_DIR}/data"
     DEPENDS ${DataFiles})
 
+file(GLOB_RECURSE Scripts CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/scripts/**")
+
+add_custom_target(copy-scripts-dir
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${CMAKE_CURRENT_SOURCE_DIR}/scripts"
+    "${CMAKE_CURRENT_BINARY_DIR}/scripts"
+    DEPENDS ${Scripts})
+
 add_custom_command(
     TARGET cg
     POST_BUILD
     COMMAND objdump -drlwC -Mintel cg >cg.s
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
-add_dependencies(cg copy-data-dir)
+add_dependencies(cg copy-data-dir copy-scripts-dir)
+
+
+

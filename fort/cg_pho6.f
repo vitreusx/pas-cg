@@ -19,7 +19,7 @@ c       The i,i+2 contacts purely repulsive
         logical lnowal,lmj,lbar,lcmap,lwals,lsink,lwrtang,lwal,lcpb,lii4
         logical lobo,lwritego,lcdnat,lcospid,lepid,lrmsmax,lecperm,lsldh
         logical lrst,lcontin,lconect(len),lpdb,ldens,lmaxforce,lwritexyz
-        logical lcpot,ldumpdata
+        logical lcpot
         
         common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
@@ -261,7 +261,7 @@ c        factor=2.0    ! HOW MANY TIMES BACKB-BACKB. TOLERANCE IS BIGGER
         sigma1(6)=6.6  ! L-J MINIMUM FOR BCKB-SDCH CONTACTS [Angstrems]
         sigma1(7)=6.6  ! L-J MINIMUM FOR SDCH-BCKB CONTACTS [Angstrems]
         sigma1(8)=6.1  ! L-J MINIMUM FOR i,i+4 CONTACTS [Angstrems]
-        screend=50.0   ! ELECTROSTATIC SCREENING LENGTH [Angstrems]
+        screend=10.0   ! ELECTROSTATIC SCREENING LENGTH [Angstrems]
         coul=85.0      ! CONSTANT FOR COULOMBIC INTERACTION [eps*A*A]
         if(lecperm) coul=2.63 ! 210 IF REL. PERMITTIVITY=1 [eps*A]
         cut=5.0        ! CUT-OFF FOR REPULSIVE TERM [Angstrem]
@@ -272,9 +272,6 @@ c        factor=2.0    ! HOW MANY TIMES BACKB-BACKB. TOLERANCE IS BIGGER
         bckb2min=0.92  ! MINIMUM VALUE OF BACKBONE ANGLE
         sdchnmax=0.5   ! MAXMUM VALUE OF SIDECHAIN ANGLE
         ndomain=1      ! NUMBER OF DOMAIN (FOR TITIN ONLY)
-        ! DATA DUMPING -------------------------------------------------
-        ldumpdata=.false. ! WHETHER TO DUMP RAW DATA
-        idumpevery=1      ! DUMP RAW DATA EVERY X STEPS
         ! READING VARIABLES --------------------------------------------
         if(iargc().gt.0) then ! reading parameters from external file
         call getarg(1,arg) ! for more than 1 args, do i_arg=1,iargc()
@@ -619,10 +616,6 @@ c        factor=2.0    ! HOW MANY TIMES BACKB-BACKB. TOLERANCE IS BIGGER
             write(outfile,stafile) filname,'.out'
             write(mapfile,stafile) filname,'.map'
             write(savfile,stafile) filname,'.pdb'
-            elseif(buffer(1:8).eq.'dumpdata') then
-                read(buffer(9:),*) ldumpdata
-            elseif(buffer(1:9).eq.'dumpevery') then
-                read(buffer(10:),*) idumpevery
         else ! writing to console, unless file indexes 5 or 6 are in use
             write(*,*) 'UNRECOGNIZED OPTION: ',buffer
         endif
@@ -651,10 +644,6 @@ c        factor=2.0    ! HOW MANY TIMES BACKB-BACKB. TOLERANCE IS BIGGER
         if(ksave.ne.0) open(2,file=savfile,status='unknown')
 
         write(1,*)'#I,I+2 CONTACTS PURELY REPULSIVE'
-
-        if(ldumpdata) then
-            open(23,file='raw_data.txt',status='unknown')
-        endif
         
         ! SCALE LENGTHS
         cut=cut/unit  ! REPULSIVE INTERACTIONS CUT-OFF
@@ -1582,9 +1571,6 @@ c -----------------------------------------
 
         kb=kb0
 533     continue
-        if (ldumpdata.and.mod(kb,idumpevery).eq.0) then
-            call dump_raw_data(epot,kb,itraj)
-        endif
         kb=kb+1
 
         if(lmass) then
@@ -2158,8 +2144,7 @@ c       projection of the velocity on the direction of the force
             call flush(2)
         endif
 
-        if(krst.ne.0) then
-        if(mod(kb,krst).eq.0) then
+        if(krst.ne.0.and.mod(kb,krst).eq.0) then
             if(lcleanrst) then
                 intrsc=0
                 intesc=0
@@ -2191,7 +2176,6 @@ c       projection of the velocity on the direction of the force
                 if (irstat.eq.0) close(38, status='DELETE')
               endif
             endif
-        endif
         endif
 
         if(lthermo.and.kb.gt.kteql) then
@@ -8315,32 +8299,6 @@ C THIS SUBROUTINE RETURN THE DIHEDRAL ANGLE AT THE THIRD SITE
 
         di=vx1*ux3+vy1*uy3+vz1*uz3
         if(di.lt.0.d0) phi=-phi
-
-        return
-        end
-
-        subroutine dump_raw_data(epot,kb,itraj)
-        implicit double precision(a-h,o-z)
-        parameter(len=10000)
-        character rstfile*64,stafile*32,filname*32
-        logical l3rdcn(len),lwal
-        common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
-        common/for/fx(len),fy(len),fz(len),xsep,ysep,zsep,xinv,yinv,zinv
-        common/cmapi/cntfct,imap(len*50),icn,intrhc,intrsc,intehc,intesc
-        common/wal/walmindst,kbwal(9),icw(2),lobo,ljwal,lwal,lwals,ldens
-        common/restart/delta,work,sep0,rstfile,stafile,filname,klenstr
-        common/plates/zdown,zup,zuforce,zdforce,fwal,xup,xdown,yup,ydown
-        common/ssb/knct3rd(len),l3rdcn,disul,dmrs,amrs,rmrs,lmrs,ldynss
-        common/ssb2/dislj,icnss,icdss,sigss,lsselj,lrepcoul,lepid
-        common/respul/z0temp(len),ksorted(len),ip1,ip2,ipwn,ipw(2,len)
-        common/pull/xpul(len),ypul(len),zpul(len),vpulx,vpuly,vpulz,cofp
-        common/kier/afx,afy,afz,shear,lshear,lpbcx,lpbcy,lpbcz,kbperiod
-        common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc,epot
-
-        write(23,*)itraj-1,kb,kb*delta,epot
-!       do i=1,men
-!           write(23,*)x0(i),y0(i),z0(i),fx(i),fy(i),fz(i)
-!       enddo
 
         return
         end

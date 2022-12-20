@@ -3,6 +3,7 @@ project(pas-cg LANGUAGES CXX)
 enable_testing()
 
 add_subdirectory(cg)
+add_subdirectory(fort)
 
 if (EXISTS ${CMAKE_CURRENT_LIST_DIR}/parity)
     add_subdirectory(parity)

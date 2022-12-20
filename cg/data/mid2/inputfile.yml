@@ -1,5 +1,5 @@
 general:
-  total time: 10000000 tau
+  total time: 1e2 tau
   repulsive cutoff: 4 A
   num of threads: 1
   num of trajectories: 1
@@ -12,9 +12,6 @@ input:
     contact deriv: from all atoms
   morph into SAW:
     perform: false
-    start box:
-      density: 54e-7 residue/A**3
-    periodic boundary conditions: true
   load native structure: false
 
 simulation box:
@@ -28,16 +25,18 @@ simulation box:
     velocity above 2V: 5e-1 A/tau
   walls:
     all axes: periodic
-  finding force minimum:
-    perform: true
-  oscillations:
-    perform: true
-    angular frequency: 4e-4 rad/tau
-    amplitude:
-      variant: relative
-      relative value: 0.5
-      
-     
+#  finding force minimum:
+#    perform: true
+#  oscillations:
+#    perform: true
+#    angular frequency: 4e-4 rad/tau
+#    amplitude:
+#      variant: relative
+#      relative value: 0.5
+
+neighbor list:
+  cutoff: 18.0 A
+
 quasi-adiabatic:
   enabled: false
 
@@ -46,22 +45,27 @@ native contacts:
 
 pseudo-improper dihedral:
   enabled: true
+  include (i, i+4): false
   forces:
     variant: sink lj
-    sink lj params:
-      ss:
+    ss:
+      sink lj params:
         per pair:
           depth:
             (at path): ../_mj/md05.csv
 
+Debye-Hueckel:
+  screening distance: 50.0 A
+  cutoff distance: 100.0 A
+
 langevin:
   temperature: 0.38 eps/kB
-
-Debye-Hueckel:
-  enabled: false
   
 output:
   enabled: true
   emit stats every: 1e1 tau
-  emit structure every: 1e1 tau
+  emit structure every: 1e2 tau
   file prefix: updatesq
+
+checkpoints:
+  enabled: false

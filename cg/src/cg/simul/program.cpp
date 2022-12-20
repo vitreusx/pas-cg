@@ -4,12 +4,25 @@
 #include <string>
 namespace cg::simul {
 
+static std::vector<std::string> split(std::string const &str, char sep) {
+  std::vector<std::string> parts = {""};
+  for (auto ch : str) {
+    if (ch == sep) {
+      parts.emplace_back("");
+    } else {
+      parts.back().push_back(ch);
+    }
+  }
+  return parts;
+}
+
 struct program_args {
   std::string prog;
   bool help = false;
   std::optional<std::string> error;
   std::vector<std::filesystem::path> param_paths;
   std::optional<std::filesystem::path> ckpt_path;
+  std::vector<std::string> setters;
 
   enum class state {
     PROG_NAME,
@@ -18,7 +31,8 @@ struct program_args {
     PARAM_PATH_VALUE,
     HELP,
     INVALID,
-    CKPT_PATH_VALUE
+    CKPT_PATH_VALUE,
+    SET_VALUE,
   };
 
   void print_help();
@@ -29,12 +43,18 @@ void program_args::print_help() {
   std::cout << "PAS CG Coarse Grained Model" << '\n';
   std::cout << "Documentation: https://vitreusx.github.io/pas-cg" << '\n';
   std::cout << "Usage: " << prog << " [options...]" << '\n';
-  std::cout << "  -h,        --help               Print this help message."
+  std::cout << "  -h, --help                                       Print this "
+               "help message."
             << '\n';
-  std::cout << "  -p [path], --param-file [path]  Load parameter file." << '\n';
-  std::cout
-      << "  -c [path], --ckpt-file [path]   Load simulation from checkpoint."
-      << '\n';
+  std::cout << "  -p [path], --param-file [path]                   Load "
+               "parameter file."
+            << '\n';
+  std::cout << "  -c [path], --ckpt-file [path]                    Load "
+               "simulation from checkpoint."
+            << '\n';
+  std::cout << "  -s \"key_1.key_2.(...).key_n=value\", --set ...  Override "
+               "input file setting."
+            << '\n';
 }
 
 program_args::program_args(int argc, char **argv) {
@@ -55,6 +75,8 @@ program_args::program_args(int argc, char **argv) {
         parser_state = state::PARAM_PATH_VALUE;
       } else if (arg == "-c" || arg == "--ckpt-file") {
         parser_state = state::CKPT_PATH_VALUE;
+      } else if (arg == "-s" || arg == "--set") {
+        parser_state = state::SET_VALUE;
       } else {
         std::stringstream err_ss;
         err_ss << "Invalid option \"" << arg << "\"";
@@ -73,6 +95,10 @@ program_args::program_args(int argc, char **argv) {
         error = "Can provide only one checkpoint file.";
         parser_state = state::INVALID;
       }
+      break;
+    case state::SET_VALUE:
+      setters.push_back(arg);
+      break;
     case state::HELP:
     case state::INVALID:
       break;
@@ -104,6 +130,17 @@ void program::main(int argc, char **argv) {
       auto slice_yml = node::import(path);
       params_yml.merge(slice_yml);
     }
+
+    for (auto const &setter : args.setters) {
+      auto p1 = split(setter, '=');
+      auto key = p1[0], value = p1[1];
+
+      std::vector<ioxx::xyaml::node> descent = {params_yml};
+      for (auto const &key_ : split(key, '.'))
+        descent.push_back(descent.back()[key_]);
+      descent.back() = value;
+    }
+
     params_yml >> params;
 
     using prog_mode = gen::parameters::prog_mode;

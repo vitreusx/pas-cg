@@ -489,12 +489,6 @@ void thread::eval_forces() {
 
   eval_divs.omp_async();
 
-  //  std::cout << "step_idx = " << st->step_idx << "; V = " << dyn.V << '\n';
-  //  for (int idx = 0; idx < st->num_res; ++idx) {
-  //    std::cout << "r[" << idx << "] = " << st->r[idx] << "; F[" << idx
-  //              << "] = " << dyn.F[idx] << '\n';
-  //  }
-
   dyn.omp_reduce_v2(st->dyn, *this);
 //  dyn.omp_reduce_v3(st->dyn, team);
 #pragma omp barrier

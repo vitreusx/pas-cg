@@ -51,6 +51,7 @@ public:
       return (head);
     else
       return tail.template get<I - 1>();
+    __builtin_unreachable();
   }
 
   template <std::size_t I>
@@ -59,6 +60,7 @@ public:
       return (head);
     else
       return tail.template get<I - 1>();
+    __builtin_unreachable();
   }
 
   static auto Idxes() {

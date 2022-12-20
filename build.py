@@ -59,11 +59,11 @@ def make_parser():
         help="whether to use vectorized implementations of the algorithms",
     )
 
-    out_g = cxx.add_mutually_exclusive_group()
-    out_g.add_argument("-f", "--output-file",
-                       help="output executable file (cg)")
-    out_g.add_argument("-d", "--output-dir", default="build",
-                       help="output CMake directory")
+    cxx.add_argument("-f", "--output-file",
+                     help="output executable file (cg)")
+
+    cxx.add_argument("-d", "--output-dir",
+                     help="output CMake directory")
 
     fort = mode.add_parser("fort")
 
@@ -123,15 +123,16 @@ def to_bool(s):
 def build_cxx(args):
     root_dir = Path(__file__).parent
 
-    if args.output_file is not None:
-        tmp_out_dir = tempfile.TemporaryDirectory()
-        out_dir = Path(tmp_out_dir.name)
-        out_file = Path(args.output_file)
-    else:
+    if args.output_dir is not None:
         out_dir = Path(args.output_dir)
         print(format_cmd(["mkdir", "-p", str(out_dir)]))
         out_dir.mkdir(exist_ok=True, parents=True)
-        out_file = None
+    else:
+        tmp_out_dir = tempfile.TemporaryDirectory()
+        out_dir = Path(tmp_out_dir.name)
+
+    if args.output_file is not None:
+        out_file = Path(args.output_file)
 
     cmd = ["cmake"]
 
@@ -173,8 +174,10 @@ def build_cxx(args):
 
     execute(cmd)
 
-    if out_file is not None:
+    if args.output_file is not None:
         shutil.copy2(out_dir / "cg" / "cg", out_file)
+
+    if args.output_dir is None:
         tmp_out_dir.cleanup()
 
 
@@ -182,16 +185,18 @@ def build_fort(args):
     cmd = []
 
     if args.compiler == "intel" and shutil.which("ifort") is not None:
-        cmd += ["ifort", "-std=legacy", "-mcmodel=large"]
+        cmd += ["ifort", "-std=legacy", "-mcmodel=large", "-qopenmp"]
+        if args.build_type != "debug":
+            cmd += ["-fast"]
     elif args.compiler == "gcc" and shutil.which("gfortran") is not None:
-        cmd += ["gfortran", "-std=legacy", "-mcmodel=large"]
+        cmd += ["gfortran", "-std=legacy", "-mcmodel=large", "-fopenmp"]
+        if args.build_type != "debug":
+            cmd += ["-Ofast", "-march=native"]
     else:
         raise RuntimeError("Could not find compiler.")
 
     if args.build_type != "release":
         cmd += ["-g"]
-    if args.build_type != "debug":
-        cmd += ["-Ofast", "-march=native"]
 
     out_f = Path(args.output_file)
     cmd += ["-o", str(out_f)]

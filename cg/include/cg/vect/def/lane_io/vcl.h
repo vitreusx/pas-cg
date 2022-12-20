@@ -514,6 +514,7 @@ Lane vcl_gather(T const *src, Idxes const &idxes) {
   vcl_store(idxes, idxes_);
   return vcl_gather_aux<Lane>(src, idxes_,
                               std::make_index_sequence<lane_size_v<Lane>>{});
+  //  return Lane(lookup<lane_size_v<Lane>>(idxes, src));
 }
 
 template <typename Lane, typename T, typename Idx, typename Mask,
@@ -542,6 +543,7 @@ void vcl_scatter(Lane const &data, T *dst, Idxes const &idxes) {
   vcl_store(idxes, idxes_);
   for (size_t idx = 0; idx < lane_size_v<Lane>; ++idx)
     dst[idxes_[idx]] = data[idx];
+  //  scatter(idxes, (uint32_t)0xffffffff, data, dst);
 }
 
 template <typename Lane, typename T, typename Idxes, typename Mask,

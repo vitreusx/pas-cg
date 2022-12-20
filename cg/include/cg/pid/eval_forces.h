@@ -9,6 +9,7 @@
 
 namespace cg::pid {
 class eval_forces : public simul::vect_iter_divisible_mixin<eval_forces> {
+  // class eval_forces : public simul::iter_divisible_mixin<eval_forces> {
 public:
   lambda bb_plus_lam, bb_minus_lam, ss_lam;
   sink_lj bb_plus_lj, bb_minus_lj;
@@ -30,6 +31,7 @@ public:
 
 public:
   void iter(int idx) const;
+  void fast_iter(int idx) const;
   void vect_iter(int vect_idx) const;
   void fast_vect_iter(int vect_idx) const;
   int size() const;
@@ -49,6 +51,16 @@ public:
     class slice : public simul::task {
     public:
       explicit slice(eval_forces const *eval, int from, int to);
+      void run() const override;
+
+    private:
+      eval_forces const *eval;
+      int from, to;
+    };
+
+    class fast_slice : public simul::task {
+    public:
+      explicit fast_slice(eval_forces const *eval, int from, int to);
       void run() const override;
 
     private:
@@ -77,6 +89,7 @@ public:
     };
 
     std::vector<slice> slices;
+    std::vector<fast_slice> fast_slices;
     std::vector<fast_vect_slice> fast_vect_slices;
     std::vector<vect_slice> vect_slices;
   };
