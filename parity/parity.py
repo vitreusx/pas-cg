@@ -1,9 +1,10 @@
 import argparse
-import numpy as np
-import pandas as pd
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
+
+import numpy as np
+import pandas as pd
 from ruamel.yaml import safe_load
 
 
@@ -94,11 +95,13 @@ def main():
     src = Path(args.source).absolute()
 
     def run_cxx(input_file: Path):
+        print(f"[cxx] {input_file}", flush=True)
         cxx = bin / "cg-cxx"
         subprocess.call([str(cxx), "-p", input_file.name],
                         cwd=input_file.parent)
 
     def run_fort(input_file: Path, suffix: str):
+        print(f"[fort] {input_file}", flush=True)
         options_path = input_file.parent / f"options{suffix}.yml"
         if not options_path.exists():
             options_path = Path(__file__).parent / "options.yml"

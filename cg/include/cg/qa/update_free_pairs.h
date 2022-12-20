@@ -18,5 +18,6 @@ public:
 
 public:
   void operator()() const;
+  void mark_as_taken(nl::data *nl_) const;
 };
 } // namespace cg::qa

@@ -386,23 +386,29 @@ void thread::pre_eval_async() {
       reset_cys_neigh();
   }
 
-  if (st->nl_required)
-    nl_verify.omp_async();
+  if (st->def_nl.required)
+    def_nl.verify.omp_async();
+
+  if (st->long_range_nl.required)
+    long_range_nl.verify.omp_async();
 
 #pragma omp barrier
 
   if (params->qa.enabled && st->ss_spec_crit)
     count_cys_neigh.omp_async();
 
-  if (st->nl_invalid)
-    fix_nl_async();
+  if (st->def_nl.invalid)
+    fix_def_nl_async();
+
+  if (st->long_range_nl.invalid)
+    fix_lr_nl_async();
 
 #pragma omp barrier
 }
 
-void thread::fix_nl_async() {
+void thread::fix_def_nl_async() {
 #pragma omp barrier
-  nl_legacy.omp_async();
+  def_nl.legacy.omp_async();
 
 #pragma omp barrier
 
@@ -416,10 +422,29 @@ void thread::fix_nl_async() {
       update_qa_pairs();
     if (st->pid_enabled)
       update_pid_bundles();
-    if (st->dh_enabled)
-      update_dh_pairs();
     if (st->pauli_enabled)
       update_pauli_pairs();
+  };
+
+#pragma omp barrier
+  eval_divs.update();
+}
+
+void thread::fix_lr_nl_async() {
+#pragma omp barrier
+  long_range_nl.legacy.omp_async();
+
+#pragma omp barrier
+
+#pragma omp master
+  {
+    auto nl_ = &st->long_range_nl.nl;
+    if (st->nat_cont_enabled)
+      update_nat_contacts.mark_as_taken(nl_);
+    if (st->qa_enabled)
+      update_qa_pairs.mark_as_taken(nl_);
+    if (st->dh_enabled)
+      update_dh_pairs();
   };
 
 #pragma omp barrier

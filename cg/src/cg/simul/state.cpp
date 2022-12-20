@@ -343,12 +343,22 @@ void state::setup_pbar() {
 }
 
 void state::setup_nl() {
-  nl_invalid = true;
-  nl_required = false;
-  verify_first_time = true;
-  total_disp = 0.0;
-  nl = nl::data();
-  nl.orig_r = vect::vector<vec3r>(num_res);
+  for (auto nl : {&def_nl, &long_range_nl}) {
+    nl->invalid = true;
+    nl->required = false;
+    nl->verify_first_time = true;
+    nl->total_disp = (real)0.0;
+    nl->nl = nl::data();
+    nl->nl.orig_r = vect::vector<vec3r>(num_res);
+  }
+
+  def_nl.cutoff = params.nl.cutoff;
+  def_nl.idxes.resize(num_res);
+  for (int idx = 0; idx < num_res; ++idx)
+    def_nl.idxes[idx] = idx;
+
+  long_range_nl.cutoff = (real)0.0;
+  long_range_nl.idxes.clear();
 }
 
 void state::setup_local_rep() {
@@ -473,7 +483,7 @@ void state::setup_pauli() {
   pauli_enabled = params.pauli.enabled && !params.qa.enabled;
 
   if (pauli_enabled) {
-    nl_required = true;
+    def_nl.required = true;
   }
 }
 
@@ -498,6 +508,8 @@ void state::setup_nat_cont() {
                                        change_t, idx);
       nat_cont_excl.emplace_back(i1, i2);
     }
+
+    def_nl.required = true;
   }
 }
 
@@ -505,7 +517,15 @@ void state::setup_dh() {
   dh_enabled = params.dh.enabled;
 
   if (dh_enabled) {
-    nl_required = true;
+    long_range_nl.required = true;
+    long_range_nl.cutoff = params.dh.cutoff;
+
+    long_range_nl.idxes.clear();
+    for (int idx = 0; idx < num_res; ++idx) {
+      auto q = comp_aa_data.charge[(uint8_t)atype[idx]];
+      if (q != 0)
+        long_range_nl.idxes.push_back(idx);
+    }
   }
 }
 
@@ -533,7 +553,7 @@ void state::setup_qa() {
       }
     }
 
-    nl_required = true;
+    def_nl.required = true;
   }
 }
 
@@ -541,7 +561,7 @@ void state::setup_pid() {
   pid_enabled = params.pid.enabled;
 
   if (pid_enabled) {
-    nl_required = true;
+    def_nl.required = true;
   }
 }
 

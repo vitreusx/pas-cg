@@ -60,7 +60,8 @@ public:
 
   void advance_by_step();
   void pre_eval_async();
-  void fix_nl_async();
+  void fix_def_nl_async();
+  void fix_lr_nl_async();
   void eval_forces();
   void post_eval_async();
 
@@ -89,9 +90,12 @@ public:
   pbar::render render_pbar;
   void setup_pbar();
 
-  real *cutoff;
-  nl::legacy_update nl_legacy;
-  nl::verify nl_verify;
+  struct nl_stuff {
+    nl::legacy_update legacy;
+    nl::verify verify;
+  };
+
+  nl_stuff def_nl, long_range_nl;
   void setup_nl();
 
   local_rep::eval_forces eval_lrep_forces;

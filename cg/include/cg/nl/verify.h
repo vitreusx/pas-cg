@@ -8,7 +8,7 @@ public:
   vect::const_view<vec3r> r;
   sbox::pbc<real> const *simul_box;
   bool *invalid, *first_time;
-  int num_particles;
+  vect::const_view<int> idxes;
   data const *nl_data;
   real *total_disp;
 

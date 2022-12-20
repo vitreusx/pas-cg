@@ -16,13 +16,16 @@ void legacy_update::omp_async() const {
 
 #pragma omp barrier
 
-  int num_pairs = num_particles * num_particles;
+  int num_pairs = idxes.size() * idxes.size();
 
 #pragma omp for schedule(static) nowait
   for (int flat = 0; flat < num_pairs; ++flat) {
-    int i1 = flat / num_particles, i2 = flat % num_particles;
+    int i1 = flat / idxes.size(), i2 = flat % idxes.size();
     if (i1 >= i2)
       continue;
+
+    i1 = idxes[i1];
+    i2 = idxes[i2];
 
     auto r1 = r[i1];
     auto chain1 = chain_idx[i1], seq1 = seq_idx[i1];

@@ -35,6 +35,12 @@ void update_bundles::operator()() const {
     }
   }
 
+  std::sort(
+      bundles->begin(), bundles->end(),
+      [](auto const &x, auto const &y) -> auto{
+        return x.orig_dist() < y.orig_dist();
+      });
+
   *fast_iter_end = bundles->size();
   for (auto bundle : end_bundles)
     bundles->push_back(bundle);

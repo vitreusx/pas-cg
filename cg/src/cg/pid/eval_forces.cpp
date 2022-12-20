@@ -3,10 +3,10 @@
 
 namespace cg::pid {
 void eval_forces::iter(int idx) const {
-  //  if (bundle.orig_dist() - *total_disp > cutoff)
-  //    return;
-
   auto bundle = (*bundles)[idx];
+  if (bundle.orig_dist() - *total_disp > cutoff)
+    return;
+
   auto i1 = bundle.i1(), i2 = bundle.i2();
   if ((aa_code)atype[i1] == aa_code::PRO || (aa_code)atype[i2] == aa_code::PRO)
     return;
@@ -578,10 +578,15 @@ void eval_forces::fast_vect_iter(int lane_idx) const {
   using vec3rs = vect::lane<vec3r, N, W>;
 
   auto bundle = bundles->template at_lane<N, W>(lane_idx);
-  auto i1 = bundle.i1(), i2 = bundle.i2();
 
-  auto mask =
-      mask_t(atype[i1] != aa_code::PRO) & mask_t(atype[i2] != aa_code::PRO);
+  auto mask = mask_t(bundle.orig_dist() - *total_disp < cutoff);
+  if (!horizontal_or((mask)))
+    return;
+
+  auto i1 = bundle.i1(), i2 = bundle.i2();
+  mask = mask & mask_t(atype[i1] != aa_code::PRO) &
+         mask_t(atype[i2] != aa_code::PRO);
+  //  mask_t mask = (atype[i1] != aa_code::PRO) & (atype[i2] != aa_code::PRO);
 
   auto r1 = r[i1], r2 = r[i2];
   auto r12 = simul_box->wrap<vect::lane<vec3r, N, W>>(r1, r2);
@@ -752,43 +757,6 @@ void eval_forces::fast_vect_iter(int lane_idx) const {
   V_ = select_(mask, V_, zero_v);
   *V += horizontal_add(V_);
 
-  //  auto diff_F_i1p = to_array<vec3r, N, W>(dV_dpsi1 * dpsi1_dr1p);
-  //  auto diff_F_i1 = to_array<vec3r, N, W>(dV_dpsi1 * dpsi1_dr1 +
-  //                                         dV_dpsi2 * dpsi2_dr1 - dV_dr *
-  //                                         r12_u);
-  //  auto diff_F_i1n = to_array<vec3r, N, W>(dV_dpsi1 * dpsi1_dr1n);
-  //  auto diff_F_i2p = to_array<vec3r, N, W>(dV_dpsi2 * dpsi2_dr2p);
-  //  auto diff_F_i2 = to_array<vec3r, N, W>(dV_dpsi1 * dpsi1_dr2 +
-  //                                         dV_dpsi2 * dpsi2_dr2 + dV_dr *
-  //                                         r12_u);
-  //  auto diff_F_i2n = to_array<vec3r, N, W>(dV_dpsi2 * dpsi2_dr2n);
-  //
-  //  for (int idx = 0; idx < (int)N; ++idx) {
-  //    if (!mask[idx])
-  //      continue;
-  //
-  //    if (val_i1p[idx])
-  //      F[i1p[idx]] -= diff_F_i1p[idx];
-  //    F[i1[idx]] -= diff_F_i1[idx];
-  //    if (val_i1n[idx])
-  //      F[i1n[idx]] -= diff_F_i1n[idx];
-  //    if (val_i2p[idx])
-  //      F[i2p[idx]] -= diff_F_i2p[idx];
-  //    F[i2[idx]] -= diff_F_i2[idx];
-  //    if (val_i2n[idx])
-  //      F[i2n[idx]] -= diff_F_i2n[idx];
-  //  }
-
-  //  dV_dpsi1 = select_(mask, dV_dpsi1, zero_v);
-  //  dV_dpsi2 = select_(mask, dV_dpsi2, zero_v);
-  //  dV_dr = select_(mask, dV_dr, zero_v);
-  //
-  //  F[i1p] = F[i1p] - dV_dpsi1 * dpsi1_dr1p;
-  //  F[i1] = F[i1] - (dV_dpsi1 * dpsi1_dr1 + dV_dpsi2 * dpsi2_dr1 - dV_dr *
-  //  r12_u); F[i1n] = F[i1n] - dV_dpsi1 * dpsi1_dr1n; F[i2p] = F[i2p] -
-  //  dV_dpsi2 * dpsi2_dr2p; F[i2] = F[i2] - (dV_dpsi1 * dpsi1_dr2 + dV_dpsi2 *
-  //  dpsi2_dr2 + dV_dr * r12_u); F[i2n] = F[i2n] - dV_dpsi2 * dpsi2_dr2n;
-
   auto diff_F_i1p = to_array<vec3r, N, W>(dV_dpsi1 * dpsi1_dr1p);
   auto diff_F_i1 = to_array<vec3r, N, W>(dV_dpsi1 * dpsi1_dr1 +
                                          dV_dpsi2 * dpsi2_dr1 - dV_dr * r12_u);
@@ -828,32 +796,6 @@ void eval_forces::fast_version_t::divide(
   auto fast_n = *super->fast_iter_end, fast_vect_n = fast_n / V;
   auto n = super->size(), vect_n = n / V;
   int vect_size_hint = size_hint / V;
-
-  //  int vect_from = 0, vect_to = 0;
-  //  for (; vect_from < fast_vect_n; vect_from = vect_to) {
-  //    vect_to = std::min(vect_from + vect_size_hint, fast_vect_n);
-  //    fast_vect_slices.emplace_back(super, vect_from, vect_to);
-  //  }
-  //
-  //  for (; vect_from < vect_n; vect_from = vect_to) {
-  //    vect_to = std::min(vect_from + vect_size_hint, vect_n);
-  //    vect_slices.emplace_back(super, vect_from, vect_to);
-  //  }
-  //
-  //  for (int from = vect_n * V; from < n; from += size_hint) {
-  //    int to = std::min(from + size_hint, n);
-  //    slices.emplace_back(super, from, to);
-  //  }
-
-  //  for (int from = 0; from < fast_n; from += size_hint) {
-  //    auto to = std::min(from + size_hint, fast_n);
-  //    fast_slices.emplace_back(super, from, to);
-  //  }
-  //
-  //  for (int from = fast_n; from < n; from += size_hint) {
-  //    auto to = std::min(from + size_hint, n);
-  //    slices.emplace_back(super, from, to);
-  //  }
 
   for (int vfrom = 0; vfrom < fast_vect_n; vfrom += vect_size_hint) {
     auto vto = std::min(vfrom + vect_size_hint, fast_vect_n);

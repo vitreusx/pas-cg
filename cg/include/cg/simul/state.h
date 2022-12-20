@@ -102,10 +102,15 @@ public:
   pbar::render::time_point_t pbar_start_clock, pbar_last_clock;
   void setup_pbar();
 
-  nl::data nl;
-  bool nl_required, nl_invalid, verify_first_time;
-  real total_disp;
-  vect::vector<nl::pair> all_pairs;
+  struct nl_stuff {
+    nl::data nl;
+    bool required, invalid, verify_first_time;
+    real total_disp, cutoff;
+    vect::vector<nl::pair> all_pairs;
+    vect::vector<int> idxes;
+  };
+
+  nl_stuff def_nl, long_range_nl;
   void setup_nl();
 
   bool lrep_enabled;

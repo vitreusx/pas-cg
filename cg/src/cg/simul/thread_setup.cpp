@@ -171,26 +171,30 @@ void thread::setup_pbar() {
 }
 
 void thread::setup_nl() {
-  auto &legacy = nl_legacy;
-  legacy.pad = params->nl.pad;
-  legacy.r = st->r;
-  legacy.simul_box = &st->pbc;
-  legacy.chain_idx = st->chain_idx;
-  legacy.seq_idx = st->seq_idx;
-  legacy.num_particles = st->num_res;
-  legacy.nl_data = &st->nl;
-  legacy.invalid = &st->nl_invalid;
-  legacy.cutoff = params->nl.cutoff;
-  cutoff = &legacy.cutoff;
+  for (auto nl : {&def_nl, &long_range_nl}) {
+    auto &state_nl = (nl == &def_nl) ? st->def_nl : st->long_range_nl;
 
-  auto &verify = nl_verify;
-  verify.r = st->r;
-  verify.nl_data = &st->nl;
-  verify.simul_box = &st->pbc;
-  verify.invalid = &st->nl_invalid;
-  verify.first_time = &st->verify_first_time;
-  verify.num_particles = st->num_res;
-  verify.total_disp = &st->total_disp;
+    auto &legacy = nl->legacy;
+    legacy.pad = params->nl.pad;
+    legacy.r = st->r;
+    legacy.simul_box = &st->pbc;
+    legacy.chain_idx = st->chain_idx;
+    legacy.seq_idx = st->seq_idx;
+    legacy.nl_data = &state_nl.nl;
+    legacy.invalid = &state_nl.invalid;
+    legacy.cutoff = state_nl.cutoff;
+    legacy.idxes = state_nl.idxes;
+
+    auto &verify = nl->verify;
+    verify.r = st->r;
+    verify.nl_data = &state_nl.nl;
+    verify.simul_box = &st->pbc;
+    verify.invalid = &state_nl.invalid;
+    verify.first_time = &state_nl.verify_first_time;
+    verify.idxes = state_nl.idxes;
+    verify.total_disp = &state_nl.total_disp;
+    verify.idxes = state_nl.idxes;
+  }
 }
 
 void thread::setup_local_rep() {
@@ -216,7 +220,7 @@ void thread::setup_chir() {
 }
 
 void thread::setup_tether() {
-  if (params->tether.enabled) {
+  if (st->tether_enabled) {
     auto &eval = eval_tether_forces;
     eval.H1 = params->tether.H1;
     eval.H2 = params->tether.H2;
@@ -229,7 +233,7 @@ void thread::setup_tether() {
 }
 
 void thread::setup_angles() {
-  if (params->angles.nat_ang.enabled) {
+  if (st->nat_ang_enabled) {
     auto &eval = eval_nat_ang_forces;
     eval.CBA = params->angles.nat_ang.CBA;
     eval.r = st->r;
@@ -238,7 +242,7 @@ void thread::setup_angles() {
     eval.F = dyn.F;
   }
 
-  if (params->angles.heur_ang.enabled) {
+  if (st->heur_ang_enabled) {
     auto &eval = eval_heur_ang_forces;
     eval.r = st->r;
     eval.angles = st->heur_angles;
@@ -253,7 +257,7 @@ void thread::setup_angles() {
     }
   }
 
-  if (params->angles.nat_dih.enabled) {
+  if (st->nat_dih_enabled) {
     auto nat_dih_var = params->angles.nat_dih.variant;
     if (nat_dih_var == "complex") {
       auto &eval = eval_cnd_forces;
@@ -273,7 +277,7 @@ void thread::setup_angles() {
     }
   }
 
-  if (params->angles.heur_dih.enabled) {
+  if (st->heur_dih_enabled) {
     auto &eval = eval_heur_dih_forces;
     eval.r = st->r;
     eval.V = &dyn.V;
@@ -307,14 +311,16 @@ void thread::setup_pauli() {
     auto &update = update_pauli_pairs;
     update.r = st->r;
     update.simul_box = &st->pbc;
-    update.nl = &st->nl;
+    update.nl = &st->def_nl.nl;
     update.pairs = &st->pauli_pairs;
     update.r_excl = params->gen.repulsive_cutoff;
   }
 }
 
 void thread::setup_nat_cont() {
-  if (params->nat_cont.enabled) {
+  if (st->nat_cont_enabled) {
+    auto nc_cutoff = params->nl.cutoff;
+
     auto &eval = eval_nat_cont_forces;
     eval.depth = params->nat_cont.lj_depth;
     eval.simul_box = &st->pbc;
@@ -325,7 +331,7 @@ void thread::setup_nat_cont() {
     eval.all_contacts = st->all_native_contacts;
     eval.V = &dyn.V;
     eval.F = dyn.F;
-    eval.cutoff = params->nl.cutoff;
+    eval.cutoff = nc_cutoff;
     eval.num_changed = &st->num_changed;
 
     auto get_disul_force = [&](force_spec spec) -> disulfide_force {
@@ -347,10 +353,10 @@ void thread::setup_nat_cont() {
     auto &update = update_nat_contacts;
     update.r = st->r;
     update.simul_box = &st->pbc;
-    update.nl = &st->nl;
+    update.nl = &st->def_nl.nl;
     update.all_contacts = st->all_native_contacts;
     update.contacts = &st->cur_native_contacts;
-    update.cutoff = params->nl.cutoff;
+    update.cutoff = nc_cutoff;
 
     if (params->out.enabled)
       make_report.nc = &eval;
@@ -358,45 +364,51 @@ void thread::setup_nat_cont() {
 }
 
 void thread::setup_dh() {
-  auto &update = update_dh_pairs;
-  update.r = st->r;
-  update.simul_box = &st->pbc;
-  update.nl = &st->nl;
-  update.pairs = &st->dh_pairs;
-  update.atype = st->atype;
-  update.cutoff = params->dh.cutoff;
-  for (auto const &aa : amino_acid::all()) {
-    update.q[(uint8_t)aa] = st->comp_aa_data.charge[(uint8_t)aa];
-  }
+  if (st->dh_enabled) {
+    auto &nl = st->long_range_nl;
+    auto cutoff = params->dh.cutoff;
 
-  *cutoff = max(*cutoff, update.cutoff);
+    auto &update = update_dh_pairs;
+    update.r = st->r;
+    update.simul_box = &st->pbc;
+    update.nl = &nl.nl;
+    update.pairs = &st->dh_pairs;
+    update.atype = st->atype;
+    update.cutoff = cutoff;
+    for (auto const &aa : amino_acid::all()) {
+      update.q[(uint8_t)aa] = st->comp_aa_data.charge[(uint8_t)aa];
+    }
 
-  auto dh_var = params->dh.variant;
-  if (dh_var == "constant") {
-    auto &eval = eval_const_dh_forces;
-    eval.set_V_factor(params->dh.const_dh.permittivity);
-    eval.screen_dist_inv = 1.0 / params->dh.screening_dist;
-    eval.r = st->r;
-    eval.simul_box = &st->pbc;
-    eval.es_pairs = &st->dh_pairs;
-    eval.V = &dyn.V;
-    eval.F = dyn.F;
-    eval.cutoff = params->dh.cutoff;
-  } else if (dh_var == "relative") {
-    auto &eval = eval_rel_dh_forces;
-    eval.set_V_factor(params->dh.rel_dh.perm_factor);
-    eval.screen_dist_inv = 1.0 / params->dh.screening_dist;
-    eval.r = st->r;
-    eval.simul_box = &st->pbc;
-    eval.es_pairs = &st->dh_pairs;
-    eval.V = &dyn.V;
-    eval.F = dyn.F;
-    eval.cutoff = params->dh.cutoff;
+    auto dh_var = params->dh.variant;
+    if (dh_var == "constant") {
+      auto &eval = eval_const_dh_forces;
+      eval.set_V_factor(params->dh.const_dh.permittivity);
+      eval.screen_dist_inv = 1.0 / params->dh.screening_dist;
+      eval.r = st->r;
+      eval.simul_box = &st->pbc;
+      eval.es_pairs = &st->dh_pairs;
+      eval.V = &dyn.V;
+      eval.F = dyn.F;
+      eval.cutoff = cutoff;
+    } else if (dh_var == "relative") {
+      auto &eval = eval_rel_dh_forces;
+      eval.set_V_factor(params->dh.rel_dh.perm_factor);
+      eval.screen_dist_inv = 1.0 / params->dh.screening_dist;
+      eval.r = st->r;
+      eval.simul_box = &st->pbc;
+      eval.es_pairs = &st->dh_pairs;
+      eval.V = &dyn.V;
+      eval.F = dyn.F;
+      eval.cutoff = cutoff;
+    }
   }
 }
 
 void thread::setup_qa() {
-  if (params->qa.enabled) {
+  if (st->qa_enabled) {
+    auto &nl = st->def_nl;
+    auto qa_cutoff = params->nl.cutoff;
+
     auto &prep_nh = prepare_nh;
     prep_nh.r = st->r;
     prep_nh.num_particles = st->num_res;
@@ -415,7 +427,7 @@ void thread::setup_qa() {
     loop.sync = st->sync_values;
     loop.free_pairs = &st->qa_free_pairs;
     loop.candidates = &st->qa_candidates;
-    loop.total_disp = &st->total_disp;
+    loop.total_disp = &nl.total_disp;
 
     loop.min_abs_cos_hr = params->qa.min_cos_hr;
     loop.min_abs_cos_hh = params->qa.min_cos_hh;
@@ -455,7 +467,7 @@ void thread::setup_qa() {
     proc_cont.V = &dyn.V;
     proc_cont.F = dyn.F;
     proc_cont.disulfide_special_criteria = st->ss_spec_crit;
-    proc_cont.fixed_cutoff = params->nl.cutoff;
+    proc_cont.fixed_cutoff = qa_cutoff;
 
     auto get_force = [&](force_spec spec) -> sink_lj {
       if (spec.variant == "lj") {
@@ -521,7 +533,8 @@ void thread::setup_qa() {
     auto &update = update_qa_pairs;
     update.r = st->r;
     update.simul_box = &st->pbc;
-    update.nl = &st->nl;
+    update.nl = &nl.nl;
+    update.cutoff = qa_cutoff;
     update.pairs = &st->qa_free_pairs;
     update.chain_idx = st->chain_idx;
     update.seq_idx = st->seq_idx;
@@ -559,7 +572,7 @@ void thread::setup_qa() {
         auto &update_cys = update_cys_neigh;
         update_cys.neigh = &st->qa_cys_neigh;
         update_cys.neigh_radius = spec_crit_params.neigh_radius;
-        update_cys.nl = &st->nl;
+        update_cys.nl = &nl.nl;
         update_cys.simul_box = &st->pbc;
         update_cys.r = st->r;
 
@@ -583,19 +596,20 @@ void thread::setup_qa() {
 
     update.max_formation_min_dist = loop.max_req_dist = max_req_dist;
 
-    update.cutoff = params->nl.cutoff;
-
     if (params->out.enabled)
       make_report.qa = &proc_cont;
   }
 }
 
 void thread::setup_pid() {
-  if (params->pid.enabled) {
+  if (st->pid_enabled) {
+    auto &nl = st->def_nl;
+    auto cutoff = params->nl.cutoff;
+
     auto &eval = eval_pid_forces;
     eval.V = &dyn.V;
     eval.F = dyn.F;
-    eval.total_disp = &st->total_disp;
+    eval.total_disp = &nl.total_disp;
     eval.active_thr = params->gen.counting_factor;
     eval.atype = st->atype;
 
@@ -685,7 +699,7 @@ void thread::setup_pid() {
     update.next = st->next;
     update.atype = st->atype;
     update.simul_box = &st->pbc;
-    update.nl = &st->nl;
+    update.nl = &nl.nl;
     update.bundles = &st->pid_bundles;
     update.fast_iter_end = &st->pid_fast_iter_end;
     *update.fast_iter_end = 0;
@@ -693,7 +707,7 @@ void thread::setup_pid() {
     update.seq_idx = st->seq_idx;
     update.include4 = params->pid.include4;
 
-    eval.cutoff = update.cutoff = params->nl.cutoff;
+    eval.cutoff = update.cutoff = cutoff;
 
     if (params->out.enabled) {
       make_report.eval_pid = &eval;
