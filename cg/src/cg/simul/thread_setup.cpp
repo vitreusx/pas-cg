@@ -185,6 +185,24 @@ void thread::setup_nl() {
     legacy.cutoff = state_nl.cutoff;
     legacy.idxes = state_nl.idxes;
 
+    auto &cell = nl->cell;
+    cell.pad = params->nl.pad;
+    cell.r = st->r;
+    cell.simul_box = &st->pbc;
+    cell.chain_idx = st->chain_idx;
+    cell.seq_idx = st->seq_idx;
+    cell.nl_data = &state_nl.nl;
+    cell.invalid = &state_nl.invalid;
+    cell.cutoff = state_nl.cutoff;
+    cell.idxes = state_nl.idxes;
+    cell.shared_r_min = &state_nl.shared_r_min;
+    cell.shared_r_max = &state_nl.shared_r_max;
+    cell.cell_idxes = state_nl.cell_idxes;
+    cell.unique_cells = &state_nl.unique_cells;
+    cell.unique_cell_idxes = &state_nl.unique_cell_idxes;
+    cell.total_pairs = &state_nl.total_pairs;
+    cell.cur_pairs_offset = &state_nl.cur_pairs_offset;
+
     auto &verify = nl->verify;
     verify.r = st->r;
     verify.nl_data = &state_nl.nl;

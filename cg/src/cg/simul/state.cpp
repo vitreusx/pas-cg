@@ -349,7 +349,7 @@ void state::setup_nl() {
     nl->verify_first_time = true;
     nl->total_disp = (real)0.0;
     nl->nl = nl::data();
-    nl->nl.orig_r = vect::vector<vec3r>(num_res);
+    nl->nl.orig_r.resize(num_res);
   }
 
   def_nl.cutoff = params.nl.cutoff;
@@ -359,6 +359,10 @@ void state::setup_nl() {
 
   long_range_nl.cutoff = (real)0.0;
   long_range_nl.idxes.clear();
+
+  for (auto nl : {&def_nl, &long_range_nl}) {
+    nl->cell_idxes.resize(nl->idxes.size());
+  }
 }
 
 void state::setup_local_rep() {
@@ -526,6 +530,8 @@ void state::setup_dh() {
       if (q != 0)
         long_range_nl.idxes.push_back(idx);
     }
+
+    long_range_nl.cell_idxes.resize(long_range_nl.idxes.size());
   }
 }
 

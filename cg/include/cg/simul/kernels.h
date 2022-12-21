@@ -15,6 +15,7 @@
 #include <cg/local_rep/eval_forces.h>
 #include <cg/nat_cont/eval_forces.h>
 #include <cg/nat_cont/update_contacts.h>
+#include <cg/nl/cell_update.h>
 #include <cg/nl/legacy_update.h>
 #include <cg/nl/verify.h>
 #include <cg/output/make_report.h>

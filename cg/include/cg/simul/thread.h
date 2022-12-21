@@ -92,6 +92,7 @@ public:
 
   struct nl_stuff {
     nl::legacy_update legacy;
+    nl::cell_update cell;
     nl::verify verify;
   };
 

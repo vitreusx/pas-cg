@@ -108,6 +108,12 @@ public:
     real total_disp, cutoff;
     vect::vector<nl::pair> all_pairs;
     vect::vector<int> idxes;
+
+    vec3r shared_r_min, shared_r_max;
+    int total_pairs, cur_pairs_offset;
+    vect::vector<std::pair<int, int>> cell_idxes;
+    vect::vector<std::tuple<int, int, int>> unique_cells;
+    std::unordered_map<int, int> unique_cell_idxes;
   };
 
   nl_stuff def_nl, long_range_nl;

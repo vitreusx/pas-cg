@@ -407,8 +407,11 @@ void thread::pre_eval_async() {
 }
 
 void thread::fix_def_nl_async() {
+  // #pragma omp barrier
+  //   def_nl.legacy.omp_async();
+
 #pragma omp barrier
-  def_nl.legacy.omp_async();
+  def_nl.cell.omp_async();
 
 #pragma omp barrier
 
@@ -431,8 +434,11 @@ void thread::fix_def_nl_async() {
 }
 
 void thread::fix_lr_nl_async() {
+  // #pragma omp barrier
+  //   long_range_nl.legacy.omp_async();
+
 #pragma omp barrier
-  long_range_nl.legacy.omp_async();
+  long_range_nl.cell.omp_async();
 
 #pragma omp barrier
 
