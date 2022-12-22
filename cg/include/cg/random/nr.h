@@ -1,11 +1,11 @@
 #pragma once
+#include "cg/types/vec3.h"
 #include <algorithm>
-#include <cg/types/vec3.h>
 #include <cmath>
 #include <cstdint>
 
-namespace cg {
-class rand_gen {
+namespace cg::rand {
+class nr_rand {
 private:
   static constexpr int im1 = 2147483563, im2 = 2147483399, imm1 = im1 - 1,
                        ia1 = 40014, ia2 = 40692, iq1 = 53668, iq2 = 52774,
@@ -19,9 +19,9 @@ private:
   int iv[ntab];
 
 public:
-  rand_gen() : rand_gen(0) {}
+  nr_rand() : nr_rand(0) {}
 
-  inline explicit rand_gen(int seed) {
+  inline explicit nr_rand(int seed) {
     ran2(seed);
     ran2(seed);
   }
@@ -68,29 +68,33 @@ public:
     return uint64_t(dval * (double)std::numeric_limits<uint64_t>::max());
   }
 
-  inline rand_gen spawn() {
-    uint64_t seed = rand_gen(*this)();
+  inline nr_rand spawn() {
+    uint64_t seed = nr_rand(*this)();
     seed = (seed ^ (seed >> 30)) * 0xBF58476D1CE4E5B9;
     seed = (seed ^ (seed >> 27)) * 0x94D049BB133111EB;
-    return rand_gen(seed ^ (seed >> 31));
+    return nr_rand(seed ^ (seed >> 31));
   }
 
-  template <typename U> inline U uniform() {
+  template <typename U>
+  inline U uniform() {
     return ran2();
   }
 
-  template <typename U> inline U uniform(U a, U b) {
+  template <typename U>
+  inline U uniform(U a, U b) {
     return (b - a) * uniform<U>() + a;
   }
 
-  template <typename U> inline U normal() {
+  template <typename U>
+  inline U normal() {
     auto r1 = uniform<U>(), r2 = uniform<U>();
     U r = sqrt((U)(-2.0) * log(r1));
     U t = (U)(2.0 * M_PI) * r2;
     return r * cos(t);
   }
 
-  template <typename U> inline std::pair<U, U> normal_x2() {
+  template <typename U>
+  inline std::pair<U, U> normal_x2() {
     auto r1 = uniform<U>(), r2 = uniform<U>();
     U r = sqrt((U)(-2.0) * log(r1));
     U t = (U)(2.0 * M_PI) * r2;
@@ -98,10 +102,11 @@ public:
     return std::make_pair(n1, n2);
   }
 
-  template <typename U> inline vec3<U> sphere() {
+  template <typename U>
+  inline vec3<U> sphere() {
     auto [x, y] = normal_x2<U>();
     auto z = normal<U>();
     return unit(vec3<U>(x, y, z));
   }
 };
-} // namespace cg
+} // namespace cg::rand

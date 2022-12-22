@@ -4,8 +4,6 @@
 namespace cg::pid {
 void eval_forces::iter(int idx) const {
   auto bundle = (*bundles)[idx];
-  if (bundle.orig_dist() - *total_disp > cutoff)
-    return;
 
   auto i1 = bundle.i1(), i2 = bundle.i2();
   if ((aa_code)atype[i1] == aa_code::PRO || (aa_code)atype[i2] == aa_code::PRO)
@@ -579,14 +577,8 @@ void eval_forces::fast_vect_iter(int lane_idx) const {
 
   auto bundle = bundles->template at_lane<N, W>(lane_idx);
 
-  auto mask = mask_t(bundle.orig_dist() - *total_disp < cutoff);
-  if (!horizontal_or((mask)))
-    return;
-
   auto i1 = bundle.i1(), i2 = bundle.i2();
-  mask = mask & mask_t(atype[i1] != aa_code::PRO) &
-         mask_t(atype[i2] != aa_code::PRO);
-  //  mask_t mask = (atype[i1] != aa_code::PRO) & (atype[i2] != aa_code::PRO);
+  mask_t mask = (atype[i1] != aa_code::PRO) & (atype[i2] != aa_code::PRO);
 
   auto r1 = r[i1], r2 = r[i2];
   auto r12 = simul_box->wrap<vect::lane<vec3r, N, W>>(r1, r2);

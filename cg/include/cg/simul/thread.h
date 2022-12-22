@@ -20,6 +20,7 @@ public:
   int num_threads;
   std::vector<std::unique_ptr<thread>> threads;
   std::vector<vect::const_view<vec3r>> forces;
+  dynamics::v4_shared v4_shared_;
 };
 
 class thread {
@@ -73,10 +74,11 @@ public:
   set_of_divisibles eval_divs;
 
 public:
-  rand_gen gen;
+  rand::nr_rand gen;
   void setup_gen();
 
   dynamics dyn;
+  dynamics::v4_priv dyn_v4_priv_;
   void setup_dyn();
 
   out::make_report make_report;
@@ -85,6 +87,7 @@ public:
   void setup_output();
 
   lang::step lang_step;
+  lang::fast_step lang_fast_step;
   void setup_langevin();
 
   pbar::render render_pbar;

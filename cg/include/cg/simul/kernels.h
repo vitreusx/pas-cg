@@ -11,6 +11,7 @@
 #include <cg/dh/const.h>
 #include <cg/dh/rel.h>
 #include <cg/dh/update_pairs.h>
+#include <cg/langevin/fast_step.h>
 #include <cg/langevin/step.h>
 #include <cg/local_rep/eval_forces.h>
 #include <cg/nat_cont/eval_forces.h>
@@ -32,7 +33,6 @@
 #include <cg/qa/process_contacts.h>
 #include <cg/qa/update_free_pairs.h>
 #include <cg/tether/eval_forces.h>
-#include <cg/utils/random.h>
 #include <cg/wall/harmonic/eval_connected.h>
 #include <cg/wall/harmonic/eval_free.h>
 #include <cg/wall/lj/eval_connected.h>

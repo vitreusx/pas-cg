@@ -8,6 +8,7 @@ void set_of_tasks::run() const {
 
 void set_of_tasks::omp_async() const {
 #pragma omp for schedule(static, 1) nowait
+  // #pragma omp for schedule(dynamic, 1) nowait
   for (auto const *subtask : subtasks)
     subtask->run();
 }

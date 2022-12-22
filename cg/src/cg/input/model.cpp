@@ -97,7 +97,7 @@ static inline Eigen::Vector3<U> perp_v(Eigen::Vector3<U> const &v) {
 }
 
 static Eigen::Vector3d sample_from_box(Eigen::AlignedBox3d const &box,
-                                       rand_gen &gen) {
+                                       rand::nr_rand &gen) {
   Eigen::Vector3d v;
   for (int i = 0; i < 3; ++i) {
     v[i] = (box.max()[i] - box.min()[i]) * gen.uniform<double>() + box.min()[i];
@@ -105,7 +105,7 @@ static Eigen::Vector3d sample_from_box(Eigen::AlignedBox3d const &box,
   return v;
 }
 
-void model::morph_into_saw(rand_gen &gen,
+void model::morph_into_saw(rand::nr_rand &gen,
                            const input::morph_into_saw_t &params) {
   auto min_dist_sq = pow(params.intersection_at, 2.0);
 

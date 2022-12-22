@@ -65,17 +65,48 @@ void dynamics::omp_reduce_v2(dynamics &target, thread const &thr) {
 }
 
 void dynamics::omp_reduce_v3(dynamics &target, const thread_team &team) {
-#pragma omp atomic
-  target.V += V;
+#pragma omp critical
+  {
+    target.V += V;
+    for (int idx = 0; idx < solid_wall_F.size(); ++idx)
+      target.solid_wall_F[idx] += solid_wall_F[idx];
+    for (int idx = 0; idx < lj_wall_F.size(); ++idx)
+      target.lj_wall_F[idx] += lj_wall_F[idx];
+    for (int idx = 0; idx < harmonic_wall_F.size(); ++idx)
+      target.harmonic_wall_F[idx] += harmonic_wall_F[idx];
+  }
 
 #pragma omp barrier
 
 #pragma omp for schedule(static) nowait
   for (int idx = 0; idx < F.size(); ++idx) {
-    vec3r f;
+    vec3r f = vec3r::Zero();
     for (decltype(auto) F_ : team.forces)
       f += F_[idx];
     target.F[idx] += f;
+  }
+}
+
+void dynamics::omp_reduce_v4(cg::simul::dynamics &target,
+                             cg::simul::dynamics::v4_shared &shared,
+                             cg::simul::dynamics::v4_priv &priv) {
+#pragma omp critical
+  {
+    target.V += V;
+    for (int idx = 0; idx < solid_wall_F.size(); ++idx)
+      target.solid_wall_F[idx] += solid_wall_F[idx];
+    for (int idx = 0; idx < lj_wall_F.size(); ++idx)
+      target.lj_wall_F[idx] += lj_wall_F[idx];
+    for (int idx = 0; idx < harmonic_wall_F.size(); ++idx)
+      target.harmonic_wall_F[idx] += harmonic_wall_F[idx];
+  }
+
+  for (auto sec_idx : priv.sec_order) {
+    auto &sec = shared.sections[sec_idx];
+    std::lock_guard<std::mutex> g(*sec.mtx);
+
+    for (int idx = sec.beg; idx < sec.end; ++idx)
+      target.F[idx] += F[idx];
   }
 }
 

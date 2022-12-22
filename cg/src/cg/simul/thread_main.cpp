@@ -397,22 +397,20 @@ void thread::pre_eval_async() {
   if (params->qa.enabled && st->ss_spec_crit)
     count_cys_neigh.omp_async();
 
-  if (st->def_nl.invalid)
-    fix_def_nl_async();
-
-  if (st->long_range_nl.invalid)
-    fix_lr_nl_async();
-
+  if (st->def_nl.invalid || st->long_range_nl.invalid) {
+    if (st->def_nl.invalid)
+      fix_def_nl_async();
+    if (st->long_range_nl.invalid)
+      fix_lr_nl_async();
 #pragma omp barrier
+  }
 }
 
 void thread::fix_def_nl_async() {
   // #pragma omp barrier
   //   def_nl.legacy.omp_async();
 
-#pragma omp barrier
   def_nl.cell.omp_async();
-
 #pragma omp barrier
 
 #pragma omp master
@@ -437,9 +435,7 @@ void thread::fix_lr_nl_async() {
   // #pragma omp barrier
   //   long_range_nl.legacy.omp_async();
 
-#pragma omp barrier
   long_range_nl.cell.omp_async();
-
 #pragma omp barrier
 
 #pragma omp master
@@ -521,7 +517,8 @@ void thread::eval_forces() {
   eval_divs.omp_async();
 
   dyn.omp_reduce_v2(st->dyn, *this);
-//  dyn.omp_reduce_v3(st->dyn, team);
+  //  dyn.omp_reduce_v3(st->dyn, *team);
+//  dyn.omp_reduce_v4(st->dyn, team->v4_shared_, dyn_v4_priv_);
 #pragma omp barrier
 }
 
@@ -553,7 +550,8 @@ void thread::post_eval_async() {
 #pragma omp barrier
 
   if (st->lang_enabled) {
-    lang_step.omp_async();
+    //    lang_step.omp_async();
+    lang_fast_step.omp_async();
   }
 
   ++loop_idx;

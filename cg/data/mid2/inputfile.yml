@@ -63,8 +63,9 @@ langevin:
   
 output:
   enabled: true
-  emit stats every: 1e1 tau
-  emit structure every: 1e2 tau
+  emit stats every: 1e2 tau
+#  emit structure every: 1e2 tau
+  emit structure every: ~
   file prefix: updatesq
 
 checkpoints:

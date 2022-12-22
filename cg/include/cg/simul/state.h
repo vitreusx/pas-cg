@@ -58,7 +58,7 @@ public:
   real until, since, amplitude, displacement, omega;
   bool shear;
 
-  rand_gen gen;
+  rand::nr_rand gen;
   void simul_setup();
 
   input::model orig_model;
@@ -96,6 +96,7 @@ public:
   vect::vector<vec3sr> y0, y1, y2, y3, y4, y5;
   solver_real true_t;
   real temperature;
+  vect::vector<rand::xorshift> gens;
   void setup_langevin();
 
   bool pbar_enabled, pbar_first_time;

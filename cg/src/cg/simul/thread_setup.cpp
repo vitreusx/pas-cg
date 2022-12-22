@@ -86,6 +86,35 @@ void thread::setup_gen() {
 
 void thread::setup_dyn() {
   dyn = st->dyn;
+
+#pragma omp single nowait
+  {
+    team->forces.clear();
+
+    team->v4_shared_.num_threads = team->num_threads;
+
+    team->v4_shared_.sections.clear();
+    for (int idx = 0; idx < team->num_threads; ++idx) {
+      auto &sec = team->v4_shared_.sections.emplace_back();
+      sec.beg = (idx * st->num_res) / team->num_threads;
+      sec.end = ((idx + 1) * st->num_res) / team->num_threads;
+      sec.mtx = std::make_shared<std::mutex>();
+    }
+  };
+
+#pragma omp barrier
+
+  dyn_v4_priv_.sec_order.clear();
+  for (int idx = 0; idx < team->num_threads; ++idx)
+    dyn_v4_priv_.sec_order.push_back(idx);
+
+  auto seed = st->gen.spawn()() + (uint64_t)tid;
+  auto gen_ = rand::xorshift(seed);
+  for (int i = 0; i < team->num_threads - 1; ++i) {
+    auto j = i + gen_() % (team->num_threads - i);
+    std::swap(dyn_v4_priv_.sec_order[i], dyn_v4_priv_.sec_order[j]);
+  }
+
 #pragma omp critical
   team->forces.push_back(dyn.F);
 }
@@ -125,32 +154,62 @@ void thread::setup_output() {
 
 void thread::setup_langevin() {
   if (st->lang_enabled) {
-    auto &step = lang_step;
+    {
+      auto &step = lang_step;
 
-    step.set_params(params->lang.gamma, st->temperature, params->lang.dt);
-    step.gen = &gen;
-    step.num_particles = st->num_res;
-    step.atype = st->atype;
+      step.set_params(params->lang.gamma, st->temperature, params->lang.dt);
+      step.gen = &gen;
+      step.num_particles = st->num_res;
+      step.atype = st->atype;
 
-    step.mass = st->comp_aa_data.mass;
-    step.mass_inv = st->mass_inv;
-    step.mass_rsqrt = st->mass_rsqrt;
+      step.mass = st->comp_aa_data.mass;
+      step.mass_inv = st->mass_inv;
+      step.mass_rsqrt = st->mass_rsqrt;
 
-    step.step_idx = &st->step_idx;
-    step.t = &st->t;
-    step.r = st->r;
-    step.v = st->v;
-    step.F = st->dyn.F;
+      step.step_idx = &st->step_idx;
+      step.t = &st->t;
+      step.r = st->r;
+      step.v = st->v;
+      step.F = st->dyn.F;
 
-    step.y0 = st->y0;
-    step.y1 = st->y1;
-    step.y2 = st->y2;
-    step.y3 = st->y3;
-    step.y4 = st->y4;
-    step.y5 = st->y5;
-    step.true_t = &st->true_t;
+      step.y0 = st->y0;
+      step.y1 = st->y1;
+      step.y2 = st->y2;
+      step.y3 = st->y3;
+      step.y4 = st->y4;
+      step.y5 = st->y5;
+      step.true_t = &st->true_t;
 
-    step.noise = st->noise;
+      step.noise = st->noise;
+    }
+
+    {
+      auto &step = lang_fast_step;
+
+      step.set_params(params->lang.gamma, st->temperature, params->lang.dt);
+      step.num_particles = st->num_res;
+      step.atype = st->atype;
+
+      step.mass = st->comp_aa_data.mass;
+      step.mass_inv = st->mass_inv;
+      step.mass_rsqrt = st->mass_rsqrt;
+
+      step.step_idx = &st->step_idx;
+      step.t = &st->t;
+      step.r = st->r;
+      step.v = st->v;
+      step.F = st->dyn.F;
+
+      step.y0 = st->y0;
+      step.y1 = st->y1;
+      step.y2 = st->y2;
+      step.y3 = st->y3;
+      step.y4 = st->y4;
+      step.y5 = st->y5;
+      step.true_t = &st->true_t;
+
+      step.gens = st->gens;
+    }
   }
 }
 

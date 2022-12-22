@@ -2,10 +2,10 @@
 #include "morph_into_saw.h"
 #include <cg/amino/amino_acid.h>
 #include <cg/nat_cont/type.h>
+#include <cg/random/nr.h>
 #include <cg/sbox/box.h>
 #include <cg/sbox/pbc.h>
 #include <cg/types/vec3.h>
-#include <cg/utils/random.h>
 #include <list>
 #include <memory>
 #include <optional>
@@ -21,7 +21,8 @@ public:
   friend model operator+(model const &m1, model const &m2);
   model &operator+=(model const &m2);
 
-  void morph_into_saw(rand_gen &gen, input::morph_into_saw_t const &params);
+  void morph_into_saw(rand::nr_rand &gen,
+                      input::morph_into_saw_t const &params);
   void morph_into_line(double bond_dist);
   void remove_native_structure();
 

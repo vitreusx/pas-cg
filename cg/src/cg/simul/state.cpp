@@ -38,7 +38,7 @@ void state::verify_equal(const state &other) const {
 
 void state::simul_setup() {
   traj_idx = 0;
-  gen = rand_gen(params.gen.seed);
+  gen = rand::nr_rand(params.gen.seed);
   load_model();
   simul_setup_output();
 }
@@ -331,6 +331,13 @@ void state::setup_langevin() {
     }
 
     noise = vect::vector<vec3r>(num_res);
+
+    auto gen_ = gen;
+    gens.reserve(num_res);
+    for (int idx = 0; idx < num_res; ++idx) {
+      auto seed = gen_();
+      gens.emplace_back(seed);
+    }
   }
 }
 

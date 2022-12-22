@@ -23,10 +23,11 @@
 #include <cg/qa/contact.h>
 #include <cg/qa/cys_neigh.h>
 #include <cg/qa/free_pair.h>
+#include <cg/random/nr.h>
+#include <cg/random/xorshift.h>
 #include <cg/sbox/box.h>
 #include <cg/sbox/pbc.h>
 #include <cg/tether/pair.h>
-#include <cg/utils/random.h>
 #include <cg/wall/harmonic/data.h>
 #include <cg/wall/lj/data.h>
 #include <cg/wall/solid/data.h>

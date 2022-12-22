@@ -1,11 +1,11 @@
 #pragma once
 #include <cg/amino/amino_acid.h>
-#include <cg/random/nr.h>
+#include <cg/random/xorshift.h>
 #include <cg/simul/runtime.h>
 #include <cg/types/amp.h>
 
 namespace cg::lang {
-class step {
+class fast_step {
 public:
   static constexpr solver_real f02 = 3.0f / 16.0f, f12 = 251.0f / 360.0f,
                                f32 = 11.0f / 18.0f, f42 = 1.0f / 6.0f,
@@ -21,18 +21,14 @@ public:
   vect::const_view<vec3r> F;
   vect::const_view<amino_acid> atype;
   vect::const_view<real> mass, mass_inv, mass_rsqrt;
+  vect::view<rand::xorshift> gens;
 
   real *t;
   vect::view<vec3sr> y0, y1, y2, y3, y4, y5;
   solver_real *true_t;
   int num_particles;
-  rand::nr_rand *gen;
 
 public:
-  vect::view<vec3r> noise;
-
-public:
-  void operator()() const;
   void omp_async() const;
 };
 } // namespace cg::lang
