@@ -1,0 +1,60 @@
+general:
+  total time: 200e3 tau
+  equil time: 500 tau
+  num of threads: 1
+  seed: 2
+
+input:
+  pdb file:
+    source:
+      (at path): ./dense_100.pdb
+    aliases:
+      SEP: SER
+  morph into SAW:
+    perform: false
+
+simulation box:
+  initial size:
+    type: from CRYST1 record
+  walls:
+    all axes: periodic
+  squeezing:
+    perform: true
+    target density: 13e-5 residue/A**3
+    velocity above 2V: 0.5 A/tau
+  common:
+    rest period: 2e6 tau
+
+langevin:
+  temperature: 0.38f eps/kB
+
+quasi-adiabatic:
+  enabled: false
+
+neighbor list:
+  cutoff: 18.0 A
+
+pseudo-improper dihedral:
+  enabled: true
+  include (i, i+4): false
+  forces:
+    variant: sink lj
+    sink lj params:
+      per pair:
+        depth:
+          (at path): ./md05.csv
+
+Debye-Hueckel:
+  enabled: true
+  variant: constant
+  screening distance: 50.0 A
+  cutoff distance: 100.0 A
+
+output:
+  enabled: false
+  emit stats every: 500 tau
+  emit structure every: 500 tau
+  file prefix: "dense_100"
+
+checkpoints:
+  save every: 500 tau
