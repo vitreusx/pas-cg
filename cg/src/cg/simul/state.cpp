@@ -337,6 +337,7 @@ void state::setup_langevin() {
     for (int idx = 0; idx < num_res; ++idx) {
       auto seed = gen_();
       gens.emplace_back(seed);
+      gen_ = gen_.spawn();
     }
   }
 }

@@ -40,7 +40,6 @@ public:
 
   struct chain {
     int chain_idx;
-    char chain_id;
     std::vector<residue *> residues;
   };
   std::vector<std::unique_ptr<chain>> chains;

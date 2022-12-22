@@ -3,7 +3,7 @@ c       The i,i+2 contacts purely repulsive
         program cg
         implicit double precision(a-h,o-z)
 
-        parameter(len=35000) !maximum number of all residues together
+        parameter(len=350000) !maximum number of all residues together
         character aseq*3,pdbfile*40,outfile*40,savfile*40,state*2,buf1*4
         character rstfile*64,seqfile*40,arg*40,stafile*32,filname*32
         character buffer*128,buf2*4,paramfile*40,mapfile*40,cmapf*40

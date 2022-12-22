@@ -1,6 +1,7 @@
 #include <cg/input/fields.h>
 #include <cg/input/pdb_file.h>
 #include <cg/input/records.h>
+#include <cg/output/chain_id_seq.h>
 #include <cg/utils/angles.h>
 #include <cg/utils/quantity.h>
 #include <cg/utils/units.h>
@@ -12,15 +13,16 @@
 
 namespace cg {
 void pdb_file::load(std::istream &is, pdb_load_options const &load_opts) {
-  std::unordered_map<int, std::unordered_map<char, bool>> ter_found;
+  std::unordered_map<int, std::unordered_map<int, bool>> ter_found;
   int cur_model_serial = 1;
 
   primary_model_serial = -1;
 
   cryst1 = std::nullopt;
 
-  std::unordered_map<char, char> chain_ids;
-  char real_chain_id = '\0';
+  int cur_chain_idx = -1;
+  std::string cur_chain_id;
+  std::unordered_map<std::string, int> chain_id_to_idx;
 
   std::vector<records::record> post_fx;
 
@@ -43,24 +45,24 @@ void pdb_file::load(std::istream &is, pdb_load_options const &load_opts) {
 
     if (auto model_r = record_r.cast<records::model>(); model_r) {
       cur_model_serial = model_r->serial;
+      cur_chain_idx = -1;
+      cur_chain_id = "";
     } else if (auto atom_r = record_r.cast<records::atom>(); atom_r) {
       if (atom_r->atom_name[0] == 'H')
         continue;
 
       auto &model = find_or_add_model(cur_model_serial);
 
-      if (atom_r->chain_id != real_chain_id) {
-        if (chain_ids.find(atom_r->chain_id) != chain_ids.end())
-          chain_ids[atom_r->chain_id] = ++real_chain_id;
-        else
-          chain_ids[atom_r->chain_id] = atom_r->chain_id;
+      if (atom_r->chain_id != cur_chain_id) {
+        ++cur_chain_idx;
+        cur_chain_id = atom_r->chain_id;
+        chain_id_to_idx[cur_chain_id] = cur_chain_idx;
       }
-      real_chain_id = atom_r->chain_id;
-      auto &chain = find_or_add_chain(model, chain_ids[atom_r->chain_id]);
+      auto &chain = find_or_add_chain(model, cur_chain_idx);
 
       auto &res = find_or_add_res(
           chain, atom_r->res_seq_num, atom_r->residue_name,
-          ter_found[cur_model_serial][chain.chain_id], load_opts);
+          ter_found[cur_model_serial][cur_chain_idx], load_opts);
 
       auto &atm = chain.atoms[atom_r->serial];
 
@@ -71,15 +73,16 @@ void pdb_file::load(std::istream &is, pdb_load_options const &load_opts) {
 
       res.atoms.push_back(&atm);
 
-      if (!ter_found[cur_model_serial][chain.chain_id])
+      if (!ter_found[cur_model_serial][chain.chain_idx])
         chain.ter_serial = atom_r->serial;
 
       if (primary_model_serial < 0)
         primary_model_serial = cur_model_serial;
     } else if (auto ter_r = record_r.cast<records::ter>(); ter_r) {
-      ter_found[cur_model_serial][ter_r->chain_id] = true;
+      auto ter_chain_idx = chain_id_to_idx.at(ter_r->chain_id);
+      ter_found[cur_model_serial][ter_chain_idx] = true;
       auto &m = *find_model(cur_model_serial);
-      auto &c = *find_chain(m, ter_r->chain_id);
+      auto &c = *find_chain(m, ter_chain_idx);
       c.ter_serial = ter_r->serial;
     } else if (auto end_r = record_r.cast<records::end>(); end_r) {
       post_fx.push_back(record_r);
@@ -97,11 +100,13 @@ void pdb_file::load(std::istream &is, pdb_load_options const &load_opts) {
 
       auto &m = *find_model(cur_model_serial);
 
-      auto &chain1 = *find_chain(m, ssbond_r->res[0].chain_id);
+      auto chain1_idx = chain_id_to_idx[ssbond_r->res[0].chain_id];
+      auto &chain1 = *find_chain(m, chain1_idx);
       auto &res1 = *find_res(chain1, ssbond_r->res[0].res_seq_num);
       ss.a1 = res1.find_by_name("SG");
 
-      auto &chain2 = *find_chain(m, ssbond_r->res[1].chain_id);
+      auto chain2_idx = chain_id_to_idx[ssbond_r->res[1].chain_id];
+      auto &chain2 = *find_chain(m, chain2_idx);
       auto &res2 = *find_res(chain2, ssbond_r->res[1].res_seq_num);
       ss.a2 = res2.find_by_name("SG");
 
@@ -112,11 +117,13 @@ void pdb_file::load(std::istream &is, pdb_load_options const &load_opts) {
 
       auto &m = *find_model(cur_model_serial);
 
-      auto &chain1 = *find_chain(m, link_r->res[0].chain_id);
+      auto chain1_idx = chain_id_to_idx[ssbond_r->res[0].chain_id];
+      auto &chain1 = *find_chain(m, chain1_idx);
       auto &res1 = *find_res(chain1, link_r->res[0].res_seq_num);
       _link.a1 = res1.find_by_name(link_r->res[0].atom_name);
 
-      auto &chain2 = *find_chain(m, link_r->res[1].chain_id);
+      auto chain2_idx = chain_id_to_idx[ssbond_r->res[1].chain_id];
+      auto &chain2 = *find_chain(m, chain2_idx);
       auto &res2 = *find_res(chain2, link_r->res[1].res_seq_num);
       _link.a2 = res2.find_by_name(link_r->res[1].atom_name);
 
@@ -138,8 +145,8 @@ pdb_file::pdb_file(const input::model &xmd_model) {
   auto &m = find_or_add_model(primary_model_serial);
 
   for (auto const &xmd_chain : xmd_model.chains) {
-    auto &pdb_chain = m.chains[xmd_chain->chain_id];
-    pdb_chain.chain_id = xmd_chain->chain_id;
+    auto &pdb_chain = m.chains[xmd_chain->chain_idx];
+    pdb_chain.chain_idx = xmd_chain->chain_idx;
     size_t res_seq_num = 1;
 
     for (auto const &xmd_res_ref : xmd_chain->residues) {
@@ -221,21 +228,20 @@ pdb_file::model &pdb_file::find_or_add_model(int model_serial) {
   return model_iter->second;
 }
 
-pdb_file::chain *pdb_file::find_chain(model &m, char chain_id) {
-  auto chain_iter = m.chains.find(chain_id);
+pdb_file::chain *pdb_file::find_chain(model &m, int chain_idx) {
+  auto chain_iter = m.chains.find(chain_idx);
   if (chain_iter != m.chains.end())
     return &chain_iter->second;
   else
     return nullptr;
 }
 
-pdb_file::chain &pdb_file::find_or_add_chain(model &m, char chain_id) {
-  auto chain_iter = m.chains.find(chain_id);
+pdb_file::chain &pdb_file::find_or_add_chain(model &m, int chain_idx) {
+  auto chain_iter = m.chains.find(chain_idx);
   if (chain_iter == m.chains.end()) {
-    auto &c = m.chains[chain_id];
-    c.chain_id = chain_id;
-
-    chain_iter = m.chains.find(chain_id);
+    auto &c = m.chains[chain_idx];
+    c.chain_idx = chain_idx;
+    chain_iter = m.chains.find(chain_idx);
   }
 
   return chain_iter->second;
@@ -303,11 +309,14 @@ std::ostream &operator<<(std::ostream &os, pdb_file::model const &model) {
 
 std::ostream &operator<<(std::ostream &os, pdb_file::chain const &chain) {
   bool first = true;
+
+  static out::chain_id_seq_ id_seq;
+
   for (auto const &res : chain.order) {
     for (auto const &atm : res->atoms) {
       records::atom atom_r;
       atom_r.serial = atm->serial;
-      atom_r.chain_id = chain.chain_id;
+      atom_r.chain_id = id_seq[chain.chain_idx];
       atom_r.res_seq_num = res->seq_num;
       atom_r.residue_name = res->type.name();
       atom_r.atom_name = atm->name;
@@ -322,7 +331,7 @@ std::ostream &operator<<(std::ostream &os, pdb_file::chain const &chain) {
 
   auto final_res = chain.order.back();
   records::ter ter_r;
-  ter_r.chain_id = chain.chain_id;
+  ter_r.chain_id = id_seq[chain.chain_idx];
   ter_r.res_seq_num = final_res->seq_num;
   ter_r.serial = chain.ter_serial;
   ter_r.res_name = final_res->type.name();
@@ -345,7 +354,6 @@ input::model pdb_file::to_model() const {
     auto &xmd_chain =
         xmd_model.chains.emplace_back(std::make_unique<input::model::chain>());
     xmd_chain->chain_idx = chain_idx++;
-    xmd_chain->chain_id = chain_id;
 
     int res_seq_idx = 0;
     for (auto const *pdb_res : pdb_chain.order) {

@@ -43,7 +43,7 @@ std::optional<atom> atom::try_parse(const std::string &line) {
   a.serial = fields::lstring(7, 11).read(line);
   a.atom_name = fields::atom(13, 16).read(line);
   a.residue_name = fields::residue_name(18, 20).read(line);
-  a.chain_id = fields::achar(22).read(line);
+  a.chain_id = fields::lstring(21, 22).read(line);
   a.res_seq_num = fields::integer(23, 26).read(line);
   a.pos.x() = fields::real_field(31, 38, 8, 3).read(line);
   a.pos.y() = fields::real_field(39, 46, 8, 3).read(line);
@@ -59,7 +59,7 @@ std::string atom::write() const {
   fields::lstring(7, 11).write(line, serial);
   fields::atom(13, 16).write(line, atom_name);
   fields::residue_name(18, 20).write(line, residue_name);
-  fields::achar(22).write(line, chain_id);
+  fields::lstring(21, 22).write(line, chain_id);
   fields::integer(23, 26).write(line, res_seq_num);
   fields::real_field(31, 38, 8, 3).write(line, pos.x());
   fields::real_field(39, 46, 8, 3).write(line, pos.y());
@@ -76,9 +76,9 @@ std::optional<ssbond> ssbond::try_parse(const std::string &line) {
   s.serial = fields::lstring(8, 10).read(line);
   if (!fields::literal(12, 14, "CYS").read(line))
     return std::nullopt;
-  s.res[0].chain_id = fields::achar(16).read(line);
+  s.res[0].chain_id = fields::lstring(15, 16).read(line);
   s.res[0].res_seq_num = fields::integer(18, 21).read(line);
-  s.res[1].chain_id = fields::achar(30).read(line);
+  s.res[1].chain_id = fields::lstring(29, 30).read(line);
   s.res[1].res_seq_num = fields::integer(32, 35).read(line);
   s.length = fields::real_field(74, 78, 5, 2).read(line);
 
@@ -91,9 +91,9 @@ std::string ssbond::write() const {
   fields::record_name("SSBOND").write(line);
   fields::lstring(8, 10).write(line, serial);
   fields::literal(12, 14, "CYS").write(line);
-  fields::achar(16).write(line, res[0].chain_id);
+  fields::lstring(15, 16).write(line, res[0].chain_id);
   fields::integer(18, 21).write(line, res[0].res_seq_num);
-  fields::achar(30).write(line, res[1].chain_id);
+  fields::lstring(29, 30).write(line, res[1].chain_id);
   fields::integer(32, 35).write(line, res[1].res_seq_num);
   fields::real_field(74, 78, 5, 2).write(line, length);
 
@@ -107,11 +107,11 @@ std::optional<link> link::try_parse(const std::string &line) {
     return std::nullopt;
   l.res[0].atom_name = fields::atom(13, 16).read(line);
   l.res[0].res_name = fields::residue_name(18, 20).read(line);
-  l.res[0].chain_id = fields::achar(22).read(line);
+  l.res[0].chain_id = fields::lstring(21, 22).read(line);
   l.res[0].res_seq_num = fields::integer(23, 26).read(line);
   l.res[1].atom_name = fields::atom(43, 46).read(line);
   l.res[1].res_name = fields::residue_name(48, 50).read(line);
-  l.res[1].chain_id = fields::achar(52).read(line);
+  l.res[1].chain_id = fields::lstring(51, 52).read(line);
   l.res[1].res_seq_num = fields::integer(53, 56).read(line);
   l.length = fields::real_field(74, 78, 5, 2).read(line);
 
@@ -124,11 +124,11 @@ std::string link::write() const {
   fields::record_name("LINK  ").write(line);
   fields::atom(13, 16).write(line, res[0].atom_name);
   fields::residue_name(18, 20).write(line, res[0].res_name);
-  fields::achar(22).write(line, res[0].chain_id);
+  fields::lstring(21, 22).write(line, res[0].chain_id);
   fields::integer(23, 26).write(line, res[0].res_seq_num);
   fields::atom(43, 46).write(line, res[1].atom_name);
   fields::residue_name(48, 50).write(line, res[1].res_name);
-  fields::achar(52).write(line, res[1].chain_id);
+  fields::lstring(51, 52).write(line, res[1].chain_id);
   fields::integer(53, 56).write(line, res[1].res_seq_num);
   fields::real_field(74, 78, 5, 2).write(line, length);
 
@@ -175,7 +175,7 @@ std::optional<ter> ter::try_parse(const std::string &line) {
     return std::nullopt;
   t.serial = fields::lstring(7, 11).read(line);
   t.res_name = fields::residue_name(18, 20).read(line);
-  t.chain_id = fields::achar(22).read(line);
+  t.chain_id = fields::lstring(21, 22).read(line);
   t.res_seq_num = fields::integer(23, 26).read(line);
 
   return t;
@@ -187,7 +187,7 @@ std::string ter::write() const {
   fields::record_name("TER   ").write(line);
   fields::lstring(7, 11).write(line, serial);
   fields::residue_name(18, 20).write(line, res_name);
-  fields::achar(22).write(line, chain_id);
+  fields::lstring(21, 22).write(line, chain_id);
   fields::integer(23, 26).write(line, res_seq_num);
 
   return line;

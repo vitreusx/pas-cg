@@ -57,7 +57,7 @@ public:
   };
 
   struct chain {
-    char chain_id;
+    int chain_idx;
     std::unordered_map<std::string, atom> atoms;
     std::unordered_map<size_t, residue> residues;
     std::vector<residue *> order;
@@ -68,7 +68,7 @@ public:
 
   struct model {
     int model_serial;
-    std::map<char, chain> chains;
+    std::map<int, chain> chains;
 
     model() = default;
     model(model const &other);
@@ -105,8 +105,8 @@ public:
   model *find_model(int model_serial);
   model &find_or_add_model(int model_serial);
 
-  chain *find_chain(model &m, char chain_id);
-  chain &find_or_add_chain(model &m, char chain_id);
+  chain *find_chain(model &m, int chain_idx);
+  chain &find_or_add_chain(model &m, int chain_idx);
 
   residue *find_res(chain &c, size_t seq_num);
   residue &find_or_add_res(chain &c, size_t seq_num, const std::string &name,

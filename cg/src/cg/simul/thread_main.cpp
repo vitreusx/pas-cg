@@ -528,7 +528,7 @@ void thread::post_eval_async() {
     if (st->pbar_enabled)
       render_pbar();
 
-    if (params->out.enabled && st->t > 0)
+    if (st->out_enabled && st->t > 0)
       make_report();
 
     if (st->dump_enabled)

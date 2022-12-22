@@ -1,6 +1,7 @@
 #include <Eigen/Dense>
 #include <Eigen/SVD>
 #include <cg/input/records.h>
+#include <cg/output/chain_id_seq.h>
 #include <cg/output/make_report.h>
 #include <cg/utils/text.h>
 #include <fstream>
@@ -405,8 +406,7 @@ void make_report::emit_pdb() const {
     auto pdb_model = pdb_file(xmd_model).primary_model();
     pdb_model.model_serial = snap_idx + 1;
 
-    for (auto const &[chain_id, chain] : pdb_model.chains) {
-      auto chain_idx = chain_id - 'A';
+    for (auto const &[chain_idx, chain] : pdb_model.chains) {
       chain_indices.clear();
       for (int idx = 0; idx < st->num_res; ++idx)
         if (st->chain_idx[idx] == chain_idx)
@@ -448,7 +448,7 @@ void make_report::emit_pdb() const {
     auto cols_str = ss.str();
 
     int row_idx = 0;
-    for (auto const &[chain_id, chain] : pdb_model.chains) {
+    for (auto const &[chain_idx, chain] : pdb_model.chains) {
       for (auto const &rem : records::remark::create(1, cols_str))
         pdb_of << '\n' << rem.write();
 
@@ -502,6 +502,8 @@ void make_report::add_map_data() const {
 
   cur_div.add<ioxx::sl4::comment>("T = ", st->t);
 
+  static chain_id_seq_ id_seq;
+
   if (nc) {
     cur_div.add<ioxx::sl4::comment>("native contacts");
     auto &num_comment = cur_div.add<ioxx::sl4::comment>("n = ", 0);
@@ -516,13 +518,13 @@ void make_report::add_map_data() const {
 
       //      nc_row["i1"] = cont.i1();
       auto chain1 = st->chain_idx[cont.i1()];
-      nc_row["chain1"] = st->model.chains[chain1]->chain_id;
+      nc_row["chain1"] = st->model.chains[chain1]->chain_idx;
       nc_row["seq1"] = st->seq_idx[cont.i1()] + 1;
       nc_row["res1"] = st->atype[cont.i1()].name();
 
       //      nc_row["i2"] = cont.i2();
       auto chain2 = st->chain_idx[cont.i2()];
-      nc_row["chain2"] = st->model.chains[chain2]->chain_id;
+      nc_row["chain2"] = st->model.chains[chain2]->chain_idx;
       nc_row["seq2"] = st->seq_idx[cont.i2()] + 1;
       nc_row["res2"] = st->atype[cont.i2()].name();
 
@@ -556,13 +558,19 @@ void make_report::add_map_data() const {
 
       //      qa_row["i1"] = cont.i1();
       auto chain1 = st->chain_idx[cont.i1()];
-      qa_row["chain1"] = st->model.chains[chain1]->chain_id;
+      auto chain1_idx = st->model.chains[chain1]->chain_idx;
+      qa_row["chain1_idx"] = chain1_idx;
+      auto const &chain1_id = id_seq[chain1_idx];
+      qa_row["chain1_id"] = chain1_id;
       qa_row["seq1"] = st->seq_idx[cont.i1()] + 1;
       qa_row["res1"] = st->atype[cont.i1()].name();
 
       //      qa_row["i2"] = cont.i2();
       auto chain2 = st->chain_idx[cont.i2()];
-      qa_row["chain2"] = st->model.chains[chain2]->chain_id;
+      auto chain2_idx = st->model.chains[chain2]->chain_idx;
+      qa_row["chain2_idx"] = chain2_idx;
+      auto const &chain2_id = id_seq[chain2_idx];
+      qa_row["chain2_id"] = chain2_id;
       qa_row["seq2"] = st->seq_idx[cont.i2()] + 1;
       qa_row["res2"] = st->atype[cont.i2()].name();
 
@@ -590,13 +598,19 @@ void make_report::add_map_data() const {
 
         //        pid_row["i1"] = bundle.i1();
         auto chain1 = st->chain_idx[bundle.i1()];
-        pid_row["chain1"] = st->model.chains[chain1]->chain_id;
+        auto chain1_idx = st->model.chains[chain1]->chain_idx;
+        pid_row["chain1_idx"] = chain1_idx;
+        auto const &chain1_id = id_seq[chain1_idx];
+        pid_row["chain1_id"] = chain1_id;
         pid_row["seq1"] = st->seq_idx[bundle.i1()] + 1;
         pid_row["res1"] = st->atype[bundle.i1()].name();
 
         //        pid_row["i2"] = bundle.i2();
         auto chain2 = st->chain_idx[bundle.i2()];
-        pid_row["chain2"] = st->model.chains[chain2]->chain_id;
+        auto chain2_idx = st->model.chains[chain2]->chain_idx;
+        pid_row["chain2_idx"] = chain2_idx;
+        auto const &chain2_id = id_seq[chain2_idx];
+        pid_row["chain2_id"] = chain2_id;
         pid_row["seq2"] = st->seq_idx[bundle.i2()] + 1;
         pid_row["res2"] = st->atype[bundle.i2()].name();
 
@@ -619,7 +633,11 @@ void make_report::add_map_data() const {
     auto i1 = st->res_map.at(angle.res1), i2 = st->res_map.at(angle.res2),
          i3 = st->res_map.at(angle.res3);
     row["i1"] = i1;
-    row["chain1"] = st->model.chains[st->chain_idx[i1]]->chain_id;
+    auto chain1 = st->chain_idx[i1];
+    auto chain1_idx = st->model.chains[chain1]->chain_idx;
+    row["chain1_idx"] = chain1_idx;
+    auto const &chain1_id = id_seq[chain1_idx];
+    row["chain1_id"] = chain1_id;
     row["seq1"] = st->seq_idx[i1] + 1;
     row["res1"] = st->atype[i1].name();
     //    row["i2"] = i2;
@@ -640,7 +658,11 @@ void make_report::add_map_data() const {
     auto i1 = st->res_map.at(dih.res1), i2 = st->res_map.at(dih.res2),
          i3 = st->res_map.at(dih.res3), i4 = st->res_map.at(dih.res4);
     row["i1"] = i1;
-    row["chain1"] = st->model.chains[st->chain_idx[i1]]->chain_id;
+    auto chain1 = st->chain_idx[i1];
+    auto chain1_idx = st->model.chains[chain1]->chain_idx;
+    row["chain1_idx"] = chain1_idx;
+    auto const &chain1_id = id_seq[chain1_idx];
+    row["chain1_id"] = chain1_id;
     row["seq1"] = st->seq_idx[i1] + 1;
     row["res1"] = st->atype[i1].name();
     //    row["i2"] = i2;

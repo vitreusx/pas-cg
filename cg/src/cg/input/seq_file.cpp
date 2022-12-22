@@ -23,7 +23,6 @@ void seq_file::load(ioxx::xyaml::node const &node) {
         model.chains.emplace_back(std::make_unique<input::model::chain>());
     xmd_chain->residues.resize(res_codes.size());
     xmd_chain->chain_idx = chain_idx++;
-    xmd_chain->chain_id = id_seq[xmd_chain->chain_idx];
 
     for (size_t idx = 0; idx < res_codes.size(); ++idx) {
       auto res_code = res_codes[idx];

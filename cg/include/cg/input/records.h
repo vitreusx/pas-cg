@@ -22,7 +22,7 @@ public:
   std::string serial;
   std::string atom_name;
   std::string residue_name;
-  char chain_id;
+  std::string chain_id;
   int res_seq_num;
   vec3<double> pos;
 
@@ -35,7 +35,7 @@ class ssbond {
 public:
   std::string serial;
   struct {
-    char chain_id;
+    std::string chain_id;
     int res_seq_num;
   } res[2];
   double length;
@@ -50,7 +50,7 @@ public:
   struct {
     std::string atom_name;
     std::string res_name;
-    char chain_id;
+    std::string chain_id;
     int res_seq_num;
   } res[2];
   double length;
@@ -76,7 +76,7 @@ class ter {
 public:
   std::string serial;
   std::string res_name;
-  char chain_id;
+  std::string chain_id;
   int res_seq_num;
 
 public:
@@ -115,11 +115,13 @@ public:
   static std::optional<record> try_parse(std::string const &line);
   std::string write() const;
 
-  template <typename Record> Record *cast() {
+  template <typename Record>
+  Record *cast() {
     return std::get_if<Record>(&rec);
   }
 
-  template <typename Record> Record const *cast() const {
+  template <typename Record>
+  Record const *cast() const {
     return std::get_if<Record>(&rec);
   }
 

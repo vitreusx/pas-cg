@@ -16,11 +16,11 @@ void legacy_update::omp_async() const {
 
 #pragma omp barrier
 
-  int num_pairs = idxes.size() * idxes.size();
+  uint64_t num_pairs = (uint64_t)idxes.size() * (uint64_t)idxes.size();
 
 #pragma omp for schedule(static) nowait
-  for (int flat = 0; flat < num_pairs; ++flat) {
-    int i1 = flat / idxes.size(), i2 = flat % idxes.size();
+  for (uint64_t flat = 0; flat < num_pairs; ++flat) {
+    int i1 = (int)(flat / idxes.size()), i2 = (int)(flat % idxes.size());
     if (i1 >= i2)
       continue;
 

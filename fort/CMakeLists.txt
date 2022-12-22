@@ -18,7 +18,7 @@ foreach (target cg_pho5 cg_pho6)
 
     target_compile_options(${target}
         PRIVATE
-        -std=legacy;-mcmodel=large
+        -std=legacy;-mcmodel=large;
         $<$<CONFIG:Debug>:-g>
         $<$<CONFIG:Release>:-Ofast;-march=native>)
 
