@@ -201,7 +201,6 @@ void eval_forces::fast_iter(int idx) const {
   //  if (i1p < 0 || i1n < 0 || i2p < 0 || i2n < 0)
   //    return;
   auto i1p = i1 - 1, i1n = i1 + 1, i2p = i2 - 1, i2n = i2 + 1;
-  auto n = r.size();
 
   lambda const *bb_lam_1, *bb_lam_2;
   sink_lj const *bb_lj;
@@ -573,7 +572,6 @@ void eval_forces::fast_vect_iter(int lane_idx) const {
 
   using mask_t = vect::lane<bool, N, W>;
   using reals = vect::lane<real, N, W>;
-  using vec3rs = vect::lane<vec3r, N, W>;
 
   auto bundle = bundles->template at_lane<N, W>(lane_idx);
 
@@ -591,10 +589,6 @@ void eval_forces::fast_vect_iter(int lane_idx) const {
   vect::lane<vec3r, N, W> dpsi2_dr2p, dpsi2_dr2, dpsi2_dr2n, dpsi2_dr1;
 
   vect::lane<int, N, W> i1p = i1 - 1, i1n = i1 + 1, i2p = i2 - 1, i2n = i2 + 1;
-
-  auto n = r.size();
-  auto val_i1p = (i1p >= 0), val_i1n = (i1n < n), val_i2p = (i2p >= 0),
-       val_i2n = (i2n < n);
 
   //  auto r_i1p = r[std::make_pair(i1p, val_i1p)],
   //       r_i1n = r[std::make_pair(i1n, val_i1n)],
@@ -786,7 +780,7 @@ void eval_forces::fast_version_t::divide(
     std::vector<const simul::task *> &subtasks, int size_hint) {
   static constexpr auto V = eval_forces::elems_per_vect;
   auto fast_n = *super->fast_iter_end, fast_vect_n = fast_n / V;
-  auto n = super->size(), vect_n = n / V;
+  auto n = super->size();
   int vect_size_hint = size_hint / V;
 
   for (int vfrom = 0; vfrom < fast_vect_n; vfrom += vect_size_hint) {
@@ -800,12 +794,6 @@ void eval_forces::fast_version_t::divide(
   }
 
   for (auto &slice_ : fast_vect_slices)
-    subtasks.push_back(&slice_);
-
-  for (auto &slice_ : vect_slices)
-    subtasks.push_back(&slice_);
-
-  for (auto &slice_ : fast_slices)
     subtasks.push_back(&slice_);
 
   for (auto &slice_ : slices)

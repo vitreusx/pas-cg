@@ -6,7 +6,7 @@ namespace cg::heur_ang {
 class eval_forces : public simul::iter_divisible_mixin<eval_forces> {
 public:
   static constexpr int POLY_DEG = 6, NUM_TYPES = 9;
-  real poly_coeffs[POLY_DEG + 1][NUM_TYPES];
+  solver_real poly_coeffs[POLY_DEG + 1][NUM_TYPES];
 
 public:
   vect::const_view<vec3r> r;

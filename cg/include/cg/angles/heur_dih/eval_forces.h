@@ -6,12 +6,12 @@ namespace cg::heur_dih {
 class eval_forces : public simul::iter_divisible_mixin<eval_forces> {
 public:
   struct coeffs_t {
-    real const_[aa_heur_pair::NUM_TYPES];
-    real sin[aa_heur_pair::NUM_TYPES];
-    real cos[aa_heur_pair::NUM_TYPES];
-    real sin2[aa_heur_pair::NUM_TYPES];
-    real cos2[aa_heur_pair::NUM_TYPES];
-    real sin_cos[aa_heur_pair::NUM_TYPES];
+    solver_real const_[aa_heur_pair::NUM_TYPES];
+    solver_real sin[aa_heur_pair::NUM_TYPES];
+    solver_real cos[aa_heur_pair::NUM_TYPES];
+    solver_real sin2[aa_heur_pair::NUM_TYPES];
+    solver_real cos2[aa_heur_pair::NUM_TYPES];
+    solver_real sin_cos[aa_heur_pair::NUM_TYPES];
   };
   coeffs_t coeffs;
 

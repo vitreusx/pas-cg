@@ -14,24 +14,25 @@ void eval_forces::iter(int idx) const {
   auto x23_12_rn = norm_inv(x23_12), x34_23_rn = norm_inv(x34_23);
   auto x23_12_u = x23_12 * x23_12_rn, x34_23_u = x34_23 * x34_23_rn;
 
-  auto cos_phi = dot(x23_12_u, x34_23_u);
+  solver_real cos_phi = dot(x23_12_u, x34_23_u);
   auto phi = acos(cos_phi);
-  if (-dot(r12, x34_23_u) < 0.0f)
+  if (-dot(r12, x34_23_u) < (real)0.0)
     phi = -phi;
   auto sin_phi = sin(phi);
 
   auto sin2_phi = sin_phi * sin_phi, cos2_phi = cos_phi * cos_phi,
        sin_phi_cos_phi = sin_phi * cos_phi;
 
-  auto V_ = coeffs.const_[type_val] + coeffs.sin[type_val] * sin_phi +
+  real V_ = coeffs.const_[type_val] + coeffs.sin[type_val] * sin_phi +
             coeffs.cos[type_val] * cos_phi + coeffs.sin2[type_val] * sin2_phi +
             coeffs.cos2[type_val] * cos2_phi +
             coeffs.sin_cos[type_val] * sin_phi_cos_phi;
   *V += V_;
 
-  auto dV_dphi =
+  real dV_dphi =
       coeffs.sin[type_val] * cos_phi - coeffs.cos[type_val] * sin_phi +
-      2.0f * (coeffs.sin2[type_val] - coeffs.cos2[type_val]) * sin_phi_cos_phi +
+      (solver_real)2.0 * (coeffs.sin2[type_val] - coeffs.cos2[type_val]) *
+          sin_phi_cos_phi +
       coeffs.sin_cos[type_val] * (cos2_phi - sin2_phi);
 
   auto r23_n = norm(r23);

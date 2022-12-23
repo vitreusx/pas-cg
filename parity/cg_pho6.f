@@ -8321,7 +8321,7 @@ C THIS SUBROUTINE RETURN THE DIHEDRAL ANGLE AT THE THIRD SITE
 
         subroutine dump_raw_data(epot,kb,itraj)
         implicit double precision(a-h,o-z)
-        parameter(len=10000)
+        parameter(len=35000)
         character rstfile*64,stafile*32,filname*32
         logical l3rdcn(len),lwal
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)

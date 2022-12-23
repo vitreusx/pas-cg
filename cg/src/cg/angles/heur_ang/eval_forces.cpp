@@ -21,21 +21,41 @@ void eval_forces::iter(int idx) const {
   cos_theta = clamp(cos_theta, (real)-1.0, (real)1.0);
   if (cos_theta == (real)0.0)
     dtheta_dr1 = dtheta_dr2 = dtheta_dr3 = vec3r::Zero();
-  auto theta = acos(cos_theta);
+  auto theta = acos((solver_real)cos_theta);
 
-  auto theta2 = theta * theta, theta3 = theta2 * theta, theta4 = theta3 * theta,
-       theta5 = theta4 * theta, theta6 = theta3 * theta3;
-  auto angle_V =
-      poly_coeffs[0][type_val] + poly_coeffs[1][type_val] * theta +
-      poly_coeffs[2][type_val] * theta2 + poly_coeffs[3][type_val] * theta3 +
-      poly_coeffs[4][type_val] * theta4 + poly_coeffs[5][type_val] * theta5 +
-      poly_coeffs[6][type_val] * theta6;
-  auto dV_dtheta = poly_coeffs[1][type_val] +
-                   (2.0 * poly_coeffs[2][type_val]) * theta +
-                   (3.0 * poly_coeffs[3][type_val]) * theta2 +
-                   (4.0 * poly_coeffs[4][type_val]) * theta3 +
-                   (5.0 * poly_coeffs[5][type_val]) * theta4 +
-                   (6.0 * poly_coeffs[6][type_val]) * theta5;
+  //  auto theta2 = theta * theta, theta3 = theta2 * theta, theta4 = theta3 *
+  //  theta,
+  //       theta5 = theta4 * theta, theta6 = theta3 * theta3;
+  //  auto angle_V =
+  //      poly_coeffs[0][type_val] + poly_coeffs[1][type_val] * theta +
+  //      poly_coeffs[2][type_val] * theta2 + poly_coeffs[3][type_val] * theta3
+  //      + poly_coeffs[4][type_val] * theta4 + poly_coeffs[5][type_val] *
+  //      theta5 + poly_coeffs[6][type_val] * theta6;
+  //  auto dV_dtheta = poly_coeffs[1][type_val] +
+  //                   (2.0 * poly_coeffs[2][type_val]) * theta +
+  //                   (3.0 * poly_coeffs[3][type_val]) * theta2 +
+  //                   (4.0 * poly_coeffs[4][type_val]) * theta3 +
+  //                   (5.0 * poly_coeffs[5][type_val]) * theta4 +
+  //                   (6.0 * poly_coeffs[6][type_val]) * theta5;
+
+  auto c0 = poly_coeffs[0][type_val], c1 = poly_coeffs[1][type_val],
+       c2 = poly_coeffs[2][type_val], c3 = poly_coeffs[3][type_val],
+       c4 = poly_coeffs[4][type_val], c5 = poly_coeffs[5][type_val],
+       c6 = poly_coeffs[6][type_val];
+
+  real angle_V =
+      c0 +
+      theta *
+          (c1 +
+           theta *
+               (c2 + theta * (c3 + theta * (c4 + theta * (c5 + theta * c6)))));
+
+  real dV_dtheta =
+      c1 + theta * ((real)2.0 * c2 +
+                    theta * ((real)3.0 * c3 +
+                             theta * ((real)4.0 * c4 +
+                                      theta * ((real)5.0 * c5 +
+                                               theta * (real)6.0 * c6))));
 
   *V += angle_V;
 

@@ -1,7 +1,9 @@
-option(USE_OMP "Use OpenMP" ON)
-option(SINGLE_FILE "Concatenate all source files" OFF)
-option(USE_MIXED_PRECISION "Use floats for computing the forces and doubles for integration, instead of using doubles throughout" OFF)
-option(USE_VECTORIZED_IMPLS "Use vectorized implementations of the algorithms" ON)
+option(LEGACY_MODE "Keep the results as close to Fortran version(s)
+as possible." OFF)
+
+option(MIXED_PRECISION "Whether to use floats for computing the
+forces and doubles for integration, instead of using doubles
+throughout." OFF)
 
 function(message)
     if (NOT MESSAGE_QUIET)
@@ -23,35 +25,15 @@ add_custom_target(defaults ALL
 
 add_dependencies(cg defaults)
 
-if (SINGLE_FILE)
-    file(GLOB_RECURSE SourceFiles CONFIGURE_DEPENDS
-        src/*.cpp)
+file(GLOB_RECURSE PrivateSources CONFIGURE_DEPENDS
+    src/*.cpp src/*.hpp src/*.h src/*.inl)
 
-    add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/.fused.cpp
-        COMMAND awk '{print}' ${SourceFiles} >.fused.cpp
-        DEPENDS ${SourceFiles}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    )
+file(GLOB_RECURSE PublicSources CONFIGURE_DEPENDS
+    include/*.hpp include/*.h include/*.inl)
 
-    add_custom_target(fused_sources
-        DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/.fused.cpp)
-
-    add_dependencies(cg fused_sources)
-
-    target_sources(cg
-        PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/.fused.cpp)
-else ()
-    file(GLOB_RECURSE PrivateSources CONFIGURE_DEPENDS
-        src/*.cpp src/*.hpp src/*.h src/*.inl)
-
-    file(GLOB_RECURSE PublicSources CONFIGURE_DEPENDS
-        include/*.hpp include/*.h include/*.inl)
-
-    target_sources(cg
-        PRIVATE ${PrivateSources}
-        PUBLIC ${PublicSources})
-endif ()
+target_sources(cg
+    PRIVATE ${PrivateSources}
+    PUBLIC ${PublicSources})
 
 target_compile_features(cg
     PUBLIC cxx_std_17)
@@ -66,10 +48,9 @@ target_include_directories(cg
 
 target_compile_definitions(cg
     PRIVATE
-    COMPAT_MODE
-    $<$<NOT:$<CONFIG:Debug>>:NDEBUG>
-    USE_MIXED_PRECISION=$<BOOL:${USE_MIXED_PRECISION}>
-    USE_VECTORIZED_IMPLS=$<BOOL:${USE_VECTORIZED_IMPLS}>)
+    LEGACY_MODE=$<BOOL:${LEGACY_MODE}>;
+    $<$<NOT:$<CONFIG:Debug>>:NDEBUG>;
+    MIXED_PRECISION=$<BOOL:${MIXED_PRECISION}>;)
 
 add_subdirectory(ext/cparse EXCLUDE_FROM_ALL)
 add_subdirectory(ext/boost EXCLUDE_FROM_ALL)
@@ -85,10 +66,8 @@ if (NOT "${Eigen3_FOUND}")
     unset(MESSAGE_QUIET)
 endif ()
 
-if (${USE_OMP})
-    find_package(OpenMP REQUIRED)
-    target_link_libraries(cg PRIVATE OpenMP::OpenMP_CXX)
-endif ()
+find_package(OpenMP REQUIRED)
+target_link_libraries(cg PRIVATE OpenMP::OpenMP_CXX)
 
 target_link_libraries(cg
     PUBLIC vcl yaml-cpp cparse Boost_ Eigen3::Eigen)

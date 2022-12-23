@@ -42,21 +42,15 @@ def make_parser():
         help="compiler choice"
     )
     cxx.add_argument(
-        "--single-file",
-        default=False,
-        help="whether to compile the program as a single object file, instead of "
-             "separately compiling each source file and linking them",
-    )
-    cxx.add_argument(
         "--mixed-precision",
         default=False,
-        help="whether to  use floats for computing the forces and doubles for integration,"
+        help="whether to use floats for computing the forces and doubles for integration,"
              "instead of using doubles throughout",
     )
     cxx.add_argument(
-        "--vectorized-impls",
+        "--legacy-mode",
         default=True,
-        help="whether to use vectorized implementations of the algorithms",
+        help="keep the results as close to Fortran version(s) as possible",
     )
 
     cxx.add_argument("-f", "--output-file",
@@ -160,9 +154,8 @@ def build_cxx(args):
     cmd += [f"-DCMAKE_BUILD_TYPE={build_type}"]
 
     cmd += [
-        f"-DSINGLE_FILE={to_bool(args.single_file)}",
-        f"-DUSE_MIXED_PRECISION={to_bool(args.mixed_precision)}",
-        f"-DUSE_VECTORIZED_IMPLS={to_bool(args.vectorized_impls)}"
+        f"-DMIXED_PRECISION={to_bool(args.mixed_precision)}",
+        f"-DLEGACY_MODE={to_bool(args.legacy_mode)}",
     ]
 
     execute(cmd)

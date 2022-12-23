@@ -550,8 +550,11 @@ void thread::post_eval_async() {
 #pragma omp barrier
 
   if (st->lang_enabled) {
-    //    lang_step.omp_async();
+#if LEGACY_MODE
+    lang_step.omp_async();
+#else
     lang_fast_step.omp_async();
+#endif
   }
 
   ++loop_idx;

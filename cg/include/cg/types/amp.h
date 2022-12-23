@@ -4,7 +4,7 @@
 #include <cstddef>
 
 namespace cg {
-#if USE_MIXED_PRECISION
+#if MIXED_PRECISION
 using real = float;
 #else
 using real = double;

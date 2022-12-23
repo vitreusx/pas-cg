@@ -3,7 +3,7 @@ c       The i,i+2 contacts purely repulsive
         program cg
         implicit double precision(a-h,o-z)
 
-        parameter(len=90000) !maximum number of all residues together
+        parameter(len=100000) !maximum number of all residues together
         character aseq*3,pdbfile*40,outfile*40,savfile*40,state*2,buf1*4
         character rstfile*64,seqfile*40,arg*40,stafile*32,filname*32
         character buffer*128,buf2*4,paramfile*40,mapfile*40,cmapf*40
@@ -2411,7 +2411,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         ! USE FIFTH-ORDER TAYLOR SERIES TO PREDICT POSITIONS & THEIR
         ! DERIVATIVES AT NEXT TIME-STEP
 
-        parameter(len=90000)
+        parameter(len=100000)
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/vel/x1(len),y1(len),z1(len)
         common/der/x2(len),y2(len),z2(len),x3(len),y3(len),z3(len)
@@ -2451,7 +2451,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
         ! CORRECT PREDICTED POSITIONS AND THEIR DERIVATIVES
 
-        parameter(len=90000)
+        parameter(len=100000)
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/vel/x1(len),y1(len),z1(len)
         common/der/x2(len),y2(len),z2(len),x3(len),y3(len),z3(len)
@@ -2495,7 +2495,7 @@ C   THIS SUBROUTINE PREPARES VARIABLES FOR COMPUTING ENERGY AND FORCE
 
         subroutine prepare(epot,elj,ec)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
         common/cmapi/cntfct,imap(len*50),icn,intrhc,intrsc,intehc,intesc
         common/sdch/icnt(6),ksdchn(21,4),ksdchns(len),khbful(4,len)
@@ -2575,7 +2575,7 @@ C  THIS SUBROUTINE COMPUTE THE ENERGY AND FORCE OF THE WALL INTERACTIONS
 
         subroutine evalwall(epot)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         logical lconftm,lwal,lwals,ldens,lcpot,ljwal
         logical lpbcx,lpbcy,lpbcz,lwalup,lwaldown,lsqpbc,lfcc
         common/sig/sigma1(500),sigma0,sont(len*99),cut,rcut,rcutsq,cutsq
@@ -2690,7 +2690,7 @@ C   THIS SUBROUTINE COMPUTE THE ENERGY AND FORCE OF THE CUSTOM POTENTIAL
 
         subroutine evalcpot(epot,elj,ec)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         character aseq*3
         logical lconftm,lwal,lwals,ldens,lcpot,lelectr,ljwal,lecperm
         logical lsimpang,lfrompdb(len),lconect(len),l3rdcn(len),lsim
@@ -3137,7 +3137,7 @@ C   THIS SUBROUTINE COMPUTES THE ENERGY AND FORCE OF THE PID MODEL
 
         subroutine evalimproper(epot,lcospid,epsbb,elj,ec)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         character aseq*3
         logical lconftm,lwal,lwals,ldens,lcpot,lelectr,ljwal,lmj,lecperm
         logical lsimpang,lfrompdb(len),lconect(len),l3rdcn(len),lsim,lss
@@ -3473,7 +3473,7 @@ C   THIS SUBROUTINE COMPUTES THE ENERGY AND FORCE OF THE GO MODEL
 
         subroutine evalgo(epot,chi,elj,ec)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         character aseq*3
         logical lconftm,lwal,lwals,ldens,lcpot,lelectr,ljwal,lecperm,ltr
         logical lsimpang,lfrompdb(len),lconect(len),l3rdcn(len),lcstcoul
@@ -3884,7 +3884,7 @@ C  ASSIGN INITIAL VELOCITIES TO ATOMS
 
         subroutine intvel3d(aheat,part,nen1)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         common/vel/x1(len),y1(len),z1(len)
         common/der/x2(len),y2(len),z2(len),x3(len),y3(len),z3(len)
         common/der2/x4(len),y4(len),z4(len),x5(len),y5(len),z5(len)
@@ -3942,7 +3942,7 @@ C  THE LANGEVIN NOISE
 
         subroutine lang(twopi,gamma2,const2,nen1)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         common/vel/x1(len),y1(len),z1(len)
         common/for/fx(len),fy(len),fz(len),xsep,ysep,zsep,xinv,yinv,zinv
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
@@ -3981,7 +3981,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  THE LANGEVIN NOISE WHICH TAKES INTO ACCOUNT THE MASSES OF A.A.
         subroutine lang_mass(twopi,gamma2,const2,nen1)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         common/vel/x1(len),y1(len),z1(len)
         common/for/fx(len),fy(len),fz(len),xsep,ysep,zsep,xinv,yinv,zinv
         common/mass/rmas(len),rsqmas(len)
@@ -4015,7 +4015,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C    THIS SUBROUTINE MAKES FCC BEADS
         subroutine make_fcc()
         implicit double precision (a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
         common/respul/z0temp(len),ksorted(len),ip1,ip2,ipwn,ipw(2,len)
@@ -4052,7 +4052,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C    THIS SUBROUTINE CONNECTS BEADS TO THE WALL INSTANTENOUSLY
         subroutine connect_to_wal()
         implicit double precision (a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
         common/respul/z0temp(len),ksorted(len),ip1,ip2,ipwn,ipw(2,len)
@@ -4096,7 +4096,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C    THIS SUBROUTINE CONNECTS BEADS TO THE WALL ONE BY ONE
         subroutine connect_to_wal_one_by_one()
         implicit double precision (a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
         common/respul/z0temp(len),ksorted(len),ip1,ip2,ipwn,ipw(2,len)
@@ -4138,7 +4138,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
         subroutine displace(iprota,jprotb,away)
         implicit double precision(a-h,o-z)
-        parameter(len=90000) !maximum number of all residues together
+        parameter(len=100000) !maximum number of all residues together
         logical lconect(len)
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/bon/bond,b(len-1),lconect,menchain(len),nchains,lii4,lcpb
@@ -4239,7 +4239,7 @@ C    THIS SUBROUTINE UPDATES VERLET LIST
 
         subroutine update_verlet_list(verlcut,nen1)
         implicit double precision (a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         logical loverlap,lconect(len),lsamechain,lxov,lyov,lzov,lendchn
         logical lconftm,lcpot,lsim,lmrs,l3rdcn(len),lii4,lwal
         logical lpbcx,lpbcy,lpbcz,lpid,lfcc,lcintr,lepid
@@ -4490,7 +4490,7 @@ C    THIS SUBROUTINE GENERATE THE STARTING CONFIGURATION
 
         subroutine confstart(sdens,confcut)
         implicit double precision (a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         logical lwal,lwals,ldens,lsim,lconect(len),lcpb
         common/for/fx(len),fy(len),fz(len),xsep,ysep,zsep,xinv,yinv,zinv
         common/plates/zdown,zup,zuforce,zdforce,fwal,xup,xdown,yup,ydown
@@ -4638,7 +4638,7 @@ C THIS SUBROUTINE COMPUTES THE RADIUS OF GYRATION
 
         subroutine gyration(rg)
         implicit double precision (a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/plates/zdown,zup,zuforce,zdforce,fwal,xup,xdown,yup,ydown
         common/masscenter/xcm,ycm,zcm,xmcm,ymcm,zmcm
@@ -4680,7 +4680,7 @@ C THIS SUBROUTINE COMPUTES THE RADIUS OF GYRATION
 C THIS SUBROUTINE COMPUTES W AND RADIUS OF GYRATION OF INDIVIDUAL CHAINS        
         subroutine cgyration()
         implicit double precision (a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         
         logical lconect(len),lkmt
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
@@ -4763,7 +4763,7 @@ C   THIS SUBROUTINE COMPUTES DETAILS OF INTER-RESIDUE ANGLES
 
         subroutine compute_details(i,j)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         logical lpbcx,lpbcy,lpbcz
         common/sig/sigma1(500),sigma0,sont(len*99),cut,rcut,rcutsq,cutsq
         common/for/fx(len),fy(len),fz(len),xsep,ysep,zsep,xinv,yinv,zinv
@@ -4834,7 +4834,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C   THIS SUBROUTINE COMPUTES SS-BONDS WITHIN GO-MODEL
         subroutine compute_ssbonds()
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         logical l3rdcn(len)
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/cmap/kront,krist(3,len*500),klont,klist(3,len*50),lcintr
@@ -4899,7 +4899,7 @@ C   THIS SUBROUTINE COMPUTES THE NATIVE COUPLINGS WITHIN GO-MODEL
 c   based on cut-off length dnat
         subroutine compute_cmap(dnat,lcdnat)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         logical lpbcx,lpbcy,lpbcz,lconect(len),lcdnat
         common/kier/afx,afy,afz,shear,lshear,lpbcx,lpbcy,lpbcz,kbperiod
         character aseq*3,ares*3,filn*32,bb*2,buffer*128,ch1*1,ch2*1,ch*1
@@ -4953,7 +4953,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C   THIS SUBROUTINE READS THE NATIVE COUPLINGS WITHIN GO-MODEL FROM FILE
         subroutine load_cmap(cmapf)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         character cmapf*32
         logical lfrompdb(len)
         common/cmap/kront,krist(3,len*500),klont,klist(3,len*50),lcintr
@@ -4988,7 +4988,7 @@ C   THIS SUBROUTINE COMPUTES THE NATIVE COUPLINGS WITHIN GO-MODEL
 c   based on all-atom VdW spheres covering
         subroutine compute_contact_map(filename)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         character aseq*3,filename*32,aname*3
         logical lconect(len)
         common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
@@ -5119,7 +5119,7 @@ C THIS SUBROUTINE LOADS THE NATIVE BACKBONE CONFORMATION OF A PROTEIN
 C FROM ITS PDB FILE
         subroutine load_protein(filn,lunwrap)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         logical lconect(len),lfrompdb(len),lsimpang,lpdb,lcoilang,ldynss
         logical l3rdcn(len),lunwrap,lpbcx,lpbcy,lpbcz,lcheck
         character aseq*3,ares*3,filn*32,bb*2,buffer*128,ch1*1,ch2*1,ch*1
@@ -5448,7 +5448,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c LOAD_SEQUENCE loads amino acid sequences to make random configurations
         subroutine load_sequence(filename)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         logical lconect(len),lfrompdb(len),lmap,lsimpang
         common/bon/bond,b(len-1),lconect,menchain(len),nchains,lii4,lcpb
         common/sig/sigma1(500),sigma0,sont(len*99),cut,rcut,rcutsq,cutsq
@@ -5598,7 +5598,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C THIS SUBROUTINE LOADS PARAMETERS FOR NON-SPECIFIC ANGLE POTENTIALS
         subroutine load_paramfile(paramfile)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         logical lfrompdb(len),lsimpang,ldi,lconftm,lcpot,lsim,lradii
         logical lpid,lenetab,lmj
         common/ang/CBA,CDA,CDB,dar,angpot(16,20,20),dihpot(16,20,20),ldi
@@ -5727,7 +5727,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
        subroutine kmt(klewy,kprawy,kbegin,kend)
        implicit double precision(a-h,o-z)
-       parameter(len=90000)
+       parameter(len=100000)
        common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
        dimension xk(kend-kbegin+1)
        dimension yk(kend-kbegin+1)
@@ -5992,7 +5992,7 @@ C THIS SUBROUTINES COMPUTE THE RMSD OF THE C ALPHA BACKBONE TO THE
 C NATIVE BACKBONE TAKEN FROM PDB
         subroutine compute_rmsd(rms)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
         common/nat/xn(len),yn(len),zn(len),enative,ksb(2,len/10),nssb
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
@@ -6011,7 +6011,7 @@ C NATIVE BACKBONE TAKEN FROM PDB
 
       subroutine kabsch(ns,q,q_trg,d)
       implicit double precision(a-h,o-z)
-      parameter(len=90000)
+      parameter(len=100000)
       parameter(nsx=len)
       dimension q(nsx,3),q_trg(nsx,3),qk(nsx,3),qkk(nsx,3)
       dimension r(3,3),s(3,3),u(3,3),a(3,3),b(3,3),c(3,3)
@@ -6370,7 +6370,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C THIS SUBROUTINE PRINTS THE ORIGINAL CONTACT MAP FILE
         subroutine print_cmap(iun,ktime)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         character aseq*3
         logical lfrompdb(len)
         common/cmap/kront,krist(3,len*500),klont,klist(3,len*50),lcintr
@@ -6409,7 +6409,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C THIS SUBROUTINE PRINTS THE CONTACT MAP FILE
         subroutine print_map(iun,ktime)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         character aseq*3
         logical lpbcx,lpbcy,lpbcz,l3rdcn(len)
         logical lfrompdb(len),lconect(len),lchiral,langle,ldet,lwrtang
@@ -6577,7 +6577,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C THIS SUBROUTINE PRINTS THE CHAIN COORDINATES IN PDB FORMAT
         subroutine print_conformation(iun,time,energy,rms)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         character*3 aseq,ares
         character*2 chainid(len)
         logical lwal,lwals,ldens,lsim,lconect(len),l3rdcn(len),lposcrd
@@ -6705,7 +6705,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C THIS SUBROUTINE PRINTS THE CHAIN COORDINATES IN XYZ FORMAT
         subroutine print_conf_xyz(iun,time,energy,rms)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         character*3 aseq,ares
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
@@ -6725,7 +6725,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C THIS SUBROUTINE PRINTS THE RESTART FILE
         subroutine print_restart(kb,itraj)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         character rstfile*64,stafile*32,filname*32
         logical l3rdcn(len),lwal
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
@@ -6772,7 +6772,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C THIS SUBROUTINE APPLIES THE CONSTANT AFM FORCE TO THE PROTEIN
         subroutine afm(aforce,epot)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/for/fx(len),fy(len),fz(len),xsep,ysep,zsep,xinv,yinv,zinv
         common/nat/xn(len),yn(len),zn(len),enative,ksb(2,len/10),nssb
@@ -6816,7 +6816,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C IMPLEMENTATION OF THE CONSTANT VELOCITY OF ONE END
         subroutine vafm(fresist,fresistperp,epot)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         logical lwal,ldens,lshear,lobo,ljwal,lfcc,lpbcx,lpbcy,lpbcz
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
         common/for/fx(len),fy(len),fz(len),xsep,ysep,zsep,xinv,yinv,zinv
@@ -7041,7 +7041,7 @@ C THIS SUBROUTINE CONNECTS THE DOMAINS FOR THE TITIN
         subroutine build_titin(ndomain)
         implicit double precision(a-h,o-z)
 
-        parameter(len=90000)
+        parameter(len=100000)
         logical lconect(len)
         character aseq*3,pdbfile*32
         common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
@@ -7102,7 +7102,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C THIS SUBROUTINE DISALLOWS CONTACTS BETWEEN DOMAINS
         subroutine interdomain(ndomain)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         character aseq*3
         common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         common/sig/sigma1(500),sigma0,sont(len*99),cut,rcut,rcutsq,cutsq
@@ -7139,7 +7139,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C THIS SUBROUTINE READS THE MASSES OF AMINO ACIDS
         subroutine amino_acid_mass
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         character aseq*3,ares*3
         common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         common/mass/rmas(len),rsqmas(len)
@@ -7213,7 +7213,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
         subroutine model_chirality
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         logical lfrompdb(len),lconect(len),lchiral,langle,lsimpang
         character aseq*3
         common/bon/bond,b(len-1),lconect,menchain(len),nchains,lii4,lcpb
@@ -7258,7 +7258,7 @@ C THIS SUBROUTINE COMPUTES THE ENERGY AND FORCE GIVEN BY THE
 C CHIRALITY POTENTIALS
         subroutine eval_chirality(enechi)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         logical lconect(len),lchiral,langle
         common/bon/bond,b(len-1),lconect,menchain(len),nchains,lii4,lcpb
         common/nat/xn(len),yn(len),zn(len),enative,ksb(2,len/10),nssb
@@ -7347,7 +7347,7 @@ C FROM ITS PDB FILE AND THEN CALCULATES THE TORSION ANGLES OF THE
 C NATIVE STATE
         subroutine load_allatom(filename)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         character aseq*3,ares*3,filename*32,bb*3,buffer*128,bbo*3
         common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         character aname*3
@@ -7401,7 +7401,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
         subroutine assign_VdW_radius
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         character aseq*3,ares*3,ana*3,filename*32,bb*3,buffer*128
         common/sequence/iseq(len),inameseq(len),aseq(len),elecutsq
         character aname*3
@@ -7599,7 +7599,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
         subroutine gopotential(asigma)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         logical lconect(len),lpbcx,lpbcy,lpbcz
         common/sig/sigma1(500),sigma0,sont(len*99),cut,rcut,rcutsq,cutsq
         common/cmap/kront,krist(3,len*500),klont,klist(3,len*50),lcintr
@@ -7679,7 +7679,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
         subroutine compute_native_angles
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         logical lfrompdb(len),lsimpang
         common/nat/xn(len),yn(len),zn(len),enative,ksb(2,len/10),nssb
         common/four/rx(4),ry(4),rz(4)
@@ -7715,7 +7715,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
         subroutine angeval(epot)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         logical lconect(len),lfrompdb(len),lsimpang,langle,ldi,ldisimp
         character*3 aseq,ares
         common/bon/bond,b(len-1),lconect,menchain(len),nchains,lii4,lcpb
@@ -7917,7 +7917,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
         subroutine countpid(i,j,phi)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         logical lconect(len),lene
         common/bon/bond,b(len-1),lconect,menchain(len),nchains,lii4,lcpb
         common/pos/x0(len),y0(len),z0(len),v(6,len),vxv(6,len),vnrm(len)
@@ -7996,7 +7996,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
         subroutine evalangles(epot,lsldh,cofdih)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         logical lconect(len),lfrompdb(len),lsimpang,langle,ldi,ldisimp
         logical lenetab,lcoildih,lsldh
         character*3 aseq,ares
@@ -8238,7 +8238,7 @@ c ux1=x0(ib)-x0(ib-1)
 c ux2=x0(ib)-x0(ib+1)
         subroutine bondangle(theta)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         common/four/rx(4),ry(4),rz(4)
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
 
@@ -8266,7 +8266,7 @@ C THIS SUBROUTINE RETURN THE DIHEDRAL ANGLE AT THE THIRD SITE
 
         subroutine dihedral(phi)
         implicit double precision(a-h,o-z)
-        parameter(len=90000)
+        parameter(len=100000)
         common/four/rx(4),ry(4),rz(4)
         common/bas/unit,men,lsqpbc,lpdb,lwritemap,lradii,lsink,lkmt,lfcc
 

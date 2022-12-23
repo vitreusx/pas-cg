@@ -1,4 +1,0 @@
-#!/usr/bin/sh
-module load plgrid/tools/cmake/3.22.1
-module load plgrid/tools/gcc/9.3.0
-module load plgrid/tools/openmpi/4.1.4-gcc-9.3.0-ucx-1.12.1

@@ -1,9 +1,15 @@
 #pragma once
 
-#ifndef USE_MIXED_PRECISION
-#define USE_MIXED_PRECISION false
+#undef MIXED_PRECISION
+#define MIXED_PRECISION true
+
+#undef LEGACY_MODE
+#define LEGACY_MODE true
+
+#ifndef MIXED_PRECISION
+#define MIXED_PRECISION false
 #endif
 
-#ifndef USE_VECTORIZED_IMPLS
-#define USE_VECTORIZED_IMPLS true
+#ifndef LEGACY_MODE
+#define LEGACY_MODE false
 #endif
