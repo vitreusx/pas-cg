@@ -39,4 +39,9 @@ void proxy_masked_scatter(Lane const &data, T *dst, Idxes const &idxes,
                           Mask const &mask) {
   vcl_masked_scatter(data, reinterpret_cast<repr_t<T> *>(dst), idxes, mask);
 }
+
+template <typename Lane, typename T, typename Idx>
+Lane proxy_lookup(T const *src, Idx const *idxes) {
+  return vcl_lookup<Lane>(reinterpret_cast<repr_t<T> const *>(src), idxes);
+}
 } // namespace nitro::def

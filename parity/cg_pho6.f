@@ -8331,7 +8331,7 @@ C THIS SUBROUTINE RETURN THE DIHEDRAL ANGLE AT THE THIRD SITE
         common/restart/delta,work,sep0,rstfile,stafile,filname,klenstr
         common/plates/zdown,zup,zuforce,zdforce,fwal,xup,xdown,yup,ydown
         common/ssb/knct3rd(len),l3rdcn,disul,dmrs,amrs,rmrs,lmrs,ldynss
-        common/ssb2/dislj,icnss,icdss,sigss,lsselj,lrepcoul,lepid
+        common/ssb2/dislj,icnss,icdss,sigss,elecut,lsselj,lcstcoul,lepid
         common/respul/z0temp(len),ksorted(len),ip1,ip2,ipwn,ipw(2,len)
         common/pull/xpul(len),ypul(len),zpul(len),vpulx,vpuly,vpulz,cofp
         common/kier/afx,afy,afz,shear,lshear,lpbcx,lpbcy,lpbcz,kbperiod

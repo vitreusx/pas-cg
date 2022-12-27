@@ -1,11 +1,11 @@
 #!/usr/bin/sh
 
 CG_EXEC="$1"
-CG_ARGS="${@:2}"
+CG_ARGS=("${@:2}")
 
 LD_PRELOAD="libprofiler.so" \
 CPUPROFILE=cg.prof \
 TSAN_OPTIONS='ignore_noninstrumented_modules=1' \
-"${CG_EXEC}" "${CG_ARGS}"
+"${CG_EXEC}" "${CG_ARGS[@]}"
 
-pprof --callgrind "./cg" cg.prof >cg.callgrind
+pprof --callgrind "${CG_EXEC}" cg.prof >cg.callgrind

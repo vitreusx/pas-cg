@@ -5,7 +5,7 @@
 #include <optional>
 
 namespace cg::const_dh {
-class eval_forces : public simul::iter_divisible_mixin<eval_forces> {
+class eval_forces : public simul::vect_iter_divisible_mixin<eval_forces> {
 public:
   real screen_dist_inv, V_factor, cutoff;
   void set_V_factor(real permittivity);
@@ -20,5 +20,8 @@ public:
 public:
   void iter(int idx) const;
   int size() const;
+
+  static inline constexpr int elems_per_vect = vect::VECT_BYTES / sizeof(real);
+  void vect_iter(int idx) const;
 };
 } // namespace cg::const_dh

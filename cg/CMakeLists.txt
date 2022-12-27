@@ -1,5 +1,5 @@
 option(LEGACY_MODE "Keep the results as close to Fortran version(s)
-as possible." OFF)
+as possible." ON)
 
 option(MIXED_PRECISION "Whether to use floats for computing the
 forces and doubles for integration, instead of using doubles

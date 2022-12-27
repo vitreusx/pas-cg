@@ -514,7 +514,10 @@ Lane vcl_gather(T const *src, Idxes const &idxes) {
   vcl_store(idxes, idxes_);
   return vcl_gather_aux<Lane>(src, idxes_,
                               std::make_index_sequence<lane_size_v<Lane>>{});
-  //  return Lane(lookup<lane_size_v<Lane>>(idxes, src));
+
+  //  static constexpr size_t W = 8 * sizeof(T) * lane_size_v<Idxes>;
+  //  using IdxesForT = vcl_lane<lane_type_t<Idxes>, lane_size_v<Idxes>, W>;
+  //  return Lane(lookup<0xffffffff>((IdxesForT)idxes, src));
 }
 
 template <typename Lane, typename T, typename Idx, typename Mask,
@@ -539,11 +542,11 @@ Lane vcl_masked_gather(T const *src, Idxes const &idxes, Mask const &mask) {
 template <typename Lane, typename T, typename Idxes,
           typename = std::enable_if_t<is_vcl_lane_v<Lane>>>
 void vcl_scatter(Lane const &data, T *dst, Idxes const &idxes) {
-  lane_type_t<Idxes> idxes_[lane_size_v<Idxes>];
-  vcl_store(idxes, idxes_);
-  for (size_t idx = 0; idx < lane_size_v<Lane>; ++idx)
-    dst[idxes_[idx]] = data[idx];
-  //  scatter(idxes, (uint32_t)0xffffffff, data, dst);
+  //  lane_type_t<Idxes> idxes_[lane_size_v<Idxes>];
+  //  vcl_store(idxes, idxes_);
+  //  for (size_t idx = 0; idx < lane_size_v<Lane>; ++idx)
+  //    dst[idxes_[idx]] = data[idx];
+  scatter(idxes, (uint32_t)0xffffffff, data, dst);
 }
 
 template <typename Lane, typename T, typename Idxes, typename Mask,
@@ -557,6 +560,17 @@ void vcl_masked_scatter(Lane const &data, T *dst, Idxes const &idxes,
   for (size_t idx = 0; idx < lane_size_v<Idxes>; ++idx)
     if (mask_[idx])
       dst[idxes_[idx]] = data[idx];
+}
+
+template <typename Lane, typename T, std::size_t N, typename Idx,
+          std::size_t... I>
+Lane vcl_lookup_(T const *src, Idx const *idxes, std::index_sequence<I...>) {
+  return Lane(src[idxes[I]]...);
+}
+
+template <typename Lane, typename T, std::size_t N, typename Idx>
+Lane vcl_lookup(T const *src, Idx const *idxes) {
+  return vcl_lookup_<Lane>(src, idxes, std::make_index_sequence<N>{});
 }
 
 } // namespace nitro::def

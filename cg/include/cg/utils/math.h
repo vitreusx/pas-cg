@@ -1,6 +1,8 @@
 #pragma once
 #include <cg/vect/vect.h>
 #include <cmath>
+#include <vcl/vectormath_exp.h>
+#include <vcl/vectormath_trig.h>
 
 #define C216 1.122462048309373
 #define C216_INV 0.89089871814033927
@@ -24,7 +26,10 @@ auto clamp(T value, T min_value, T max_value) {
 
 template <typename T>
 auto sqrt(T const &x) {
-  return std::sqrt(x);
+  if constexpr (nitro::def::is_vcl_lane_v<T>)
+    return ::sqrt(x);
+  else
+    return std::sqrt(x);
 }
 
 template <typename T>
@@ -82,7 +87,10 @@ auto acos(T const &x) {
 
 template <typename T>
 auto exp(T const &x) {
-  return std::exp(x);
+  if constexpr (nitro::def::is_vcl_lane_v<T>)
+    return ::exp(x);
+  else
+    return std::exp(x);
 }
 
 template <typename T1, typename T2>

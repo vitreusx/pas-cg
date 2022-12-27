@@ -113,4 +113,14 @@ void masked_scatter(Lane const &data, T *dst, Idxes const &idxes,
   //    array_masked_scatter(dst, idxes, mask);
 }
 
+template<typename Lane, typename T, typename Idx>
+Lane lookup(T const *src, Idx const *idxes) {
+  if constexpr (has_repr_v<T>)
+    return proxy_lookup<Lane>(src, idxes);
+  else if constexpr (is_vcl_lane_v<Lane>)
+    return vcl_lookup<Lane>(src, idxes);
+  else
+    return array_lookup<Lane>(src, idxes);
+}
+
 } // namespace nitro::def

@@ -91,6 +91,7 @@ program_args::program_args(int argc, char **argv) {
     case state::CKPT_PATH_VALUE:
       if (!ckpt_path.has_value()) {
         ckpt_path = arg;
+        parser_state = state::OPTION;
       } else {
         error = "Can provide only one checkpoint file.";
         parser_state = state::INVALID;
@@ -98,6 +99,7 @@ program_args::program_args(int argc, char **argv) {
       break;
     case state::SET_VALUE:
       setters.push_back(arg);
+      parser_state = state::OPTION;
       break;
     case state::HELP:
     case state::INVALID:

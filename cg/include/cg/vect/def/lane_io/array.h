@@ -48,4 +48,15 @@ void array_scatter(std::array<T, N> const &data, T *dst, Idxes const &idxes) {
   for (int idx = 0; idx < N; ++idx)
     dst[idxes_[idx]] = data[idx];
 }
+
+template <typename T, std::size_t N, typename Idx, std::size_t... I>
+std::array<T, N> array_lookup_(T const *src, Idx const *idxes,
+                               std::index_sequence<I...>) {
+  return {src[idxes[I]]...};
+}
+
+template <typename T, std::size_t N, typename Idx>
+std::array<T, N> array_lookup(T const *src, Idx const *idxes) {
+  return array_lookup_(src, idxes, std::make_index_sequence<N>{});
+}
 } // namespace nitro::def
