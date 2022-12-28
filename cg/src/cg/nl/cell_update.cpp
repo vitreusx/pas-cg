@@ -1,4 +1,5 @@
 #include <cg/nl/cell_update.h>
+#include <cg/utils/sort.h>
 #include <limits>
 
 namespace cg::nl {
@@ -223,9 +224,12 @@ void cell_update::omp_async() const {
 
 #pragma omp barrier
 
+  sort_omp_async(nl_data->pairs.begin(), nl_data->pairs.end());
+#pragma omp barrier
+
 #pragma omp single nowait
   {
-    std::sort(nl_data->pairs.begin(), nl_data->pairs.end());
+    //    std::sort(nl_data->pairs.begin(), nl_data->pairs.end());
 
     nl_data->orig_pad = pad;
     for (int idx = 0; idx < r.size(); ++idx)

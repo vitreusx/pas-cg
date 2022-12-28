@@ -26,10 +26,10 @@ add_custom_target(defaults ALL
 add_dependencies(cg defaults)
 
 file(GLOB_RECURSE PrivateSources CONFIGURE_DEPENDS
-    src/*.cpp src/*.hpp src/*.h src/*.inl)
+    src/*.cpp src/*.hpp src/*.h src/*.inl src/*.cu src/*.cuh)
 
 file(GLOB_RECURSE PublicSources CONFIGURE_DEPENDS
-    include/*.hpp include/*.h include/*.inl)
+    include/*.hpp include/*.h include/*.inl include/*.cuh)
 
 target_sources(cg
     PRIVATE ${PrivateSources}

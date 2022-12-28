@@ -1,5 +1,5 @@
 #pragma once
-#include "../config.h"
+#include "../cuda_interop.h"
 #include "ind_seq.h"
 #include "type_list.h"
 #include "type_traits.h"

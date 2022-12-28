@@ -1562,31 +1562,30 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="656b964a-4c5f-47da-8edc-427a64a9069a" name="Changes" comment="Added vectorization to const_dh">
-      <change afterPath="$PROJECT_DIR$/cg/include/cg/vect/config.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cg/include/cg/vect/def/cuda_allocator.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cg/include/cg/vect/def/dual_vector.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cg/include/cg/vect/ind/cuda_allocator.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/cg/include/cg/vect/ind/dual_vector.h" afterDir="false" />
+    <list default="true" id="656b964a-4c5f-47da-8edc-427a64a9069a" name="Changes" comment="Added GPU-mirrored vector">
+      <change afterPath="$PROJECT_DIR$/cg/include/cg/cuda/dev_var.cuh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cg/include/cg/cuda/interop.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cg/include/cg/utils/sort.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cg/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cg/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cg/include/cg/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/cg/include/cg/config.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cg/include/cg/vect/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/cg/include/cg/vect/cuda_interop.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cg/include/cg/vect/def/const_view.h" beforeDir="false" afterPath="$PROJECT_DIR$/cg/include/cg/vect/def/const_view.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cg/include/cg/vect/def/vector.h" beforeDir="false" afterPath="$PROJECT_DIR$/cg/include/cg/vect/def/vector.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cg/include/cg/vect/def/cuda_allocator.h" beforeDir="false" afterPath="$PROJECT_DIR$/cg/include/cg/vect/def/cuda_allocator.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cg/include/cg/vect/def/dual_vector.h" beforeDir="false" afterPath="$PROJECT_DIR$/cg/include/cg/vect/def/xvector.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cg/include/cg/vect/def/view.h" beforeDir="false" afterPath="$PROJECT_DIR$/cg/include/cg/vect/def/view.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cg/include/cg/vect/ind/const_view.h" beforeDir="false" afterPath="$PROJECT_DIR$/cg/include/cg/vect/ind/const_view.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cg/include/cg/vect/ind/dual_vector.h" beforeDir="false" afterPath="$PROJECT_DIR$/cg/include/cg/vect/ind/xvector.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cg/include/cg/vect/ind/tuple.h" beforeDir="false" afterPath="$PROJECT_DIR$/cg/include/cg/vect/ind/tuple.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cg/include/cg/vect/ind/view.h" beforeDir="false" afterPath="$PROJECT_DIR$/cg/include/cg/vect/ind/view.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cg/include/cg/vect/vect.h" beforeDir="false" afterPath="$PROJECT_DIR$/cg/include/cg/vect/vect.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cg/src/cg/langevin/step.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cg/src/cg/langevin/step.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cg/src/cg/simul/thread_main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cg/src/cg/simul/thread_main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cg/src/cg/nl/cell_update.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cg/src/cg/nl/cell_update.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cg/src/cg/simul/thread_setup.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cg/src/cg/simul/thread_setup.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Staging" />
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -1712,7 +1711,7 @@
       <recent name="$PROJECT_DIR$/parity" />
     </key>
   </component>
-  <component name="RunManager" selected="CTest Application.Parity Tests">
+  <component name="RunManager" selected="CMake Application.dense_300">
     <configuration name="1ubq" type="CMakeRunConfiguration" factoryName="Application" folderName="cxx" PROGRAM_PARAMS="-p data/1ubq/inputfile.yml" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="pas-cg" TARGET_NAME="cg" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="pas-cg" RUN_TARGET_NAME="cg">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1788,6 +1787,11 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="cg-fort-pho5" type="CMakeRunConfiguration" factoryName="Application" folderName="cxx" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="pas-cg" TARGET_NAME="cg-fort-pho5" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="pas-cg" RUN_TARGET_NAME="cg-fort-pho5">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1838,7 +1842,7 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="dense_300" type="CMakeRunConfiguration" factoryName="Application" folderName="cxx" PROGRAM_PARAMS="-p data/dense_300/inputfile.yml -s &quot;general.num of threads=1&quot;" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="pas-cg" TARGET_NAME="cg" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="pas-cg" RUN_TARGET_NAME="cg">
+    <configuration name="dense_300" type="CMakeRunConfiguration" factoryName="Application" folderName="cxx" PROGRAM_PARAMS="-p data/dense_300/inputfile.yml -s &quot;general.num of threads=4&quot;" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="pas-cg" TARGET_NAME="cg" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="pas-cg" RUN_TARGET_NAME="cg">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -3010,14 +3014,15 @@
       <workItem from="1672176580550" duration="422000" />
       <workItem from="1672177684460" duration="783000" />
       <workItem from="1672222116126" duration="1700000" />
-      <workItem from="1672226676877" duration="35000" />
-    </task>
-    <task id="LOCAL-00150" summary="added comments to default.yml">
-      <created>1660673901164</created>
-      <option name="number" value="00150" />
-      <option name="presentableId" value="LOCAL-00150" />
-      <option name="project" value="LOCAL" />
-      <updated>1660673901166</updated>
+      <workItem from="1672226676877" duration="2791000" />
+      <workItem from="1672232384606" duration="57000" />
+      <workItem from="1672377692677" duration="693000" />
+      <workItem from="1672378600439" duration="33000" />
+      <workItem from="1672400172087" duration="1038000" />
+      <workItem from="1672406341454" duration="599000" />
+      <workItem from="1672408599177" duration="2882000" />
+      <workItem from="1672419727864" duration="2735000" />
+      <workItem from="1672479218323" duration="3555000" />
     </task>
     <task id="LOCAL-00151" summary="added corrected Mateusz' PBC test">
       <created>1660887274131</created>
@@ -3355,7 +3360,14 @@
       <option name="project" value="LOCAL" />
       <updated>1672139044681</updated>
     </task>
-    <option name="localTasksCounter" value="199" />
+    <task id="LOCAL-00199" summary="Added GPU-mirrored vector">
+      <created>1672227097306</created>
+      <option name="number" value="00199" />
+      <option name="presentableId" value="LOCAL-00199" />
+      <option name="project" value="LOCAL" />
+      <updated>1672227097307</updated>
+    </task>
+    <option name="localTasksCounter" value="200" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -3405,7 +3417,6 @@
       <path value="$PROJECT_DIR$/cg/ext/ioxx" />
       <path value="$PROJECT_DIR$/cg/ext/nitro" />
     </ignored-roots>
-    <MESSAGE value="fixed a bug in the build script (II)" />
     <MESSAGE value="fixed a bug in the build script (III)" />
     <MESSAGE value="fixed a bug in the build script (IV)" />
     <MESSAGE value="fixed a bug in the build script (V)" />
@@ -3430,7 +3441,8 @@
     <MESSAGE value="(Actually added the files)" />
     <MESSAGE value="Set up mixed precision properly" />
     <MESSAGE value="Added vectorization to const_dh" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added vectorization to const_dh" />
+    <MESSAGE value="Added GPU-mirrored vector" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added GPU-mirrored vector" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

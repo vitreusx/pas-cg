@@ -1,5 +1,5 @@
 #pragma once
-#include "../config.h"
+#include "../cuda_interop.h"
 #include <cstdint>
 
 namespace nitro::def {

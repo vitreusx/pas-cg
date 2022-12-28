@@ -1,5 +1,5 @@
 #pragma once
-#include "../config.h"
+#include "../cuda_interop.h"
 #include "const_iterator.h"
 #include "lane.h"
 
