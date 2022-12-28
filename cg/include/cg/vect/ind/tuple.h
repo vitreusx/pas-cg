@@ -1,4 +1,5 @@
 #pragma once
+#include "../config.h"
 #include "ind_seq.h"
 #include "type_list.h"
 #include "type_traits.h"
@@ -23,30 +24,31 @@ public:
 template <typename Head, typename... Tail>
 class tuple<Head, Tail...> {
 public:
-  explicit tuple(Head &&head, Tail &&...tail)
+  __host__ __device__ explicit tuple(Head &&head, Tail &&...tail)
       : head{std::forward<Head>(head)}, tail(std::forward<Tail>(tail)...) {}
 
   template <typename U = Head,
             typename = std::enable_if_t<std::conjunction_v<
                 std::is_default_constructible<U>,
                 std::is_default_constructible<tuple<Tail...>>>>>
-  tuple() : head{}, tail{} {}
+  __host__ __device__ tuple() : head{}, tail{} {}
 
   template <typename E, typename = std::enable_if_t<is_indexed_v<E>>>
-  auto &operator=(E const &e) {
+  __host__ __device__ auto &operator=(E const &e) {
     assign<E>(e, e.Idxes());
     return *this;
   }
 
-  tuple(tuple const &) = default;
+  __host__ __device__ tuple(tuple const &) = default;
+  __host__ __device__ tuple(tuple &&) = default;
 
-  auto &operator=(tuple const &other) {
+  __host__ __device__ auto &operator=(tuple const &other) {
     assign<tuple>(other, other.Idxes());
     return *this;
   }
 
   template <std::size_t I>
-  decltype(auto) get() {
+  __host__ __device__ decltype(auto) get() {
     if constexpr (I == 0)
       return (head);
     else
@@ -55,7 +57,7 @@ public:
   }
 
   template <std::size_t I>
-  decltype(auto) get() const {
+  __host__ __device__ decltype(auto) get() const {
     if constexpr (I == 0)
       return (head);
     else
@@ -76,12 +78,12 @@ private:
   tuple<Tail...> tail;
 
   template <typename E, std::size_t I>
-  void assign1(E const &e) {
+  __host__ __device__ void assign1(E const &e) {
     this->get<I>() = e.template get<I>();
   }
 
   template <typename E, std::size_t... _Idxes>
-  void assign(E const &e, ind_seq<_Idxes...>) {
+  __host__ __device__ void assign(E const &e, ind_seq<_Idxes...>) {
     (..., assign1<E, _Idxes>(e));
   }
 };

@@ -1,4 +1,5 @@
 #pragma once
+#include "../config.h"
 #include "const_view.h"
 #include "iterator.h"
 #include "lane_ref.h"
@@ -12,7 +13,7 @@ public:
   view() = default;
   explicit view(T *data, int n) : data{data}, n{n} {};
 
-  T &operator[](int idx) const {
+  __host__ __device__ T &operator[](int idx) const {
     return data[idx];
   }
 
@@ -30,7 +31,7 @@ public:
   }
 
   template <typename Idx>
-  decltype(auto) at(Idx idx) const {
+  __host__ __device__ decltype(auto) at(Idx idx) const {
     return (*this)[idx];
   }
 
@@ -39,7 +40,7 @@ public:
     return lane_ref<T, N, W>(data + N * idx);
   }
 
-  int size() const {
+  __host__ __device__ int size() const {
     return n;
   }
 

@@ -42,7 +42,7 @@ struct _const_view_impl<true, T> {
 
         impl() : tuple<const_view<Types>...>{const_view<Types>()...} {}
 
-        const_ref<T> operator[](int idx) const {
+        __host__ __device__ const_ref<T> operator[](int idx) const {
           return const_ref<T>(this->template get<Idxes>()[idx]...);
         }
 
@@ -61,7 +61,7 @@ struct _const_view_impl<true, T> {
         }
 
         template <typename Idx>
-        decltype(auto) at(Idx idx) const {
+        __host__ __device__ decltype(auto) at(Idx idx) const {
           return (*this)[idx];
         }
 
@@ -71,7 +71,7 @@ struct _const_view_impl<true, T> {
               this->template get<Idxes>().template at_lane<N, W>(idx)...);
         }
 
-        int size() const {
+        __host__ __device__ int size() const {
           return this->template get<0>().size();
         }
 

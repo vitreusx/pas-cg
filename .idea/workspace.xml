@@ -1563,15 +1563,30 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="656b964a-4c5f-47da-8edc-427a64a9069a" name="Changes" comment="Added vectorization to const_dh">
-      <change afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cg/include/cg/vect/config.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cg/include/cg/vect/def/cuda_allocator.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cg/include/cg/vect/def/dual_vector.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cg/include/cg/vect/ind/cuda_allocator.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/cg/include/cg/vect/ind/dual_vector.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cg/include/cg/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/cg/include/cg/config.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cg/include/cg/vect/def/const_view.h" beforeDir="false" afterPath="$PROJECT_DIR$/cg/include/cg/vect/def/const_view.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cg/include/cg/vect/def/vector.h" beforeDir="false" afterPath="$PROJECT_DIR$/cg/include/cg/vect/def/vector.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cg/include/cg/vect/def/view.h" beforeDir="false" afterPath="$PROJECT_DIR$/cg/include/cg/vect/def/view.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cg/include/cg/vect/ind/const_view.h" beforeDir="false" afterPath="$PROJECT_DIR$/cg/include/cg/vect/ind/const_view.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cg/include/cg/vect/ind/tuple.h" beforeDir="false" afterPath="$PROJECT_DIR$/cg/include/cg/vect/ind/tuple.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cg/include/cg/vect/ind/view.h" beforeDir="false" afterPath="$PROJECT_DIR$/cg/include/cg/vect/ind/view.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cg/include/cg/vect/vect.h" beforeDir="false" afterPath="$PROJECT_DIR$/cg/include/cg/vect/vect.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cg/src/cg/langevin/step.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cg/src/cg/langevin/step.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cg/src/cg/simul/thread_main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cg/src/cg/simul/thread_main.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Staging" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
@@ -1671,7 +1686,7 @@
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;ctest.advertisement.all.test.configuration.is.created&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/vitreus/next/code/pid-lite/fort/data/dense_300&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/vitreus/next/code/cuda-forces/cg/data&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -1683,11 +1698,11 @@
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/cg/data" />
       <recent name="$PROJECT_DIR$/fort/data/dense_300" />
       <recent name="$PROJECT_DIR$/fort/data/dense_100" />
       <recent name="$PROJECT_DIR$/cg/data/dense_300" />
       <recent name="$PROJECT_DIR$/cg/data/dense_100" />
-      <recent name="$PROJECT_DIR$/cg/data/TEST_3" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/cg/include/cg/output" />
@@ -1769,11 +1784,6 @@
       </method>
     </configuration>
     <configuration name="[fort]dense_300" type="CMakeRunConfiguration" factoryName="Application" folderName="fort" PROGRAM_PARAMS="inputfile" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$CMakeCurrentBuildDir$/data/dense_300" PASS_PARENT_ENVS_2="true" PROJECT_NAME="pas-cg" TARGET_NAME="cg_pho6" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="pas-cg" RUN_TARGET_NAME="cg_pho6">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -2991,6 +3001,16 @@
       <workItem from="1672122510146" duration="7485000" />
       <workItem from="1672133771773" duration="5386000" />
       <workItem from="1672140732497" duration="632000" />
+      <workItem from="1672144432863" duration="2174000" />
+      <workItem from="1672146668107" duration="326000" />
+      <workItem from="1672147291084" duration="5623000" />
+      <workItem from="1672153755258" duration="1879000" />
+      <workItem from="1672166678653" duration="8405000" />
+      <workItem from="1672175202565" duration="1215000" />
+      <workItem from="1672176580550" duration="422000" />
+      <workItem from="1672177684460" duration="783000" />
+      <workItem from="1672222116126" duration="1700000" />
+      <workItem from="1672226676877" duration="35000" />
     </task>
     <task id="LOCAL-00150" summary="added comments to default.yml">
       <created>1660673901164</created>

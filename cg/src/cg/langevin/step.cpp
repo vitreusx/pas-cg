@@ -29,7 +29,7 @@ void step::omp_async() const {
       y2[idx] = F[idx] * deltsq;
   }
 
-#pragma omp master
+#pragma omp single nowait
   {
     for (int idx = 0; idx < num_particles; ++idx)
       noise[idx].x() = local_gen.normal<real>();
@@ -67,7 +67,7 @@ void step::omp_async() const {
     v[idx] = y1[idx] * dt_inv;
   }
 
-#pragma omp master
+#pragma omp single nowait
   {
     *true_t += dt;
     *t = (real)*true_t;

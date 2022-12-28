@@ -25,7 +25,7 @@ public:
     }
   }
 
-  ~vector() {
+  virtual ~vector() {
     destroy();
   }
 
@@ -229,8 +229,8 @@ public:
     return const_view<T>(data, size());
   }
 
-private:
-  void destroy() {
+protected:
+  virtual void destroy() {
     if (data) {
       if (_size > 0)
         std::destroy_n(data, _size);
