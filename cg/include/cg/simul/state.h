@@ -47,7 +47,7 @@ enum axis {
 class state {
 public:
   state() = default;
-  explicit state(ioxx::xyaml::node const &raw_params);
+  explicit state(parameters const &params, ioxx::xyaml::node const &raw_params);
   void verify_equal(state const &other) const;
 
   YAML::Node raw_params;

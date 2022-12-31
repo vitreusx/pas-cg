@@ -1,9 +1,9 @@
 general:
   total time: 5000 tau
   repulsive cutoff: 5 A
-  num of threads: 2
+  num of threads: 4
   num of trajectories: 1
-  seed: 1
+  seed: 2
   debug mode:
     dump data:
       enabled: true

@@ -19,7 +19,7 @@ void cell_update::omp_async() const {
     *shared_r_max = vec3r(-inf, -inf, -inf);
   };
 
-#pragma omp for schedule(static) nowait
+#pragma omp for schedule(static)
   for (auto idx : idxes) {
     auto r_ = simul_box->wrap((vec3r)r[idx]);
 
