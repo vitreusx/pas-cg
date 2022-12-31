@@ -364,7 +364,7 @@ void eval_forces::vect_iter(int lane_idx) const {
 
   auto r1 = r[i1], r2 = r[i2];
   auto r12 = simul_box->wrap<vect::lane<vec3r, N, W>>(r1, r2);
-  auto r12_n = norm_(r12);
+  auto r12_n = norm(r12);
   auto r12_rn = (real)1.0 / r12_n;
   mask = mask & mask_t(r12_n < cutoff);
 
@@ -396,13 +396,13 @@ void eval_forces::vect_iter(int lane_idx) const {
     //    auto rkl = select(i3_ >= 0, r[i3_], zero_v) - r[i4_];
 
     auto rij = r1 - r_i1n;
-    auto rkj = select_(val_i1p, vec3rs(r_i1p - r_i1n), vec3rs());
+    auto rkj = select(val_i1p, vec3rs(r_i1p - r_i1n), vec3rs());
     auto rkl = r_i1p - r2;
 
     auto rm = cross(rij, rkj);
     auto rn = cross(rkj, rkl);
 
-    auto rm_n = norm_(rm), rn_n = norm_(rn);
+    auto rm_n = norm(rm), rn_n = norm(rn);
     mask = mask & mask_t(rm_n >= (real)0.1) & mask_t(rn_n >= (real)0.1);
 
     auto rm_ninv = (real)1.0 / rm_n, rn_ninv = (real)1.0 / rn_n,
@@ -422,12 +422,12 @@ void eval_forces::vect_iter(int lane_idx) const {
     auto cos_psi1 = dot(rm, rn) * rm_ninv * rn_ninv;
     cos_psi1 = ::max(::min(cos_psi1, (reals)1.0), (reals)-1.0);
     psi1 = acos(cos_psi1);
-    psi1 = select_(dot(rij, rn) < (reals)0.0, -psi1, psi1);
+    psi1 = select(dot(rij, rn) < (reals)0.0, -psi1, psi1);
 
     int m = 1;
     bb_lam_1_opt = (i2 - i1 != 3) | mask_t(m != 2);
 
-    auto bb_lam_1 = select_(bb_lam_1_opt, bb_plus_lam_v, bb_minus_lam_v);
+    auto bb_lam_1 = select(bb_lam_1_opt, bb_plus_lam_v, bb_minus_lam_v);
     bb_lam_1_opt = bb_lam_1_opt & !((!mask_t(bb_lam_1.supp(psi1))) &
                                     mask_t((i2 - i1 != 3) | mask_t(m != 1)));
   }
@@ -441,13 +441,13 @@ void eval_forces::vect_iter(int lane_idx) const {
     //    auto rkl = select(i3_ >= 0, r[i3_], zero_v) - r[i4_];
 
     auto rij = r2 - r_i2n;
-    auto rkj = select_(val_i2p, vec3rs(r_i2p - r_i2n), vec3rs());
+    auto rkj = select(val_i2p, vec3rs(r_i2p - r_i2n), vec3rs());
     auto rkl = r_i2p - r1;
 
     auto rm = cross(rij, rkj);
     auto rn = cross(rkj, rkl);
 
-    auto rm_n = norm_(rm), rn_n = norm_(rn);
+    auto rm_n = norm(rm), rn_n = norm(rn);
     mask = mask & mask_t(rm_n >= (real)0.1) & mask_t(rn_n >= (real)0.1);
 
     auto rm_ninv = (real)1.0 / rm_n, rn_ninv = (real)1.0 / rn_n,
@@ -467,12 +467,12 @@ void eval_forces::vect_iter(int lane_idx) const {
     auto cos_psi2 = dot(rm, rn) * rm_ninv * rn_ninv;
     cos_psi2 = ::max(::min(cos_psi2, (reals)1.0), (reals)-1.0);
     psi2 = acos(cos_psi2);
-    psi2 = select_(dot(rij, rn) < (reals)0.0, -psi2, psi2);
+    psi2 = select(dot(rij, rn) < (reals)0.0, -psi2, psi2);
 
     int m = 2;
     bb_lam_2_opt = (i2 - i1 != 3) | mask_t(m != 2);
 
-    auto bb_lam_2 = select_(bb_lam_2_opt, bb_plus_lam_v, bb_minus_lam_v);
+    auto bb_lam_2 = select(bb_lam_2_opt, bb_plus_lam_v, bb_minus_lam_v);
     bb_lam_2_opt = bb_lam_2_opt & !((!mask_t(bb_lam_2.supp(psi2))) &
                                     mask_t((i2 - i1 != 3) | mask_t(m != 1)));
 
@@ -482,8 +482,8 @@ void eval_forces::vect_iter(int lane_idx) const {
   vect::lane<real, N, W> dV_dpsi1 = (real)0.0, dV_dpsi2 = (real)0.0,
                          dV_dr = (real)0.0, V_ = (real)0.0;
 
-  auto bb_lam_1 = select_(bb_lam_1_opt, bb_plus_lam_v, bb_minus_lam_v);
-  auto bb_lam_2 = select_(bb_lam_2_opt, bb_plus_lam_v, bb_minus_lam_v);
+  auto bb_lam_1 = select(bb_lam_1_opt, bb_plus_lam_v, bb_minus_lam_v);
+  auto bb_lam_2 = select(bb_lam_2_opt, bb_plus_lam_v, bb_minus_lam_v);
 
   mask_t bb_supp = (mask_t)(bb_lam_1.supp(psi1) & bb_lam_2.supp(psi2));
   if (horizontal_or(bb_supp)) {
@@ -492,7 +492,7 @@ void eval_forces::vect_iter(int lane_idx) const {
 
     vect::lane<sink_lj, N, W> bb_minus_lj_v = bb_minus_lj,
                               bb_plus_lj_v = bb_plus_lj;
-    auto bb_lj = select_(bb_lj_opt, bb_plus_lj_v, bb_minus_lj_v);
+    auto bb_lj = select(bb_lj_opt, bb_plus_lj_v, bb_minus_lj_v);
 
     auto _mask = bb_supp & mask_t(lam1 * lam2 > (real)5e-5);
     auto [lj_V, lj_dV_dr] = bb_lj(r12_n, r12_rn);
@@ -524,7 +524,7 @@ void eval_forces::vect_iter(int lane_idx) const {
   auto r12_u = r12 * r12_rn;
 
   vect::lane<real, N, W> zero_v = (real)0;
-  V_ = select_(mask, V_, zero_v);
+  V_ = select(mask, V_, zero_v);
   *V += horizontal_add(V_);
 
   auto diff_F_i1p = to_array<vec3r, N, W>(dV_dpsi1 * dpsi1_dr1p);
@@ -580,7 +580,7 @@ void eval_forces::fast_vect_iter(int lane_idx) const {
 
   auto r1 = r[i1], r2 = r[i2];
   auto r12 = simul_box->wrap<vect::lane<vec3r, N, W>>(r1, r2);
-  auto r12_n = norm_(r12);
+  auto r12_n = norm(r12);
   auto r12_rn = (real)1.0 / r12_n;
   mask = mask & mask_t(r12_n < cutoff);
 
@@ -610,14 +610,14 @@ void eval_forces::fast_vect_iter(int lane_idx) const {
     //    auto rkl = select(i3_ >= 0, r[i3_], zero_v) - r[i4_];
 
     auto rij = r1 - r_i1n;
-    //    auto rkj = select_(val_i1p, vec3rs(r_i1p - r_i1n), vec3rs());
+    //    auto rkj = select(val_i1p, vec3rs(r_i1p - r_i1n), vec3rs());
     auto rkj = r_i1p - r_i1n;
     auto rkl = r_i1p - r2;
 
     auto rm = cross(rij, rkj);
     auto rn = cross(rkj, rkl);
 
-    auto rm_n = norm_(rm), rn_n = norm_(rn);
+    auto rm_n = norm(rm), rn_n = norm(rn);
     mask = mask & mask_t(rm_n >= (real)0.1) & mask_t(rn_n >= (real)0.1);
 
     auto rm_ninv = (real)1.0 / rm_n, rn_ninv = (real)1.0 / rn_n,
@@ -637,12 +637,12 @@ void eval_forces::fast_vect_iter(int lane_idx) const {
     auto cos_psi1 = dot(rm, rn) * rm_ninv * rn_ninv;
     cos_psi1 = ::max(::min(cos_psi1, (reals)1.0), (reals)-1.0);
     psi1 = acos(cos_psi1);
-    psi1 = select_(dot(rij, rn) < (reals)0.0, -psi1, psi1);
+    psi1 = select(dot(rij, rn) < (reals)0.0, -psi1, psi1);
 
     int m = 1;
     bb_lam_1_opt = (i2 - i1 != 3) | mask_t(m != 2);
 
-    auto bb_lam_1 = select_(bb_lam_1_opt, bb_plus_lam_v, bb_minus_lam_v);
+    auto bb_lam_1 = select(bb_lam_1_opt, bb_plus_lam_v, bb_minus_lam_v);
     bb_lam_1_opt = bb_lam_1_opt & !((!mask_t(bb_lam_1.supp(psi1))) &
                                     mask_t((i2 - i1 != 3) | mask_t(m != 1)));
   }
@@ -656,14 +656,14 @@ void eval_forces::fast_vect_iter(int lane_idx) const {
     //    auto rkl = select(i3_ >= 0, r[i3_], zero_v) - r[i4_];
 
     auto rij = r2 - r_i2n;
-    //    auto rkj = select_(val_i2p, vec3rs(r_i2p - r_i2n), vec3rs());
+    //    auto rkj = select(val_i2p, vec3rs(r_i2p - r_i2n), vec3rs());
     auto rkj = r_i2p - r_i2n;
     auto rkl = r_i2p - r1;
 
     auto rm = cross(rij, rkj);
     auto rn = cross(rkj, rkl);
 
-    auto rm_n = norm_(rm), rn_n = norm_(rn);
+    auto rm_n = norm(rm), rn_n = norm(rn);
     mask = mask & mask_t(rm_n >= (real)0.1) & mask_t(rn_n >= (real)0.1);
 
     auto rm_ninv = (real)1.0 / rm_n, rn_ninv = (real)1.0 / rn_n,
@@ -683,12 +683,12 @@ void eval_forces::fast_vect_iter(int lane_idx) const {
     auto cos_psi2 = dot(rm, rn) * rm_ninv * rn_ninv;
     cos_psi2 = ::max(::min(cos_psi2, (reals)1.0), (reals)-1.0);
     psi2 = acos(cos_psi2);
-    psi2 = select_(dot(rij, rn) < (reals)0.0, -psi2, psi2);
+    psi2 = select(dot(rij, rn) < (reals)0.0, -psi2, psi2);
 
     int m = 2;
     bb_lam_2_opt = (i2 - i1 != 3) | mask_t(m != 2);
 
-    auto bb_lam_2 = select_(bb_lam_2_opt, bb_plus_lam_v, bb_minus_lam_v);
+    auto bb_lam_2 = select(bb_lam_2_opt, bb_plus_lam_v, bb_minus_lam_v);
     bb_lam_2_opt = bb_lam_2_opt & !((!mask_t(bb_lam_2.supp(psi2))) &
                                     mask_t((i2 - i1 != 3) | mask_t(m != 1)));
 
@@ -698,8 +698,8 @@ void eval_forces::fast_vect_iter(int lane_idx) const {
   vect::lane<real, N, W> dV_dpsi1 = (real)0.0, dV_dpsi2 = (real)0.0,
                          dV_dr = (real)0.0, V_ = (real)0.0;
 
-  auto bb_lam_1 = select_(bb_lam_1_opt, bb_plus_lam_v, bb_minus_lam_v);
-  auto bb_lam_2 = select_(bb_lam_2_opt, bb_plus_lam_v, bb_minus_lam_v);
+  auto bb_lam_1 = select(bb_lam_1_opt, bb_plus_lam_v, bb_minus_lam_v);
+  auto bb_lam_2 = select(bb_lam_2_opt, bb_plus_lam_v, bb_minus_lam_v);
 
   mask_t bb_supp = (mask_t)(bb_lam_1.supp(psi1) & bb_lam_2.supp(psi2));
   if (horizontal_or(bb_supp)) {
@@ -708,7 +708,7 @@ void eval_forces::fast_vect_iter(int lane_idx) const {
 
     vect::lane<sink_lj, N, W> bb_minus_lj_v = bb_minus_lj,
                               bb_plus_lj_v = bb_plus_lj;
-    auto bb_lj = select_(bb_lj_opt, bb_plus_lj_v, bb_minus_lj_v);
+    auto bb_lj = select(bb_lj_opt, bb_plus_lj_v, bb_minus_lj_v);
 
     auto _mask = bb_supp & mask_t(lam1 * lam2 > (real)5e-5);
     auto [lj_V, lj_dV_dr] = bb_lj(r12_n, r12_rn);
@@ -740,7 +740,7 @@ void eval_forces::fast_vect_iter(int lane_idx) const {
   auto r12_u = r12 * r12_rn;
 
   vect::lane<real, N, W> zero_v = (real)0;
-  V_ = select_(mask, V_, zero_v);
+  V_ = select(mask, V_, zero_v);
   *V += horizontal_add(V_);
 
   auto diff_F_i1p = to_array<vec3r, N, W>(dV_dpsi1 * dpsi1_dr1p);

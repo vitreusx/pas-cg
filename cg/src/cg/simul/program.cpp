@@ -161,7 +161,7 @@ void program::perform_simulation(parameters const &params,
                                  ioxx::xyaml::node const &raw_params) {
   omp_set_num_threads((int)params.gen.num_of_threads);
 
-  auto st = state(raw_params);
+  auto st = state(params, raw_params);
   auto team = thread_team(st);
 
 #pragma omp parallel default(none) shared(team)
@@ -175,7 +175,7 @@ void program::check_determinism(parameters const &params,
                                 ioxx::xyaml::node const &raw_params) {
   omp_set_num_threads((int)params.gen.num_of_threads);
 
-  auto st1 = state(raw_params), st2 = state(raw_params);
+  auto st1 = state(params, raw_params), st2 = state(params, raw_params);
   auto team1 = thread_team(st1), team2 = thread_team(st2);
 
 #pragma omp parallel default(none) shared(st1, team1, st2, team2)
@@ -184,12 +184,12 @@ void program::check_determinism(parameters const &params,
 
     do {
       thr1.step();
+#pragma omp barrier
       thr2.step();
 #pragma omp barrier
 
 #pragma omp master
       st1.verify_equal(st2);
-
 #pragma omp barrier
     } while (st1.cur_phase != phase::SIMUL_END &&
              st2.cur_phase != phase::SIMUL_END);

@@ -1,9 +1,9 @@
 #include <cg/simul/state.h>
 namespace cg::simul {
 
-state::state(ioxx::xyaml::node const &raw_params) {
+state::state(parameters const &params, ioxx::xyaml::node const &raw_params) {
+  this->params = params;
   this->raw_params = raw_params.flatten();
-  raw_params >> params;
 }
 
 static void allclose(real u, real v) {

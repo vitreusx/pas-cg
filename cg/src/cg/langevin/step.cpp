@@ -29,7 +29,7 @@ void step::omp_async() const {
       y2[idx] = F[idx] * deltsq;
   }
 
-#pragma omp single nowait
+#pragma omp master
   {
     for (int idx = 0; idx < num_particles; ++idx)
       noise[idx].x() = local_gen.normal<real>();

@@ -11,7 +11,6 @@ void thread::main() {
 
 void thread::step() {
   if (st->trajectory_should_end()) {
-#pragma omp barrier
 #pragma omp single
     st->cur_phase = phase::TRAJ_END;
   }
@@ -407,8 +406,7 @@ void thread::pre_eval_async() {
 }
 
 void thread::fix_def_nl_async() {
-  // #pragma omp barrier
-  //   def_nl.legacy.omp_async();
+  //  def_nl.legacy.omp_async();
 
   def_nl.cell.omp_async();
 #pragma omp barrier
@@ -432,8 +430,7 @@ void thread::fix_def_nl_async() {
 }
 
 void thread::fix_lr_nl_async() {
-  // #pragma omp barrier
-  //   long_range_nl.legacy.omp_async();
+  //  long_range_nl.legacy.omp_async();
 
   long_range_nl.cell.omp_async();
 #pragma omp barrier
@@ -461,64 +458,8 @@ std::ostream &operator<<(std::ostream &os, vec3_expr<E> const &e) {
 
 void thread::eval_forces() {
   dyn.reset();
-
-  //  if (st->chir_enabled)
-  //    eval_chir_forces.omp_async();
-  //  if (st->tether_enabled)
-  //    eval_tether_forces.omp_async();
-  //  if (st->lrep_enabled)
-  //    eval_lrep_forces.omp_async();
-  //  if (st->nat_cont_enabled)
-  //    eval_nat_cont_forces.omp_async();
-  //  if (st->pauli_enabled)
-  //    eval_pauli_forces.omp_async();
-  //
-  //  if (st->dh_enabled) {
-  //    eval_const_dh_forces.omp_async();
-  //    eval_rel_dh_forces.omp_async();
-  //  }
-  //
-  //  if (st->qa_enabled) {
-  //    qa_loop_over_candidates.omp_async();
-  //    process_qa_contacts.omp_async();
-  //  }
-  //  if (st->pid_enabled)
-  //    eval_pid_forces.omp_async();
-  //
-  //  if (st->nat_ang_enabled)
-  //    eval_nat_ang_forces.omp_async();
-  //  if (st->heur_ang_enabled)
-  //    eval_heur_ang_forces.omp_async();
-  //  if (st->heur_dih_enabled)
-  //    eval_heur_dih_forces.omp_async();
-  //  if (st->nat_dih_enabled) {
-  //    eval_cnd_forces.omp_async();
-  //    eval_snd_forces.omp_async();
-  //  }
-  //
-  //  if (st->solid_walls_enabled)
-  //    eval_solid_wall_forces.omp_async();
-  //
-  //  if (st->harmonic_walls_enabled) {
-  //    hw_eval_free.omp_async();
-  //    hw_eval_conn.omp_async();
-  //  }
-  //
-  //  if (st->lj_walls_enabled) {
-  //    ljw_sift_free.omp_async();
-  //    ljw_eval_conn.omp_async();
-  //  }
-  //
-  //  if (st->afm_enabled) {
-  //    eval_vel_afm_forces.omp_async();
-  //    eval_force_afm_forces.omp_async();
-  //  }
-
   eval_divs.omp_async();
-
   dyn.omp_reduce_v2(st->dyn, *this);
-  //  dyn.omp_reduce_v3(st->dyn, *team);
-//  dyn.omp_reduce_v4(st->dyn, team->v4_shared_, dyn_v4_priv_);
 #pragma omp barrier
 }
 
@@ -558,6 +499,7 @@ void thread::post_eval_async() {
   }
 
   ++loop_idx;
+#pragma omp barrier
 }
 
 } // namespace cg::simul
