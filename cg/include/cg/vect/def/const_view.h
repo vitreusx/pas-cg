@@ -1,7 +1,7 @@
 #pragma once
-#include "../cuda_interop.h"
 #include "const_iterator.h"
 #include "lane.h"
+#include <cuda_runtime_api.h>
 
 namespace nitro::def {
 template <typename T>

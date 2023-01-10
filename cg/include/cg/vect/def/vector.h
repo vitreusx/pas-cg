@@ -9,34 +9,34 @@ namespace nitro::def {
 template <typename T, typename Alloc = allocator<T>>
 class vector {
 public:
-  vector() : data{nullptr}, _size{0}, _capacity{0}, alloc{Alloc()} {}
+  vector() : data_{nullptr}, _size{0}, _capacity{0}, alloc{Alloc()} {}
 
   explicit vector(Alloc alloc)
-      : data{nullptr}, _size{0}, _capacity{0}, alloc{alloc} {};
+      : data_{nullptr}, _size{0}, _capacity{0}, alloc{alloc} {};
 
   explicit vector(int n, T const &init = T(), Alloc alloc = Alloc()) {
     this->alloc = alloc;
-    data = nullptr;
+    data_ = nullptr;
     _size = _capacity = n;
 
     if (n > 0) {
-      data = this->alloc.allocate(n);
-      std::uninitialized_fill_n(data, n, init);
+      data_ = this->alloc.allocate(n);
+      std::uninitialized_fill_n(data_, n, init);
     }
   }
 
-  virtual ~vector() {
+  ~vector() {
     destroy();
   }
 
   vector(vector const &other) {
     alloc = other.alloc;
-    data = nullptr;
+    data_ = nullptr;
     _size = _capacity = other._size;
 
     if (other._size > 0) {
-      data = alloc.allocate(other._size);
-      std::uninitialized_copy_n(other.data, other._size, data);
+      data_ = alloc.allocate(other._size);
+      std::uninitialized_copy_n(other.data_, other._size, data_);
     }
   }
 
@@ -45,8 +45,8 @@ public:
       destroy();
       alloc = other.alloc;
       if (other._size > 0) {
-        data = alloc.allocate(other._size);
-        std::uninitialized_copy_n(other.data, other._size, data);
+        data_ = alloc.allocate(other._size);
+        std::uninitialized_copy_n(other.data_, other._size, data_);
       }
       _size = _capacity = other._size;
     }
@@ -54,21 +54,21 @@ public:
   }
 
   vector(vector &&other) noexcept {
-    data = other.data;
+    data_ = other.data_;
     _size = other._size;
     _capacity = other._capacity;
 
-    other.data = nullptr;
+    other.data_ = nullptr;
     other._size = other._capacity = 0;
   }
 
   vector &operator=(vector &&other) noexcept {
     if (this != &other) {
       destroy();
-      data = other.data;
+      data_ = other.data_;
       _size = other._size;
       _capacity = other._capacity;
-      other.data = nullptr;
+      other.data_ = nullptr;
       other._size = other._capacity = 0;
     }
     return *this;
@@ -83,12 +83,12 @@ public:
   }
 
   T &operator[](int idx) {
-    return data[idx];
+    return data_[idx];
   }
 
   template <typename Idxes, typename = std::enable_if_t<is_lane_like_v<Idxes>>>
   auto operator[](Idxes idxes) {
-    return sparse_ref<T, Idxes>(data, idxes);
+    return sparse_ref<T, Idxes>(data_, idxes);
   }
 
   template <typename Idxes, typename Mask,
@@ -96,17 +96,17 @@ public:
                 std::enable_if_t<is_lane_like_v<Idxes> && is_lane_like_v<Mask>>>
   auto operator[](std::pair<Idxes, Mask> idxes_mask) {
     auto const &[idxes, mask] = idxes_mask;
-    return masked_ref(data, idxes, mask);
+    return masked_ref(data_, idxes, mask);
   }
 
   T const &operator[](int idx) const {
-    return data[idx];
+    return data_[idx];
   }
 
   template <typename Idxes, typename = std::enable_if_t<is_lane_like_v<Idxes>>>
   auto operator[](Idxes idxes) const {
     using Data = lane<T, lane_size_v<Idxes>, lane_width_v<Idxes>>;
-    return gather<Data>(data, idxes);
+    return gather<Data>(data_, idxes);
   }
 
   template <typename Idxes, typename Mask,
@@ -115,7 +115,7 @@ public:
   auto operator[](std::pair<Idxes, Mask> idxes_mask) const {
     using Data = lane<T, lane_size_v<Idxes>, lane_width_v<Idxes>>;
     auto const &[idxes, mask] = idxes_mask;
-    return masked_gather<Data>(data, idxes, mask);
+    return masked_gather<Data>(data_, idxes, mask);
   }
 
   template <typename Idx>
@@ -130,12 +130,12 @@ public:
 
   template <std::size_t N, std::size_t W = opt_width_v>
   lane_ref<T, N, W> at_lane(int idx) {
-    return lane_ref<T, N, W>(data + N * idx);
+    return lane_ref<T, N, W>(data_ + N * idx);
   }
 
   template <std::size_t N, std::size_t W = opt_width_v>
   lane<T, N, W> at_lane(int idx) const {
-    return construct<lane<T, N, W>>(data + N * idx);
+    return construct<lane<T, N, W>>(data_ + N * idx);
   }
 
   template <std::size_t N>
@@ -149,8 +149,8 @@ public:
   }
 
   void clear() {
-    if (data && _size > 0)
-      std::destroy_n(data, _size);
+    if (data_ && _size > 0)
+      std::destroy_n(data_, _size);
 
     _size = 0;
   }
@@ -160,30 +160,30 @@ public:
       return;
 
     auto new_data = alloc.allocate(new_capacity);
-    if (data) {
+    if (data_) {
       if (_size > 0) {
-        std::uninitialized_move_n(data, _size, new_data);
-        std::destroy_n(data, _size);
+        std::uninitialized_move_n(data_, _size, new_data);
+        std::destroy_n(data_, _size);
       }
-      alloc.deallocate(data, _capacity);
+      alloc.deallocate(data_, _capacity);
     }
-    data = new_data;
+    data_ = new_data;
     _capacity = new_capacity;
   }
 
   void resize(int new_size, T const &init = T()) {
     if (new_size < _size) {
-      std::destroy_n(data + new_size, _size - new_size);
+      std::destroy_n(data_ + new_size, _size - new_size);
     } else if (new_size > _size) {
       reserve(new_size);
-      std::uninitialized_fill_n(data + _size, new_size - _size, init);
+      std::uninitialized_fill_n(data_ + _size, new_size - _size, init);
     }
     _size = new_size;
   }
 
   void shrink(int new_size) {
     if (new_size < _size) {
-      std::destroy_n(data + new_size, _size - new_size);
+      std::destroy_n(data_ + new_size, _size - new_size);
       _size = new_size;
     }
   }
@@ -192,7 +192,7 @@ public:
     if (_size + 1 > _capacity)
       reserve(2 * _size + 8);
 
-    std::uninitialized_copy_n(&value, 1, data + _size);
+    std::uninitialized_copy_n(&value, 1, data_ + _size);
     ++_size;
   }
 
@@ -201,46 +201,54 @@ public:
     if (_size >= _capacity)
       reserve(2 * (_size + 1) + 8);
 
-    ::new (data + _size) T(std::forward<Args>(args)...);
-    return data[_size++];
+    ::new (data_ + _size) T(std::forward<Args>(args)...);
+    return data_[_size++];
   }
 
   auto begin() {
-    return iterator<T>(data);
+    return iterator<T>(data_);
   }
 
   auto begin() const {
-    return const_iterator<T>(data);
+    return const_iterator<T>(data_);
   }
 
   auto end() {
-    return iterator<T>(data + size());
+    return iterator<T>(data_ + size());
   }
 
   auto end() const {
-    return const_iterator<T>(data + size());
+    return const_iterator<T>(data_ + size());
   }
 
   operator view<T>() {
-    return view<T>(data, size());
+    return view<T>(data_, size());
   }
 
   operator const_view<T>() const {
-    return const_view<T>(data, size());
+    return const_view<T>(data_, size());
   }
 
-protected:
-  virtual void destroy() {
-    if (data) {
+  T *data() {
+    return data_;
+  }
+
+  T const *data() const {
+    return data_;
+  }
+
+private:
+  void destroy() {
+    if (data_) {
       if (_size > 0)
-        std::destroy_n(data, _size);
-      alloc.deallocate(data, _capacity);
-      data = nullptr;
+        std::destroy_n(data_, _size);
+      alloc.deallocate(data_, _capacity);
+      data_ = nullptr;
     }
     _size = _capacity = 0;
   }
 
-  T *data;
+  T *data_;
   int _size, _capacity;
   Alloc alloc;
 };

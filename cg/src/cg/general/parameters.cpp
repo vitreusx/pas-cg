@@ -9,6 +9,7 @@ void parameters::load(ioxx::xyaml::node const &p) {
   p["num of trajectories"] >> num_of_traj;
   p["repulsive cutoff"] >> repulsive_cutoff;
   p["counting factor"] >> counting_factor;
+  p["use GPU"] >> use_gpu;
 
   auto dp = p["debug mode"];
   dp["floating point exceptions"] >> fp_exceptions;

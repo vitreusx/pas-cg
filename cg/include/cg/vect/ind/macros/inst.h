@@ -10,8 +10,9 @@
   _INST_EXPR_CTOR(cls, __VA_ARGS__)                                            \
   _INST_FIELDS(__VA_ARGS__)                                                    \
                                                                                \
-  static auto Subtypes() {                                                     \
+  __host__ __device__ static auto Subtypes() {                                 \
     return nitro::ind::type_list<_INST_SUBTYPES(__VA_ARGS__)>{};               \
   }                                                                            \
                                                                                \
-  template <typename E> static auto Expr()->cls##_expr<E>;
+  template <typename E>                                                        \
+  __host__ __device__ static auto Expr()->cls##_expr<E>;

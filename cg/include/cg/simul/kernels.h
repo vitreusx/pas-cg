@@ -9,6 +9,7 @@
 #include <cg/chir/eval_forces.h>
 #include <cg/ckpt/make_checkpoint.h>
 #include <cg/dh/const.h>
+#include <cg/dh/const_cuda.h>
 #include <cg/dh/rel.h>
 #include <cg/dh/update_pairs.h>
 #include <cg/langevin/fast_step.h>
@@ -25,6 +26,7 @@
 #include <cg/pauli/update_pairs.h>
 #include <cg/pbar/render.h>
 #include <cg/pid/eval_forces.h>
+#include <cg/pid/eval_forces_cuda.h>
 #include <cg/pid/update_bundles.h>
 #include <cg/qa/cys_neigh_comp.h>
 #include <cg/qa/finish_processing.h>

@@ -1,4 +1,5 @@
 #pragma once
+#include <cuda_runtime_api.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -47,20 +48,20 @@ enum polarization_type : char {
 class amino_acid {
 public:
   amino_acid() = default;
-  amino_acid(aa_code const &code);
+  inline __host__ __device__ amino_acid(aa_code const &code) : code{code} {}
   explicit amino_acid(char letter);
   explicit amino_acid(std::string const &name);
 
-  explicit operator aa_code() const {
+  inline __host__ __device__ explicit operator aa_code() const {
     return code;
   };
-  explicit operator uint8_t() const {
+  inline __host__ __device__ explicit operator uint8_t() const {
     return static_cast<uint8_t>(code);
   }
   char letter() const;
   std::string const &name() const;
 
-  static constexpr int NUM_TYPES = 21;
+  static constexpr int NUM_TYPES = 21, N = 21;
   static std::vector<amino_acid> const &all();
 
   friend std::ostream & ::operator<<(std::ostream &os, amino_acid const &aa);

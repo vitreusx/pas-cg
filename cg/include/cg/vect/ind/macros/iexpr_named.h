@@ -4,11 +4,11 @@
 #define _IEXPR_NAMED(...) VFUNC(_IEXPR_NAMED_, 0, __VA_ARGS__)
 
 #define _IEXPR_NAMED_2(I_x, x)                                                 \
-  decltype(auto) x() {                                                         \
+  __host__ __device__ decltype(auto) x() {                                     \
     return (static_cast<E &>(*this).template get<I_x>());                      \
   }                                                                            \
                                                                                \
-  decltype(auto) x() const {                                                   \
+  __host__ __device__ decltype(auto) x() const {                               \
     return (static_cast<E const &>(*this).template get<I_x>());                \
   }
 

@@ -200,8 +200,7 @@ struct _vector_impl<true, T, Alloc> {
           return const_view<T>(static_cast<const_view<_subtype<Idxes>>>(
               this->template get<Idxes>())...);
         }
-
-      private:
+        
         using Base::get;
       };
     };

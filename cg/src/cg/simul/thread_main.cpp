@@ -1,6 +1,6 @@
 #include <cg/simul/thread.h>
-namespace cg::simul {
 
+namespace cg::simul {
 void thread::main() {
   while (true) {
     step();
@@ -378,6 +378,10 @@ void thread::advance_by_step() {
 void thread::pre_eval_async() {
   st->dyn.omp_reset();
 
+  if (use_gpu) {
+    cu_st.r.pull_from(st->r, cu_st.stream);
+  }
+
   if (params->qa.enabled) {
     prepare_nh.omp_async();
     if (st->ss_spec_crit)
@@ -427,6 +431,11 @@ void thread::fix_def_nl_async() {
 
 #pragma omp barrier
   eval_divs.update();
+
+  if (use_gpu) {
+    if (st->pid_enabled)
+      cu_st.bundles.pull_from(st->pid_bundles, cu_st.stream);
+  }
 }
 
 void thread::fix_lr_nl_async() {
@@ -442,25 +451,38 @@ void thread::fix_lr_nl_async() {
       update_nat_contacts.mark_as_taken(nl_);
     if (st->qa_enabled)
       update_qa_pairs.mark_as_taken(nl_);
-    if (st->dh_enabled)
+    if (st->const_dh_enabled)
       update_dh_pairs();
   };
 
 #pragma omp barrier
   eval_divs.update();
-}
 
-template <typename E>
-std::ostream &operator<<(std::ostream &os, vec3_expr<E> const &e) {
-  os << "(" << e.x() << ", " << e.y() << ", " << e.z() << ")";
-  return os;
+  if (use_gpu) {
+    if (st->const_dh_enabled)
+      cu_st.es_pairs.pull_from(st->dh_pairs, cu_st.stream);
+  }
 }
 
 void thread::eval_forces() {
+  if (use_gpu) {
+    cu_st.reset_dyn(256, cu_st.stream);
+    if (st->pid_enabled)
+      eval_pid_forces_cuda(256, cu_st.stream);
+    if (st->const_dh_enabled)
+      eval_const_dh_forces_cuda(256, cu_st.stream);
+    cu_st.pull_dyn(256, cu_st.stream);
+  }
+
   dyn.reset();
   eval_divs.omp_async();
   dyn.omp_reduce_v2(st->dyn, *this);
+
 #pragma omp barrier
+  if (use_gpu) {
+    cudaStreamSynchronize(cu_st.stream);
+    cu_st.staging.reduce(st->dyn);
+  }
 }
 
 void thread::post_eval_async() {

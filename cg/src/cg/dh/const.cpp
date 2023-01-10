@@ -17,7 +17,7 @@ void eval_forces::iter(int idx) const {
   auto r12_n = norm(r12);
   if (r12_n > cutoff)
     return;
-  auto r12_rn = 1.0f / r12_n;
+  auto r12_rn = (real)1.0f / r12_n;
   auto r12_u = r12 * r12_rn;
 
   auto Vij = V_factor * q1_x_q2 * exp(-r12_n * screen_dist_inv) * r12_rn;

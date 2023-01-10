@@ -160,7 +160,7 @@ public:
   vect::vector<real> nc_unfold_times;
   void setup_nat_cont();
 
-  bool dh_enabled;
+  bool const_dh_enabled, rel_dh_enabled;
   vect::vector<dh::pair> dh_pairs;
   void setup_dh();
 

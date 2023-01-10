@@ -26,4 +26,5 @@
 
 #define _INST_CTOR_REAL(cls, ...)                                              \
   template <_INST_CTOR_TLIST(__VA_ARGS__)>                                     \
-  cls(_INST_CTOR_ALIST(__VA_ARGS__)) : _INST_CTOR_SLIST(__VA_ARGS__) {}
+  __host__ __device__ cls(_INST_CTOR_ALIST(__VA_ARGS__))                       \
+      : _INST_CTOR_SLIST(__VA_ARGS__) {}

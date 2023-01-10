@@ -1,22 +1,26 @@
 #pragma once
-#include "../cuda_interop.h"
 #include "ind_seq.h"
 #include "type_list.h"
 #include "type_traits.h"
+#include <cuda_runtime_api.h>
 #include <utility>
 
 namespace nitro::ind {
 template <typename... Types>
 class tuple;
 
+struct copy_ctor_tag {};
+
 template <>
 class tuple<> {
 public:
-  static auto Idxes() {
+  tuple() = default;
+
+  __host__ __device__ static auto Idxes() {
     return std::make_index_sequence<0>{};
   }
 
-  static auto Subtypes() {
+  __host__ __device__ static auto Subtypes() {
     return type_list<>{};
   }
 };
@@ -24,8 +28,14 @@ public:
 template <typename Head, typename... Tail>
 class tuple<Head, Tail...> {
 public:
-  __host__ __device__ explicit tuple(Head &&head, Tail &&...tail)
-      : head{std::forward<Head>(head)}, tail(std::forward<Tail>(tail)...) {}
+  template <
+      typename Head_ = Head,
+      typename = std::enable_if_t<!std::is_same_v<Head_ &&, Head_ const &>>>
+  __host__ __device__ explicit tuple(Head_ &&head, Tail &&...tail)
+      : head{std::forward<Head_>(head)}, tail(std::forward<Tail>(tail)...) {}
+
+  __host__ __device__ explicit tuple(Head const &head, Tail const &...tail)
+      : head{head}, tail{tail...} {}
 
   template <typename U = Head,
             typename = std::enable_if_t<std::conjunction_v<
@@ -39,8 +49,8 @@ public:
     return *this;
   }
 
-  __host__ __device__ tuple(tuple const &) = default;
-  __host__ __device__ tuple(tuple &&) = default;
+  tuple(tuple const &) = default;
+  tuple(tuple &&) = default;
 
   __host__ __device__ auto &operator=(tuple const &other) {
     assign<tuple>(other, other.Idxes());
@@ -65,11 +75,11 @@ public:
     __builtin_unreachable();
   }
 
-  static auto Idxes() {
+  __host__ __device__ static auto Idxes() {
     return std::make_index_sequence<1 + sizeof...(Tail)>{};
   }
 
-  static auto Subtypes() {
+  __host__ __device__ static auto Subtypes() {
     return type_list<Head, Tail...>{};
   }
 
@@ -88,3 +98,14 @@ private:
   }
 };
 } // namespace nitro::ind
+
+namespace std {
+template <typename... Elems>
+struct std::tuple_size<nitro::ind::tuple<Elems...>>
+    : std::integral_constant<std::size_t, sizeof...(Elems)> {};
+
+template <std::size_t I, typename... Elems>
+struct std::tuple_element<I, nitro::ind::tuple<Elems...>>
+    : std::tuple_element<I, decltype(nitro::ind::tuple<Elems...>::Subtypes())> {
+};
+} // namespace std

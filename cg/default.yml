@@ -8,6 +8,9 @@ general:
   #   are reproducible.
   mode: perform simulation
 
+  # Whether to offload some computation to a GPU
+  use GPU: false
+
   # Total, maximal time of simulation for a single trajectory. The actual
   # execution time can be lower; in the other direction, processes such as
   # oscillations can be prematurely terminated in this fashion.

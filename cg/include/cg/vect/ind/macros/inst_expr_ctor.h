@@ -3,4 +3,5 @@
 
 #define _INST_EXPR_CTOR(cls, ...)                                              \
   template <typename E>                                                        \
-  cls(cls##_expr<E> const &e) : _INST_EXPR_CTOR_SLIST(__VA_ARGS__) {}
+  __host__ __device__ cls(cls##_expr<E> const &e)                              \
+      : _INST_EXPR_CTOR_SLIST(__VA_ARGS__) {}

@@ -35,7 +35,7 @@ public:
   }
 
   template <typename V>
-  inline auto wrap(V v) const {
+  __host__ __device__ inline auto wrap(V v) const {
     v.x() -= cell.x() * round(v.x() * cell_inv.x());
     v.y() -= cell.y() * round(v.y() * cell_inv.y());
     v.z() -= cell.z() * round(v.z() * cell_inv.z());
@@ -43,7 +43,7 @@ public:
   }
 
   template <typename V, typename E, typename F>
-  inline auto wrap(E const &e, F const &f) const {
+  __host__ __device__ inline auto wrap(E const &e, F const &f) const {
     auto diff = f - e;
     return wrap<V>(diff);
   }

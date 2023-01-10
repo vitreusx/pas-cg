@@ -13,17 +13,21 @@ struct lambda_expr {
   EXPR(psi_0, alpha, version)
 
   template <typename T>
-  auto supp(T const &psi) const {
+  __host__ __device__ auto supp(T const &psi) const {
     return abs(alpha() * (psi - psi_0())) < (real)M_PI;
   }
 
   template <typename T>
-  auto operator()(T const &psi) const {
+  __host__ __device__ auto operator()(T const &psi) const {
+#ifndef __CUDA_ARCH__
     if constexpr (nitro::def::is_lane_like_v<T>) {
       return lane_call(psi);
     } else {
       return reg_call(psi);
     }
+#else
+    return reg_call(psi);
+#endif
   }
 
 private:
@@ -56,20 +60,20 @@ private:
   }
 
   template <typename T>
-  auto reg_call(T const &psi) const {
+  __host__ __device__ auto reg_call(T const &psi) const {
     if (version() == COSINE) {
       auto s = alpha() * (psi - psi_0());
       if (abs(s) >= M_PI) {
-        return std::make_tuple((T)0, (T)0);
+        return vect::tuple<T, T>((T)0, (T)0);
       } else {
         auto val = (real)0.5f * cos(s) + (real)0.5f;
         auto deriv = -(real)0.5f * alpha() * sin(s);
-        return std::make_tuple(val, deriv);
+        return vect::tuple<T, T>(val, deriv);
       }
     } else if (version() == ALGEBRAIC) {
       auto t = alpha() * (psi - psi_0()) * (real)M_1_PI, a = abs(t);
       if (a >= M_PI) {
-        return std::make_tuple((T)0, (T)0);
+        return vect::tuple<T, T>((T)0, (T)0);
       } else {
         auto x = (real)2 * a * (a - (real)1);
         auto val = (real)1.0 - (a * a) / (x + (real)1);
@@ -77,10 +81,10 @@ private:
         auto dval_dpsi = alpha() * (real)M_1_PI * dval_da;
         if (t < (real)0)
           dval_dpsi = -dval_dpsi;
-        return std::make_tuple(val, dval_dpsi);
+        return vect::tuple<T, T>(val, dval_dpsi);
       }
     } else {
-      return std::make_tuple((T)0, (T)0);
+      return vect::tuple<T, T>((T)0, (T)0);
     }
   }
 };
@@ -90,6 +94,6 @@ public:
   INST(lambda, FIELD(real, psi_0), FIELD(real, alpha),
        FIELD(lambda_version, version))
 
-  lambda() : lambda((real)0, (real)0, COSINE){};
+  __host__ __device__ lambda() : lambda((real)0, (real)0, COSINE){};
 };
 } // namespace cg::pid

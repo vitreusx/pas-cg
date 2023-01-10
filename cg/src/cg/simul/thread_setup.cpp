@@ -27,6 +27,7 @@ thread::thread(thread_team &team) {
 
 void thread::init_kernels() {
   setup_gen();
+  setup_model();
   setup_dyn();
   setup_output();
   setup_langevin();
@@ -51,12 +52,10 @@ void thread::init_kernels() {
       {(divisible *)&eval_lrep_forces, &st->lrep_enabled, hint},
       {(divisible *)&eval_nat_cont_forces, &st->nat_cont_enabled, hint},
       {(divisible *)&eval_pauli_forces, &st->pauli_enabled, hint},
-      {(divisible *)&eval_const_dh_forces, &st->dh_enabled, hint},
-      {(divisible *)&eval_rel_dh_forces, &st->dh_enabled, hint},
+      {(divisible *)&eval_rel_dh_forces, &st->rel_dh_enabled, hint},
       {(divisible *)&qa_loop_over_candidates, &st->qa_enabled, hint},
       {(divisible *)&process_qa_contacts, &st->qa_enabled, hint},
       //      {(divisible *)&eval_pid_forces, &st->pid_enabled, hint},
-      {(divisible *)&eval_pid_fast, &st->pid_enabled, hint},
       {(divisible *)&eval_nat_ang_forces, &st->nat_ang_enabled, hint},
       {(divisible *)&eval_heur_ang_forces, &st->heur_ang_enabled, hint},
       {(divisible *)&eval_heur_dih_forces, &st->heur_dih_enabled, hint},
@@ -70,6 +69,16 @@ void thread::init_kernels() {
       {(divisible *)&eval_vel_afm_forces, &st->afm_enabled, hint},
       {(divisible *)&eval_force_afm_forces, &st->afm_enabled, hint},
   };
+
+  if (!use_gpu) {
+    eval_divs.divs.insert(
+        eval_divs.divs.end(),
+        {
+            {(divisible *)&eval_pid_fast, &st->pid_enabled, hint},
+            {(divisible *)&eval_const_dh_forces, &st->const_dh_enabled, hint},
+        });
+  }
+
   eval_divs.update();
 }
 
@@ -81,6 +90,21 @@ void thread::setup_gen() {
   if (params->gen.fp_exceptions) {
     feclearexcept(FE_ALL_EXCEPT);
     feenableexcept(FE_INVALID | FE_DIVBYZERO);
+  }
+
+  use_gpu = params->gen.use_gpu;
+  int num_devices;
+  if (cudaGetDeviceCount(&num_devices) != cudaSuccess)
+    use_gpu = false;
+  use_gpu &= (num_devices > 0);
+}
+
+void thread::setup_model() {
+  if (use_gpu) {
+    cu_st.r.pull_from(st->r);
+    cu_st.prev.pull_from(st->prev);
+    cu_st.next.pull_from(st->next);
+    cu_st.atype.pull_from(st->atype);
   }
 }
 
@@ -117,6 +141,11 @@ void thread::setup_dyn() {
 
 #pragma omp critical
   team->forces.push_back(dyn.F);
+
+  if (use_gpu) {
+    cu_st.F.pull_from(st->dyn.F);
+    cu_st.staging.F = st->dyn.F;
+  }
 }
 
 void thread::setup_output() {
@@ -441,7 +470,7 @@ void thread::setup_nat_cont() {
 }
 
 void thread::setup_dh() {
-  if (st->dh_enabled) {
+  if (st->const_dh_enabled || st->rel_dh_enabled) {
     auto &nl = st->long_range_nl;
     auto cutoff = params->dh.cutoff;
 
@@ -456,8 +485,7 @@ void thread::setup_dh() {
       update.q[(uint8_t)aa] = st->comp_aa_data.charge[(uint8_t)aa];
     }
 
-    auto dh_var = params->dh.variant;
-    if (dh_var == "constant") {
+    if (st->const_dh_enabled) {
       auto &eval = eval_const_dh_forces;
       eval.set_V_factor(params->dh.const_dh.permittivity);
       eval.screen_dist_inv = 1.0 / params->dh.screening_dist;
@@ -467,7 +495,19 @@ void thread::setup_dh() {
       eval.V = &dyn.V;
       eval.F = dyn.F;
       eval.cutoff = cutoff;
-    } else if (dh_var == "relative") {
+
+      if (use_gpu) {
+        auto &eval_cu = eval_const_dh_forces_cuda;
+        eval_cu.set_V_factor(params->dh.const_dh.permittivity);
+        eval_cu.simul_box = *eval.simul_box;
+        eval_cu.cutoff = eval.cutoff;
+        eval_cu.F = cu_st.F;
+        eval_cu.V = cu_st.V.get();
+        eval_cu.screen_dist_inv = eval.screen_dist_inv;
+        eval_cu.es_pairs = cu_st.es_pairs;
+        eval_cu.r = cu_st.r;
+      }
+    } else if (st->rel_dh_enabled) {
       auto &eval = eval_rel_dh_forces;
       eval.set_V_factor(params->dh.rel_dh.perm_factor);
       eval.screen_dist_inv = 1.0 / params->dh.screening_dist;
@@ -769,6 +809,25 @@ void thread::setup_pid() {
     eval.F = dyn.F;
 
     eval_pid_fast = eval.fast_version();
+
+    auto &eval_cu = eval_pid_forces_cuda;
+    if (use_gpu) {
+      eval_cu.F = cu_st.F;
+      eval_cu.V = cu_st.V.get();
+      eval_cu.cutoff = eval.cutoff;
+      eval_cu.simul_box = *eval.simul_box;
+      eval_cu.bundles = cu_st.bundles;
+      eval_cu.atype = cu_st.atype;
+      eval_cu.prev = cu_st.prev;
+      eval_cu.next = cu_st.next;
+      eval_cu.ss_lam = eval.ss_lam;
+      cu_st.pid_ss_ljs.pull_from(eval.ss_ljs);
+      eval_cu.ss_ljs = cu_st.pid_ss_ljs;
+      eval_cu.bb_plus_lam = eval.bb_plus_lam;
+      eval_cu.bb_plus_lj = eval.bb_plus_lj;
+      eval_cu.bb_minus_lam = eval.bb_minus_lam;
+      eval_cu.bb_minus_lj = eval.bb_minus_lj;
+    }
 
     auto &update = update_pid_bundles;
     update.r = st->r;

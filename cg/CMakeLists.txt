@@ -38,6 +38,10 @@ target_sources(cg
 target_compile_features(cg
     PUBLIC cxx_std_17)
 
+set_target_properties(cg
+    PROPERTIES
+    CUDA_ARCHITECTURES "60;61;62;70;72;75;80;86;87;89;90")
+
 target_include_directories(cg
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -45,12 +49,6 @@ target_include_directories(cg
     PRIVATE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include/cg>)
-
-target_compile_definitions(cg
-    PRIVATE
-    LEGACY_MODE=$<BOOL:${LEGACY_MODE}>;
-    $<$<NOT:$<CONFIG:Debug>>:NDEBUG>;
-    MIXED_PRECISION=$<BOOL:${MIXED_PRECISION}>;)
 
 add_subdirectory(ext/cparse EXCLUDE_FROM_ALL)
 add_subdirectory(ext/boost EXCLUDE_FROM_ALL)
@@ -67,16 +65,25 @@ if (NOT "${Eigen3_FOUND}")
 endif ()
 
 find_package(OpenMP REQUIRED)
-target_link_libraries(cg PRIVATE OpenMP::OpenMP_CXX)
+find_package(CUDAToolkit REQUIRED)
+target_link_libraries(cg PRIVATE OpenMP::OpenMP_CXX CUDA::toolkit)
 
 target_link_libraries(cg
     PUBLIC vcl yaml-cpp cparse Boost_ Eigen3::Eigen)
 
+target_compile_definitions(cg
+    PRIVATE
+    LEGACY_MODE=$<BOOL:${LEGACY_MODE}>;
+    $<$<NOT:$<CONFIG:Debug>>:NDEBUG>;
+    MIXED_PRECISION=$<BOOL:${MIXED_PRECISION}>;
+    EIGEN_NO_CUDA;)
+
 target_compile_options(cg
     PUBLIC
-    -Wall;-Wextra;-Wpedantic;-Wno-unused-parameter;-Wno-c99-extensions;
-    $<$<CONFIG:Release,Staging>:-Ofast;-march=native>;
-    $<$<CONFIG:Debug,Staging>:-gdwarf-4>;)
+    $<$<COMPILE_LANGUAGE:CXX>:-Wall;-Wextra;-Wpedantic;-Wno-unused-parameter;-Wno-c99-extensions>;
+    $<$<COMPILE_LANGUAGE:CUDA>:-Wno-deprecated-gpu-targets;--Wno-deprecated-declarations;--expt-relaxed-constexpr>;
+    $<$<CONFIG:Debug,Staging>:$<$<COMPILE_LANGUAGE:CXX>:-gdwarf-4>;$<$<COMPILE_LANGUAGE:CUDA>:-g>>;
+    $<$<CONFIG:Release,Staging>:$<$<COMPILE_LANGUAGE:CXX>:-Ofast;-march=native>;$<$<COMPILE_LANGUAGE:CUDA>:-O3>>;)
 
 set_target_properties(cg
     PROPERTIES

@@ -10,8 +10,6 @@ size_t hash<cg::amino_acid>::operator()(const cg::amino_acid &aa) const {
 
 namespace cg {
 
-amino_acid::amino_acid(const aa_code &code) : code{code} {}
-
 amino_acid::amino_acid(char letter) {
   static const std::unordered_map<char, aa_code> letter_to_code = {
       {'A', aa_code::ALA}, {'R', aa_code::ARG}, {'N', aa_code::ASN},

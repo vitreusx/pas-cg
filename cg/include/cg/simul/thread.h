@@ -1,4 +1,5 @@
 #pragma once
+#include "cuda_state.h"
 #include "kernels.h"
 #include "state.h"
 
@@ -71,11 +72,15 @@ public:
   state *st;
   parameters const *params;
 
+  bool use_gpu;
+  cuda_state cu_st;
   set_of_divisibles eval_divs;
 
 public:
   rand::nr_rand gen;
   void setup_gen();
+
+  void setup_model();
 
   dynamics dyn;
   dynamics::v4_priv dyn_v4_priv_;
@@ -128,6 +133,7 @@ public:
 
   dh::update_pairs update_dh_pairs;
   const_dh::eval_forces eval_const_dh_forces;
+  const_dh::eval_forces_cuda eval_const_dh_forces_cuda;
   rel_dh::eval_forces eval_rel_dh_forces;
   void setup_dh();
 
@@ -143,6 +149,7 @@ public:
 
   pid::eval_forces eval_pid_forces;
   pid::eval_forces::fast_version_t eval_pid_fast;
+  pid::eval_forces_cuda eval_pid_forces_cuda;
   pid::update_bundles update_pid_bundles;
   void setup_pid();
 

@@ -526,8 +526,10 @@ void state::setup_nat_cont() {
 }
 
 void state::setup_dh() {
-  dh_enabled = params.dh.enabled;
+  const_dh_enabled = params.dh.enabled && (params.dh.variant == "constant");
+  rel_dh_enabled = params.dh.enabled && (params.dh.variant == "relative");
 
+  auto dh_enabled = const_dh_enabled || rel_dh_enabled;
   if (dh_enabled) {
     long_range_nl.required = true;
     long_range_nl.cutoff = params.dh.cutoff;

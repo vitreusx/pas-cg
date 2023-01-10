@@ -18,10 +18,12 @@ void eval_forces::iter(int idx) const {
 
   real V_, dV_dr;
   if (disulfide.has_value() && nat_cont.is_ssbond()) {
-    std::tie(V_, dV_dr) = disulfide.value()(r12_n);
+    auto [dis_V, dis_dV_dr] = disulfide.value()(r12_n);
+    V_ = dis_V, dV_dr = dis_dV_dr;
   } else {
     auto r12_rn = (real)1.0 / r12_n;
-    std::tie(V_, dV_dr) = lj(depth, nat_dist)(r12_rn);
+    auto [lj_V, lj_dV_dr] = lj(depth, nat_dist)(r12_rn);
+    V_ = lj_V, dV_dr = lj_dV_dr;
   }
   dV_dr = clamp(dV_dr, (real)-1e3, (real)1e3);
 

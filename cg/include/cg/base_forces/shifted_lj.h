@@ -12,14 +12,15 @@ public:
 
   shifted_lj() = default;
 
-  inline shifted_lj(real depth, real r_min) : depth{depth}, r_min{r_min} {};
+  __host__ __device__ inline shifted_lj(real depth, real r_min)
+      : depth{depth}, r_min{r_min} {};
 
-  inline auto operator()(real r_inv) const {
+  __host__ __device__ inline auto operator()(real r_inv) const {
     auto s = r_inv * r_min, s6 = ipow<6>(s), s12 = s6 * s6;
     auto V = depth * (s12 - (real)2.0 * s6 + (real)1.0);
     auto dV_dr = (real)12.0 * depth * r_inv * (s6 - s12);
     dV_dr = clamp<real>(dV_dr, -1.0e3, 1.0e3);
-    return std::make_tuple(V, dV_dr);
+    return vect::tuple<real, real>(V, dV_dr);
   }
 
 private:

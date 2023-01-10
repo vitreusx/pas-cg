@@ -11,7 +11,7 @@ struct sink_lj_expr {
   EXPR(depth, r_low, r_high)
 
   template <typename T1, typename T2>
-  auto operator()(T1 r, T2 r_inv) const {
+  __host__ __device__ auto operator()(T1 r, T2 r_inv) const {
     auto r_eff =
         select(r < r_low(), r_low(), select(r < r_high(), r, r_high()));
     auto s = r_inv * r_eff, s6 = ipow<6>(s), s12 = s6 * s6;
@@ -20,10 +20,11 @@ struct sink_lj_expr {
     dV_dr = select((r_low() < r) && (r < r_low()), decltype(dV_dr)(0), dV_dr);
     //    V = clamp<real>(V, (real)-1.0e3, (real)1.0e3);
     //    dV_dr = clamp<real>(dV_dr, (real)-1.0e3, (real)1.0e3);
-    return std::make_tuple(V, dV_dr);
+    using T = decltype(V);
+    return vect::tuple<T, T>(V, dV_dr);
   }
 
-  auto cutoff() const {
+  __host__ __device__ auto cutoff() const {
     return (real)2.0 * r_high();
   }
 };
@@ -32,10 +33,10 @@ class sink_lj : public sink_lj_expr<sink_lj> {
 public:
   INST(sink_lj, FIELD(real, depth), FIELD(real, r_low), FIELD(real, r_high))
 
-  sink_lj() : sink_lj(0.0, 0.0, 0.0){};
+  __host__ __device__ sink_lj() : sink_lj(0.0, 0.0, 0.0){};
 
   template <typename E>
-  explicit sink_lj(lj_expr<E> const &lj)
+  __host__ __device__ explicit sink_lj(lj_expr<E> const &lj)
       : sink_lj(lj.depth(), lj.r_min(), lj.r_min()) {}
 
   static inline auto cutoff_(real r_high) {

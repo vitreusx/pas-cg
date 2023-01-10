@@ -7,13 +7,9 @@
 #define _INST_FIELDS_1(f0) _INST_FIELD_X(f0, NAME_OF(f0))
 #define _INST_FIELD_X(f, x) _INST_FIELD_X2(f, x)
 #define _INST_FIELD_X2(f, x)                                                   \
-  TYPE_OF(f) & x() {                                                           \
-    return _##x;                                                               \
-  }                                                                            \
+  __host__ __device__ TYPE_OF(f) & x() { return _##x; }                        \
                                                                                \
-  TYPE_OF(f) const &x() const {                                                \
-    return _##x;                                                               \
-  }                                                                            \
+  __host__ __device__ TYPE_OF(f) const &x() const { return _##x; }             \
                                                                                \
   TYPE_OF(f) _##x;
 

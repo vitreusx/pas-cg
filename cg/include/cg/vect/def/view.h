@@ -1,10 +1,10 @@
 #pragma once
-#include "../cuda_interop.h"
 #include "const_view.h"
 #include "iterator.h"
 #include "lane_ref.h"
 #include "masked_ref.h"
 #include "sparse_ref.h"
+#include <cuda_runtime_api.h>
 
 namespace nitro::def {
 template <typename T>

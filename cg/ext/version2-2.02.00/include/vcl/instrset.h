@@ -974,6 +974,10 @@ constexpr auto pshufb_mask(int const (&A)[V::size()]) {
                 p = ix * elementsize;
             }
             for (j = 0; j < elementsize; j++) {            // loop through bytes in element
+#ifdef __NVCC__
+              // Suppress nvcc's "warning #68-D: integer conversion resulted in a change of sign"
+#pragma nv_diag_suppress 68
+#endif
                 u.a[k++] = p < 0 ? -1 : p + j;             // store byte permutation index
             }
             m++;
