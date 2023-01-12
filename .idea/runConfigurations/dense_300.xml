@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="dense_300" type="CMakeRunConfiguration" factoryName="Application" folderName="cxx" PROGRAM_PARAMS="-p data/dense_300/inputfile.yml -s &quot;general.num of threads=4&quot;" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="pas-cg" TARGET_NAME="cg" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="pas-cg" RUN_TARGET_NAME="cg">
+    <method v="2">
+      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+    </method>
+  </configuration>
+</component>

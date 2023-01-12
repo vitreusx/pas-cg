@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="example2" type="CMakeRunConfiguration" factoryName="Application" folderName="fort" PROGRAM_PARAMS="inputfile2" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$CMakeCurrentBuildDir$/data/example2" PASS_PARENT_ENVS_2="true" PROJECT_NAME="pas-cg" TARGET_NAME="cg_pho5" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="pas-cg" RUN_TARGET_NAME="cg_pho5">
+    <method v="2">
+      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+    </method>
+  </configuration>
+</component>
