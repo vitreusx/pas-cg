@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="1xq8-mix" type="CMakeRunConfiguration" factoryName="Application" folderName="cxx" PROGRAM_PARAMS="-p data/1xq8-v2/new.yml" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="pas-cg" TARGET_NAME="cg" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="pas-cg" RUN_TARGET_NAME="cg">
+    <method v="2">
+      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+    </method>
+  </configuration>
+</component>

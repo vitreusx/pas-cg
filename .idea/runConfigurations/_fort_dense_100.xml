@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="[fort]dense_100" type="CMakeRunConfiguration" factoryName="Application" folderName="fort" PROGRAM_PARAMS="inputfile" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" WORKING_DIR="file://$CMakeCurrentBuildDir$/data/dense_100" PASS_PARENT_ENVS_2="true" PROJECT_NAME="pas-cg" TARGET_NAME="cg_pho6" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="pas-cg" RUN_TARGET_NAME="cg_pho6">
+    <method v="2">
+      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+    </method>
+  </configuration>
+</component>
